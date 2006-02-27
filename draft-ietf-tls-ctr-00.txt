@@ -3,9 +3,9 @@
 
 Network Working Group                                        N. Modadugu
 Internet-Draft                                       Stanford University
-Expires: April 19, 2006                                      E. Rescorla
+Expires: August 30, 2006                                     E. Rescorla
                                                        Network Resonance
-                                                        October 16, 2005
+                                                       February 26, 2006
 
 
             AES Counter Mode Cipher Suites for TLS and DTLS
@@ -34,11 +34,11 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on April 19, 2006.
+   This Internet-Draft will expire on August 30, 2006.
 
 Copyright Notice
 
-   Copyright (C) The Internet Society (2005).
+   Copyright (C) The Internet Society (2006).
 
 Abstract
 
@@ -52,9 +52,9 @@ Abstract
 
 
 
-Modadugu & Rescorla      Expires April 19, 2006                 [Page 1]
+Modadugu & Rescorla      Expires August 30, 2006                [Page 1]
 
-Internet-Draft              TLS/DTLS AES-CTR                October 2005
+Internet-Draft              TLS/DTLS AES-CTR               February 2006
 
 
 Table of Contents
@@ -108,9 +108,9 @@ Table of Contents
 
 
 
-Modadugu & Rescorla      Expires April 19, 2006                 [Page 2]
+Modadugu & Rescorla      Expires August 30, 2006                [Page 2]
 
-Internet-Draft              TLS/DTLS AES-CTR                October 2005
+Internet-Draft              TLS/DTLS AES-CTR               February 2006
 
 
 1.  Introduction
@@ -164,9 +164,9 @@ Internet-Draft              TLS/DTLS AES-CTR                October 2005
 
 
 
-Modadugu & Rescorla      Expires April 19, 2006                 [Page 3]
+Modadugu & Rescorla      Expires August 30, 2006                [Page 3]
 
-Internet-Draft              TLS/DTLS AES-CTR                October 2005
+Internet-Draft              TLS/DTLS AES-CTR               February 2006
 
 
 3.  Encrypting Records with AES Counter Mode
@@ -220,9 +220,9 @@ Internet-Draft              TLS/DTLS AES-CTR                October 2005
 
 
 
-Modadugu & Rescorla      Expires April 19, 2006                 [Page 4]
+Modadugu & Rescorla      Expires August 30, 2006                [Page 4]
 
-Internet-Draft              TLS/DTLS AES-CTR                October 2005
+Internet-Draft              TLS/DTLS AES-CTR               February 2006
 
 
    function as the block counter.  The least significant bit of the
@@ -276,9 +276,9 @@ Internet-Draft              TLS/DTLS AES-CTR                October 2005
 
 
 
-Modadugu & Rescorla      Expires April 19, 2006                 [Page 5]
+Modadugu & Rescorla      Expires August 30, 2006                [Page 5]
 
-Internet-Draft              TLS/DTLS AES-CTR                October 2005
+Internet-Draft              TLS/DTLS AES-CTR               February 2006
 
 
    For TLS, no part of the counter block need be transmitted, since the
@@ -332,9 +332,9 @@ Internet-Draft              TLS/DTLS AES-CTR                October 2005
 
 
 
-Modadugu & Rescorla      Expires April 19, 2006                 [Page 6]
+Modadugu & Rescorla      Expires August 30, 2006                [Page 6]
 
-Internet-Draft              TLS/DTLS AES-CTR                October 2005
+Internet-Draft              TLS/DTLS AES-CTR               February 2006
 
 
    uniqueness.
@@ -388,9 +388,9 @@ Internet-Draft              TLS/DTLS AES-CTR                October 2005
 
 
 
-Modadugu & Rescorla      Expires April 19, 2006                 [Page 7]
+Modadugu & Rescorla      Expires August 30, 2006                [Page 7]
 
-Internet-Draft              TLS/DTLS AES-CTR                October 2005
+Internet-Draft              TLS/DTLS AES-CTR               February 2006
 
 
 Authors' Addresses
@@ -444,9 +444,9 @@ Authors' Addresses
 
 
 
-Modadugu & Rescorla      Expires April 19, 2006                 [Page 8]
+Modadugu & Rescorla      Expires August 30, 2006                [Page 8]
 
-Internet-Draft              TLS/DTLS AES-CTR                October 2005
+Internet-Draft              TLS/DTLS AES-CTR               February 2006
 
 
 Intellectual Property Statement
@@ -487,7 +487,7 @@ Disclaimer of Validity
 
 Copyright Statement
 
-   Copyright (C) The Internet Society (2005).  This document is subject
+   Copyright (C) The Internet Society (2006).  This document is subject
    to the rights, licenses and restrictions contained in BCP 78, and
    except as set forth therein, the authors retain all their rights.
 
@@ -500,5 +500,5 @@ Acknowledgment
 
 
 
-Modadugu & Rescorla      Expires April 19, 2006                 [Page 9]
+Modadugu & Rescorla      Expires August 30, 2006                [Page 9]
 
