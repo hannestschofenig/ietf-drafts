@@ -3,9 +3,9 @@
 
 Network Working Group                                          J. Fischl
 Internet-Draft                               CounterPath Solutions, Inc.
-Expires: August 30, 2006                                   H. Tschofenig
+Expires: August 5, 2006                                    H. Tschofenig
                                                                  Siemens
-                                                       February 26, 2006
+                                                           February 2006
 
 
   Session Description Protocol (SDP) Indicators for Datagram Transport
@@ -35,7 +35,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on August 30, 2006.
+   This Internet-Draft will expire on August 5, 2006.
 
 Copyright Notice
 
@@ -52,7 +52,7 @@ Abstract
 
 
 
-Fischl & Tschofenig      Expires August 30, 2006                [Page 1]
+Fischl & Tschofenig      Expires August 5, 2006                 [Page 1]
 
 Internet-Draft                SDP for DTLS                 February 2006
 
@@ -108,7 +108,7 @@ Table of Contents
 
 
 
-Fischl & Tschofenig      Expires August 30, 2006                [Page 2]
+Fischl & Tschofenig      Expires August 5, 2006                 [Page 2]
 
 Internet-Draft                SDP for DTLS                 February 2006
 
@@ -164,7 +164,7 @@ Internet-Draft                SDP for DTLS                 February 2006
 
 
 
-Fischl & Tschofenig      Expires August 30, 2006                [Page 3]
+Fischl & Tschofenig      Expires August 5, 2006                 [Page 3]
 
 Internet-Draft                SDP for DTLS                 February 2006
 
@@ -220,7 +220,7 @@ Internet-Draft                SDP for DTLS                 February 2006
 
 
 
-Fischl & Tschofenig      Expires August 30, 2006                [Page 4]
+Fischl & Tschofenig      Expires August 5, 2006                 [Page 4]
 
 Internet-Draft                SDP for DTLS                 February 2006
 
@@ -276,7 +276,7 @@ Internet-Draft                SDP for DTLS                 February 2006
 
 
 
-Fischl & Tschofenig      Expires August 30, 2006                [Page 5]
+Fischl & Tschofenig      Expires August 5, 2006                 [Page 5]
 
 Internet-Draft                SDP for DTLS                 February 2006
 
@@ -297,8 +297,8 @@ Internet-Draft                SDP for DTLS                 February 2006
 
    [9]   Lennox, J., "Connection-Oriented Media Transport over the
          Transport Layer Security (TLS)  Protocol in the Session
-         Description Protocol (SDP)", draft-ietf-mmusic-comedia-tls-05
-         (work in progress), September 2005.
+         Description Protocol (SDP)", draft-ietf-mmusic-comedia-tls-06
+         (work in progress), March 2006.
 
    [10]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
          Security", draft-rescorla-dtls-05 (work in progress),
@@ -332,7 +332,7 @@ Internet-Draft                SDP for DTLS                 February 2006
 
 
 
-Fischl & Tschofenig      Expires August 30, 2006                [Page 6]
+Fischl & Tschofenig      Expires August 5, 2006                 [Page 6]
 
 Internet-Draft                SDP for DTLS                 February 2006
 
@@ -388,7 +388,7 @@ Authors' Addresses
 
 
 
-Fischl & Tschofenig      Expires August 30, 2006                [Page 7]
+Fischl & Tschofenig      Expires August 5, 2006                 [Page 7]
 
 Internet-Draft                SDP for DTLS                 February 2006
 
@@ -444,5 +444,5 @@ Acknowledgment
 
 
 
-Fischl & Tschofenig      Expires August 30, 2006                [Page 8]
+Fischl & Tschofenig      Expires August 5, 2006                 [Page 8]
 

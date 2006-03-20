@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY I-D.ietf-tls-rfc2246-bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc2246-bis.xml">
+<!ENTITY I-D.ietf-tls-rfc3546bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc3546bis.xml">
+<!ENTITY I-D.rescorla-dtls SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.rescorla-dtls.xml">
+<!ENTITY I-D.fischl-sipping-media-dtls SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.fischl-sipping-media-dtls.xml">
+<!ENTITY I-D.fischl-mmusic-sdp-dtls SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.fischl-mmusic-sdp-dtls.xml">
+
+<!ENTITY rfc1889 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1889.xml">
+<!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY rfc2327 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2327.xml">
+<!ENTITY rfc2508 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2508.xml">
+<!ENTITY rfc2833 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2833.xml">
+<!ENTITY rfc3095 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3095.xml">
+<!ENTITY rfc3261 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3261.xml">
+<!ENTITY rfc3280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3280.xml">
+<!ENTITY rfc3545 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3545.xml">
+<!ENTITY rfc3550 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3550.xml">
+<!ENTITY rfc3711 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
+]>
+<!-- $Id -->
+<?rfc inline="yes"?>
+<?rfc toc="yes" ?>
+<?rfc symrefs="no" ?>
+<?rfc iprnotified="no" ?>
+<?rfc strict="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc sortrefs="no" ?>
+<?rfc colonspace='yes' ?>
+<rfc category="std" docName="draft-mcgrew-tls-srtp-00.txt" 
+     ipr="full3978"> 
+  <front> 
+    <title abbrev="SRTP Extension for DTLS">Secure Real-time Transport
+    Protocol (SRTP) Extensions for Datagram Transport Layer Security
+    (DTLS)</title>
+
+    <author fullname="David McGrew" initials="D." surname="McGrew">  
+      <organization>Cisco Systems</organization> 
+      <address> 
+        <postal> 
+	<street>510 McCarthy Blvd.</street>
+          <city>Milpitas</city>
+          <region>CA</region>
+          <code>95305</code>
+          <country>USA</country>
+        </postal>
+        <email>mcgrew@cisco.com</email>
+      </address>
+    </author>
+
+    <author fullname="Eric Rescorla" initials="E." surname="Rescorla">
+      <organization>Network Resonance</organization>
+      <address>
+        <postal>
+          <street>2483 E. Bayshore #212</street>
+          <city>Palo Alto</city>
+          <region>CA</region>
+          <code>94303</code>
+          <country>USA</country>
+        </postal>
+        <email>ekr@networkresonance.com</email>
+      </address>
+    </author>
+    <date day="20" month="March" year="2006" />
+
+    <abstract>
+      <t>Secure Real-time Transport Protocol (SRTP) is a profile of
+      the Real-time Transport Protocol which can provide
+      confidentiality, message authentication, and replay protection
+      to the RTP traffic and to the control traffic for RTP, the
+      Real-time Transport Control Protocol (RTCP). This document
+      describes a method of using DTLS key management for SRTP by
+      creating a new extension which indicates that SRTP is to
+      be used for data encryption.
+   </t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+    <t>
+    Secure Real-time Transport Protocol (SRTP) <xref target="RFC3711"/>
+    is a profile of the
+    Real-time Transport Protocol (RTP) <xref target="RFC1889"/> which can provide
+    confidentiality, message authentication, and replay protection to
+    RTP
+    traffic and to the control traffic for RTP, the Real-time
+    Transport Control Protocol (RTCP). SRTP does not provide key
+    management functionality but instead depends on external key
+    management.
+    </t>
+    <t>
+    Datagram Transport Layer Security (DTLS) <xref target="I-D.rescorla-dtls"/>
+    is a channel security protocol that offers integrated key management,
+    parameter negotiation, and secure data transfer. Because DTLS's
+    data transfer protocol is generic, it is less highly optimized
+    for use with RTP than is SRTP, which has been specifically tuned
+    for that purpose. This document describes an SRTP extension
+    for DTLS which combine the the performance and encryption flexibility
+    benefits of SRTP 
+    with the flexibility and convenience of DTLS's integrated key
+    and association management. This extension MUST only be used
+    when the data being transported is RTP and RTCP <xref target="RFC3550"></xref>.
+    </t>
+    <t>
+   The key points of our approach are as follows:
+   <list style="symbols">
+   <t>New mode negotiated via DTLS extension mechanism.</t>
+   <t>Application data is protected using SRTP.</t>
+   <t>Other content types are protected using the usual DTLS record
+      format.</t>
+   <t>The DTLS handshake is used to establish keying material and
+   algorithm parameters for SRTP.</t>
+   <t>The DTLS pseudo-random function (PRF) is used to generate the SRTP traffic encryption keys.</t>
+   <t>The DTLS handshake is used to negotiate the algorithms.</t>
+   </list>
+   The next section provides details of the new extension.
+   </t>
+   </section>
+    <section title="Conventions Used In This Document">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+      document are to be interpreted as described in <xref
+      target="RFC2119"></xref>.</t>
+    </section>
+
+   <section title="Protocol Description">
+   <t>
+   In this section we provide a description of the new protocol
+   elements introduced by this proposal.
+   </t>
+   <section title="Usage Model">
+   <t>
+   Our general model is to have a single DTLS association (called
+   a "connection" in TLS jargon) for each media channel 
+   (pair of unidirectional SRTP flows).
+   [TODO: is this the right terminology?]
+   A description of how to indicate this in SIP and SDP 
+   and authenticate
+   the endpoints using fingerprints can be found in 
+   <xref target="I-D.fischl-mmusic-sdp-dtls"/> and
+   <xref target="I-D.fischl-sipping-media-dtls"/>.
+   </t>
+   <t>
+   In a naive implementation, this results in new DTLS session
+   establishment (complete with public key cryptography) for
+   each media channel. 
+   A superior approach is to establish single DTLS connection
+   in order to create the DTLS session and then use DTLS session
+   resumption to establish DTLS connections for any additional
+   media channels. This allows the amortization of the expensive
+   public key cryptography operations over multiple handshakes.
+   </t>
+   <t>
+   One issue that arises in this context is multiple RTP sender
+   over the same DTLS channel. In order to avoid the "two-time pad"
+   problem, each sender over the same DTLS association MUST
+   use a distinct SSRC value, as described in Section 9.1 of RFC 3711.
+   </t>
+   </section>
+   <section title="Extension Definition">
+   <t>
+   [TODO: When we discussed this we had discussed using 
+   a new cipher suite. However, after thinking about it a
+   bit, I concluded an extension was cleaner (and at least
+   less text for me to write.) If you feel differently, let
+   me know and we can totally do it the other way.]
+   </t>
+   <t>
+   In order to negotiate the use of SRTP data protection,
+   clients MAY include an extension of type "use_srtp" in
+   the extended client hello. The "extension_data" field of this
+   extension shall be empty.
+   </t>
+   <t>
+   Servers that receive an extended hello containing a "use_srtp"
+   extension, MAY agree to use SRTP by including an 
+   extension of type "use_srtp", with empty "extension_data", in
+   the extended server hello. This process is shown below.
+   </t>
+<figure>
+<artwork>	
+      Client                                               Server
+
+      ClientHello + use_srtp       --------&gt;
+                                           ServerHello + use_srtp
+                                                     Certificate*
+                                               ServerKeyExchange*
+                                              CertificateRequest*
+                                   &lt;--------      ServerHelloDone
+      Certificate*
+      ClientKeyExchange
+      CertificateVerify*
+      [ChangeCipherSpec]
+      Finished                     --------&gt;
+                                               [ChangeCipherSpec]
+                                   &lt;--------             Finished
+      SRTP packets                 &lt;-------&gt;         SRTP packets
+</artwork>
+</figure>
+   <t>
+   Once the "use_srtp" extension is negotiated, packets 
+   of type "application_data" in
+   the newly negotiated association (i.e., after the change_cipher_spec)
+   SHOULD be protected using SRTP. [TODO: Note that you actually can 
+   in theory intermix DTLS "application_data" traffic as well. Is there any
+   value here?]
+   Records of type other than
+   "application_data" MUST use ordinary DTLS framing. When the "use_srtp"
+   extension is in effect, implementations MUST NOT place more than
+   one "record" per datagram. (This is only meaningful from the
+   perspective of DTLS because SRTP is inherently oriented towards
+   one payload per packet, but is stated purely for clarification.)
+   </t>
+   <t>
+   The SRTP cipher and MAC algorithm used correspond directly to
+   those in the negotiated DTLS cipher suite with the following exception:
+   DTLS cipher suites which are block ciphers in CBC mode are
+   used in CTR mode with SRTP (but still in CBC mode with DTLS
+   records). DTLS only defines block ciphers so there is no concern
+   about the use of stream ciphers.
+   </t>
+   <t>
+   [TODO: Note that this precludes the use of F8 mode. I don't have
+   a good sense of whether this is important or not. This is obviously
+   a drawback of this extension approach. We could have the extension
+   above indicate the block cipher mode (CTR or F8) if that's 
+   important to preserve.]
+   </t>
+   </section>
+   <section title="Key Derivation">
+   <t>
+   When SRTP mode is in effect, different keys are used for 
+   ordinary DTLS record protection and SRTP record protection.
+   These keys are generated as additional keying material at
+   the end of the DTLS key block. Thus, the key block becomes:
+   </t>
+   <figure>
+   <artwork>
+     client_write_MAC_secret[SecurityParameters.hash_size]    
+     server_write_MAC_secret[SecurityParameters.hash_size]    
+     client_write_key[SecurityParameters.key_material_length] 
+     server_write_key[SecurityParameters.key_material_length] 
+     srtp_client_write_MAC_secret[SecurityParameters.hash_size]    
+     srtp_server_write_MAC_secret[SecurityParameters.hash_size]    
+     srtp_client_write_key[SecurityParameters.key_material_length] 
+     srtp_server_write_key[SecurityParameters.key_material_length] 
+     srtp_client_write_salt_secret[SecurityParameters.salt_size]    
+     srtp_server_write_salt_secret[SecurityParameters.salt_size]    
+   </artwork>
+   </figure>
+   <t>
+   [TODO: I think we can just use the same key sizes for the 
+   algorithms as does DTLS. Is there a problem here I missed?]
+   </t>
+   <t>
+   The last six values are mapped directly onto the SRTP values
+   for each transform. The following table shows the mapping
+   in the client to server direction:
+   </t>
+      <texttable>
+        <ttcol align="left">DTLS Value</ttcol>
+        <ttcol align="right">SRTP Value</ttcol>
+
+	<c>srtp_client_write_MAC_secret</c>
+	<c>k_a</c>
+	
+	<c>srtp_client_write_key</c>
+	<c>k_e</c>
+
+	<c>srtp_client_write_salt</c>
+	<c>k_s</c>
+      </texttable>
+   <t>
+   Because we generate the SRTP keys directly, 
+   the SRTP key derivation mechanism described in Section 4.3 
+   of <xref target="RFC3711"/> is not used. 
+   </t>
+   </section>
+   <section title="Key Usage Limitations">
+   <t>
+   [TODO: David McGrew]
+   </t>
+   </section>
+   <section title="Data Protection">
+   <t>
+   Once the DTLS handshake has completed the peers can send
+   RTP and RTCP over the newly created channel. We describe
+   the transmission process first followed by the reception
+   process.
+   </t>
+   <section title="Transmission" anchor="section.transmit">
+   <t>
+   DTLS and TLS define a number of record content types. In
+   ordinary TLS/DTLS, all data is protected using the same 
+   record encoding and mechanisms. When the mechanism described
+   in this document is in effect, this is modified so that 
+   data of type "application_data" (used to transport data traffic)
+   is encrypted using SRTP rather than the standard TLS record encoding.
+   </t>
+   <t>
+   When a user of DTLS wishes to send an RTP packet in SRTP mode
+   it delivers it to the DTLS implementation as a single write
+   of type "application_data". The DTLS implementation then 
+   invokes the processing described in RFC 3711 Sections 3
+   and 4. The resulting SRTP packet is then sent directly on
+   the wire as a single datagram with no DTLS framing. This
+   provides the same bits on the wire representation as SRTP for the data.
+   Note that the RTP sequence number rather than the 
+   DTLS sequence number is used for these packets.
+   </t> 
+   <t>
+   [TODO: How fixed is the SRTP MAC? Could we include the DTLS 
+   record header in the MAC somehow just to make absolutely sure
+   that we know the content type? That seems like it would be 
+   nice from a security perspective for maximal ambiguity, even
+   though the different keys thing does provide a fair amount 
+   of insulation.]
+   </t>
+   </section>
+   <section title="Reception">
+   <t>
+   In ordinary DTLS, the receiver can unambiguously determine
+   the type of the record from the DTLS record header. However
+   when SRTP and DTLS data is mixed over the same channel,
+   the recipient must first determine which decryption
+   mechanism to use. This can be done unambiguously using the
+   following procedure.
+   <list style="numbers">
+   <t>Assume that the datagram is a DTLS record.</t>
+   <t>If the first byte does not match a known DTLS content type go to step 6.</t>
+   <t>If the version field does not match the current version go to step 6.</t>
+   <t>If the length does not match the rest of the record, go to step 6.</t>
+   <t>Attempt to decrypt and verify the DTLS record--omitting
+   the replay check. If this process succeeds, the record must
+   be DTLS. Deliver it to the rest of the DTLS implementation.</t>
+   <t>Assume that the datagram is an SRTP packet and follow
+   the procedure of Section 3 of RFC 3711. Note that the 
+   replay detection check specified in DTLS SHOULD NOT be done for these packets. If anti-replay is desired SRTP anti-replay mechanisms SHOULD be used.
+</t>
+   </list>
+   </t><t>
+   The first byte of a
+   DTLS packet is "Type" which can currently have values of 20,21,22, and
+   23 as defined in ContentType declaration in <xref
+   target="I-D.ietf-tls-rfc2246-bis"></xref>. It is reasonable to expect
+   the first byte to remain under 64 and greater than 1. For RTP the
+   first byte has a value that is 196 or above. 
+   Thus, in general, the type check specified in step (2) is sufficient
+   for unambigous interpretation, and checks (3), (4), and (5)
+   are merely fallbacks in case of the unlikely event that
+   the headers do change enough to make this first check less
+   than completely definitive.
+   </t>
+   <t>
+   If this procedure does not result in a successful verification
+   and reception, the datagram SHOULD be silently discarded. 
+   For testing and debugging purposes it MAY be desirable to generate
+   an "invalid_MAC" alert, as specified in Section 4.1.2.1 of
+   <xref target="I-D.rescorla-dtls"/>.
+   </t>
+   </section>
+   </section>
+   <section title="Rehandshake and Re-key" anchor="section.rehandshake">
+   <t>
+   Rekeying in DTLS is accomplished by performing a new handshake
+   over the existing DTLS channel. This handshake can be performed
+   in parallel with data transport, so no interruption of the 
+   data flow is required. Once the handshake is finished, all records,
+   including application_data records, simply switch over to the
+   new keys.
+   </t>
+   <t>
+   Because of packet reordering, data from the previous association
+   can appear on the wire after the handshake has completed. This
+   means that receivers must maintain both sets of keys for some
+   time in order to be able to decrypt and verify older data records. In
+   the ordinary DTLS record layer, this is accomplished by having
+   an "epoch" value in each record that indicates which handshake
+   the record is from. However, no such explicit field is present in SRTP.
+   </t>
+   <t>
+   One approach would be to simply place the DTLS epoch value in
+   the Master Key Identifier, but this would add two bytes to 
+   every packet, which seems undesirable, given that rekeying is
+   an infrequent event. Instead, we propose adapting the 
+   rollover counter management algorithm of Section 3.3.1 of 
+   RFC 3711. When a handshake has just been performed (during
+   the MSL period after the handshake), the implementation
+   SHOULD retain the pre-handshake set of keys. When a new
+   packet arrives, it should try decrypting/authenticating
+   with both sets of keys (using the sequence number to guess
+   which key to try first). If either set succeeds, it should
+   pass on the packet, otherwise it should be rejected.
+   Once the MSL has expired, the previous keys can be discarded.
+   This algorithm is easily extensible to the case where
+   several handshakes happen in close succession, but such
+   practice is NOT RECOMMENDED.
+   </t>
+   </section>
+   </section>		
+   <section anchor="section.sec" title="Security Considerations"> 
+   <t>
+   The use of multiple data protection framings negotiated
+   in the same handshake creates some complexities, which are
+   discussed here.
+   </t>
+   <section title="Security of Negotiation">
+   <t>
+   One concern here is that attackers might be able to implement a
+   bid-down attack forcing the peers to use ordinary DTLS rather than
+   SRTP. However, because the negotiation of this extension is
+   performed in the DTLS handshake, it is protected by the Finished
+   messages. Therefore, any bid-down attack is automatically detected,
+   which reduces this to a denial of service attack--which any attacker who can 
+   control the channel can always mount.
+   </t>
+   </section>
+   <section title="Security of Established Keys">
+   <t>
+   [TODO: David, can you say something about NIST, the PRF, etc...?]
+   </t>
+   </section>
+   <section title="Framing Confusion">
+   <t>
+   Because two different framing formats are used, there is concern
+   that an attacker could convince the receiver to treat an SRTP-framed
+   RTP packet as a DTLS record (e.g., a handshake message) or 
+   vice versa. This attack is prevented by using different keys
+   for MAC verification for each type of data. Therefore, this type
+   of attack reduces to being able to forge a packet with a valid
+   MAC, which violates a basic security invariant of both DTLS
+   and SRTP.
+   </t>
+   <t>
+   As an additional defense against injection into the DTLS handshake
+   channel, the DTLS record type is included in the MAC. Therefore,
+   an SRTP record would be treated as an unknown type and
+   ignored. (See Section 6 of <xref target="I-D.ietf-tls-rfc2246-bis"/>).
+   </t>
+   </section>
+   <section title="Sequence Number Interactions">
+   <t>
+   As described in Section <xref target="section.transmit"/>,
+   the SRTP and DTLS sequence number spaces are distinct. This means
+   that it is not possible to unambiguously order a given DTLS
+   control record with respect to an SRTP packet. In general, this
+   is relevant in two situations: alerts and rehandshake.
+   </t>
+   <section title="Alerts">
+   <t>
+   Because DTLS handshake and change_cipher_spec
+   messages share the same sequence number space as alerts, they
+   can be ordered correctly.
+   Because DTLS alerts are inherently unreliable and SHOULD NOT
+   be generated as a response to data packets, reliable 
+   sequencing between SRTP packets and DTLS alerts is not an
+   important feature. However, implementations which wish 
+   to use DTLS alerts to signal problems with the SRTP encoding
+   SHOULD simply act on alerts as soon as they are received
+   and assume that they refer to the temporally contiguous stream.
+   Such implementations MUST check for alert retransmission and
+   discard retransmitted alerts to 
+   avoid overreacting to replay attacks.
+   </t>
+   </section>
+   <section title="Rehandshake">
+   <t>
+   Because the rehandshake transition algorithm specified in Section <xref
+   target="section.rehandshake"/> requires trying multiple sets of keys,
+   it slightly weakens the authentication. For instance, if an n-bit
+   MAC is used and k different sets of keys are present, then the MAC
+   is weakened by log_2(k) bits to n - log_2(k). In practice, since
+   the number of keys used will be very small and the MACs in use
+   are typically strong (the default for SRTP is 80 bits) the decrease
+   in security involved here is minimal.
+   </t>
+   <t>
+   Another concern here is that this algorithm slightly increases
+   the work factor on the receiver because it needs to attempt multiple
+   validations. However, again, the number of potential keys will
+   be very small (and the attacker cannot force it to be larger) and
+   this technique is already used for rollover counter management,
+   so the authors do not consider this to be a serious flaw.
+   </t>
+   </section>
+   </section>
+   </section>
+
+   <section title="IANA Considerations"> 
+      <t>
+      This document a new extension for DTLS, in
+accordance with <xref target="I-D.ietf-tls-rfc3546bis"/>:
+</t>
+<figure><artwork>
+      enum { use_srtp (??) } ExtensionType;
+</artwork></figure>
+<t>
+   [[ NOTE: This value needs to be assigned by IANA ]]
+</t>
+<t>
+This extension MUST only be used with DTLS.
+      </t> 
+   </section>
+
+   <section title="Acknowledgments">
+   <t>
+    Some people.
+   </t>
+   </section>   
+
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      &rfc1889;
+      &rfc2119;
+<!--      &rfc3280; -->
+      &rfc3550;
+      &I-D.rescorla-dtls;
+      &I-D.fischl-sipping-media-dtls;
+      &I-D.fischl-mmusic-sdp-dtls;
+
+    </references>
+
+    <references title="Informational References">
+      &I-D.ietf-tls-rfc2246-bis;
+      &I-D.ietf-tls-rfc3546bis;
+      &rfc3711;
+
+    </references>
+  </back>
+</rfc>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: xml
+sgml-omittag:nil
+sgml-shorttag:nil
+sgml-namecase-general:nil
+sgml-general-insert-case:lower
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:nil
+sgml-parent-document:nil
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->
