@@ -1,11 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html lang="en"><head><title>Secure Real-time Transport
-    Protocol (SRTP) Extensions for Datagram Transport Layer Security
-    (DTLS)</title>
+<html lang="en"><head><title>DTLS key establisihment for SRTP</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="description" content="Secure Real-time Transport
-    Protocol (SRTP) Extensions for Datagram Transport Layer Security
-    (DTLS)">
+<meta name="description" content="DTLS key establisihment for SRTP">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
 <style type='text/css'>
 <!--
@@ -133,9 +129,7 @@
 <tr><td class="header">&nbsp;</td><td class="header">Network Resonance</td></tr>
 <tr><td class="header">&nbsp;</td><td class="header">March 20, 2006</td></tr>
 </table></td></tr></table>
-<div align="right"><span class="title"><br />Secure Real-time Transport
-    Protocol (SRTP) Extensions for Datagram Transport Layer Security
-    (DTLS)</span></div>
+<div align="right"><span class="title"><br />DTLS key establisihment for SRTP</span></div>
 <div align="right"><span class="title"><br />draft-mcgrew-tls-srtp-00.txt</span></div>
 
 <h3>Status of this Memo</h3>
@@ -176,8 +170,8 @@ Copyright &copy; The Internet Society (2006).</p>
       to the RTP traffic and to the control traffic for RTP, the
       Real-time Transport Control Protocol (RTCP). This document
       describes a method of using DTLS key management for SRTP by
-      creating a new extension which indicates that SRTP is to
-      be used for data encryption.
+      using a new extension that indicates that SRTP is to be used for
+      data protection, and which establishes SRTP keys.
    
 </p><a name="toc"></a><br /><hr />
 <h3>Table of Contents</h3>
@@ -199,32 +193,34 @@ SRTP Protection Profiles<br />
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor7">3.3.</a>&nbsp;
 Key Derivation<br />
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor8">3.4.</a>&nbsp;
-Key Usage Limitations<br />
+Key Scope<br />
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor9">3.5.</a>&nbsp;
+Key Usage Limitations<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor10">3.6.</a>&nbsp;
 Data Protection<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#section.transmit">3.5.1.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#section.transmit">3.6.1.</a>&nbsp;
 Transmission<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor10">3.5.2.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor11">3.6.2.</a>&nbsp;
 Reception<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#section.rehandshake">3.6.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#section.rehandshake">3.7.</a>&nbsp;
 Rehandshake and Re-key<br />
 <a href="#section.sec">4.</a>&nbsp;
 Security Considerations<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor11">4.1.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor12">4.1.</a>&nbsp;
 Security of Negotiation<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor12">4.2.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor13">4.2.</a>&nbsp;
 Security of Established Keys<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor13">4.3.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor14">4.3.</a>&nbsp;
 Framing Confusion<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor14">4.4.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor15">4.4.</a>&nbsp;
 Sequence Number Interactions<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor15">4.4.1.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor16">4.4.1.</a>&nbsp;
 Alerts<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor16">4.4.2.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor17">4.4.2.</a>&nbsp;
 Rehandshake<br />
 <a href="#section.iana">5.</a>&nbsp;
 IANA Considerations<br />
-<a href="#anchor17">6.</a>&nbsp;
+<a href="#anchor18">6.</a>&nbsp;
 Acknowledgments<br />
 <a href="#rfc.references1">7.</a>&nbsp;
 References<br />
@@ -244,7 +240,7 @@ Intellectual Property and Copyright Statements<br />
 <a name="rfc.section.1"></a><h3>1.&nbsp;Introduction</h3>
 
 <p>
-    Secure Real-time Transport Protocol (SRTP) <a class="info" href="#RFC3711">[10]<span> (</span><span class="info">Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K. Norrman, &ldquo;The Secure Real-time Transport Protocol (SRTP),&rdquo; March&nbsp;2004.</span><span>)</span></a>
+    Secure Real-time Transport Protocol (SRTP) <a class="info" href="#RFC3711">[11]<span> (</span><span class="info">Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K. Norrman, &ldquo;The Secure Real-time Transport Protocol (SRTP),&rdquo; March&nbsp;2004.</span><span>)</span></a>
     is a profile of the
     Real-time Transport Protocol (RTP) <a class="info" href="#RFC1889">[1]<span> (</span><span class="info">Schulzrinne, H., Casner, S., Frederick, R., and V. Jacobson, &ldquo;RTP: A Transport Protocol for Real-Time Applications,&rdquo; January&nbsp;1996.</span><span>)</span></a> which can provide
     confidentiality, message authentication, and replay protection to
@@ -273,19 +269,17 @@ Intellectual Property and Copyright Statements<br />
    The key points of our approach are as follows:
    </p>
 <ul class="text">
-<li>New mode negotiated via DTLS extension mechanism.
-</li>
-<li>DTLS extension used to negotiate SRTP algorithms.
-</li>
 <li>Application data is protected using SRTP.
+</li>
+<li>The DTLS handshake is used to establish keying material, algorithms, and
+     parameters for SRTP.
+</li>
+<li>The DTLS pseudo-random function (PRF) is used to generate the SRTP encryption and authentication keys.
+</li>
+<li>A DTLS extension used to negotiate SRTP algorithms.
 </li>
 <li>Other content types are protected using the usual DTLS record
       format.
-</li>
-<li>The DTLS handshake is used to establish keying material and
-   algorithm parameters for SRTP.
-</li>
-<li>The DTLS pseudo-random function (PRF) is used to generate the SRTP traffic encryption keys.
 </li>
 </ul><p>
    The next section provides details of the new extension.
@@ -313,33 +307,58 @@ Intellectual Property and Copyright Statements<br />
 <a name="rfc.section.3.1"></a><h3>3.1.&nbsp;Usage Model</h3>
 
 <p>
-   Our general model is to have a single DTLS association (called
-   a "connection" in TLS jargon) for each media channel 
-   (pair of unidirectional SRTP flows).
-   [TODO: is this the right terminology?]
-   A description of how to indicate this in SIP and SDP 
-   and authenticate
+        DTLS-SRTP is defined for point-to-point media sessions, in
+        which there are exactly two participants.  A DTLS-SRTP session
+        corresponds to a pair of complementary unidirectional RTP
+        flows.  Between a single pair of participants, there may be
+        multiple media sessions; each session MUST have its own
+        DTLS-SRTP session.  Additionally, each RTCP flow is protected
+        by a separate DTLS-SRTP session.  One or both of the DTLS-SRTP
+        session participants MAY be RTP mixers.
+	Each DTLS-SRTP session contains a single DLTS association
+	(called a "connection" in TLS jargon).
+	
+        
+        
+      
+</p>
+<p>
+     A DTLS-SRTP session can be indicated by an external
+     signaling protocol like SIP.  When the signaling
+     exchange is integrity-protected (e.g when SIP Identity
+     protection via digital signatures is used), 
+     DTLS-SRTP can leverage this integrity guarantee  
+      to provide complete security of the media stream.
+   A description of how to indicate DTLS-SRTP sessions  in SIP and SDP,
+     and how to  authenticate
    the endpoints using fingerprints can be found in 
    <a class="info" href="#I-D.fischl-mmusic-sdp-dtls">[7]<span> (</span><span class="info">Fischl, J. and H. Tschofenig, &ldquo;Session Description Protocol (SDP) Indicators for Datagram Transport Layer  Security (DTLS),&rdquo; March&nbsp;2006.</span><span>)</span></a> and
    <a class="info" href="#I-D.fischl-sipping-media-dtls">[6]<span> (</span><span class="info">Fischl, J., &ldquo;Session Initiation Protocol (SIP) for Media Over Datagram Transport Layer  Security (DTLS),&rdquo; March&nbsp;2006.</span><span>)</span></a>.
    
-</p>
-<p>
-   In a naive implementation, this results in new DTLS session
-   establishment (complete with public key cryptography) for
-   each media channel. 
-   A superior approach is to establish single DTLS connection
-   in order to create the DTLS session and then use DTLS session
-   resumption to establish DTLS connections for any additional
-   media channels. This allows the amortization of the expensive
-   public key cryptography operations over multiple handshakes.
    
 </p>
 <p>
-   One issue that arises in this context is multiple RTP sender
-   over the same DTLS channel. In order to avoid the "two-time pad"
-   problem, each sender over the same DTLS association MUST
-   use a distinct SSRC value, as described in Section 9.1 of RFC 3711.
+     Each RTP stream participates in a single DTLS session.  In a
+     naive implementation, this results in new DTLS session
+     establishment (complete with public key cryptography) for each
+     media channel.  For example, a videophone may be sending both an
+     audio stream and a video stream, each of which would use a
+     separate DTLS session establishment exchange, which would proceed
+     in parallel.  As an optimization, the DTLS-SRTP implementation
+     SHOULD use the following strategy: a single DTLS connection is
+     established, and all other DTLS sessions wait until that
+     connection is established before proceeding with their session
+     establishment exchanges.  This strategy allows the later sessions
+     to use the DTLS session re-start, which allows the amortization of
+     the expensive public key cryptography operations over multiple
+     DTLS session establishment instances.
+   
+</p>
+<p>
+    One issue that arises in this context is multiple RTP sender over
+    the same DTLS channel. In order to avoid the "two-time pad" problem
+    (as described in Section 9.1 of RFC 3711), distinct keys are used
+    for each participant in the DTLS-SRTP session.
    
 </p>
 <a name="anchor5"></a><br /><hr />
@@ -382,9 +401,8 @@ Intellectual Property and Copyright Statements<br />
    Once the "use_srtp" extension is negotiated, packets 
    of type "application_data" in
    the newly negotiated association (i.e., after the change_cipher_spec)
-   SHOULD be protected using SRTP. [TODO: Note that you actually can 
-   in theory intermix DTLS "application_data" traffic as well. Is there any
-   value here?]
+   SHOULD be protected using SRTP. 
+   
    Records of type other than
    "application_data" MUST use ordinary DTLS framing. When the "use_srtp"
    extension is in effect, implementations MUST NOT place more than
@@ -419,9 +437,11 @@ Intellectual Property and Copyright Statements<br />
    SRTPProtectionProfile which contains the
    protection profile which the server has chosen for use with this
    connection. The server MUST NOT select a value which the client
-   has not offered. If there is no compatible mode, the 
+   has not offered. If there is no shared profile, the 
    server should not return the use_srtp extension at which point
-   the connection falls back to the DTLS cipher suite.
+   the connection falls back to the negotiated DTLS cipher suite.
+   If that is not acceptable the server should return an appropriate
+   DTLS alert.
    
 </p>
 <a name="section.propro"></a><br /><hr />
@@ -429,7 +449,9 @@ Intellectual Property and Copyright Statements<br />
 <a name="rfc.section.3.2.2"></a><h3>3.2.2.&nbsp;SRTP Protection Profiles</h3>
 
 <p>
-   This document defines the following SRTP protection profiles.
+     A DTLS-SRTP SRTP Protection Profile defines the parameters and
+     options that are in effect for the SRTP processing.  This
+     document defines the following SRTP protection profiles.
    
 </p><pre>
    SRTPProtectionProfile SRTP_AES128_CM_SHA1_80 ={0x00, 0x01};
@@ -440,47 +462,219 @@ Intellectual Property and Copyright Statements<br />
    SRTPProtectionProfile SRTP_NULL_SHA1_32      ={0x00, 0x06};
 </pre>
 <p>
-   The following table indicates the SRTP transform parameters for 
-   each protection profile:
+   The following list indicates the SRTP transform parameters for each
+   protection profile.  The parameters cipher_key_length,
+   cipher_salt_length, auth_key_length, and auth_tag_length express
+   the number of bits in the values to which they refer.  The
+   maximum_lifetime parameter indicates the maximum number of packets
+   that can be protected with each single set of keys when the
+   parameter profile is in use. 
    
-</p><table class="full" align="center" border="0" cellpadding="2" cellspacing="2">
-<col align="left"><col align="right"><col align="right">
-<tr><th align="left">Profile</th><th align="right">Cipher</th><th align="right">Integrity</th></tr>
-<tr>
-<td align="left">SRTP_AES128_CM_SHA1_80</td>
-<td align="right">AES128_CM</td>
-<td align="right">HMAC-SHA1 (80 bit)</td>
-</tr>
-<tr>
-<td align="left">SRTP_AES128_CM_SHA1_32</td>
-<td align="right">AES128_CM</td>
-<td align="right">HMAC-SHA1 (32 bit)</td>
-</tr>
-<tr>
-<td align="left">SRTP_AES128_F8_SHA1_80</td>
-<td align="right">AES128_F8</td>
-<td align="right">HMAC-SHA1 (80 bit)</td>
-</tr>
-<tr>
-<td align="left">SRTP_AES128_F8_SHA1_32</td>
-<td align="right">AES128_F8</td>
-<td align="right">HMAC-SHA1 (32 bit)</td>
-</tr>
-<tr>
-<td align="left">SRTP_NULL_SHA1_80</td>
-<td align="right">NULL</td>
-<td align="right">HMAC-SHA1 (80 bit)</td>
-</tr>
-<tr>
-<td align="left">SRTP_NULL_SHA1_32</td>
-<td align="right">NULL</td>
-<td align="right">HMAC-SHA1 (32 bit)</td>
-</tr>
-</table>
-
+</p>
 <p>
-   [TODO: David, can you fill in whatever fixed parameters we need
-   please?]
+ 
+     </p>
+<blockquote class="text"><dl>
+<dt>SRTP_AES128_CM_SHA1_80</dt>
+<dd>
+	 
+<blockquote class="text"><dl>
+<dt></dt>
+<dd> cipher: AES_128_CM  
+</dd>
+<dt></dt>
+<dd> cipher_key_length: 128
+</dd>
+<dt></dt>
+<dd> cipher_salt_length: 112 
+</dd>
+<dt></dt>
+<dd> maximum_lifetime:   2^48 
+</dd>
+<dt></dt>
+<dd> auth_function: HMAC-SHA1 
+</dd>
+<dt></dt>
+<dd> auth_key_length: 160 
+</dd>
+<dt></dt>
+<dd> auth_tag_length: 80 
+</dd>
+</dl></blockquote>
+       
+</dd>
+<dt>SRTP_AES128_CM_SHA1_32</dt>
+<dd>
+	   Because of the short authentication tag provides limited authentication, this
+	 profile SHOULD NOT be used with RTCP.
+	 
+<blockquote class="text"><dl>
+<dt></dt>
+<dd> cipher: AES_128_CM  
+</dd>
+<dt></dt>
+<dd> cipher_key_length: 128
+</dd>
+<dt></dt>
+<dd> cipher_salt_length: 112 
+</dd>
+<dt></dt>
+<dd> maximum_lifetime:   2^48 
+</dd>
+<dt></dt>
+<dd> auth_function: HMAC-SHA1 
+</dd>
+<dt></dt>
+<dd> auth_key_length: 160 
+</dd>
+<dt></dt>
+<dd> auth_tag_length: 32 
+</dd>
+</dl></blockquote>
+       
+</dd>
+<dt>SRTP_AES128_F8_SHA1_80</dt>
+<dd>	 
+	 
+<blockquote class="text"><dl>
+<dt></dt>
+<dd> cipher: AES_128_F8  
+</dd>
+<dt></dt>
+<dd> cipher_key_length: 128
+</dd>
+<dt></dt>
+<dd> cipher_salt_length: 112 
+</dd>
+<dt></dt>
+<dd> maximum_lifetime:   2^48 
+</dd>
+<dt></dt>
+<dd> auth_function: HMAC-SHA1 
+</dd>
+<dt></dt>
+<dd> auth_key_length: 160 
+</dd>
+<dt></dt>
+<dd> auth_tag_length: 80 
+</dd>
+</dl></blockquote>
+       
+</dd>
+<dt>SRTP_AES128_F8_SHA1_32</dt>
+<dd>
+	   	 Because the short authentication tag provides limited authentication, this
+	 profile SHOULD NOT be used with RTCP.
+	 
+<blockquote class="text"><dl>
+<dt></dt>
+<dd> cipher: AES_128_F8  
+</dd>
+<dt></dt>
+<dd> cipher_key_length: 128
+</dd>
+<dt></dt>
+<dd> cipher_salt_length: 112 
+</dd>
+<dt></dt>
+<dd> maximum_lifetime:   2^48 
+</dd>
+<dt></dt>
+<dd> auth_function: HMAC-SHA1 
+</dd>
+<dt></dt>
+<dd> auth_key_length: 160 
+</dd>
+<dt></dt>
+<dd> auth_tag_length: 32 
+</dd>
+</dl></blockquote>
+       
+</dd>
+<dt>SRTP_AES128_NULL_SHA1_80</dt>
+<dd>	 
+	 
+<blockquote class="text"><dl>
+<dt></dt>
+<dd> cipher: NULL  
+</dd>
+<dt></dt>
+<dd> cipher_key_length: 0
+</dd>
+<dt></dt>
+<dd> cipher_salt_length: 0 
+</dd>
+<dt></dt>
+<dd> maximum_lifetime:   2^48 
+</dd>
+<dt></dt>
+<dd> auth_function: HMAC-SHA1 
+</dd>
+<dt></dt>
+<dd> auth_key_length: 160 
+</dd>
+<dt></dt>
+<dd> auth_tag_length: 80 
+</dd>
+</dl></blockquote>
+       
+</dd>
+<dt>SRTP_AES128_NULL_SHA1_32</dt>
+<dd>
+	   	 Because the short authentication tag provides limited authentication, this
+	 profile SHOULD NOT be used with RTCP.
+	 
+<blockquote class="text"><dl>
+<dt></dt>
+<dd> cipher: NULL  
+</dd>
+<dt></dt>
+<dd> cipher_key_length: 0
+</dd>
+<dt></dt>
+<dd> cipher_salt_length: 0 
+</dd>
+<dt></dt>
+<dd> maximum_lifetime:   2^48 
+</dd>
+<dt></dt>
+<dd> auth_function: HMAC-SHA1 
+</dd>
+<dt></dt>
+<dd> auth_key_length: 160 
+</dd>
+<dt></dt>
+<dd> auth_tag_length: 32 
+</dd>
+</dl></blockquote>
+       
+</dd>
+</dl></blockquote><p>
+     With all of these SRTP Parameter profiles, the following SRTP
+     options are in effect:
+     </p>
+<blockquote class="text">
+<p>
+	 The TLS Key Derivation Function (KDF) is used, and the SRTP default
+       KDF is not used.
+	 
+</p>
+<p>
+	 The Key Derivation Rate (KDR) is equal to zero.  Thus, keys are not
+	 re-derived based on the sequence number.     
+	 
+</p>
+<p>
+	 For all other parameters, the default values are used.
+	 
+</p>
+</blockquote><p>
+     All SRTP parameters that are not determined by the SRTP
+     Protection Profile MAY be established via the signaling system.
+     In particular, the relative order of Forward Error Correction and
+     SRTP processing, and a suggested SRTP replay window size SHOULD
+     be established in this manner.  An example of how these parameters can 
+     be defined for SDP by is contained in <a class="info" href="#I-D.ietf-mmusic-sdescriptions">[8]<span> (</span><span class="info">Andreasen, F., &ldquo;Session Description Protocol Security Descriptions for Media Streams,&rdquo; September&nbsp;2005.</span><span>)</span></a>. 
    
 </p>
 <p>
@@ -500,20 +694,19 @@ Intellectual Property and Copyright Statements<br />
    the end of the DTLS key block. Thus, the key block becomes:
    
 </p><pre>
-   client_write_MAC_secret[SecurityParameters.hash_size]
-   server_write_MAC_secret[SecurityParameters.hash_size]
-   client_write_key[SecurityParameters.key_material_length]
-   server_write_key[SecurityParameters.key_material_length]
-   srtp_client_write_MAC_secret[SRTPSecurityParameters.hash_size]
-   srtp_server_write_MAC_secret[SRTPSecurityParameters.hash_size]
-   srtp_client_write_key[SRTPSecurityParameters.key_material_length]
-   srtp_server_write_key[SRTPSecurityParameters.key_material_length]
-   srtp_client_write_salt_secret[SRTPSecurityParameters.salt_size]
-   srtp_server_write_salt_secret[SRTPSecurityParameters.salt_size]
+client_write_MAC_secret[SecurityParameters.hash_size]
+server_write_MAC_secret[SecurityParameters.hash_size]
+client_write_key[SecurityParameters.key_material_length]
+server_write_key[SecurityParameters.key_material_length]
+srtp_client_write_MAC_secret[SRTPSecurityParams.auth_key_length]
+srtp_server_write_MAC_secret[SRTPSecurityParams.auth_key_length]
+srtp_client_write_key[SRTPSecurityParams.cipher_key_length]
+srtp_server_write_key[SRTPSecurityParams.cipher_key_length]
+srtp_client_write_salt_secret[SRTPSecurityParams.cipher_salt_length]
+srtp_server_write_salt_secret[SRTPSecurityParams.cipher_salt_length]
 </pre>
 <p>
-   [TODO: I think we can just use the same key sizes for the 
-   algorithms as does DTLS. Is there a problem here I missed?]
+     
    
 </p>
 <p>
@@ -541,31 +734,99 @@ Intellectual Property and Copyright Statements<br />
 <p>
    Because we generate the SRTP keys directly, 
    the SRTP key derivation mechanism described in Section 4.3 
-   of <a class="info" href="#RFC3711">[10]<span> (</span><span class="info">Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K. Norrman, &ldquo;The Secure Real-time Transport Protocol (SRTP),&rdquo; March&nbsp;2004.</span><span>)</span></a> is not used. 
+   of <a class="info" href="#RFC3711">[11]<span> (</span><span class="info">Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K. Norrman, &ldquo;The Secure Real-time Transport Protocol (SRTP),&rdquo; March&nbsp;2004.</span><span>)</span></a> is not used. 
    
 </p>
 <a name="anchor8"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
-<a name="rfc.section.3.4"></a><h3>3.4.&nbsp;Key Usage Limitations</h3>
+<a name="rfc.section.3.4"></a><h3>3.4.&nbsp;Key Scope</h3>
 
 <p>
-   [TODO: David McGrew]
-   
+     The SRTP cipher and authentication function keys provided by DTLS-SRTP 
+     are used as follows.
+     </p>
+<blockquote class="text">
+<p>
+	 The srtp_client_write_key is used to encrypt traffic that is
+	 sent by the client.  It MUST NOT be used in encryption by the
+	 server.
+       
+</p>
+<p>
+	 The srtp_client_write_salt_secret is used to randomize IV by some SRTP
+	 ciphers; may be used as input to the encryption of traffic that is
+	 sent by the client.  It MUST NOT be used in encryption by the
+	 server.
+       
+</p>
+<p>
+	 The srtp_client_write_MAC_secret is used to generate authentication
+	 tags for traffic that is sent by the client.  It MUST NOT be used
+	 to generate tags for traffic that is sent by the server.
+       
+</p>
+<p>
+	 The srtp_server_write_key is used to encrypt traffic that is sent by
+	 the server.  It MUST NOT be used in encryption by the client.
+       
+</p>
+<p>
+	 The srtp_server_write_salt_secret is used to randomize IV by some SRTP
+	 ciphers; may be used as input to the encryption of traffic that is
+	 sent by the server.  It MUST NOT be used in encryption by the
+	 client.
+       
+</p>
+<p>	 
+	 The srtp_server_write_MAC_secret is used to generate authentication
+	 tags for traffic that is sent by the server.  It MUST NOT be used
+	 to generate tags for traffic that is sent by the client.
+       
+</p>
+</blockquote><p>
+     
+</p>
+<p>
+       The "use_srtp" extension conveys the RTP sequence number at
+       which the SRTP keys derived after a DTLS handshake will be
+       used.  Because of the possibility of packet reorder, DTLS-SRTP
+       implementations SHOULD store multiple SRTP keys sets during a
+       re-key in order to avoid the need for receivers to drop packets
+       for which they lack a key. 
+     
 </p>
 <a name="anchor9"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
-<a name="rfc.section.3.5"></a><h3>3.5.&nbsp;Data Protection</h3>
+<a name="rfc.section.3.5"></a><h3>3.5.&nbsp;Key Usage Limitations</h3>
 
 <p>
-   Once the DTLS handshake has completed the peers can send
-   RTP and RTCP over the newly created channel. We describe
-   the transmission process first followed by the reception
-   process.
+     The maximum_lifetime parameter in the SRTP protection profile
+     indicates the maximum number of packets that can be protected
+     with each single encryption and authentication key.  Each profile
+     defines its own limit.  When this limit is reached, a new DTLS
+     session SHOULD be used to establish replacement keys, and SRTP
+     implementations MUST NOT use the existing keys for the processing
+     of either outbound or inbound traffic.
+   
+</p>
+<a name="anchor10"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.6"></a><h3>3.6.&nbsp;Data Protection</h3>
+
+<p>
+   Once the DTLS handshake has completed the peers can send RTP and
+   RTCP over the newly created channel. We describe the transmission
+   process first followed by the reception process.
+   
+</p>
+<p>
+     Within each RTP session, SRTP processing MUST NOT take
+     place before the DTLS handshake completes. 
    
 </p>
 <a name="section.transmit"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
-<a name="rfc.section.3.5.1"></a><h3>3.5.1.&nbsp;Transmission</h3>
+<a name="rfc.section.3.6.1"></a><h3>3.6.1.&nbsp;Transmission</h3>
 
 <p>
    DTLS and TLS define a number of record content types. In
@@ -588,18 +849,9 @@ Intellectual Property and Copyright Statements<br />
    DTLS sequence number is used for these packets.
    
 </p>
-<p>
-   [TODO: How fixed is the SRTP MAC? Could we include the DTLS 
-   record header in the MAC somehow just to make absolutely sure
-   that we know the content type? That seems like it would be 
-   nice from a security perspective for maximal ambiguity, even
-   though the different keys thing does provide a fair amount 
-   of insulation.]
-   
-</p>
-<a name="anchor10"></a><br /><hr />
+<a name="anchor11"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
-<a name="rfc.section.3.5.2"></a><h3>3.5.2.&nbsp;Reception</h3>
+<a name="rfc.section.3.6.2"></a><h3>3.6.2.&nbsp;Reception</h3>
 
 <p>
    In ordinary DTLS, the receiver can unambiguously determine
@@ -624,7 +876,8 @@ Intellectual Property and Copyright Statements<br />
 </li>
 <li>Assume that the datagram is an SRTP packet and follow
    the procedure of Section 3 of RFC 3711. Note that the 
-   replay detection check specified in DTLS SHOULD NOT be done for these packets. If anti-replay is desired SRTP anti-replay mechanisms SHOULD be used.
+   replay detection check specified in DTLS SHOULD NOT be done for these packets. 
+     If anti-replay is desired SRTP anti-replay mechanisms SHOULD be used.
 
 </li>
 </ol><p>
@@ -633,7 +886,7 @@ Intellectual Property and Copyright Statements<br />
 <p>
    The first byte of a
    DTLS packet is "Type" which can currently have values of 20,21,22, and
-   23 as defined in ContentType declaration in <a class="info" href="#I-D.ietf-tls-rfc2246-bis">[8]<span> (</span><span class="info">Dierks, T. and E. Rescorla, &ldquo;The TLS Protocol Version 1.1,&rdquo; June&nbsp;2005.</span><span>)</span></a>. It is reasonable to expect
+   23 as defined in ContentType declaration in <a class="info" href="#I-D.ietf-tls-rfc2246-bis">[9]<span> (</span><span class="info">Dierks, T. and E. Rescorla, &ldquo;The TLS Protocol Version 1.1,&rdquo; June&nbsp;2005.</span><span>)</span></a>. It is reasonable to expect
    the first byte to remain under 64 and greater than 1. For RTP the
    first byte has a value that is 196 or above. 
    Thus, in general, the type check specified in step (2) is sufficient
@@ -653,7 +906,7 @@ Intellectual Property and Copyright Statements<br />
 </p>
 <a name="section.rehandshake"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
-<a name="rfc.section.3.6"></a><h3>3.6.&nbsp;Rehandshake and Re-key</h3>
+<a name="rfc.section.3.7"></a><h3>3.7.&nbsp;Rehandshake and Re-key</h3>
 
 <p>
    Rekeying in DTLS is accomplished by performing a new handshake
@@ -703,7 +956,7 @@ Intellectual Property and Copyright Statements<br />
    discussed here.
    
 </p>
-<a name="anchor11"></a><br /><hr />
+<a name="anchor12"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.4.1"></a><h3>4.1.&nbsp;Security of Negotiation</h3>
 
@@ -717,7 +970,7 @@ Intellectual Property and Copyright Statements<br />
    control the channel can always mount.
    
 </p>
-<a name="anchor12"></a><br /><hr />
+<a name="anchor13"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.4.2"></a><h3>4.2.&nbsp;Security of Established Keys</h3>
 
@@ -725,7 +978,7 @@ Intellectual Property and Copyright Statements<br />
    [TODO: David, can you say something about NIST, the PRF, etc...?]
    
 </p>
-<a name="anchor13"></a><br /><hr />
+<a name="anchor14"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.4.3"></a><h3>4.3.&nbsp;Framing Confusion</h3>
 
@@ -744,22 +997,22 @@ Intellectual Property and Copyright Statements<br />
    As an additional defense against injection into the DTLS handshake
    channel, the DTLS record type is included in the MAC. Therefore,
    an SRTP record would be treated as an unknown type and
-   ignored. (See Section 6 of <a class="info" href="#I-D.ietf-tls-rfc2246-bis">[8]<span> (</span><span class="info">Dierks, T. and E. Rescorla, &ldquo;The TLS Protocol Version 1.1,&rdquo; June&nbsp;2005.</span><span>)</span></a>).
+   ignored. (See Section 6 of <a class="info" href="#I-D.ietf-tls-rfc2246-bis">[9]<span> (</span><span class="info">Dierks, T. and E. Rescorla, &ldquo;The TLS Protocol Version 1.1,&rdquo; June&nbsp;2005.</span><span>)</span></a>).
    
 </p>
-<a name="anchor14"></a><br /><hr />
+<a name="anchor15"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.4.4"></a><h3>4.4.&nbsp;Sequence Number Interactions</h3>
 
 <p>
-   As described in Section <a class="info" href="#section.transmit">Section&nbsp;3.5.1<span> (</span><span class="info">Transmission</span><span>)</span></a>,
+   As described in Section <a class="info" href="#section.transmit">Section&nbsp;3.6.1<span> (</span><span class="info">Transmission</span><span>)</span></a>,
    the SRTP and DTLS sequence number spaces are distinct. This means
    that it is not possible to unambiguously order a given DTLS
    control record with respect to an SRTP packet. In general, this
    is relevant in two situations: alerts and rehandshake.
    
 </p>
-<a name="anchor15"></a><br /><hr />
+<a name="anchor16"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.4.4.1"></a><h3>4.4.1.&nbsp;Alerts</h3>
 
@@ -779,12 +1032,12 @@ Intellectual Property and Copyright Statements<br />
    avoid overreacting to replay attacks.
    
 </p>
-<a name="anchor16"></a><br /><hr />
+<a name="anchor17"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.4.4.2"></a><h3>4.4.2.&nbsp;Rehandshake</h3>
 
 <p>
-   Because the rehandshake transition algorithm specified in Section <a class="info" href="#section.rehandshake">Section&nbsp;3.6<span> (</span><span class="info">Rehandshake and Re-key</span><span>)</span></a> requires trying multiple sets of keys,
+   Because the rehandshake transition algorithm specified in Section <a class="info" href="#section.rehandshake">Section&nbsp;3.7<span> (</span><span class="info">Rehandshake and Re-key</span><span>)</span></a> requires trying multiple sets of keys,
    it slightly weakens the authentication. For instance, if an n-bit
    MAC is used and k different sets of keys are present, then the MAC
    is weakened by log_2(k) bits to n - log_2(k). In practice, since
@@ -808,7 +1061,7 @@ Intellectual Property and Copyright Statements<br />
 
 <p>
       This document a new extension for DTLS, in
-accordance with <a class="info" href="#I-D.ietf-tls-rfc3546bis">[9]<span> (</span><span class="info">Blake-Wilson, S., &ldquo;Transport Layer Security (TLS) Extensions,&rdquo; October&nbsp;2005.</span><span>)</span></a>:
+accordance with <a class="info" href="#I-D.ietf-tls-rfc3546bis">[10]<span> (</span><span class="info">Blake-Wilson, S., &ldquo;Transport Layer Security (TLS) Extensions,&rdquo; October&nbsp;2005.</span><span>)</span></a>:
 
 </p><pre>
       enum { use_srtp (??) } ExtensionType;
@@ -830,7 +1083,7 @@ Future values MUST be allocated via Standards Action as described
 in <a class="info" href="#RFC2434">[3]<span> (</span><span class="info">Narten, T. and H. Alvestrand, &ldquo;Guidelines for Writing an IANA Considerations Section in RFCs,&rdquo; October&nbsp;1998.</span><span>)</span></a>
 
 </p>
-<a name="anchor17"></a><br /><hr />
+<a name="anchor18"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.6"></a><h3>6.&nbsp;Acknowledgments</h3>
 
@@ -860,17 +1113,19 @@ in <a class="info" href="#RFC2434">[3]<span> (</span><span class="info">Narten, 
 <td class="author-text">Fischl, J., &ldquo;<a href="http://www.ietf.org/internet-drafts/draft-fischl-sipping-media-dtls-00.txt">Session Initiation Protocol (SIP) for Media Over Datagram Transport Layer  Security (DTLS)</a>,&rdquo; draft-fischl-sipping-media-dtls-00 (work in progress), March&nbsp;2006.</td></tr>
 <tr><td class="author-text" valign="top"><a name="I-D.fischl-mmusic-sdp-dtls">[7]</a></td>
 <td class="author-text">Fischl, J. and H. Tschofenig, &ldquo;<a href="http://www.ietf.org/internet-drafts/draft-fischl-mmusic-sdp-dtls-00.txt">Session Description Protocol (SDP) Indicators for Datagram Transport Layer  Security (DTLS)</a>,&rdquo; draft-fischl-mmusic-sdp-dtls-00 (work in progress), March&nbsp;2006.</td></tr>
+<tr><td class="author-text" valign="top"><a name="I-D.ietf-mmusic-sdescriptions">[8]</a></td>
+<td class="author-text">Andreasen, F., &ldquo;<a href="http://www.ietf.org/internet-drafts/draft-ietf-mmusic-sdescriptions-12.txt">Session Description Protocol Security Descriptions for Media Streams</a>,&rdquo; draft-ietf-mmusic-sdescriptions-12 (work in progress), September&nbsp;2005.</td></tr>
 </table>
 
 <a name="rfc.references2"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <h3>7.2.&nbsp;Informational References</h3>
 <table width="99%" border="0">
-<tr><td class="author-text" valign="top"><a name="I-D.ietf-tls-rfc2246-bis">[8]</a></td>
+<tr><td class="author-text" valign="top"><a name="I-D.ietf-tls-rfc2246-bis">[9]</a></td>
 <td class="author-text">Dierks, T. and E. Rescorla, &ldquo;<a href="http://www.ietf.org/internet-drafts/draft-ietf-tls-rfc2246-bis-13.txt">The TLS Protocol Version 1.1</a>,&rdquo; draft-ietf-tls-rfc2246-bis-13 (work in progress), June&nbsp;2005.</td></tr>
-<tr><td class="author-text" valign="top"><a name="I-D.ietf-tls-rfc3546bis">[9]</a></td>
+<tr><td class="author-text" valign="top"><a name="I-D.ietf-tls-rfc3546bis">[10]</a></td>
 <td class="author-text">Blake-Wilson, S., &ldquo;<a href="http://www.ietf.org/internet-drafts/draft-ietf-tls-rfc3546bis-02.txt">Transport Layer Security (TLS) Extensions</a>,&rdquo; draft-ietf-tls-rfc3546bis-02 (work in progress), October&nbsp;2005.</td></tr>
-<tr><td class="author-text" valign="top"><a name="RFC3711">[10]</a></td>
+<tr><td class="author-text" valign="top"><a name="RFC3711">[11]</a></td>
 <td class="author-text">Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K. Norrman, &ldquo;<a href="ftp://ftp.isi.edu/in-notes/rfc3711.txt">The Secure Real-time Transport Protocol (SRTP)</a>,&rdquo; RFC&nbsp;3711, March&nbsp;2004.</td></tr>
 </table>
 
