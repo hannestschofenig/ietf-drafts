@@ -33,11 +33,8 @@
      ipr="full3978"> 
   <front> 
     <title abbrev="SRTP Extension for DTLS">
-      DTLS key establisihment for SRTP
-<!-- Secure Real-time Transport
-    Protocol (SRTP) Extensions for Datagram Transport Layer Security
-    (DTLS)
--->
+    Datagram Transport Layer Security (DTLS) Extension
+    to Establish Keys for Secure Real-time Transport Protocol (SRTP)
 </title>
 
 

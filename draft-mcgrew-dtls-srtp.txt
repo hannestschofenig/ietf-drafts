@@ -8,7 +8,8 @@ Expires:  September 21, 2006                                 E. Rescorla
                                                           March 20, 2006
 
 
-                    DTLS key establisihment for SRTP
+Datagram Transport Layer Security (DTLS) Extension to Establish Keys for
+               Secure Real-time Transport Protocol (SRTP)
                       draft-mcgrew-tls-srtp-00.txt
 
 Status of this Memo
@@ -48,13 +49,15 @@ Abstract
    control traffic for RTP, the Real-time Transport Control Protocol
    (RTCP).  This document describes a method of using DTLS key
    management for SRTP by using a new extension that indicates that SRTP
-   is to be used for data protection, and which establishes SRTP keys.
 
 
 
 McGrew & Rescorla      Expires September 21, 2006               [Page 1]
 
 Internet-Draft           SRTP Extension for DTLS              March 2006
+
+
+   is to be used for data protection, and which establishes SRTP keys.
 
 
 Table of Contents
@@ -87,9 +90,6 @@ Table of Contents
      7.2.  Informational References . . . . . . . . . . . . . . . . . 14
    Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 15
    Intellectual Property and Copyright Statements . . . . . . . . . . 16
-
-
-
 
 
 
