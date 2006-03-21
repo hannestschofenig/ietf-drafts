@@ -9,6 +9,7 @@
 <!ENTITY rfc1889 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1889.xml">
 <!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY rfc2327 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2327.xml">
+<!ENTITY rfc2434 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2434.xml">
 <!ENTITY rfc2508 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2508.xml">
 <!ENTITY rfc2833 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2833.xml">
 <!ENTITY rfc3095 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3095.xml">
@@ -106,13 +107,13 @@
    The key points of our approach are as follows:
    <list style="symbols">
    <t>New mode negotiated via DTLS extension mechanism.</t>
+   <t>DTLS extension used to negotiate SRTP algorithms.</t>
    <t>Application data is protected using SRTP.</t>
    <t>Other content types are protected using the usual DTLS record
       format.</t>
    <t>The DTLS handshake is used to establish keying material and
    algorithm parameters for SRTP.</t>
    <t>The DTLS pseudo-random function (PRF) is used to generate the SRTP traffic encryption keys.</t>
-   <t>The DTLS handshake is used to negotiate the algorithms.</t>
    </list>
    The next section provides details of the new extension.
    </t>
@@ -158,25 +159,19 @@
    use a distinct SSRC value, as described in Section 9.1 of RFC 3711.
    </t>
    </section>
-   <section title="Extension Definition">
-   <t>
-   [TODO: When we discussed this we had discussed using 
-   a new cipher suite. However, after thinking about it a
-   bit, I concluded an extension was cleaner (and at least
-   less text for me to write.) If you feel differently, let
-   me know and we can totally do it the other way.]
-   </t>
+   <section title="use_srtp Extension">
    <t>
    In order to negotiate the use of SRTP data protection,
    clients MAY include an extension of type "use_srtp" in
    the extended client hello. The "extension_data" field of this
-   extension shall be empty.
+   extension contains the list of acceptable SRTP protection
+   profiles, as indicated below.
    </t>
    <t>
    Servers that receive an extended hello containing a "use_srtp"
    extension, MAY agree to use SRTP by including an 
-   extension of type "use_srtp", with empty "extension_data", in
-   the extended server hello. This process is shown below.
+   extension of type "use_srtp", with the chosen protection
+   profile in the extended server hello. This process is shown below.
    </t>
 <figure>
 <artwork>	
@@ -195,7 +190,7 @@
       Finished                     --------&gt;
                                                [ChangeCipherSpec]
                                    &lt;--------             Finished
-      SRTP packets                 &lt;-------&gt;         SRTP packets
+      SRTP packets                 &lt;-------&gt;      SRTP packets
 </artwork>
 </figure>
    <t>
@@ -212,22 +207,98 @@
    perspective of DTLS because SRTP is inherently oriented towards
    one payload per packet, but is stated purely for clarification.)
    </t>
+   <section title="use_srtp Extension Definition">
    <t>
-   The SRTP cipher and MAC algorithm used correspond directly to
-   those in the negotiated DTLS cipher suite with the following exception:
-   DTLS cipher suites which are block ciphers in CBC mode are
-   used in CTR mode with SRTP (but still in CBC mode with DTLS
-   records). DTLS only defines block ciphers so there is no concern
-   about the use of stream ciphers.
+   The client MUST fill the extension_data field of the 
+   the "use_rtp" extension with an SRTPProtectionProfiles value:
+   </t>
+   <figure>
+   <artwork	>
+   uint8 SRTPProtectionProfile[2];
+
+   SRTPProtectionProfiles SRTPProtectionProfiles;
+   </artwork>
+   </figure>
+   <t>
+   This list indicates the SRTP protection profiles that the 
+   client is willing to support, listed in descending order
+   of preference.
    </t>
    <t>
-   [TODO: Note that this precludes the use of F8 mode. I don't have
-   a good sense of whether this is important or not. This is obviously
-   a drawback of this extension approach. We could have the extension
-   above indicate the block cipher mode (CTR or F8) if that's 
-   important to preserve.]
+   If the server is willing to accept the use_srtp extension, it MUST
+   respond with its own "use_srtp" extension in the
+   ExtendedServerHello.  The extension_data field MUST be a
+   SRTPProtectionProfile which contains the
+   protection profile which the server has chosen for use with this
+   connection. The server MUST NOT select a value which the client
+   has not offered. If there is no shared profile, the 
+   server should not return the use_srtp extension at which point
+   the connection falls back to the negotiated DTLS cipher suite.
+   If that is not acceptable the server should return an appropriate
+   DTLS alert.
    </t>
    </section>
+   <section title="SRTP Protection Profiles" anchor="section.propro">
+   <t>
+   This document defines the following SRTP protection profiles.
+   </t>
+   <figure>
+   <artwork>
+   SRTPProtectionProfile SRTP_AES128_CM_SHA1_80 ={0x00, 0x01};
+   SRTPProtectionProfile SRTP_AES128_CM_SHA1_32 ={0x00, 0x02};
+   SRTPProtectionProfile SRTP_AES128_F8_SHA1_80 ={0x00, 0x03};
+   SRTPProtectionProfile SRTP_AES128_F8_SHA1_32 ={0x00, 0x04};
+   SRTPProtectionProfile SRTP_NULL_SHA1_80      ={0x00, 0x05};
+   SRTPProtectionProfile SRTP_NULL_SHA1_32      ={0x00, 0x06};
+   </artwork>
+   </figure>							
+   <t>
+   The following table indicates the SRTP transform parameters for 
+   each protection profile:
+   </t>
+   <texttable>
+     <ttcol align="left">Profile</ttcol>
+     <ttcol align="right">Cipher</ttcol>
+     <ttcol align="right">Integrity</ttcol>
+     
+     <c>SRTP_AES128_CM_SHA1_80</c> 
+     <c>AES128_CM</c>
+     <c>HMAC-SHA1 (80 bit)</c>
+
+     <c>SRTP_AES128_CM_SHA1_32</c> 
+     <c>AES128_CM</c>
+     <c>HMAC-SHA1 (32 bit)</c>
+
+     <c>SRTP_AES128_F8_SHA1_80</c> 
+     <c>AES128_F8</c>
+     <c>HMAC-SHA1 (80 bit)</c>
+
+     <c>SRTP_AES128_F8_SHA1_32</c> 
+     <c>AES128_F8</c>
+     <c>HMAC-SHA1 (32 bit)</c>
+
+
+     <c>SRTP_NULL_SHA1_80</c> 
+     <c>NULL</c>
+     <c>HMAC-SHA1 (80 bit)</c>
+
+     <c>SRTP_NULL_SHA1_32</c> 
+     <c>NULL</c>
+     <c>HMAC-SHA1 (32 bit)</c>
+
+   </texttable>
+   </section>
+   <t>
+   [TODO: David, can you fill in whatever fixed parameters we need
+   please?]
+   </t>
+   <t>
+   New SRTPProtectionProfile values must be defined by RFC 2434 
+   Standards Action. See Section <xref target="section.iana"/>
+   for IANA Considerations.
+   </t>
+   </section>
+
    <section title="Key Derivation">
    <t>
    When SRTP mode is in effect, different keys are used for 
@@ -237,16 +308,16 @@
    </t>
    <figure>
    <artwork>
-     client_write_MAC_secret[SecurityParameters.hash_size]    
-     server_write_MAC_secret[SecurityParameters.hash_size]    
-     client_write_key[SecurityParameters.key_material_length] 
-     server_write_key[SecurityParameters.key_material_length] 
-     srtp_client_write_MAC_secret[SecurityParameters.hash_size]    
-     srtp_server_write_MAC_secret[SecurityParameters.hash_size]    
-     srtp_client_write_key[SecurityParameters.key_material_length] 
-     srtp_server_write_key[SecurityParameters.key_material_length] 
-     srtp_client_write_salt_secret[SecurityParameters.salt_size]    
-     srtp_server_write_salt_secret[SecurityParameters.salt_size]    
+   client_write_MAC_secret[SecurityParameters.hash_size]    
+   server_write_MAC_secret[SecurityParameters.hash_size]    
+   client_write_key[SecurityParameters.key_material_length] 
+   server_write_key[SecurityParameters.key_material_length] 
+   srtp_client_write_MAC_secret[SRTPSecurityParameters.hash_size]    
+   srtp_server_write_MAC_secret[SRTPSecurityParameters.hash_size]    
+   srtp_client_write_key[SRTPSecurityParameters.key_material_length] 
+   srtp_server_write_key[SRTPSecurityParameters.key_material_length] 
+   srtp_client_write_salt_secret[SRTPSecurityParameters.salt_size]    
+   srtp_server_write_salt_secret[SRTPSecurityParameters.salt_size]    
    </artwork>
    </figure>
    <t>
@@ -487,7 +558,7 @@
    </section>
    </section>
 
-   <section title="IANA Considerations"> 
+   <section title="IANA Considerations" anchor="section.iana"> 
       <t>
       This document a new extension for DTLS, in
 accordance with <xref target="I-D.ietf-tls-rfc3546bis"/>:
@@ -500,7 +571,15 @@ accordance with <xref target="I-D.ietf-tls-rfc3546bis"/>:
 </t>
 <t>
 This extension MUST only be used with DTLS.
-      </t> 
+</t> 
+<t>
+Section <xref target="section.propro"/> requires that all SRTPProtectionProfile
+values be defined by RFC 2434 Standards Action. IANA SHOULD
+create a DTLS SRTPProtectionProfile registry initially populated
+with values from Section <xref target="section.propro"/> of this document.
+Future values MUST be allocated via Standards Action as described
+in <xref target="RFC2434"/>
+</t>     
    </section>
 
    <section title="Acknowledgments">
@@ -515,6 +594,7 @@ This extension MUST only be used with DTLS.
     <references title="Normative References">
       &rfc1889;
       &rfc2119;
+      &rfc2434;
 <!--      &rfc3280; -->
       &rfc3550;
       &I-D.rescorla-dtls;
