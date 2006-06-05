@@ -1,0 +1,48 @@
+From: EKR
+To: fluffy@cisco.com, jon.peterson@neustar.biz, jdrosen@cisco.com, bryan@ethernot.org
+Subject: A Taxonomy of P2P SIP Architectures
+
+BACKGROUND
+There's been a lot of interest in and outside the IETF in what's
+called "Peer-to-Peer SIP". Unfortunately, there's not wide agreement
+on what that actually means and the discussion tends to get bogged
+down in implementation details about DHTs. This document is an attempt
+to describe the various abstract system architectures that one
+could be interested in supporting.
+
+
+SIMPLIFIED CURRENT SIP ARCHITECTURE
+The architecture of your basic SIP system looks something like this:
+
+
+                   +-------------+
+                   |  Registrar/ |
+                   | Proxy, ...  | 
+                   +-------------+
+                     |    |    |
+        +------------+    |    +------------+
+        |                 |                 |
+    +-------+         +-------+         +-------+
+    |  UA   |         |  UA   |         |  UA   |
+    +-------+         +-------+         +-------+
+
+
+Operationally this means that in order to deploy a SIP-based VoIP
+service you need to stand up a server (or cluster of servers)
+to act as a registrar and proxy. This server (or group of servers)
+provides some or all of the following important functions:
+
+- Allows the user to register their location
+- Allows callers to lookup the user's location
+- NAT/Firewall traversal for signalling
+- NAT/Firewall traversal for media
+
+I think most of these are fairly obvious, but because the location
+service has been the topic of so much discussion, I wanted to recap
+how things currently work. When a UA wants to call someone, it 
+goes through the following procedure:
+
+1. Lookup the RHS of the AOR in the DNS.
+2. Contact the proxy server that it gets in response.
+3. The proxy server
+
