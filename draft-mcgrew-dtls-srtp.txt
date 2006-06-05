@@ -80,19 +80,19 @@ Table of Contents
      4.1.  SIP Forking  . . . . . . . . . . . . . . . . . . . . . . . 11
    5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 12
      5.1.  Security of Negotiation  . . . . . . . . . . . . . . . . . 12
-     5.2.  Security of Established Keys . . . . . . . . . . . . . . . 12
-     5.3.  Framing Confusion  . . . . . . . . . . . . . . . . . . . . 12
-     5.4.  Sequence Number Interactions . . . . . . . . . . . . . . . 12
-       5.4.1.  Alerts . . . . . . . . . . . . . . . . . . . . . . . . 13
-       5.4.2.  Renegotiation  . . . . . . . . . . . . . . . . . . . . 13
+     5.2.  Framing Confusion  . . . . . . . . . . . . . . . . . . . . 12
+     5.3.  Sequence Number Interactions . . . . . . . . . . . . . . . 12
+       5.3.1.  Alerts . . . . . . . . . . . . . . . . . . . . . . . . 12
+       5.3.2.  Renegotiation  . . . . . . . . . . . . . . . . . . . . 13
    6.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 13
-   7.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . 14
+   7.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . 13
    8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 14
      8.1.  Normative References . . . . . . . . . . . . . . . . . . . 14
      8.2.  Informational References . . . . . . . . . . . . . . . . . 14
    Appendix A.  Open Issue: Key/Stream Interaction  . . . . . . . . . 15
    Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 18
    Intellectual Property and Copyright Statements . . . . . . . . . . 19
+
 
 
 
@@ -639,9 +639,7 @@ Internet-Draft           SRTP Extension for DTLS                May 2006
    reduces this to a denial of service attack--which any attacker who
    can control the channel can always mount.
 
-5.2.  Security of Established Keys
-
-5.3.  Framing Confusion
+5.2.  Framing Confusion
 
    Because two different framing formats are used, there is concern that
    an attacker could convince the receiver to treat an SRTP-framed RTP
@@ -656,7 +654,7 @@ Internet-Draft           SRTP Extension for DTLS                May 2006
    SRTP record would be treated as an unknown type and ignored.  (See
    Section 6 of [9]).
 
-5.4.  Sequence Number Interactions
+5.3.  Sequence Number Interactions
 
    As described in Section Section 3.6.1, the SRTP and DTLS sequence
    number spaces are distinct.  This means that it is not possible to
@@ -664,7 +662,9 @@ Internet-Draft           SRTP Extension for DTLS                May 2006
    SRTP packet.  In general, this is relevant in two situations:  alerts
    and rehandshake.
 
+5.3.1.  Alerts
 
+   Because DTLS handshake and change_cipher_spec messages share the same
 
 
 
@@ -673,9 +673,6 @@ McGrew & Rescorla       Expires November 21, 2006              [Page 12]
 Internet-Draft           SRTP Extension for DTLS                May 2006
 
 
-5.4.1.  Alerts
-
-   Because DTLS handshake and change_cipher_spec messages share the same
    sequence number space as alerts, they can be ordered correctly.
    Because DTLS alerts are inherently unreliable and SHOULD NOT be
    generated as a response to data packets, reliable sequencing between
@@ -686,7 +683,7 @@ Internet-Draft           SRTP Extension for DTLS                May 2006
    stream.  Such implementations MUST check for alert retransmission and
    discard retransmitted alerts to avoid overreacting to replay attacks.
 
-5.4.2.  Renegotiation
+5.3.2.  Renegotiation
 
    Because the rehandshake transition algorithm specified in Section
    Section 3.7 requires trying multiple sets of keys, it slightly
@@ -722,14 +719,15 @@ Internet-Draft           SRTP Extension for DTLS                May 2006
    allocated via Standards Action as described in [3]
 
 
+7.  Acknowledgments
+
+
 
 
 McGrew & Rescorla       Expires November 21, 2006              [Page 13]
 
 Internet-Draft           SRTP Extension for DTLS                May 2006
 
-
-7.  Acknowledgments
 
    Special thanks to Jason Fischl, Flemming Andreasen, Dan Wing, and
    Cullen Jennings for input, discussions, and guidance.
@@ -778,6 +776,8 @@ Internet-Draft           SRTP Extension for DTLS                May 2006
    [10]  Blake-Wilson, S., "Transport Layer Security (TLS) Extensions",
          draft-ietf-tls-rfc3546bis-02 (work in progress), October 2005.
 
+   [11]  Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K.
+
 
 
 McGrew & Rescorla       Expires November 21, 2006              [Page 14]
@@ -785,7 +785,6 @@ McGrew & Rescorla       Expires November 21, 2006              [Page 14]
 Internet-Draft           SRTP Extension for DTLS                May 2006
 
 
-   [11]  Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K.
          Norrman, "The Secure Real-time Transport Protocol (SRTP)",
          RFC 3711, March 2004.
 
@@ -825,6 +824,7 @@ Appendix A.  Open Issue: Key/Stream Interaction
    resumption they should be done after the first channel is
    established.  For two channels this provides a ladder diagram
    something like this (parenthetical #s are media channel #s)
+
 
 
 
