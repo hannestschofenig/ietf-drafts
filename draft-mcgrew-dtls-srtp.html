@@ -375,7 +375,8 @@ DTLS.
      are distinct from the SRTP keys used to protect packets
      originated by the server.  All of the RTP sources originating on
      the client use the same SRTP keys, and similarly, all of the RTP
-     sources originating on the server use the same SRTP keys.  The
+     sources originating on the server over the same channel 
+     use the same SRTP keys.  The
      SRTP implementation MUST ensure that all of the SSRC values for
      all of the RTP sources originating from the same device are
      distinct, in order to avoid the "two-time pad" problem (as
@@ -445,10 +446,10 @@ DTLS.
 
    struct {
       SRTPProtectionProfiles SRTPProtectionProfiles;
-      uint8 srtp_mki&lt;255&rt;;
+      uint8 srtp_mki&lt;255&gt;;
    } UseSRTPData;
 
-   SRTPProtectionProfile SRTPProtectionProfiles&lt;2^16-1&rt;;
+   SRTPProtectionProfile SRTPProtectionProfiles&lt;2^16-1&gt;;
 </pre>
 <p>
    The SRTPProtectionProfiles list indicates the SRTP protection
@@ -1289,6 +1290,14 @@ is to use one security association connection on a single channel and reuse the
 keying material across multiple channels, but this gives up the
 simplicity and independence benefits mentioned above and so is 
 architecturally undesirable unless absolutely necessary.
+
+</p>
+<p>
+A related alternative is to take advantage of the fact that 
+an RTP channel is intended to be paired with an RTCP channel.
+The DTLS handshake could be performed on the RTCP channel and
+the same keys used for both the RTP and RTCP channels. We are
+still studying this alternative.
 
 </p>
 <a name="rfc.authors"></a><br /><hr />

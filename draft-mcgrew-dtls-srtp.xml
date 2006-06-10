@@ -1129,6 +1129,7 @@ is to use one security association connection on a single channel and reuse the
 keying material across multiple channels, but this gives up the
 simplicity and independence benefits mentioned above and so is 
 architecturally undesirable unless absolutely necessary.
+</t>
 <t>
 A related alternative is to take advantage of the fact that 
 an RTP channel is intended to be paired with an RTCP channel.
