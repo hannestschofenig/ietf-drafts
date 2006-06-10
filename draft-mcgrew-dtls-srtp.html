@@ -193,39 +193,41 @@ The use_srtp Extension<br />
 use_srtp Extension Definition<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#section.propro">3.2.2.</a>&nbsp;
 SRTP Protection Profiles<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor7">3.3.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor7">3.2.3.</a>&nbsp;
+srtp_mki value<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor8">3.3.</a>&nbsp;
 Key Derivation<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor8">3.4.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor9">3.4.</a>&nbsp;
 Key Scope<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor9">3.5.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor10">3.5.</a>&nbsp;
 Key Usage Limitations<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor10">3.6.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor11">3.6.</a>&nbsp;
 Data Protection<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#section.transmit">3.6.1.</a>&nbsp;
 Transmission<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor11">3.6.2.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor12">3.6.2.</a>&nbsp;
 Reception<br />
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#section.rehandshake">3.7.</a>&nbsp;
 Rehandshake and Re-key<br />
-<a href="#anchor12">4.</a>&nbsp;
+<a href="#anchor13">4.</a>&nbsp;
 Multi-party RTP Sessions<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor13">4.1.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor14">4.1.</a>&nbsp;
 SIP Forking<br />
 <a href="#section.sec">5.</a>&nbsp;
 Security Considerations<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor14">5.1.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor15">5.1.</a>&nbsp;
 Security of Negotiation<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor15">5.2.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor16">5.2.</a>&nbsp;
 Framing Confusion<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor16">5.3.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor17">5.3.</a>&nbsp;
 Sequence Number Interactions<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor17">5.3.1.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor18">5.3.1.</a>&nbsp;
 Alerts<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor18">5.3.2.</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor19">5.3.2.</a>&nbsp;
 Renegotiation<br />
 <a href="#section.iana">6.</a>&nbsp;
 IANA Considerations<br />
-<a href="#anchor19">7.</a>&nbsp;
+<a href="#anchor20">7.</a>&nbsp;
 Acknowledgments<br />
 <a href="#rfc.references1">8.</a>&nbsp;
 References<br />
@@ -254,7 +256,9 @@ Intellectual Property and Copyright Statements<br />
     RTP traffic and to the control traffic for RTP, the Real-time
     Transport Control Protocol (RTCP). SRTP does not provide key
     management functionality but instead depends on external key
-    management.
+    management to provide
+    secret master keys and the algorithms and parameters for use with
+    those keys.
     
 </p>
 <p>
@@ -263,11 +267,20 @@ Intellectual Property and Copyright Statements<br />
     that offers integrated key management, parameter negotiation, and
     secure data transfer. Because DTLS's data transfer protocol is
     generic, it is less highly optimized for use with RTP than is
-    SRTP, which has been specifically tuned for that purpose. This
-    document describes an SRTP extension for DTLS which combine the
+    SRTP, which has been specifically tuned for that purpose.
+    
+</p>
+<p>This
+    document describes DTLS-SRTP, an SRTP extension for DTLS which combine the
     the performance and encryption flexibility benefits of SRTP with
     the flexibility and convenience of DTLS's integrated key and
-    association management. This extension MUST only be used when the
+    association management. DTLS-SRTP can be viewed in two equivalent ways: as a new key
+    management method for SRTP, and a new RTP-specific data format for
+DTLS.
+    
+</p>
+<p>
+    This extension MUST only be used when the
     data being transported is RTP and
     RTCP <a class="info" href="#RFC3550">[4]<span> (</span><span class="info">Schulzrinne, H., Casner, S., Frederick, R., and V. Jacobson, &ldquo;RTP: A Transport Protocol for Real-Time Applications,&rdquo; July&nbsp;2003.</span><span>)</span></a>.
     
@@ -283,7 +296,7 @@ Intellectual Property and Copyright Statements<br />
 </li>
 <li>a DTLS extension used to negotiate SRTP algorithms, and
 </li>
-<li>other content types are protected using the usual DTLS record
+<li>other DTLS record layer content types are protected using the ordinary DTLS record
       format.
 </li>
 </ul><p>
@@ -303,8 +316,7 @@ Intellectual Property and Copyright Statements<br />
 <a name="rfc.section.3"></a><h3>3.&nbsp;Protocol Description</h3>
 
 <p>
-   In this section we provide a description of the new protocol
-   elements introduced by this proposal.
+   In this section we define the DLTS extension and its use.
    
 </p>
 <a name="anchor4"></a><br /><hr />
@@ -384,7 +396,7 @@ Intellectual Property and Copyright Statements<br />
 </p>
 <p>
    Servers that receive an extended hello containing a "use_srtp"
-   extension, MAY agree to use SRTP by including an 
+   extension MAY agree to use SRTP by including an 
    extension of type "use_srtp", with the chosen protection
    profile in the extended server hello. This process is shown below.
    
@@ -410,7 +422,8 @@ Intellectual Property and Copyright Statements<br />
    Once the "use_srtp" extension is negotiated, packets 
    of type "application_data" in
    the newly negotiated association (i.e., after the change_cipher_spec)
-   SHOULD be protected using SRTP. 
+   MUST be protected using SRTP and packets of type "application_data"
+   MUST NOT be sent.
    Records of type other than
    "application_data" MUST use ordinary DTLS framing. When the "use_srtp"
    extension is in effect, implementations MUST NOT place more than
@@ -425,25 +438,32 @@ Intellectual Property and Copyright Statements<br />
 
 <p>
    The client MUST fill the extension_data field of the 
-   the "use_rtp" extension with an SRTPProtectionProfiles value:
+   the "use_srtp" extension with an UseSRTPData value:
    
 </p><pre>
    uint8 SRTPProtectionProfile[2];
 
-   SRTPProtectionProfiles SRTPProtectionProfiles;
+   struct {
+      SRTPProtectionProfiles SRTPProtectionProfiles;
+      uint8 srtp_mki&lt;255&rt;;
+   } UseSRTPData;
+
+   SRTPProtectionProfile SRTPProtectionProfiles&lt;2^16-1&rt;;
 </pre>
 <p>
-   This list indicates the SRTP protection profiles that the 
-   client is willing to support, listed in descending order
-   of preference.
+   The SRTPProtectionProfiles list indicates the SRTP protection
+   profiles that the client is willing to support, listed in
+   descending order of preference. The srtp_mki value contains
+   the SRTP MasterKeyIdentifier (MKI) value (if any) which the client
+   will use for his SRTP messages.
    
 </p>
 <p>
    If the server is willing to accept the use_srtp extension, it MUST
    respond with its own "use_srtp" extension in the
-   ExtendedServerHello.  The extension_data field MUST be a
-   SRTPProtectionProfile which contains the
-   protection profile which the server has chosen for use with this
+   ExtendedServerHello. The extension_data field MUST contain
+   a UseSRTPData value with a single SRTPProtectionProfile
+   value which the server has chosen for use with this
    connection. The server MUST NOT select a value which the client
    has not offered. If there is no shared profile, the 
    server should not return the use_srtp extension at which point
@@ -694,11 +714,53 @@ Intellectual Property and Copyright Statements<br />
 </p>
 <a name="anchor7"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.2.3"></a><h3>3.2.3.&nbsp;srtp_mki value</h3>
+
+<p>
+   The srtp_mki value can be used to indicate the capability and
+   desire to use the SRTP Master Key Indicator (MKI) field in the SRTP
+   and SRTCP packets.  The MKI field indicates to an SRTP receiver
+   which key was used to protect the packet that contains that field.
+   The srtp_mki field contains the value of the SRTP MKI which is
+   associated with the SRTP master keys derived from this handshake.
+   Each SRTP session MUST have exactly one master key that is used to
+   protect packets at any given time.  The client MUST choose the MKI
+   value so that it is distinct from the last MKI value that was used,
+   and it SHOULD make these values unique.
+   
+</p>
+<p>
+   Upon receipt of a "use_srtp" extension containing a "srtp_mki" field,
+   the server MUST either (assuming it accepts the extension at all):
+   
+</p>
+<p>
+   </p>
+<ol class="text">
+<li>include a matching "srtp_mki" value in its "use_srtp" extension
+   to indicate that it will make use of the MKI, or
+</li>
+<li>return an empty "srtp_mki" value to indicate that it cannot
+   make use of the MKI.
+</li>
+</ol><p>
+   
+</p>
+<p>
+   If the client detects a nonzero-length MKI in the server's response that
+   is different than the one the client offered
+   MUST abort the handshake and SHOULD send an invalid_parameter alert. 
+   If the client and server agree on an MKI, all SRTP packets protected
+   under the new security parameters MUST contain that MKI.
+   
+</p>
+<a name="anchor8"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.3.3"></a><h3>3.3.&nbsp;Key Derivation</h3>
 
 <p>
    When SRTP mode is in effect, different keys are used for 
-   ordinary DTLS record protection and SRTP record protection.
+   ordinary DTLS record protection and SRTP packet protection.
    These keys are generated as additional keying material at
    the end of the DTLS key block. Thus, the key block becomes:
    
@@ -762,7 +824,7 @@ server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_length]
 <p>
    
 </p>
-<a name="anchor8"></a><br /><hr />
+<a name="anchor9"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.3.4"></a><h3>3.4.&nbsp;Key Scope</h3>
 
@@ -774,7 +836,7 @@ server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_length]
        for which they lack a key. 
      
 </p>
-<a name="anchor9"></a><br /><hr />
+<a name="anchor10"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.3.5"></a><h3>3.5.&nbsp;Key Usage Limitations</h3>
 
@@ -788,7 +850,7 @@ server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_length]
      of either outbound or inbound traffic.
    
 </p>
-<a name="anchor10"></a><br /><hr />
+<a name="anchor11"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.3.6"></a><h3>3.6.&nbsp;Data Protection</h3>
 
@@ -823,12 +885,13 @@ server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_length]
    invokes the processing described in RFC 3711 Sections 3
    and 4. The resulting SRTP packet is then sent directly on
    the wire as a single datagram with no DTLS framing. This
-   provides the same bits on the wire representation as SRTP for the data.
+   provides an encapsulation of the data that conforms to and
+   interoperates with SRTP.
    Note that the RTP sequence number rather than the 
    DTLS sequence number is used for these packets.
    
 </p>
-<a name="anchor11"></a><br /><hr />
+<a name="anchor12"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.3.6.2"></a><h3>3.6.2.&nbsp;Reception</h3>
 
@@ -858,7 +921,7 @@ server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_length]
                 +----------------+
                 | 127 < B < 192 -+--> forward to RTP
                 |                |
-    packet -->  |  19 < B < 63  -+--> forward to DTLS
+    packet -->  |  19 < B < 64  -+--> forward to DTLS
                 |                |
                 |       B < 2   -+--> forward to STUN
                 +----------------+
@@ -910,7 +973,7 @@ maximum segment lifetime (MSL).
   been protected with the new key set.
 
 </p>
-<a name="anchor12"></a><br /><hr />
+<a name="anchor13"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.4"></a><h3>4.&nbsp;Multi-party RTP Sessions</h3>
 
@@ -922,7 +985,7 @@ conference brigde may use DTLS-SRTP to secure the communication to and
 from each of the participants in a conference.
 
 </p>
-<a name="anchor13"></a><br /><hr />
+<a name="anchor14"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.4.1"></a><h3>4.1.&nbsp;SIP Forking</h3>
 
@@ -953,7 +1016,7 @@ particular DTLS-SRTP session.
    discussed here.
    
 </p>
-<a name="anchor14"></a><br /><hr />
+<a name="anchor15"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.5.1"></a><h3>5.1.&nbsp;Security of Negotiation</h3>
 
@@ -967,7 +1030,7 @@ particular DTLS-SRTP session.
    control the channel can always mount.
    
 </p>
-<a name="anchor15"></a><br /><hr />
+<a name="anchor16"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.5.2"></a><h3>5.2.&nbsp;Framing Confusion</h3>
 
@@ -989,7 +1052,7 @@ particular DTLS-SRTP session.
    ignored. (See Section 6 of <a class="info" href="#I-D.ietf-tls-rfc2246-bis">[9]<span> (</span><span class="info">Dierks, T. and E. Rescorla, &ldquo;The TLS Protocol Version 1.1,&rdquo; June&nbsp;2005.</span><span>)</span></a>).
    
 </p>
-<a name="anchor16"></a><br /><hr />
+<a name="anchor17"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.5.3"></a><h3>5.3.&nbsp;Sequence Number Interactions</h3>
 
@@ -1001,7 +1064,7 @@ particular DTLS-SRTP session.
    is relevant in two situations: alerts and rehandshake.
    
 </p>
-<a name="anchor17"></a><br /><hr />
+<a name="anchor18"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.5.3.1"></a><h3>5.3.1.&nbsp;Alerts</h3>
 
@@ -1021,7 +1084,7 @@ particular DTLS-SRTP session.
    avoid overreacting to replay attacks.
    
 </p>
-<a name="anchor18"></a><br /><hr />
+<a name="anchor19"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.5.3.2"></a><h3>5.3.2.&nbsp;Renegotiation</h3>
 
@@ -1072,7 +1135,7 @@ Future values MUST be allocated via Standards Action as described
 in <a class="info" href="#RFC2434">[3]<span> (</span><span class="info">Narten, T. and H. Alvestrand, &ldquo;Guidelines for Writing an IANA Considerations Section in RFCs,&rdquo; October&nbsp;1998.</span><span>)</span></a>
 
 </p>
-<a name="anchor19"></a><br /><hr />
+<a name="anchor20"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.7"></a><h3>7.&nbsp;Acknowledgments</h3>
 
