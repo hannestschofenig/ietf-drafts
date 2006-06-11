@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="US-ASCII"?>
+
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY I-D.ietf-tls-rfc2246-bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc2246-bis.xml">
 <!ENTITY I-D.ietf-tls-rfc3546bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc3546bis.xml">
@@ -21,7 +22,9 @@
 <!ENTITY rfc4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 
 ]>
+
 <!-- $Id -->
+
 <?rfc inline="yes"?>
 <?rfc toc="yes" ?>
 <?rfc symrefs="no" ?>
@@ -30,6 +33,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
+
 <rfc category="std" docName="draft-mcgrew-tls-srtp-00.txt" 
      ipr="full3978"> 
   <front> 
