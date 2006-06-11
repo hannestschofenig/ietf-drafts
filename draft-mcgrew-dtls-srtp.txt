@@ -83,10 +83,10 @@ Table of Contents
      5.1.  Security of Negotiation  . . . . . . . . . . . . . . . . . 13
      5.2.  Framing Confusion  . . . . . . . . . . . . . . . . . . . . 13
      5.3.  Sequence Number Interactions . . . . . . . . . . . . . . . 13
-       5.3.1.  Alerts . . . . . . . . . . . . . . . . . . . . . . . . 13
+       5.3.1.  Alerts . . . . . . . . . . . . . . . . . . . . . . . . 14
        5.3.2.  Renegotiation  . . . . . . . . . . . . . . . . . . . . 14
    6.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 14
-   7.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . 14
+   7.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . 15
    8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 15
      8.1.  Normative References . . . . . . . . . . . . . . . . . . . 15
      8.2.  Informational References . . . . . . . . . . . . . . . . . 15
@@ -545,7 +545,7 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
 
 3.6.  Data Protection
 
-   Once the DTLS handshake has completed the peers can send RTP and RTCP
+   Once the DTLS handshake has completed the peers can send RTP or RTCP
    over the newly created channel.  We describe the transmission process
    first followed by the reception process.
 
@@ -628,15 +628,17 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    packets.  The keys should be maintained for the duration of the
    maximum segment lifetime (MSL).
 
-   When a packet arrives after the handshake completed, a receiver
-   SHOULD use the newly derived set of keys to process that packet.  (If
-   the packet was protected with the older set of keys, this fact will
-   become apparent to the receiver as an authentication failure will
-   occur.)  If the authentication check on the packet fails, then the
-   receiver MAY process the packet with the older set of keys.  If that
-   authentication check indicates that the packet is valid, the packet
-   should be accepted; otherwise, the packet MUST be discarded and
-   rejected.
+   If an MKI is used, then the receiver should use the corresponding set
+   of keys to process an incoming packet.  Otherwise, when a packet
+   arrives after the handshake completed, a receiver SHOULD use the
+   newly derived set of keys to process that packet unless there is an
+   MKI (If the packet was protected with the older set of keys, this
+   fact will become apparent to the receiver as an authentication
+   failure will occur.)  If the authentication check on the packet fails
+   and no MKI is being used, then the receiver MAY process the packet
+   with the older set of keys.  If that authentication check indicates
+   that the packet is valid, the packet should be accepted; otherwise,
+   the packet MUST be discarded and rejected.
 
    Receivers MAY use the SRTP packet sequence number to aid in the
    selection of keys.  After a packet has been received and
@@ -663,8 +665,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    source transport address as a distinct DTLS-SRTP session for the
    purposes of the DTLS association.
 
-   When SIP forking occurs, the certificate fingerprint carried in the
-   SIP offer can be used to correlate the particular offer to the
 
 
 
@@ -673,7 +673,13 @@ McGrew & Rescorla       Expires December 12, 2006              [Page 12]
 Internet-Draft           SRTP Extension for DTLS               June 2006
 
 
-   particular DTLS-SRTP session.
+   When SIP forking occurs, two methods can be used to correlate each
+   answer to the corresponding DTLS-SRTP session.  If the answers have
+   different certificates then fingerprints in the answers can be used
+   to correlate the SIP dialogs with the associated DTLS session.  If
+   answers have the same fingerprint, then the ClientUnique extension
+   defined in [XXX:  TODO] MAY be used.  If the ClientUnique extension
+   is present, it SHOULD be used preferentially.
 
 
 5.  Security Considerations
@@ -714,13 +720,7 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    SRTP packet.  In general, this is relevant in two situations:  alerts
    and rehandshake.
 
-5.3.1.  Alerts
 
-   Because DTLS handshake and change_cipher_spec messages share the same
-   sequence number space as alerts, they can be ordered correctly.
-   Because DTLS alerts are inherently unreliable and SHOULD NOT be
-   generated as a response to data packets, reliable sequencing between
-   SRTP packets and DTLS alerts is not an important feature.  However,
 
 
 
@@ -729,6 +729,13 @@ McGrew & Rescorla       Expires December 12, 2006              [Page 13]
 Internet-Draft           SRTP Extension for DTLS               June 2006
 
 
+5.3.1.  Alerts
+
+   Because DTLS handshake and change_cipher_spec messages share the same
+   sequence number space as alerts, they can be ordered correctly.
+   Because DTLS alerts are inherently unreliable and SHOULD NOT be
+   generated as a response to data packets, reliable sequencing between
+   SRTP packets and DTLS alerts is not an important feature.  However,
    implementations which wish to use DTLS alerts to signal problems with
    the SRTP encoding SHOULD simply act on alerts as soon as they are
    received and assume that they refer to the temporally contiguous
@@ -738,13 +745,13 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
 5.3.2.  Renegotiation
 
    Because the rehandshake transition algorithm specified in Section
-   Section 3.7 requires trying multiple sets of keys, it slightly
-   weakens the authentication.  For instance, if an n-bit MAC is used
-   and k different sets of keys are present, then the MAC is weakened by
-   log_2(k) bits to n - log_2(k).  In practice, since the number of keys
-   used will be very small and the MACs in use are typically strong (the
-   default for SRTP is 80 bits) the decrease in security involved here
-   is minimal.
+   Section 3.7 requires trying multiple sets of keys if no MKI is used,
+   it slightly weakens the authentication.  For instance, if an n-bit
+   MAC is used and k different sets of keys are present, then the MAC is
+   weakened by log_2(k) bits to n - log_2(k).  In practice, since the
+   number of keys used will be very small and the MACs in use are
+   typically strong (the default for SRTP is 80 bits) the decrease in
+   security involved here is minimal.
 
    Another concern here is that this algorithm slightly increases the
    work factor on the receiver because it needs to attempt multiple
@@ -770,13 +777,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    allocated via Standards Action as described in [3]
 
 
-7.  Acknowledgments
-
-   Special thanks to Jason Fischl, Flemming Andreasen, Dan Wing, and
-   Cullen Jennings for input, discussions, and guidance.
-
-
-8.  References
 
 
 
@@ -784,6 +784,14 @@ McGrew & Rescorla       Expires December 12, 2006              [Page 14]
 
 Internet-Draft           SRTP Extension for DTLS               June 2006
 
+
+7.  Acknowledgments
+
+   Special thanks to Jason Fischl, Flemming Andreasen, Dan Wing, and
+   Cullen Jennings for input, discussions, and guidance.
+
+
+8.  References
 
 8.1.  Normative References
 
@@ -825,14 +833,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
          draft-ietf-mmusic-sdescriptions-12 (work in progress),
          September 2005.
 
-   [10]  Dierks, T. and E. Rescorla, "The TLS Protocol Version 1.1",
-         draft-ietf-tls-rfc2246-bis-13 (work in progress), June 2005.
-
-   [11]  Blake-Wilson, S., "Transport Layer Security (TLS) Extensions",
-         draft-ietf-tls-rfc3546bis-02 (work in progress), October 2005.
-
-   [12]  Rosenberg, J., "Simple Traversal of UDP Through Network Address
-         Translators (NAT) (STUN)", draft-ietf-behave-rfc3489bis-03
 
 
 
@@ -841,6 +841,14 @@ McGrew & Rescorla       Expires December 12, 2006              [Page 15]
 Internet-Draft           SRTP Extension for DTLS               June 2006
 
 
+   [10]  Dierks, T. and E. Rescorla, "The TLS Protocol Version 1.1",
+         draft-ietf-tls-rfc2246-bis-13 (work in progress), June 2005.
+
+   [11]  Blake-Wilson, S., "Transport Layer Security (TLS) Extensions",
+         draft-ietf-tls-rfc3546bis-02 (work in progress), October 2005.
+
+   [12]  Rosenberg, J., "Simple Traversal of UDP Through Network Address
+         Translators (NAT) (STUN)", draft-ietf-behave-rfc3489bis-03
          (work in progress), March 2006.
 
 
@@ -879,14 +887,6 @@ Appendix A.  Open Issue: Key/Stream Interaction
    resumption they should be done after the first channel is
    established.  For two channels this provides a ladder diagram
    something like this (parenthetical #s are media channel #s)
-
-
-
-
-
-
-
-
 
 
 

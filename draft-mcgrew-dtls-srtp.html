@@ -824,11 +824,14 @@ server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len]
         The keys should be maintained for the duration of the maximum segment
         lifetime (MSL).
 </p>
-<p>When a packet arrives after the handshake completed, a receiver
-        SHOULD use the newly derived set of keys to process that packet. (If
-        the packet was protected with the older set of keys, this fact will
-        become apparent to the receiver as an authentication failure will
-        occur.)  
+<p>If an MKI is used, then the receiver should use the
+        corresponding set of keys to process an incoming
+        packet. Otherwise, when a packet arrives after the handshake
+        completed, a receiver SHOULD use the newly derived set of keys
+        to process that packet unless there is an MKI (If the packet
+        was protected with the older set of keys, this fact will
+        become apparent to the receiver as an authentication failure
+        will occur.)  
 	If the authentication check on the packet fails and no MKI is being
 	used, then the receiver MAY
         process the packet with the older set of keys. If that authentication
