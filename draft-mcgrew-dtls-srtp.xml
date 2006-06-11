@@ -670,7 +670,7 @@ to SRTPparameters?
       </section>
 
       <section title="Data Protection">
-        <t>Once the DTLS handshake has completed the peers can send RTP and
+        <t>Once the DTLS handshake has completed the peers can send RTP or
         RTCP over the newly created channel. We describe the transmission
         process first followed by the reception process.</t>
 
@@ -812,15 +812,20 @@ to SRTPparameters?
         for some time in order to be able to decrypt and verify older packets.
         The keys should be maintained for the duration of the maximum segment
         lifetime (MSL).</t>
-
-        <t>When a packet arrives after the handshake completed, a receiver
-        SHOULD use the newly derived set of keys to process that packet. (If
-        the packet was protected with the older set of keys, this fact will
-        become apparent to the receiver as an authentication failure will
-        occur.) <!--
+	
+        <t>If an MKI is used, then the receiver should use the
+        corresponding set of keys to process an incoming
+        packet. Otherwise, when a packet arrives after the handshake
+        completed, a receiver SHOULD use the newly derived set of keys
+        to process that packet unless there is an MKI (If the packet
+        was protected with the older set of keys, this fact will
+        become apparent to the receiver as an authentication failure
+        will occur.) <!--
       <t>[DAM]  But what about the case where no SRTP authentication is used?
          [EKR] Doesn't apply here since we only specify ones that have auth.
---> If the authentication check on the packet fails, then the receiver MAY
+--> 
+	If the authentication check on the packet fails and no MKI is being
+	used, then the receiver MAY
         process the packet with the older set of keys. If that authentication
         check indicates that the packet is valid, the packet should be
         accepted; otherwise, the packet MUST be discarded and rejected.</t>
@@ -849,9 +854,15 @@ to SRTPparameters?
         source transport address as a distinct DTLS-SRTP session for the
         purposes of the DTLS association.</t>
 
-        <t>When SIP forking occurs, the certificate fingerprint carried in the
-        SIP offer can be used to correlate the particular offer to the
-        particular DTLS-SRTP session.</t>
+        <t>When SIP forking occurs, two methods can be used to 
+	correlate each answer to the corresponding DTLS-SRTP session. 
+	If the answers have different certificates then fingerprints
+	in the answers can be used to correlate the SIP dialogs
+	with the associated DTLS session. If answers have the same
+	fingerprint, then the ClientUnique extension defined in 
+	[XXX: TODO] MAY be used. If the ClientUnique extension
+	is present, it SHOULD be used preferentially.
+	</t>
       </section>
     </section>
 
@@ -916,7 +927,7 @@ to SRTPparameters?
         <section title="Renegotiation">
           <t>Because the rehandshake transition algorithm specified in Section
           <xref target="section.rehandshake"></xref> requires trying multiple
-          sets of keys, it slightly weakens the authentication. For instance,
+          sets of keys if no MKI is used, it slightly weakens the authentication. For instance,
           if an n-bit MAC is used and k different sets of keys are present,
           then the MAC is weakened by log_2(k) bits to n - log_2(k). In
           practice, since the number of keys used will be very small and the
