@@ -1,12 +1,12 @@
-
-
+<html><head><title>wdiff draft-mcgrew-dtls-srtp.txt.old draft-mcgrew-dtls-srtp.txt</title></head><body>
+<pre>
 
 Network Working Group                                          D. McGrew
 Internet-Draft                                             Cisco Systems
-Expires:  December 12, 2006                                  E. Rescorla
+Expires:  <strike><font color='red'>November 21,</font></strike>  <strong><font color='green'>December 12,</font></strong> 2006                                  E. Rescorla
                                                        Network Resonance
-                                                           June 10, 2006
-
+                                                            <strike><font color='red'>May 20,</font></strike>
+                                                           <strong><font color='green'>June 10,</font></strong> 2006
 
 Datagram Transport Layer Security (DTLS) Extension to Establish Keys for
                Secure Real-time Transport Protocol (SRTP)
@@ -35,7 +35,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on December 12, 2006.
+   This Internet-Draft will expire on <strike><font color='red'>November 21,</font></strike> <strong><font color='green'>December 12,</font></strong> 2006.
 
 Copyright Notice
 
@@ -49,16 +49,7 @@ Abstract
    to the control traffic for RTP, the Real-time Transport Control
    Protocol (RTCP).  This document describes a method of using DTLS key
    management for SRTP by using a new extension that indicates that SRTP
-
-
-
-McGrew & Rescorla       Expires December 12, 2006               [Page 1]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
    is to be used for data protection, and which establishes SRTP keys.
-
 
 Table of Contents
 
@@ -76,7 +67,7 @@ Table of Contents
      3.6.  Data Protection  . . . . . . . . . . . . . . . . . . . . . 10
        3.6.1.  Transmission . . . . . . . . . . . . . . . . . . . . . 11
        3.6.2.  Reception  . . . . . . . . . . . . . . . . . . . . . . 11
-     3.7.  Rehandshake and Re-key . . . . . . . . . . . . . . . . . . 11
+     3.7.  Rehandshake and Re-key . . . . . . . . . . . . . . . . . . <strike><font color='red'>12</font></strike> <strong><font color='green'>11</font></strong>
    4.  Multi-party RTP Sessions . . . . . . . . . . . . . . . . . . . 12
      4.1.  SIP Forking  . . . . . . . . . . . . . . . . . . . . . . . 12
    5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 13
@@ -94,28 +85,9 @@ Table of Contents
    Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 19
    Intellectual Property and Copyright Statements . . . . . . . . . . 20
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006               [Page 2]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
 1.  Introduction
 
-   The Secure Real-time Transport Protocol (SRTP) [6] is a profile of
+   The Secure Real-time Transport Protocol (SRTP) <strike><font color='red'>[11]</font></strike> <strong><font color='green'>[6]</font></strong> is a profile of
    the Real-time Transport Protocol (RTP) [1] that can provide
    confidentiality, message authentication, and replay protection to RTP
    traffic and to the control traffic for RTP, the Real-time Transport
@@ -131,11 +103,12 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    than is SRTP, which has been specifically tuned for that purpose.
 
    This document describes DTLS-SRTP, an SRTP extension for DTLS which
-   combine the performance and encryption flexibility benefits of SRTP
+   combine the <strike><font color='red'>the</font></strike> performance and encryption flexibility benefits of SRTP
    with the flexibility and convenience of DTLS's integrated key and
    association management.  DTLS-SRTP can be viewed in two equivalent
-   ways:  as a new key management method for SRTP, and a new RTP-
-   specific data format for DTLS.
+   ways:  as a new key management method for SRTP, and a new
+   <strike><font color='red'>RTP-specific</font></strike> <strong><font color='green'>RTP-
+   specific</font></strong> data format for DTLS.
 
    This extension MUST only be used when the data being transported is
    RTP and RTCP [4].
@@ -149,25 +122,15 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
       ordinary DTLS record format.
    The next section provides details of the new extension.
 
-
 2.  Conventions Used In This Document
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [2].
 
-
 3.  Protocol Description
 
-   In this section we define the DTLS extension and its use.
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006               [Page 3]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
+   In this section we define the <strike><font color='red'>DLTS</font></strike> <strong><font color='green'>DTLS</font></strong> extension and its use.
 
 3.1.  Usage Model
 
@@ -187,7 +150,7 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    used), DTLS-SRTP can leverage this integrity guarantee to provide
    complete security of the media stream.  A description of how to
    indicate DTLS-SRTP sessions in SIP and SDP, and how to authenticate
-   the endpoints using fingerprints can be found in [8] and [7].
+   the endpoints using fingerprints can be found in <strike><font color='red'>[7]</font></strike> <strong><font color='green'>[8]</font></strong> and <strike><font color='red'>[6].</font></strike> <strong><font color='green'>[7].</font></strong>
 
    Each RTP stream participates in a single DTLS session.  In a naive
    implementation, this results in new DTLS session establishment
@@ -218,13 +181,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    In order to negotiate the use of SRTP data protection, clients MAY
    include an extension of type "use_srtp" in the extended client hello.
 
-
-
-McGrew & Rescorla       Expires December 12, 2006               [Page 4]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
    The "extension_data" field of this extension contains the list of
    acceptable SRTP protection profiles, as indicated below.
 
@@ -235,20 +191,20 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
 
          Client                                               Server
 
-         ClientHello + use_srtp       -------->
+         ClientHello + use_srtp       --------&gt;
                                               ServerHello + use_srtp
                                                         Certificate*
                                                   ServerKeyExchange*
                                                  CertificateRequest*
-                                      <--------      ServerHelloDone
+                                      &lt;--------      ServerHelloDone
          Certificate*
          ClientKeyExchange
          CertificateVerify*
          [ChangeCipherSpec]
-         Finished                     -------->
+         Finished                     --------&gt;
                                                   [ChangeCipherSpec]
-                                      <--------             Finished
-         SRTP packets                 <------->      SRTP packets
+                                      &lt;--------             Finished
+         SRTP packets                 &lt;-------&gt;      SRTP packets
 
    Once the "use_srtp" extension is negotiated, packets of type
    "application_data" in the newly negotiated association (i.e., after
@@ -262,25 +218,17 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
 
 3.2.1.  use_srtp Extension Definition
 
-   The client MUST fill the extension_data field of the "use_srtp"
+   The client MUST fill the extension_data field of the <strike><font color='red'>the</font></strike> "use_srtp"
    extension with an UseSRTPData value:
 
       uint8 SRTPProtectionProfile[2];
 
       struct {
          SRTPProtectionProfiles SRTPProtectionProfiles;
-         uint8 srtp_mki<255>;
+         uint8 srtp_mki&lt;255&gt;;
       } UseSRTPData;
 
-      SRTPProtectionProfile SRTPProtectionProfiles<2^16-1>;
-
-
-
-McGrew & Rescorla       Expires December 12, 2006               [Page 5]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
+      SRTPProtectionProfile SRTPProtectionProfiles&lt;2^16-1&gt;;
    The SRTPProtectionProfiles list indicates the SRTP protection
    profiles that the client is willing to support, listed in descending
    order of preference.  The srtp_mki value contains the SRTP
@@ -310,8 +258,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
       SRTPProtectionProfile SRTP_NULL_SHA1_80      = {0x00, 0x05};
       SRTPProtectionProfile SRTP_NULL_SHA1_32      = {0x00, 0x06};
 
-
-
    The following list indicates the SRTP transform parameters for each
    protection profile.  The parameters cipher_key_length,
    cipher_salt_length, auth_key_length, and auth_tag_length express the
@@ -325,18 +271,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
          cipher_key_length:  128
          cipher_salt_length:  112
          maximum_lifetime:  2^31
-
-
-
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006               [Page 6]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
          auth_function:  HMAC-SHA1
          auth_key_length:  160
          auth_tag_length:  80
@@ -381,18 +315,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
       with RTCP.
          cipher:  NULL
          cipher_key_length:  0
-
-
-
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006               [Page 7]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
          cipher_salt_length:  0
          maximum_lifetime:  2^31
          auth_function:  HMAC-SHA1
@@ -410,7 +332,7 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    the relative order of Forward Error Correction and SRTP processing,
    and a suggested SRTP replay window size SHOULD be established in this
    manner.  An example of how these parameters can be defined for SDP by
-   is contained in [9].
+   is contained in <strike><font color='red'>[8].</font></strike> <strong><font color='green'>[9].</font></strong>
 
    New SRTPProtectionProfile values must be defined by RFC 2434
    Standards Action.  See Section Section 6 for IANA Considerations.
@@ -442,13 +364,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    and server agree on an MKI, all SRTP packets protected under the new
    security parameters MUST contain that MKI.
 
-
-
-McGrew & Rescorla       Expires December 12, 2006               [Page 8]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
 3.3.  Key Derivation
 
    When SRTP mode is in effect, different keys are used for ordinary
@@ -458,16 +373,22 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
 
    client_write_MAC_secret[SecurityParameters.hash_size]
    server_write_MAC_secret[SecurityParameters.hash_size]
-   client_write_key[SecurityParameters.key_material_len]
+   <strike><font color='red'>client_write_key[SecurityParameters.key_material_length]
+   server_write_key[SecurityParameters.key_material_length]
+   client_write_SRTP_master_key[SRTPSecurityParams.master_key_length]
+   server_write_SRTP_master_key[SRTPSecurityParams.master_key_length]
+   client_write_SRTP_master_salt[SRTPSecurityParams.master_salt_length]
+   server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_length]</font></strike>
+   <strong><font color='green'>client_write_key[SecurityParameters.key_material_len]
    server_write_key[SecurityParameters.key_material_len]
    client_write_SRTP_master_key[SRTPSecurityParams.master_key_len]
    server_write_SRTP_master_key[SRTPSecurityParams.master_key_len]
    client_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len]
-   server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len]
+   server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len]</font></strong>
 
    The last four values are provided as inputs to the SRTP key
    derivation mechanism, as shown in Figure 5 and detailed below.  By
-   default, the mechanism defined in Section 4.3 of [6] is used, unless
+   default, the mechanism defined in Section 4.3 of <strike><font color='red'>[11]</font></strike> <strong><font color='green'>[6]</font></strong> is used, unless
    another key derivation mechanism is specified as part of an SRTP
    Protection Profile.
 
@@ -483,45 +404,23 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    sent by the server.  The client MUST only use these keys to decrypt
    and to check the authenticity of inbound packets.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006               [Page 9]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
        +------- TLS master secret
        |
-       v    +-> client_write_MAC_secret
+       v    +-&gt; client_write_MAC_secret
    +-----+  |
-   | TLS |--+-> server_write_MAC_secret
+   | TLS |--+-&gt; server_write_MAC_secret
    | KDF |  |
-   +-----+  +-> client_write_key
+   +-----+  +-&gt; client_write_key
             |
-            +-> server_write_key
+            +-&gt; server_write_key
             |                                       +------+   SRTP
-            +-> client_write_SRTP_master_key  ----->| SRTP |-> client
-            |                                  +--->|  KDF |   write
-            +-> server_write_SRTP_master_key --|-+  +------+   keys
+            +-&gt; client_write_SRTP_master_key  -----&gt;| SRTP |-&gt; client
+            |                                  +---&gt;|  KDF |   write
+            +-&gt; server_write_SRTP_master_key --|-+  +------+   keys
             |                                  | |
-            +-> client_write_SRTP_master_salt -+ |  +------+   SRTP
-            |                                    +->| SRTP |-> server
-            +-> server_write_SRTP_master_salt ----->|  KDF |   write
+            +-&gt; client_write_SRTP_master_salt -+ |  +------+   SRTP
+            |                                    +-&gt;| SRTP |-&gt; server
+            +-&gt; server_write_SRTP_master_salt -----&gt;|  KDF |   write
                                                     +------+   keys
 
    Figure 5: Keys
@@ -552,15 +451,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    Within each RTP session, SRTP processing MUST NOT take place before
    the DTLS handshake completes.
 
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 10]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
 3.6.1.  Transmission
 
    DTLS and TLS define a number of record content types.  In ordinary
@@ -584,39 +474,33 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
 
    When DTLS-SRTP is used to protect an RTP session, the RTP receiver
    needs to demultiplex packets that are arriving on the RTP port.
-   Arriving packets may be of types RTP, DTLS, or STUN[12].  The type of
+   Arriving packets may be of types RTP, DTLS, or <strike><font color='red'>STUN.</font></strike> <strong><font color='green'>STUN[12].</font></strong>  The type of
    a packet can be determined by looking at its first byte.
 
    The process for demultiplexing a packet is as follows.  The receiver
-   looks at the first byte of the packet.  If the value of this byte is
+   looks at the first byte of the <strike><font color='red'>packet, and regards it as an unsigned
+   integer in network byte order.</font></strike> <strong><font color='green'>packet.</font></strong>  If the value of this byte is
    0 or 1, then the packet is STUN.  If the value is in between 128 and
    191 (inclusive), then the packet is RTP.  If the value is between 20
    and 63 (inclusive), the packet is DTLS.  This processes is summarized
    in Figure 6.
 
                    +----------------+
-                   | 127 < B < 192 -+--> forward to RTP
+                   | 127 &lt; B &lt; 192 -+--&gt; forward to RTP
                    |                |
-       packet -->  |  19 < B < 64  -+--> forward to DTLS
+       packet --&gt;  |  19 &lt; B &lt; 64  -+--&gt; forward to DTLS
                    |                |
-                   |       B < 2   -+--> forward to STUN
+                   |       B &lt; 2   -+--&gt; forward to STUN
                    +----------------+
 
    Figure 6: The DTLS-SRTP receiver's packet demultiplexing
-   algorithm.  Here the field B denotes the leading byte of the packet.
+   algorithm.  Here the field B denotes the leading byte of the <strike><font color='red'>packet, treated as
+   an unsigned integer in network byte order.</font></strike> <strong><font color='green'>packet.</font></strong>
 
 3.7.  Rehandshake and Re-key
 
    Rekeying in DTLS is accomplished by performing a new handshake over
    the existing DTLS channel.  This handshake can be performed in
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 11]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
    parallel with data transport, so no interruption of the data flow is
    required.  Once the handshake is finished, the newly derived set of
    keys is used to protect all outbound packets, both DTLS and SRTP.
@@ -631,25 +515,24 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    When a packet arrives after the handshake completed, a receiver
    SHOULD use the newly derived set of keys to process that packet.  (If
    the packet was protected with the older set of keys, this fact will
-   become apparent to the receiver as an authentication failure will
+   become apparent to the <strike><font color='red'>the</font></strike> receiver as an authentication failure will
    occur.)  If the authentication check on the packet fails, then the
    receiver MAY process the packet with the older set of keys.  If that
    authentication check indicates that the packet is valid, the packet
    should be accepted; otherwise, the packet MUST be discarded and
    rejected.
 
-   Receivers MAY use the SRTP packet sequence number to aid in the
+   Receivers MAY use the SRTP packet <strike><font color='red'>index</font></strike> <strong><font color='green'>sequence number</font></strong> to aid in the
    selection of keys.  After a packet has been received and
-   authenticated with the new key set, any packets with sequence numbers
-   that are greater will also have been protected with the new key set.
-
+   authenticated with the new key set, any packets with <strike><font color='red'>indices</font></strike> <strong><font color='green'>sequence numbers</font></strong>
+   that are <strike><font color='red'>higher</font></strike> <strong><font color='green'>greater</font></strong> will also have been protected with the new key set.
 
 4.  Multi-party RTP Sessions
 
    Since DTLS is a point-to-point protocol, DTLS-SRTP is intended only
    to protect RTP sessions in which there are exactly two participants.
    This does not preclude its use with RTP mixers.  For example, a
-   conference bridge may use DTLS-SRTP to secure the communication to
+   conference <strike><font color='red'>brigde</font></strike> <strong><font color='green'>bridge</font></strong> may use DTLS-SRTP to secure the communication to
    and from each of the participants in a conference.
 
 4.1.  SIP Forking
@@ -658,23 +541,14 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    situation may arise in which two or more sources are sending RTP
    packets to a single RTP destination transport address.  When this
    situation arises and DTLS-SRTP is in use, the receiver MUST use the
-   source transport IP address and port of each packet to distinguish
+   source transport <strong><font color='green'>IP</font></strong> address <strong><font color='green'>and port</font></strong> of each packet to distinguish
    between the senders, and treat the flow of packets from each distinct
    source transport address as a distinct DTLS-SRTP session for the
    purposes of the DTLS association.
 
    When SIP forking occurs, the certificate fingerprint carried in the
    SIP offer can be used to correlate the particular offer to the
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 12]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
    particular DTLS-SRTP session.
-
 
 5.  Security Considerations
 
@@ -688,7 +562,7 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    However, because the negotiation of this extension is performed in
    the DTLS handshake, it is protected by the Finished messages.
    Therefore, any bid-down attack is automatically detected, which
-   reduces this to a denial of service attack - which any attacker who
+   reduces this to a denial of service <strike><font color='red'>attack--which</font></strike> <strong><font color='green'>attack - which</font></strong> any attacker who
    can control the channel can always mount.
 
 5.2.  Framing Confusion
@@ -704,7 +578,7 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    As an additional defense against injection into the DTLS handshake
    channel, the DTLS record type is included in the MAC.  Therefore, an
    SRTP record would be treated as an unknown type and ignored.  (See
-   Section 6 of [10]).
+   Section 6 of <strike><font color='red'>[9]).</font></strike> <strong><font color='green'>[10]).</font></strong>
 
 5.3.  Sequence Number Interactions
 
@@ -721,14 +595,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    Because DTLS alerts are inherently unreliable and SHOULD NOT be
    generated as a response to data packets, reliable sequencing between
    SRTP packets and DTLS alerts is not an important feature.  However,
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 13]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
    implementations which wish to use DTLS alerts to signal problems with
    the SRTP encoding SHOULD simply act on alerts as soon as they are
    received and assume that they refer to the temporally contiguous
@@ -753,10 +619,9 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    technique is already used for rollover counter management, so the
    authors do not consider this to be a serious flaw.
 
-
 6.  IANA Considerations
 
-   This document a new extension for DTLS, in accordance with [11]:
+   This document a new extension for DTLS, in accordance with <strike><font color='red'>[10]:</font></strike> <strong><font color='green'>[11]:</font></strong>
         enum { use_srtp (??) } ExtensionType;
 
    [[ NOTE:  This value needs to be assigned by IANA ]]
@@ -769,21 +634,12 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    Section Section 3.2.2 of this document.  Future values MUST be
    allocated via Standards Action as described in [3]
 
-
 7.  Acknowledgments
 
    Special thanks to Jason Fischl, Flemming Andreasen, Dan Wing, and
    Cullen Jennings for input, discussions, and guidance.
 
-
 8.  References
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 14]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
 
 8.1.  Normative References
 
@@ -804,45 +660,51 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    [5]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
         Security", RFC 4347, April 2006.
 
-   [6]  Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K.
+   [6]  <strong><font color='green'>Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K.
         Norrman, "The Secure Real-time Transport Protocol (SRTP)",
         RFC 3711, March 2004.
 
 8.2.  Informational References
 
-   [7]   Fischl, J., "Session Initiation Protocol (SIP) for Media Over
+   [7]</font></strong>   Fischl, J., "Session Initiation Protocol (SIP) for Media Over
          Datagram Transport Layer  Security (DTLS)",
          draft-fischl-sipping-media-dtls-00 (work in progress),
          March 2006.
 
-   [8]   Fischl, J. and H. Tschofenig, "Session Description Protocol
+   <strike><font color='red'>[7]</font></strike>
+
+   <strong><font color='green'>[8]</font></strong>   Fischl, J. and H. Tschofenig, "Session Description Protocol
          (SDP) Indicators for Datagram Transport Layer  Security
          (DTLS)", draft-fischl-mmusic-sdp-dtls-00 (work in progress),
          March 2006.
 
-   [9]   Andreasen, F., "Session Description Protocol Security
+   <strike><font color='red'>[8]</font></strike>
+
+   <strong><font color='green'>[9]</font></strong>   Andreasen, F., "Session Description Protocol Security
          Descriptions for Media Streams",
          draft-ietf-mmusic-sdescriptions-12 (work in progress),
          September 2005.
 
-   [10]  Dierks, T. and E. Rescorla, "The TLS Protocol Version 1.1",
+<strike><font color='red'>8.2.  Informational References
+
+   [9]</font></strike>
+
+   <strong><font color='green'>[10]</font></strong>  Dierks, T. and E. Rescorla, "The TLS Protocol Version 1.1",
          draft-ietf-tls-rfc2246-bis-13 (work in progress), June 2005.
 
-   [11]  Blake-Wilson, S., "Transport Layer Security (TLS) Extensions",
+   <strike><font color='red'>[10]</font></strike>
+
+   <strong><font color='green'>[11]</font></strong>  Blake-Wilson, S., "Transport Layer Security (TLS) Extensions",
          draft-ietf-tls-rfc3546bis-02 (work in progress), October 2005.
 
-   [12]  Rosenberg, J., "Simple Traversal of UDP Through Network Address
+   <strike><font color='red'>[11]  Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K.
+
+         Norrman, "The Secure Real-time Transport Protocol (SRTP)",
+         RFC 3711,</font></strike>
+
+   <strong><font color='green'>[12]  Rosenberg, J., "Simple Traversal of UDP Through Network Address
          Translators (NAT) (STUN)", draft-ietf-behave-rfc3489bis-03
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 15]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
-         (work in progress), March 2006.
-
+         (work in progress),</font></strong> March <strike><font color='red'>2004.</font></strike> <strong><font color='green'>2006.</font></strong>
 
 Appendix A.  Open Issue: Key/Stream Interaction
 
@@ -879,44 +741,26 @@ Appendix A.  Open Issue: Key/Stream Interaction
    resumption they should be done after the first channel is
    established.  For two channels this provides a ladder diagram
    something like this (parenthetical #s are media channel #s)
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 16]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
    Alice                                   Bob
    -------------------------------------------
-                      <-       ClientHello (1)
-   ServerHello (1)    ->
+                      &lt;-       ClientHello (1)
+   ServerHello (1)    -&gt;
    Certificate (1)
    ServerHelloDone (1)
-                      <- ClientKeyExchange (1)
+                      &lt;- ClientKeyExchange (1)
                           ChangeCipherSpec (1)
                                   Finished (1)
-   ChangeCipherSpec (1)->
-   Finished         (1)->
-                                                <--- Channel 1 ready
+   ChangeCipherSpec (1)-&gt;
+   Finished         (1)-&gt;
+                                                &lt;--- Channel 1 ready
 
-                      <-       ClientHello (2)
-   ServerHello (2)    ->
-   ChangeCipherSpec(2)->
-   Finished(2)        ->
-                      <-  ChangeCipherSpec (2)
+                      &lt;-       ClientHello (2)
+   ServerHello (2)    -&gt;
+   ChangeCipherSpec(2)-&gt;
+   Finished(2)        -&gt;
+                      &lt;-  ChangeCipherSpec (2)
                                   Finished (2)
-                                                <--- Channel 2 ready
+                                                &lt;--- Channel 2 ready
 
    So, there is an additional 1 RTT after Channel 1 is ready before
    Channel 2 is ready.  If the peers are potentially willing to forego
@@ -924,35 +768,27 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
 
    Alice                                   Bob
    -------------------------------------------
-                      <-       ClientHello (1)
-   ServerHello (1)    ->
+                      &lt;-       ClientHello (1)
+   ServerHello (1)    -&gt;
    Certificate (1)
    ServerHelloDone (1)
-                      <- ClientKeyExchange (1)
+                      &lt;- ClientKeyExchange (1)
                           ChangeCipherSpec (1)
                                   Finished (1)
-                      <-       ClientHello (2)
-   ChangeCipherSpec (1)->
-   Finished         (1)->
-                                                <--- Channel 1 ready
-   ServerHello (2)    ->
-   ChangeCipherSpec(2)->
-   Finished(2)        ->
-                      <-  ChangeCipherSpec (2)
+                      &lt;-       ClientHello (2)
+   ChangeCipherSpec (1)-&gt;
+   Finished         (1)-&gt;
+                                                &lt;--- Channel 1 ready
+   ServerHello (2)    -&gt;
+   ChangeCipherSpec(2)-&gt;
+   Finished(2)        -&gt;
+                      &lt;-  ChangeCipherSpec (2)
                                   Finished (2)
-                                                <--- Channel 2 ready
+                                                &lt;--- Channel 2 ready
 
    In this case the channels are ready contemporaneously, but if a
    message in handshake (1) is lost then handshake (2) requires either a
    full rehandshake or that Alice be clever and queue the resumption
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 17]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
    attempt until the first handshake completes.  Note that just dropping
    the packet works as well since Bob will retransmit.
 
@@ -970,45 +806,6 @@ Internet-Draft           SRTP Extension for DTLS               June 2006
    used for both the RTP and RTCP channels.  We are still studying this
    alternative.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 18]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
-
 Authors' Addresses
 
    David McGrew
@@ -1019,7 +816,6 @@ Authors' Addresses
 
    Email:  mcgrew@cisco.com
 
-
    Eric Rescorla
    Network Resonance
    2483 E. Bayshore #212
@@ -1027,43 +823,6 @@ Authors' Addresses
    USA
 
    Email:  ekr@networkresonance.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 19]
-
-Internet-Draft           SRTP Extension for DTLS               June 2006
-
 
 Intellectual Property Statement
 
@@ -1089,7 +848,6 @@ Intellectual Property Statement
    this standard.  Please address the information to the IETF at
    ietf-ipr@ietf.org.
 
-
 Disclaimer of Validity
 
    This document and the information contained herein are provided on an
@@ -1100,21 +858,15 @@ Disclaimer of Validity
    INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
    WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
-
 Copyright Statement
 
    Copyright (C) The Internet Society (2006).  This document is subject
    to the rights, licenses and restrictions contained in BCP 78, and
    except as set forth therein, the authors retain all their rights.
 
-
 Acknowledgment
 
    Funding for the RFC Editor function is currently provided by the
    Internet Society.
-
-
-
-
-McGrew & Rescorla       Expires December 12, 2006              [Page 20]
-
+</pre>
+</body></html>
