@@ -858,10 +858,10 @@ to SRTPparameters?
 	correlate each answer to the corresponding DTLS-SRTP session. 
 	If the answers have different certificates then fingerprints
 	in the answers can be used to correlate the SIP dialogs
-	with the associated DTLS session. If answers have the same
-	fingerprint, then the ClientUnique extension defined in 
-	[XXX: TODO] MAY be used. If the ClientUnique extension
-	is present, it SHOULD be used preferentially.
+	with the associated DTLS session. Note that two forks
+	with the same certificate cannot be distinguished at the
+	DTLS level, but this problem is a generic problem with 
+	SIP forking and should be solved at a higher level.
 	</t>
       </section>
     </section>
