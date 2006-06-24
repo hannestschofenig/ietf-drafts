@@ -1163,9 +1163,10 @@ benefits in the following one.
 <t>
 This section defines the "Single DTLS" model by descibing its
 differences from the DTLS-SRTP as defined in the body of this
-document.  In the Single-DTLS model, a point-to-point SRTP session
+document.  A point-to-point SRTP session
 consists of a unidirectional SRTP flow and a bidirectional SRTCP flow.
-Each DTLS-SRTP session contains a single SRTP session and a single
+In the Single-DTLS model, 
+a DTLS-SRTP session contains a single SRTP session and a single
 DTLS connection.  Within each SRTP session, there may be multiple SRTP
 sources; all of these sources use a single SRTP master key.  See
 <xref target="SimpleSession"/>.
@@ -1364,16 +1365,10 @@ Using a single DTLS session per SRTP session has potential performance
 benefits in terms of reducing latency and compution. The discussion
 of the performance of multiple parallel DTLS connections 
 in <xref target="appendix"/> applies here as well. In addition.
-It provides a good match for existing SRTP toolkits, since it matches
+It provides a good match for existing SRTP implementations, since it matches
 their SRTP policy definitions for cryptographic algorithm configuration
 and makes use of all of the derived keys rather than having to discard
 half as described in <xref target="keyDeriv"/>.
-</t>
-<t>
-One drawback is that it creates two situations: RTP alone and 
-RTP + RTCP, and these must be handled somewhat differently.
-In particular, the RTCP stream must now be coordinated with a
-control channel operating on different transport addresses.
 </t>
 </section>
 

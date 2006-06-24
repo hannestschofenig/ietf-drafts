@@ -38,7 +38,7 @@
 
            </author>
 
-           <date month="September" year="2005" />
+           <date month="June" year="2006" />
 
            <abstract>
                <t>This document provides an overview of possible avenues for denial-of-
@@ -137,7 +137,7 @@ publicly well documented.
 is typically a PC or network server, but it can also include any
 communication endpoint.  For example, a router also is an end-system
 from the point of view of terminating TCP connections for BGP [32] or
-ssh.
+ssh [49].
 
 </t>
 <section title="Exploiting Poor Software Quality">
@@ -213,8 +213,8 @@ the attack may be persistent after the attack has ceased.
 </t>
 <t>This problem has been understood for many years, and it is common
 practice for logs and incoming email to be stored in a separate disk
-partition (/var) on Unix systems.
-
+partition (/var on Unix systems) in order to limit the impact of
+exhaustion.
 </t>
 <t>Some resources are constrained by configuration: the maximum number of
 processes and the maximum number of simultaneous connections are not
@@ -222,9 +222,9 @@ normally hard limits, but rather are configured limits.  The purpose of
 such limits is clearly to allow the machine to perform other tasks in
 the event the application misbehaves.  However, great care needs to be
 taken to choose such limits appropriately.  For example, if a machine's
-sole task is to be an ftp server, then setting the maximum number of
+sole task is to be an FTP server, then setting the maximum number of
 simultaneous connections to be significantly less than the machine can
-service makes the attackers job easier.  But setting the limit too high
+service makes the attacker's job easier.  But setting the limit too high
 may permit the attacker to cause the machine to crash (due to poor OS
 design in handling resource exhaustion) or permit livelock (see below),
 which are generally even less desirable failure modes.
@@ -319,8 +319,8 @@ network traffic, a financial denial-of-service may be possible.
 </section>
 </section>
 <section title="DoS Attacks on Routers">
-<t>Many of the denial-of-service attacks that can be launched against end-
-systems can also be launched against the control processor of an IP
+<t>Many of the denial-of-service attacks that can be launched against
+end-systems can also be launched against the control processor of an IP
 router, for example by flooding the command and control access ports.
 In the case of
 a router, these attacks may cause the router to stall, or may cause the
@@ -339,7 +339,7 @@ flapping routes to be suppressed [27]. This suppression likely
 causes the networks served by those routes to become unreachable.
 </t>
 <t>A DoS attack on the router control processor might also prevent the
-router being managed effectively.  This may prevent actions being taken
+router from being managed effectively.  This may prevent actions being taken
 that would mitigate the DoS attack, and it might prevent diagnosis of
 the cause of the problem.
 
@@ -351,7 +351,7 @@ stage a DoS attack on a router or a network of routers.
 This requires the ability to send traffic from addresses which
 might plausibly have generated the relevant routing messages,
 which is somewhat difficult with interior routing protocols
-but fairly easy with e.g., eBGP.
+but fairly easy with eBGP, for instance.
 </t>
 <t>The simplest attack on a network of routers is to overload the routing
 table with sufficiently many routes that the router runs out of memory,
@@ -366,7 +366,7 @@ elsewhere in the network.
 number of routes to be heard from a neighbor [17]. However, limits
 often make the problem worse rather than better, by making
 it possible for the attacker to push out legitimate routes
-with spoofed routes, thus creating an an easy form of DoS attack.
+with spoofed routes, thus creating an easy form of DoS attack.
 </t>
 <t>An alternative attack is to overload the routers on the network by
 creating sufficient routing table churn that routers are unable to
@@ -381,7 +381,7 @@ legitimate routes to be damped.
 to announce a spoofed desirable route to that destination.  Such a route
 might be desirable because it has low metric, or because it is a more
 specific route than the legitimate route.  In any event, if the route is
-believed it will cause traffic for the victim to be drawn towards the
+believed, it will cause traffic for the victim to be drawn towards the
 attacking router, where it will typically be discarded.
 
 </t>
@@ -389,15 +389,15 @@ attacking router, where it will typically be discarded.
 network rather than against a destination.  Under some circumstances,
 the propagation of inconsistent routing information can cause traffic to
 loop.  If an attacker can cause this to happen on a busy path, the
-looping traffic might cause significant congestion, as well as not
-reaching the legitimate destination. 
+looping traffic might cause significant congestion, as well as fail
+to reach the legitimate destination. 
 
 </t>
 <t>In the past there have been cases where different generations of routers
 interpreted a routing protocol specification differently.  In
 particular, BGP specifies that in the case of an error, the BGP peering
 should be dropped.  However, if some of the routers in a network treat a
-particular route as valid and other routes treat the route as invalid,
+particular route as valid and other routers treat the route as invalid,
 then it may be possible to inject a BGP route at one point in the
 Internet and cause peerings to be dropped at many other places in the
 Internet.  Unlike many of the examples above, while such an issue might
@@ -409,7 +409,7 @@ can permanently solve the issue.
 </section>
 <section title="IP Multicast-based DoS Attacks">
 <t>There are essentially two forms of IP multicast: "traditional" IP
-multicast (ASM), as specified in RFC 1112 [19] where multiple sources
+multicast, as specified in RFC 1112 [19] where multiple sources
 can send to the same multicast group, and source-specific multicast
 (SSM) where the receiver must specify both the IP source address and the
 group address.  The two forms of multicast provide rather different DoS
@@ -444,12 +444,16 @@ Problem messages under certain circumstances, even if the destination
 address is a multicast address. If the attacker can place himself in the
 appropriate position in the multicast tree, a packet with an unknown but
 mandatory Destination Option, for instance, could generate a very large
-number of responses to the claimed sender.
-
+number of responses to the claimed sender. 
 </t>
 <t>With IPv4 the same problem exists with multicast ICMP Echo Request
-packets, but these are somewhat easier to filter.
-
+packets, but these are somewhat easier to filter. 
+</t>
+<t>
+The examples above should not be taken as exhaustive.
+These are actually specific cases of a general problem that can happen
+whene a multicast/broadcast request solicits a reply from a large
+number of nodes. 
 </t>
 </section>
 <section title="Attacks on Router Forwarding Engines">
@@ -581,8 +585,9 @@ respond to ARP requests before the victim and prevent traffic from
 reaching the victim.  Some brands of ethernet switch allow an even
 simpler attack - simply send from the victim's MAC address, and the
 switch will redirect traffic destined for the victim to the attacker's
-port.
-
+port. This attack might also potentially be used to block traffic from
+the victim by engaging screening or flap-dampening algorithms in
+the switch, depending on the switch design.
 </t>
 <t>It may be possible to cause broadcast storms [4] on a local LAN by
 sending a stream of unicast IP packets to the broadcast MAC address -
@@ -645,12 +650,17 @@ Beacon and Probe Request/Response mechanisms.
 <t>
 The Beacon cannot easily be encrypted, because the station
 needs to utilize them prior to authentication in order to discover
-which APs it may wish to communicate with.   Since authentication
+which APs it may wish to communicate with. Since authentication
 can only occur after interpreting the Beacon, an encrypted
 Beacon would present a chicken-egg problem: you can't obtain a key
 to decrypt the Beacon until completing authentication, and you may
 not be able to figure out which AP to authenticate with prior to
 decrypting the Beacon.
+Note that in principle you could encrypt the Beacons with a
+shared (per-AP) key but this would require each station
+to trial-decrypt beacons until it find one that
+matches up to whatever shared authentication secret it had.
+This is not particularly convenient.
 </t>
 <t>
 As a result, discussions of Beacon frame security have largely focused
@@ -666,7 +676,7 @@ require synchronization of keys between APs within an SSID.
 <section title="DoS Attacks on Sites though DNS">
 <t>In today's Internet, DNS is of sufficient importance that if access to a
 site's DNS servers is denied, the site is effectively unreachable, even
-if there is no actual communication problem with the site itself.
+if there is no actual communication problem with the suite itself.
 
 </t>
 <t>Many of the attacks on end-systems described above can be perpetrated on
@@ -696,7 +706,8 @@ fail to obtain an answer, and effectively denying access to the site
 being served.
 
 </t>
-<t>We note that if an attacker can deny external access to all the DNS for
+<t>We note that if an attacker can deny external access to all the DNS servers
+for
 a site, this will not only cause email to that site to be dropped, but
 will also cause email from that site to be dropped.  This is because
 recent versions of mail transfer agents such as sendmail will drop email
@@ -705,10 +716,11 @@ classic example of unexpected consequences.  Sendmail performs this
 check as an anti-spam measure, and spam itself can be viewed as a form
 of DoS attack.  Thus defending against one DoS attack opens up the
 vulnerability that allows another DoS attack.
-If a receiving implmentation is using DNS-based blackholing,
+If a receiving implementation is using 
+a blackhole list (see <xref target="blackhole"/>)
+served by DNS
 an attacker can also mount a DoS attack by attacking the blackhole
 server.
-
 </t>
 <t>Finally, a data corruption attack is possible if a site's nameserver is
 permitted to relay requests from untrusted third parties [39]. The
@@ -732,7 +744,7 @@ The use of anycast for DNS services makes it even more vulnerable to
 spoofing attacks. An attacker who can convince the ISP to accept an
 anycast route to his fake DNS server can arrange to
 receive requests and generate fake responses.
-Anycast DNS also makes DoS attacks on DNS easiet. The idea is to 
+Anycast DNS also makes DoS attacks on DNS easier. The idea is to 
 disable one of the DNS servers while maintaining the BGP route 
 to that server. This creates failures for any client which 
 is routed to the (now defunct) server. 
@@ -740,7 +752,7 @@ is routed to the (now defunct) server.
 </section>
 <section title="DoS Attacks on Links">
 <t>The simplest DoS attack is to simply send enough non-congestion-
-controlled traffic that a link becomes excessively congested, and
+controlled traffic such that a link becomes excessively congested, and
 legitimate traffic suffers unacceptably high packet loss.
 
 </t>
@@ -757,7 +769,7 @@ sufficiently that routing packets are still lost.
 </t>
 <t>Even if a link DoS does not cause routing packets to be lost, it may
 prevent remote access to a router using ssh or SNMP.  This might make
-the router unmanageable, or prevent the attack being correctly
+the router unmanageable, or prevent the attack from being correctly
 diagnosed.
 
 </t>
@@ -886,12 +898,11 @@ change that prevents normal operation.
 <t>Computer systems cannot be considered in isolation from the social and
 legal systems in which they operate.  This document focuses primarily on
 the technical issues, but we note that "cease and desist" letters,
-government censorship, and other legal mechanisms also touch on denial-
-of-service issues.
+government censorship, and other legal mechanisms also touch on denial-of-service issues.
 
 </t>
 </section>
-<section title="Spam and Black-hole Lists">
+<section title="Spam and Black-hole Lists" anchor="blackhole">
 <t>Unsolicited commercial email, also known as "spam", can effectively
 cause denial-of-service to email systems.  While the intent is not
 denial-of-service, the large amount of unwanted mail can waste the
@@ -955,7 +966,7 @@ possible to cause it to congest its own incoming network link.
 <t>Another variant of attack amplifier involves amplification through
 retransmission.  This is typified by a TCP amplification attack known as
 "bang.c".  The attacker sends a spoofed TCP SYN with the source address
-of the victim to a arbitrary TCP server.  The server will respond with a
+of the victim to an arbitrary TCP server.  The server will respond with a
 SYN|ACK which is sent to the victim, and when no final ACK is received
 to complete the handshake, the SYN|ACK will be retransmitted a number of
 times.  Typically this attack uses a very large list of arbitrarily
@@ -977,7 +988,7 @@ also serve as an attack amplifier.
 </t>
 <t>Another variant of amplification occurs in protocols that include,
 within the protocol payload, an IP address or name of host to which
-subsequent messages should be sent. An example of such as protocol is
+subsequent messages should be sent. An example of such a protocol is
 the Session Initiation Protocol (SIP), which carries a payload defined
 by the Session Description Protocol (SDP). The SDP payload of the SIP
 message conveys the IP address and port to which media packets,
@@ -1071,8 +1082,9 @@ Specific strategies for DoS defense fall into two broad categories:
 </t>
 <list style="numbers">
 <t>Avoiding allowing attacks that are better than generic resource consumption.</t>
-<t>Minimizing the extent to which generic resource consumption attacks crowd</t>
+<t>Minimizing the extent to which generic resource consumption attacks crowd
 out legitimate users.
+</t>
 </list>
 <t>
 In the remainder of this section, we consider specific applications of these
@@ -1176,7 +1188,7 @@ capability for DoS mitigation, since many of the typical
 redundancy and capacity management techniques (such as 
 prioritizing routing or network management traffic) fail 
 during such attacks. In addition, many redundancy protocols 
-such as VRRP [RFC3768] can fail during such attacks as they 
+such as VRRP [50] can fail during such attacks as they 
 may be unable to keep adjacencies alive.  
 </t><t>
 There are several default configuration settings that can 
@@ -1184,7 +1196,7 @@ also be exploited to generate several of the attacks
 outlined in this document. For example, some vendors may 
 have features such as IP redirect, directed broadcast, and 
 proxy ARP enabled by default. Similar defaults, such 
-as publicly readable SNMP [RFC3411] communities (e.g., 
+as publicly readable SNMP [51] communities (e.g., 
 "public") can be used to reveal otherwise confidential 
 information to a prospective attacker. Finally, other 
 unauthenticated configuration management protocols such 
@@ -1285,7 +1297,7 @@ faults will be prevented by performing rigorous syntax checking.
 </section>
 <section title="Consistency Checks">
 <t>
-Protocol semantics defines the meaning of the message content, the
+Protocol semantics define the meaning of the message content, the
 interpretation of the values, and the actions to be taken according
 to the content. Here is a simple example of using semantic checking.
 When a link failure causes a router in AS A to send a peer router B a
@@ -1345,9 +1357,9 @@ KeepAlive and Hold Timer values to minimize BGP peering session
 resets.  Previous measurements show that heavy traffic load, such as
 those caused by Worms, can cause BGP KeepAlive messages to be delayed
 or dropped, which in turn cause BGP peering session break down. Such
-load induced session breaks and re-establishments can lead to
-excessive amount of BGP updates during the periods when stable
-routing is mostly needed.
+load-induced session breaks and re-establishments can lead to
+an excessive amount of BGP updates during the periods when stable
+routing is needed most.
 </t>
 </section>
 <section title="Proper Handling of Router Resource Exhaustion">
@@ -1362,21 +1374,32 @@ because the replies are normally received within a few milliseconds.
 However certain conditions can lead to ARP cache exhaustion, for
 example during a virus attack where many packets are sent to non-
 existing IP addresses, thus there are no ARP replies to the requests
-for those addresses.  Such phenomenon happened in the past and led to
-routers stop packet forwarding.
+for those addresses.  Such phenomena have happened in the past and led to
+routers failing to forward packets.
 </t>
 <t>
-Routers collectively operate as the brain of the Internet.  Thus a
-smooth functioning of all the routers is vitally important.  Our goal
-is to minimize routers' load on the control plane and maximize the
-correctness of routing protocol operations.
+Another example is queue management. Many high-end routers are designed
+so that most packets can be handled purely in specialized processors
+(ASICs, FPGAs, etc.). However, exceptional packets must be
+routed to a supporting general purpose CPU for handling.
+On some such systems, it may be possible
+mount a low-effort DoS attack by saturating
+the queues between the specialized hardware and the supporting
+processor.
+</t>
+<t>
+So the attack vector on routers/network devices is a low PPS  
+queue saturation attack on the ASIC's raw queue structure. The
+countermeasure here is to have multiple such queues designed
+in such a way that it's difficult for an attacker to arrange
+to fill multiple queues [41].
 </t>
 </section>
 </section>
 <section title="End-System Implementation Issues">
 <section title="State Lookup Complexity">
 <t>Any system that instantiates per-connection state should take great care
-to implement the state-lookup mechanisms in such a way that performance
+to implement state-lookup mechanisms in such a way that performance
 can not be controlled by the attacker.  One way to achieve this is to
 use hash-tables where the hash mechanism is keyed in such a way that the
 attacker cannot instantiate a large number of flows in the same hash
@@ -1389,7 +1412,7 @@ of its time handling network traffic.  However, this leaves the host
 open to livelock [29], where under heavy load the OS spends all its time
 handling interrupts and no time doing the work needed to handle the
 traffic at the application level.  Server operating systems should
-consider using network polling at times of heavy load, rather that being
+consider using network polling at times of heavy load, rather than being
 interrupt-driven, and should be carefully architected so that as far as
 reasonably possible, traffic received by the OS is processed to
 completion, or very cheaply discarded.
@@ -1398,7 +1421,7 @@ completion, or very cheaply discarded.
 <section title="Use Unpredictable Values for Session IDs">
 <t>Most recent TCP implementations use fairly good random mechanisms for
 allocating the TCP initial sequence numbers.  In general, any
-dynamically allocated value used purely to identify a communications
+dynamically allocated value used purely to identify a communication
 session should be allocated using an unpredictable mechanism, as this
 increases the search space for an attacker that wishes to disrupt
 ongoing communications.  Thus the dynamically allocated port of the
@@ -1406,8 +1429,7 @@ active end of a TCP connection might also be randomly allocated.
 </t>
 <t>With DNS, the ID which is used to match responses with requests should
 also be randomly generated.  However, as the ID field is only 16 bits,
-the protection is rather limited, especially in the face of birthday
-attacks.
+the protection is rather limited.
 </t>
 </section>
 </section>
@@ -1428,13 +1450,10 @@ In particular, they should perform ingress filtering [22].
 framework to detect and log abnormal network activity.  One can not
 defend against an attack one doesn't detect or understand.  Such
 monitoring tools can be used to set a baseline of "normal" traffic, and
-can be used to determine:
-</t>
-<list style="symbols">
-<t>Aberrant flows.</t>
-<t>Type and source of the aberrant flows</t>
-</list>
-<t>This is extremely helpful when responding to DDoS or a flash crowd, and
+can be used to detect aberrant flows and determine the 
+type and source of the aberrant flows. 
+This is extremely helpful when responding to distributed 
+DoS attacks or a flash crowd, and
 should be in place prior to the event.
 </t>
 </section>
@@ -1442,7 +1461,8 @@ should be in place prior to the event.
 </section>
 </section>
 <section title="Conclusions">
-<t>In this document we have highlighted possible avenues for DoS attack on
+<t>In this document we have highlighted possible avenues for DoS attacks
+on
 networks and networked systems, with the aim of encouraging protocol
 designers and network engineers towards designs that are more robust.
 We have discussed partial solutions that reduce the effectiveness of
@@ -1472,11 +1492,61 @@ versions of this document.
 
 </t>
 </section>
-<section title="References">
+<section title="Normative References">
 <t>[1] J. Abley, "Hierarchical Anycast for Global Service Distribution",
      http://www.isc.org/tn/isc-tn-2003-1.txt
 
 </t>
+<t>[5] D.J. Bernstein, "SYN Cookies", http://cr.yp.to/syncookies.html
+
+</t>
+<t>[16] E. Chen, "Route Refresh Capability for BGP-4", RFC 2918, September
+     2000
+
+</t>
+<t>[19] S. Deering, "Host extensions for IP multicasting", RFC 1112, Aug
+     1989.
+
+</t>
+<t>[20] T. Dierks, C. Allen, "The TLS Protocol, Version 1.0", RFC 2246, Jan
+     1999.
+
+</t>
+<t>[21] D. Estrin, D. Farinacci, A. Helmy, D. Thaler, S.  Deering, M.
+     Handley, V. Jacobson, C. Liu, P. Sharma, L. Wei, "Protocol
+     Independent Multicast-Sparse Mode (PIM-SM): Protocol
+     Specification", RFC 2362, June 1998.
+
+</t>
+<t>[22] P. Ferguson, D. Senie, "Network Ingress Filtering: Defeating Denial
+     of Service Attacks which employ IP Source Address Spoofing", RFC
+     2827, May 2000.
+
+</t>
+<t>[23]  V. Gill, J. Heasley, D. Meyer "The Generalized TTL Security
+     Mechanism (GTSM)", RFC 3682, February 2004.
+</t>
+<t>[24] A. Heffernan, "Protection of BGP Sessions via the TCP MD5 Signature
+     Option", RFC 2385, August 1998.
+
+</t>
+<t>[32] Y. Rekhter, T. Li, "A Border Gateway Protocol 4 (BGP-4)", RFC 1771,
+     March 1995.
+
+</t>
+<t>[35] C. Villamizar, R. Chandra, R. Govindan, "BGP Route Flap Damping",
+     RFC 2439, November 1998.
+
+</t>
+<t>[38] D. Waitzman, C. Partridge, S.E. Deering, "Distance Vector Multicast
+     Routing Protocol", RFC 1075, Nov 1988.
+
+</t>
+<t>[42] L. von Ahn, M. Blum, N. Hopper, and J. Langford. CAPTCHA: 
+     Using hard AI problems for security. In Proceedings of Eurocrypt, 2003.
+</t>
+</section>
+<section title="Informative References">
 <t>[2] T. Aura, P. Nikander, J. Leiwo, "DOS-resistant authentication with
      client puzzles", In B. Christianson, B. Crispo, and M. Roe,
      editors, Proceedings of the 8th International Workshop on Security
@@ -1492,11 +1562,8 @@ versions of this document.
 <t>[4] S.M. Bellovin, "Security Problems in the TCP/IP Protocol Suite",
      Computer Communication Review, Vol. 19, No. 2, pp. 32-48, April
      1989.
-
 </t>
-<t>[5] D.J. Bernstein, "SYN Cookies", http://cr.yp.to/syncookies.html
 
-</t>
 <t>[6] CCAIS/RNP Alertas do Cais ALR-19112002a, "Vulnerability in the
      sending requests control of Bind versions 4 and 8 allows DNS
      spoofing", http://www.rnp.br/cais/alertas/2002/cais-
@@ -1540,10 +1607,6 @@ versions of this document.
      2nd Internet Measurement Workshop (IMW 2002), 2002.
 
 </t>
-<t>[16] E. Chen, "Route Refresh Capability for BGP-4", RFC 2918, September
-     2000
-
-</t>
 <t>[17] Cisco Systems, "Configuring the BGP Maximum-Prefix Feature", Cisco
      Document ID: 25160, http://www.cisco.com/warp/public/459/bgp-
      maximum-prefix.html
@@ -1552,32 +1615,6 @@ versions of this document.
 <t>[18] Scott A Crosby and Dan S Wallach, "Denial of Service via
      Algorithmic Complexity Attacks", Proceedings of the USENIX Security
      Symposium, Washington D.C., August 2003.
-
-</t>
-<t>[19] S. Deering, "Host extensions for IP multicasting", RFC 1112, Aug
-     1989.
-
-</t>
-<t>[20] T. Dierks, C. Allen, "The TLS Protocol, Version 1.0", RFC 2246, Jan
-     1999.
-
-</t>
-<t>[21] D. Estrin, D. Farinacci, A. Helmy, D. Thaler, S.  Deering, M.
-     Handley, V. Jacobson, C. Liu, P. Sharma, L. Wei, "Protocol
-     Independent Multicast-Sparse Mode (PIM-SM): Protocol
-     Specification", RFC 2362, June 1998.
-
-</t>
-<t>[22] P. Ferguson, D. Senie, "Network Ingress Filtering: Defeating Denial
-     of Service Attacks which employ IP Source Address Spoofing", RFC
-     2827, May 2000.
-
-</t>
-<t>[23]  V. Gill, J. Heasley, D. Meyer "The Generalized TTL Security
-     Mechanism (GTSM)", RFC 3682, February 2004.
-</t>
-<t>[24] A. Heffernan, "Protection of BGP Sessions via the TCP MD5 Signature
-     Option", RFC 2385, August 1998.
 
 </t>
 <t>[25] Laurent Joncheray, "Simple Active Attack Against TCP", 5th USENIX
@@ -1594,7 +1631,7 @@ versions of this document.
 
 </t>
 <t>[28] D. Meyer, W. Fenner (Editors), "Multicast Source Discovery Protocol
-     (MSDP)", draft-ietf-msdp-spec-15.txt, Work in Progress.
+     (MSDP)", RFC 3618, October 2003.
 
 </t>
 <t>[29] J. Mogul, KK. Ramakrishnan, "Eliminating Receive Livelock in an
@@ -1612,21 +1649,13 @@ versions of this document.
      2001.
 
 </t>
-<t>[32] Y. Rekhter, T. Li, "A Border Gateway Protocol 4 (BGP-4)", RFC 1771,
-     March 1995.
-
-</t>
 <t>[33] Joe Stewart, "DNS Cache Poisoning - The Next Generation", Jan 27
      2003, http://www.securityfocus.com/guest/17905
 
 </t>
-<t>[34] R. Stewart (Editor), Transmission Control Protocol security
-     considerations, Internet Draft, April 2004, draft-ietf-tcpm-
-     tcpsecure-00.txt
-
-</t>
-<t>[35] C. Villamizar, R. Chandra, R. Govindan, "BGP Route Flap Damping",
-     RFC 2439, November 1998.
+<t>[34] R. Stewart (ed.), M. Dalal, (ed.) "Improving TCP's Robustness
+   to Blind In-Window Attacks",, Internet Draft, February 2006,
+   draft-ietf-tcpm-tcpsecure-04.txt
 
 </t>
 <t>[36] P. Vixie, G. Sneeringer, M. Schleifer, "Events of 21-Oct-2002",
@@ -1635,10 +1664,6 @@ versions of this document.
 </t>
 <t>[37] P. Vixie, "Securing the Edge",
      http://www.icann.org/committees/security/sac004.txt
-
-</t>
-<t>[38] D. Waitzman, C. Partridge, S.E. Deering, "Distance Vector Multicast
-     Routing Protocol", RFC 1075, Nov 1988.
 
 </t>
 <t>[39] D. Wessels, "Running An Authoritative-Only BIND Nameserver",
@@ -1651,9 +1676,6 @@ versions of this document.
 <t>[41] J. Bellardo and S. Savage, "802.11 Denial-of-Service Attacks:
      Real Vulnerabilities and Practical Solutions", Proceedings of 
      the 12th USENIX Security Symposium, August 2003.
-</t>
-<t>[42] L. von Ahn, M. Blum, N. Hopper, and J. Langford. CAPTCHA: 
-     Using hard AI problems for security. In Proceedings of Eurocrypt, 2003.
 </t>
 <t>[43] The whole world disappeared? http://www.merit.edu/mail.archives/
      nanog/1998-04/msg00181.html, Apr 1998.
@@ -1674,6 +1696,29 @@ versions of this document.
     "BGP Multiple Origin AS (MOAS) Conflicts", 
     http://nanog.org/mtg-0110/lixia.html, 2001.
 </t>
+<t> [48] Cisco Systems, "Building Security Into the Hardware",
+    ftp://ftp-eng.cisco.com/cons/isp/security/CPN-Summit-2004/
+    Paris-Sept-04/SE14-BUILDING-SECURITY-INTO-THE HARDWARE-c1_8_30_04.pdf,
+    2004.
+</t>
+<t> [49] T. Ylonen, C. Lonvick, Ed., "The Secure Shell (SSH)
+    Protocol Architecture", RFC 4251, January 2006. 
+</t>
+<t>
+    [50] Knight, S., Weaver, D., Whipple, D., Hinden, R., Mitzel,
+    D., Hunt, P., Higginson, P., Shand, M. and A. Lindemn,
+    "Virtual Router Redundancy Protocol", RFC 2338, April
+    1998.
+</t>
+<t>
+    [51] D. Harrington, R. Presuhn, B. Wijnen., "An Architecture
+    for Describing Simple Network Management Protocol (SNMP)
+    Management Frameworks.", RFC 3411, December 2002. 
+</t>
+<t>
+    [52] K. Sollins., "The TFTP Protocol (Revision 2)",
+    RFC 1784, July 1992.
+</t>
 </section>
 </middle>
 <back>
@@ -1683,14 +1728,14 @@ versions of this document.
 <t>Loa Andersson</t>
 <t>Brian Carpenter</t>
 <t>Leslie Daigle</t>
-<t>Patrik Fältström</t>
-<t>Bob Hinden</t>
-<t>Kurtis Lindqvist</t>
+<t>Elwyn Davies</t>
+<t>Kevin Fall</t>
+<t>Olaf Kolkman</t>
+<t>Kurtis Lindvist</t>
 <t>David Meyer</t>
-<t>Pekka Nikander</t>
+<t>David Oran</t>
 <t>Eric Rescorla</t>
-<t>Pete Resnick</t>
-<t>Jonathan Rosenberg</t>
+<t>Dave Thaler</t>
 <t>Lixia Zhang</t>
 </list>
 </section>
