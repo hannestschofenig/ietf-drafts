@@ -1,59 +1,292 @@
-<?xml version="1.0"?>
-<rfc ipr="full3978" docName="draft-iab-dos-04.txt">
-<?rfc toc="yes"?>
-<front>
-     <title abbrev="DoS Considerations">Internet Denial of Service Considerations</title>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en"><head><title>Internet Denial of Service Considerations</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="description" content="Internet Denial of Service Considerations">
+<meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
+<style type='text/css'>
+<!--
+    body {
+        font-family: verdana, charcoal, helvetica, arial, sans-serif;
+        margin: 2em;
+        font-size: small ; color: #000000 ; background-color: #ffffff ; }
+    .title { color: #990000; font-size: x-large ;
+        font-weight: bold; text-align: right;
+        font-family: helvetica, monaco, "MS Sans Serif", arial, sans-serif;
+        background-color: transparent; }
+    .filename { color: #666666; font-size: 18px; line-height: 28px;
+        font-weight: bold; text-align: right;
+        font-family: helvetica, arial, sans-serif;
+        background-color: transparent; }
+    td.rfcbug { background-color: #000000 ; width: 30px ; height: 30px ;
+        text-align: justify; vertical-align: middle ; padding-top: 2px ; }
+    td.rfcbug span.RFC { color: #666666; font-weight: bold; text-decoration: none;
+        background-color: #000000 ;
+        font-family: monaco, charcoal, geneva, "MS Sans Serif", helvetica, verdana, sans-serif;
+        font-size: x-small ; }
+    td.rfcbug span.hotText { color: #ffffff; font-weight: normal; text-decoration: none;
+        text-align: center ;
+        font-family: charcoal, monaco, geneva, "MS Sans Serif", helvetica, verdana, sans-serif;
+        font-size: x-small ; background-color: #000000; }
+    /* info code from SantaKlauss at http://www.madaboutstyle.com/tooltip2.html */
+    div#counter{margin-top: 100px}
 
-           <author initials="M.J." surname="Handley (ed)"
-                   fullname="Mark J. Handley (ed)">
-               <organization>UCL</organization>
+    a.info{
+        position:relative; /*this is the key*/
+        z-index:24;
+        text-decoration:none}
 
-               <address>
-                   <postal>
-                       <street>Gower Street</street>
-                       <city>London</city> 
-                       <code>WC1E 6BT</code>
-                       <country>UK</country>
-                   </postal>
+    a.info:hover{z-index:25; background-color:#990000 ; color: #ffffff ;}
 
-                   <email>M.Handley@cs.ucl.ac.uk</email>
-               </address>
+    a.info span{display: none}
 
-           </author>
-           <author initials="E.K." surname="Rescorla (ed)"
-                   fullname="Eric Rescorla (ed)">
-               <organization>Network Resonance</organization>
+    a.info:hover span.info{ /*the span will display just on :hover state*/
+        display:block;
+        position:absolute;
+        font-size: smaller ;
+        top:2em; left:2em; width:15em;
+        padding: 2px ;
+        border:1px solid #333333;
+        background-color:#eeeeee; color:#990000;
+        text-align: left ;}
 
-               <address>
-                   <postal>
-                       <street>2483 E. Bayshore #212</street>
-                       <city>Palo Alto</city> 
-                       <code>94303</code>
-		       <state>CA</state>
-                       <country>USA</country>
-                   </postal>
+     A { font-weight: bold; }
+     A:link { color: #990000; background-color: transparent ; }
+     A:visited { color: #333333; background-color: transparent ; }
+     A:active { color: #333333; background-color: transparent ; }
 
-                   <email>ekr@networkresonance.com</email>
-               </address>
+    p { margin-left: 2em; margin-right: 2em; }
+    p.copyright { font-size: x-small ; }
+    p.toc { font-size: small ; font-weight: bold ; margin-left: 3em ;}
+    table.toc { margin: 0 0 0 3em; padding: 0; border: 0; vertical-align: text-top; }
+    td.toc { font-size: small; font-weight: bold; vertical-align: text-top; }
 
-           </author>
+    span.emph { font-style: italic; }
+    span.strong { font-weight: bold; }
+    span.verb, span.vbare { font-family: "Courier New", Courier, monospace ; }
 
-           <date month="June" year="2006" />
+    span.vemph { font-style: italic; font-family: "Courier New", Courier, monospace ; }
+    span.vstrong { font-weight: bold; font-family: "Courier New", Courier, monospace ; }
+    span.vdeluxe { font-weight: bold; font-style: italic; font-family: "Courier New", Courier, monospace ; }
 
-           <abstract>
-               <t>This document provides an overview of possible avenues for denial-of-
+    ol.text { margin-left: 2em; margin-right: 2em; }
+    ul.text { margin-left: 2em; margin-right: 2em; }
+    li { margin-left: 3em;  }
+
+    pre { margin-left: 3em; color: #333333;  background-color: transparent;
+        font-family: "Courier New", Courier, monospace ; font-size: small ;
+        text-align: left;
+        }
+
+    h3 { color: #333333; font-size: medium ;
+        font-family: helvetica, arial, sans-serif ;
+        background-color: transparent; }
+    h4 { font-size: small; font-family: helvetica, arial, sans-serif ; }
+
+    table.bug { width: 30px ; height: 15px ; }
+    td.bug { color: #ffffff ; background-color: #990000 ;
+        text-align: center ; width: 30px ; height: 15px ;
+         }
+    td.bug A.link2 { color: #ffffff ; font-weight: bold;
+        text-decoration: none;
+        font-family: monaco, charcoal, geneva, "MS Sans Serif", helvetica, sans-serif;
+        font-size: x-small ; background-color: transparent }
+
+    td.header { color: #ffffff; font-size: x-small ;
+        font-family: arial, helvetica, sans-serif; vertical-align: top;
+        background-color: #666666 ; width: 33% ; }
+    td.author { font-weight: bold; margin-left: 4em; font-size: x-small ; }
+    td.author-text { font-size: x-small; }
+    table.full { vertical-align: top ; border-collapse: collapse ;
+        border-style: solid solid solid solid ;
+        border-color: black black black black ;
+        font-size: small ; text-align: center ; }
+    table.headers, table.none { vertical-align: top ; border-collapse: collapse ;
+        border-style: none;
+        font-size: small ; text-align: center ; }
+    table.full th { font-weight: bold ;
+        border-style: solid ;
+        border-color: black black black black ; }
+    table.headers th { font-weight: bold ;
+        border-style: none none solid none;
+        border-color: black black black black ; }
+    table.none th { font-weight: bold ;
+        border-style: none; }
+    table.full td {
+        border-style: solid solid solid solid ;
+        border-color: #333333 #333333 #333333 #333333 ; }
+    table.headers td, table.none td { border-style: none; }
+
+    hr { height: 1px }
+-->
+</style>
+</head>
+<body>
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<table summary="layout" width="66%" border="0" cellpadding="0" cellspacing="0"><tr><td><table summary="layout" width="100%" border="0" cellpadding="2" cellspacing="1">
+<tr><td class="header">Network Working Group</td><td class="header">M. Handley (ed)</td></tr>
+<tr><td class="header">Internet-Draft</td><td class="header">UCL</td></tr>
+<tr><td class="header">Expires: December 27, 2006</td><td class="header">E. Rescorla (ed)</td></tr>
+<tr><td class="header">&nbsp;</td><td class="header">Network Resonance</td></tr>
+<tr><td class="header">&nbsp;</td><td class="header">June 25, 2006</td></tr>
+</table></td></tr></table>
+<div align="right"><span class="title"><br />Internet Denial of Service Considerations</span></div>
+<div align="right"><span class="title"><br />draft-iab-dos-04.txt</span></div>
+
+<h3>Status of this Memo</h3>
+<p>
+By submitting this Internet-Draft,
+each author represents that any applicable patent or other IPR claims of which
+he or she is aware have been or will be disclosed,
+and any of which he or she becomes aware will be disclosed,
+in accordance with Section&nbsp;6 of BCP&nbsp;79.</p>
+<p>
+Internet-Drafts are working documents of the Internet Engineering
+Task Force (IETF), its areas, and its working groups.
+Note that other groups may also distribute working documents as
+Internet-Drafts.</p>
+<p>
+Internet-Drafts are draft documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by other documents at any time.
+It is inappropriate to use Internet-Drafts as reference material or to cite
+them other than as &ldquo;work in progress.&rdquo;</p>
+<p>
+The list of current Internet-Drafts can be accessed at
+<a href='http://www.ietf.org/ietf/1id-abstracts.txt'>http://www.ietf.org/ietf/1id-abstracts.txt</a>.</p>
+<p>
+The list of Internet-Draft Shadow Directories can be accessed at
+<a href='http://www.ietf.org/shadow.html'>http://www.ietf.org/shadow.html</a>.</p>
+<p>
+This Internet-Draft will expire on December 27, 2006.</p>
+
+<h3>Copyright Notice</h3>
+<p>
+Copyright &copy; The Internet Society (2006).</p>
+
+<h3>Abstract</h3>
+
+<p>This document provides an overview of possible avenues for denial-of-
 service attack on Internet systems.  The aim is to encourage protocol
 designers and network engineers towards designs that are more robust.
 We discuss partial solutions that reduce the effectiveness of attacks,
 and how some solutions might inadvertently open up alternative
 vulnerabilities.
 
-</t>
-           </abstract>
-       </front>
-<middle>
-<section title="Introduction">
-<t>A Denial-of-Service (DoS) attack is an attack in which one or more
+
+</p><a name="toc"></a><br /><hr />
+<h3>Table of Contents</h3>
+<p class="toc">
+<a href="#anchor1">1.</a>&nbsp;
+Introduction<br />
+<a href="#anchor2">2.</a>&nbsp;
+An Overview of Denial-of-Service Threats<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor3">2.1.</a>&nbsp;
+DoS Attacks on End-systems<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor4">2.1.1.</a>&nbsp;
+Exploiting Poor Software Quality<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor5">2.1.2.</a>&nbsp;
+Application Resource Exhaustion<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor6">2.1.3.</a>&nbsp;
+Operating System Resource Exhaustion<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor7">2.1.4.</a>&nbsp;
+Triggered Lockouts and Quota Exhaustion<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor8">2.2.</a>&nbsp;
+DoS Attacks on Routers<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor9">2.2.1.</a>&nbsp;
+Attacks on Routers through Routing Protocols<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor10">2.2.2.</a>&nbsp;
+IP Multicast-based DoS Attacks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor11">2.2.3.</a>&nbsp;
+Attacks on Router Forwarding Engines<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor12">2.3.</a>&nbsp;
+Attacks on Ongoing Communications<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor13">2.4.</a>&nbsp;
+Attacks using the Victim's Own Resources<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor14">2.5.</a>&nbsp;
+DoS Attacks on Local Hosts or Infrastructure<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor15">2.6.</a>&nbsp;
+DoS Attacks on Sites though DNS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor16">2.7.</a>&nbsp;
+DoS Attacks on Links<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor17">2.8.</a>&nbsp;
+DoS attacks on firewalls<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor18">2.9.</a>&nbsp;
+DoS attacks on IDS systems<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor19">2.10.</a>&nbsp;
+DoS attacks on or via NTP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor20">2.11.</a>&nbsp;
+Physical DoS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor21">2.12.</a>&nbsp;
+Social Engineering DoS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor22">2.13.</a>&nbsp;
+Legal DoS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#blackhole">2.14.</a>&nbsp;
+Spam and Black-hole Lists<br />
+<a href="#anchor23">3.</a>&nbsp;
+Attack Amplifiers<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor24">3.1.</a>&nbsp;
+Methods of Attack Amplification<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor25">3.2.</a>&nbsp;
+Strategies to Mitigate Attack Amplification<br />
+<a href="#anchor26">4.</a>&nbsp;
+DoS Mitigation Strategies<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor27">4.1.</a>&nbsp;
+Protocol Design<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor28">4.1.1.</a>&nbsp;
+Don't Hold State for Unverified Hosts<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor29">4.1.2.</a>&nbsp;
+Make it Hard to Simulate a Legitimate User<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor30">4.1.3.</a>&nbsp;
+Graceful Routing Degradation<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor31">4.1.4.</a>&nbsp;
+Autoconfiguration and Authentication<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor32">4.2.</a>&nbsp;
+Network Design and Configuration<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor33">4.2.1.</a>&nbsp;
+Redundancy and Distributed Service<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor34">4.2.2.</a>&nbsp;
+Authenticate Routing Adjacencies<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor35">4.2.3.</a>&nbsp;
+Isolate Router-to-Router Traffic<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor36">4.3.</a>&nbsp;
+Router Implementation Issues<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor37">4.3.1.</a>&nbsp;
+Checking Protocol Syntax and Semantics<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor38">4.3.2.</a>&nbsp;
+Consistency Checks<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor39">4.3.3.</a>&nbsp;
+Enhance Router Robustness through Operational Adjustments<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor40">4.3.4.</a>&nbsp;
+Proper Handling of Router Resource Exhaustion<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor41">4.4.</a>&nbsp;
+End-System Implementation Issues<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor42">4.4.1.</a>&nbsp;
+State Lookup Complexity<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor45">4.4.2.</a>&nbsp;
+Operational Issues<br />
+<a href="#anchor48">5.</a>&nbsp;
+Conclusions<br />
+<a href="#anchor49">6.</a>&nbsp;
+Security Considerations<br />
+<a href="#anchor50">7.</a>&nbsp;
+Acknowledgements<br />
+<a href="#anchor51">8.</a>&nbsp;
+Normative References<br />
+<a href="#anchor52">9.</a>&nbsp;
+Informative References<br />
+<a href="#anchor53">Appendix&nbsp;A.</a>&nbsp;
+IAB Members at the time of this writing<br />
+<a href="#rfc.authors">&#167;</a>&nbsp;
+Authors' Addresses<br />
+<a href="#rfc.copyright">&#167;</a>&nbsp;
+Intellectual Property and Copyright Statements<br />
+</p>
+<br clear="all" />
+
+<a name="anchor1"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.1"></a><h3>1.&nbsp;Introduction</h3>
+
+<p>A Denial-of-Service (DoS) attack is an attack in which one or more
 machines target a victim and attempt to prevent the victim from doing
 useful work.  The victim can be a network server, client or router, a
 network link or an entire network, an individual Internet user or a
@@ -64,8 +297,9 @@ computing resources, but for the most part in this document we focus on
 the cases where the denial-of-service attack itself does not involve a
 compromise of the victim's computing facilities.
 
-</t>
-<t>Because of the closed context of the original ARPAnet and NSFnet, no
+
+</p>
+<p>Because of the closed context of the original ARPAnet and NSFnet, no
 consideration was given to denial-of-service attacks in the original
 Internet Architecture.  As a result, almost all Internet services are
 vulnerable to denial-of-service attacks of sufficient scale.  In most
@@ -76,35 +310,42 @@ Such an attack is known as a Distributed Denial of Service attack
 (DDoS).  However, there are also many cases where a single well-
 connected end-system can perpetrate a successful DoS attack.
 
-</t>
-<t>This document is intended to serve several purposes:
 
-</t>
-<t>o   To highlight possible avenues for attack, and by so doing encourage
+</p>
+<p>This document is intended to serve several purposes:
+
+
+</p>
+<p>o   To highlight possible avenues for attack, and by so doing encourage
     protocol designers and network engineers towards designs that are
     more robust.
 
-</t>
-<t>o   To discuss partial solutions that reduce the effectiveness of
+
+</p>
+<p>o   To discuss partial solutions that reduce the effectiveness of
     attacks.
 
-</t>
-<t>o   To highlight how some partial solutions can be taken advantage of by
+
+</p>
+<p>o   To highlight how some partial solutions can be taken advantage of by
     attackers to perpetrate alternative attacks.
 
-</t>
-<t>This last point appears to be a recurrent theme in DoS, and highlights
+
+</p>
+<p>This last point appears to be a recurrent theme in DoS, and highlights
 the lack of proper architectural solutions.  It is our hope that this
 document will help initiate informed debate about future architectural
 solutions that might be feasible and cost-effective for deployment.
 
-</t>
-<t>In addition it is our hope that this document will spur discussion
+
+</p>
+<p>In addition it is our hope that this document will spur discussion
 leading to architectural solutions that reduce the succeptibility of all
 Internet systems to denial-of-service attacks.
 
-</t>
-<t>We note that in principle it is not possible to distinguish between a
+
+</p>
+<p>We note that in principle it is not possible to distinguish between a
 sufficiently subtle DoS attack and a flash-crowd, where unexpected heavy
 but non-malicious traffic has the same effect as a DoS attack.  Whilst
 this is true, such malicious attacks are usually more expensive to
@@ -113,35 +354,48 @@ defending against DoS is not about preventing all possible attacks, but
 rather is largely a question of raising the bar sufficiently high for
 malicious traffic.
 
-</t>
-<t>However, it is also important to note that not all DoS problems are
+
+</p>
+<p>However, it is also important to note that not all DoS problems are
 malicious.  Failed links, flash crowds, misconfigured bots, and numerous
 other causes can result in resource exhaustion problems, and so the
 overall goal should be to be robust to all forms of overload.
 
-</t>
-</section>
-<section title="An Overview of Denial-of-Service Threats">
-<t>In this section we will discuss a wide range of possible DoS attacks.
+
+</p>
+<a name="anchor2"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2"></a><h3>2.&nbsp;An Overview of Denial-of-Service Threats</h3>
+
+<p>In this section we will discuss a wide range of possible DoS attacks.
 This list cannot be exhaustive, but the intent is to provide a good
 overview of the spectrum of possibilities that need to be defended
 against.
 
-</t>
-<t>We do not provide descriptions of any attacks that are not already
+
+</p>
+<p>We do not provide descriptions of any attacks that are not already
 publicly well documented.
 
-</t>
-<section title="DoS Attacks on End-systems">
-<t>We first discuss attacks on end-systems.  An end-system in this context
+
+</p>
+<a name="anchor3"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.1"></a><h3>2.1.&nbsp;DoS Attacks on End-systems</h3>
+
+<p>We first discuss attacks on end-systems.  An end-system in this context
 is typically a PC or network server, but it can also include any
 communication endpoint.  For example, a router also is an end-system
 from the point of view of terminating TCP connections for BGP [32] or
 ssh [49].
 
-</t>
-<section title="Exploiting Poor Software Quality">
-<t>The simplest DoS attacks on end-systems exploit poor software quality on
+
+</p>
+<a name="anchor4"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.1.1"></a><h3>2.1.1.&nbsp;Exploiting Poor Software Quality</h3>
+
+<p>The simplest DoS attacks on end-systems exploit poor software quality on
 the end-systems themselves, and cause that software to simply crash.
 For example, buffer-overflow attacks might be used to compromise the
 end-system, but even if the buffer-overflow cannot be used to gain
@@ -152,71 +406,87 @@ a web server be potentially vulnerable, but it might also be possible to
 crash the back-end software (such as a database) to which a web server
 provides data.
 
-</t>
-<t>Software crashes due to poor coding not only affect application
+
+</p>
+<p>Software crashes due to poor coding not only affect application
 software, but also the operating system kernel itself.  A classic
 example is the so-called "Ping of Death", which became widely known in
 1996 [10]. This exploit caused many popular operating systems to crash
 when sent a single fragmented ICMP echo request packet whose fragments
 totaled more than the 65535 bytes allowed in an IPv4 packet.
 
-</t>
-<t>While DoS attacks such as the ping-of-death are a significant problem,
+
+</p>
+<p>While DoS attacks such as the ping-of-death are a significant problem,
 they are not a significant architectural problem.  Once such an attack
 is discovered, the relevant code can easily be patched, and the problem
 goes away.  We should note though that as more and more software becomes
 embedded, it is important not to lose the possibility of upgrading the
 software in such systems.
 
-</t>
-</section>
-<section title="Application Resource Exhaustion">
-<t>Network applications exist in a context that has finite resources.  In
+
+</p>
+<a name="anchor5"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.1.2"></a><h3>2.1.2.&nbsp;Application Resource Exhaustion</h3>
+
+<p>Network applications exist in a context that has finite resources.  In
 processing network traffic, such an application uses these resources to
 do its intended task.  However, an attacker may be able to prevent the
 application from performing its intended task by causing the application
 to exhaust the finite supply of a specific resource.
 
-</t>
-<t>The obvious resources that might be exhausted include:
 
-</t>
-<t>o   Available memory.
+</p>
+<p>The obvious resources that might be exhausted include:
 
-</t>
-<t>o   The CPU cycles available.
 
-</t>
-<t>o   The disk space available to the application.
+</p>
+<p>o   Available memory.
 
-</t>
-<t>o   The number of processes or threads or both that the application is
+
+</p>
+<p>o   The CPU cycles available.
+
+
+</p>
+<p>o   The disk space available to the application.
+
+
+</p>
+<p>o   The number of processes or threads or both that the application is
     permitted to use.
 
-</t>
-<t>o   The configured maximum number of simultaneous connections the
+
+</p>
+<p>o   The configured maximum number of simultaneous connections the
     application is permitted.
 
-</t>
-<t>This list is clearly not exhaustive, but it illustrates a number of
+
+</p>
+<p>This list is clearly not exhaustive, but it illustrates a number of
 points.
 
-</t>
-<t>Some resources are self-renewing: CPU cycles fall in this category - if
+
+</p>
+<p>Some resources are self-renewing: CPU cycles fall in this category - if
 the attack ceases, more CPU cycles become available.
 
-</t>
-<t>Some resources such as disk space require an explicit action to free up
+
+</p>
+<p>Some resources such as disk space require an explicit action to free up
 - if the application cannot do this automatically then the effects of
 the attack may be persistent after the attack has ceased.
 
-</t>
-<t>This problem has been understood for many years, and it is common
+
+</p>
+<p>This problem has been understood for many years, and it is common
 practice for logs and incoming email to be stored in a separate disk
 partition (/var on Unix systems) in order to limit the impact of
 exhaustion.
-</t>
-<t>Some resources are constrained by configuration: the maximum number of
+
+</p>
+<p>Some resources are constrained by configuration: the maximum number of
 processes and the maximum number of simultaneous connections are not
 normally hard limits, but rather are configured limits.  The purpose of
 such limits is clearly to allow the machine to perform other tasks in
@@ -229,17 +499,21 @@ may permit the attacker to cause the machine to crash (due to poor OS
 design in handling resource exhaustion) or permit livelock (see below),
 which are generally even less desirable failure modes.
 
-</t>
-</section>
-<section title="Operating System Resource Exhaustion">
-<t>Conceptually OS resource exhaustion and application resource exhaustion
+
+</p>
+<a name="anchor6"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.1.3"></a><h3>2.1.3.&nbsp;Operating System Resource Exhaustion</h3>
+
+<p>Conceptually OS resource exhaustion and application resource exhaustion
 are very similar.  However, in the case of application resource
 exhaustion, the operating system may be able to protect other tasks from
 being affected by the DoS attack.  In the case of the operating system
 itself running out of resources, the problem may be more catastrophic.
 
-</t>
-<t>Perhaps the best-known DoS attack on an operating system is the TCP SYN-
+
+</p>
+<p>Perhaps the best-known DoS attack on an operating system is the TCP SYN-
 flood [8], which is essentially a memory-exhaustion attack.  The
 attacker sends a flood of TCP SYN packets to the victim, requesting
 connection setup, but then does not complete the connection setup.  The
@@ -252,8 +526,9 @@ dedicated storage space for half-open connections, which made the attack
 easier than it might otherwise have been.  In the case of a poorly coded
 operating system, running out of resources may also cause a system
 crash.
-</t>
-<t>An alternative TCP DoS attack is the Ack-flood [12], which is
+
+</p>
+<p>An alternative TCP DoS attack is the Ack-flood [12], which is
 essentially a CPU exhaustion attack on the victim.  The attacker floods
 the victim with TCP packets pretending to be from connections that have
 never been established.  A busy server that has a large number of
@@ -263,8 +538,9 @@ inefficiently, and so the attacker could use all the victim's CPU
 resources servicing these packets rather than servicing legitimate
 requests.
 
-</t>
-<t>We note that strong authentication mechanisms do not mitigate against
+
+</p>
+<p>We note that strong authentication mechanisms do not mitigate against
 such CPU exhaustion attacks.  In fact poorly designed authentication
 mechanisms using cryptographic methods can exacerbate the problem.  If
 such an authentication mechanism allows an attacker to present a packet
@@ -272,38 +548,46 @@ to the victim that requires relatively expensive cryptographic
 authentication before the packet can be discarded, then this makes the
 attacker's CPU exhaustion attack easier.
 
-</t>
-<t>CPU exhaustion attacks can be also be exacerbated by poor OS handling of
+
+</p>
+<p>CPU exhaustion attacks can be also be exacerbated by poor OS handling of
 incoming network traffic.  In the absence of malicious traffic, an ideal
 OS should behave as follows:
 
-</t>
-<t>o   As incoming traffic increases, the useful work done by the OS should
+
+</p>
+<p>o   As incoming traffic increases, the useful work done by the OS should
     increase until some resource (such as the CPU) is saturated.
 
-</t>
-<t>o   From this point on, as incoming traffic continues to increase the
+
+</p>
+<p>o   From this point on, as incoming traffic continues to increase the
     useful work done should be constant.
 
-</t>
-<t>However, this is often not the case.  Many systems suffer from livelock
+
+</p>
+<p>However, this is often not the case.  Many systems suffer from livelock
 [29] where, after saturation, increasing the load causes a decrease in
 the useful work done.  One cause of this is that the system spends an
 increasing amount of time processing network interrupts for packets that
 will never be processed, and hence a decreasing amount of time is
 available for the application for which these packets were intended.
 
-</t>
-</section>
-<section title="Triggered Lockouts and Quota Exhaustion">
-<t>Many user-authentication mechanisms attempt to protect against password
+
+</p>
+<a name="anchor7"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.1.4"></a><h3>2.1.4.&nbsp;Triggered Lockouts and Quota Exhaustion</h3>
+
+<p>Many user-authentication mechanisms attempt to protect against password
 guessing attacks by locking the user out after a small number of failed
 authentications.  If an attacker can guess or discover a user's ID, they
 may be able to trigger such a mechanism, locking out the legitimate
 user.
 
-</t>
-<t>Another way to deny service using protection mechanisms is to cause a
+
+</p>
+<p>Another way to deny service using protection mechanisms is to cause a
 quota to be exhausted.  This is perhaps most common in the case of small
 web servers being commercially hosted, where the server has a contract
 with the hosting company allowing a fixed amount of traffic per day.  An
@@ -311,15 +595,18 @@ attacker may be able to rapidly exhaust this quota, and cause service to
 be suspended.  Similar attacks may be possible against other forms of
 quota.
 
-</t>
-<t>In the absence of such quotas, if the victim is charged for their
+
+</p>
+<p>In the absence of such quotas, if the victim is charged for their
 network traffic, a financial denial-of-service may be possible.
 
-</t>
-</section>
-</section>
-<section title="DoS Attacks on Routers">
-<t>Many of the denial-of-service attacks that can be launched against
+
+</p>
+<a name="anchor8"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.2"></a><h3>2.2.&nbsp;DoS Attacks on Routers</h3>
+
+<p>Many of the denial-of-service attacks that can be launched against
 end-systems can also be launched against the control processor of an IP
 router, for example by flooding the command and control access ports.
 In the case of
@@ -331,29 +618,36 @@ consequence of routing failure is not only that the router ceases to
 forward traffic, but also that it causes routing protocol churn that may
 have further side effects.
 
-</t>
-<t>An example of such a side effect is caused by BGP route flap damping
+
+</p>
+<p>An example of such a side effect is caused by BGP route flap damping
 [35], which is intended to reduce global routing churn.  If an attacker
 can cause BGP routing churn, route flap damping may then cause the
 flapping routes to be suppressed [27]. This suppression likely
 causes the networks served by those routes to become unreachable.
-</t>
-<t>A DoS attack on the router control processor might also prevent the
+
+</p>
+<p>A DoS attack on the router control processor might also prevent the
 router from being managed effectively.  This may prevent actions being taken
 that would mitigate the DoS attack, and it might prevent diagnosis of
 the cause of the problem.
 
-</t>
-<section title="Attacks on Routers through Routing Protocols">
-<t>In addition to their roles as end-systems, most routers run dynamic
+
+</p>
+<a name="anchor9"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.2.1"></a><h3>2.2.1.&nbsp;Attacks on Routers through Routing Protocols</h3>
+
+<p>In addition to their roles as end-systems, most routers run dynamic
 routing protocols.  The routing protocols themselves can be used to
 stage a DoS attack on a router or a network of routers. 
 This requires the ability to send traffic from addresses which
 might plausibly have generated the relevant routing messages,
 which is somewhat difficult with interior routing protocols
 but fairly easy with eBGP, for instance.
-</t>
-<t>The simplest attack on a network of routers is to overload the routing
+
+</p>
+<p>The simplest attack on a network of routers is to overload the routing
 table with sufficiently many routes that the router runs out of memory,
 or the router has insufficient CPU power to process the routes [15]. We
 note that depending on the distribution and capacities of various
@@ -361,14 +655,16 @@ routers around the network, such an attack might not overwhelm routers
 near to the attacking router, but might cause problems to show up
 elsewhere in the network.
 
-</t>
-<t>Some routing protocol implementations allow limits to be configured on the maximum
+
+</p>
+<p>Some routing protocol implementations allow limits to be configured on the maximum
 number of routes to be heard from a neighbor [17]. However, limits
 often make the problem worse rather than better, by making
 it possible for the attacker to push out legitimate routes
 with spoofed routes, thus creating an easy form of DoS attack.
-</t>
-<t>An alternative attack is to overload the routers on the network by
+
+</p>
+<p>An alternative attack is to overload the routers on the network by
 creating sufficient routing table churn that routers are unable to
 process the changes.  Many routing protocols allow damping factors to be
 configured to avoid just such a problem.  However, as with table size,
@@ -376,24 +672,27 @@ such a threshold applied inconsistently may allow the spoofed routes to
 merge with legitimate routes before the mechanism is applied, causing
 legitimate routes to be damped.
 
-</t>
-<t>The simplest routing attack on a specific destination is for an attacker
+
+</p>
+<p>The simplest routing attack on a specific destination is for an attacker
 to announce a spoofed desirable route to that destination.  Such a route
 might be desirable because it has low metric, or because it is a more
 specific route than the legitimate route.  In any event, if the route is
 believed, it will cause traffic for the victim to be drawn towards the
 attacking router, where it will typically be discarded.
 
-</t>
-<t>A more subtle denial-of-service attack might be launched against a
+
+</p>
+<p>A more subtle denial-of-service attack might be launched against a
 network rather than against a destination.  Under some circumstances,
 the propagation of inconsistent routing information can cause traffic to
 loop.  If an attacker can cause this to happen on a busy path, the
 looping traffic might cause significant congestion, as well as fail
 to reach the legitimate destination. 
 
-</t>
-<t>In the past there have been cases where different generations of routers
+
+</p>
+<p>In the past there have been cases where different generations of routers
 interpreted a routing protocol specification differently.  In
 particular, BGP specifies that in the case of an error, the BGP peering
 should be dropped.  However, if some of the routers in a network treat a
@@ -405,18 +704,22 @@ be a serious short-term problem, this is not a fundamental architectural
 problem.  Once the problem is understood, deploying patched routing code
 can permanently solve the issue.
 
-</t>
-</section>
-<section title="IP Multicast-based DoS Attacks">
-<t>
+
+</p>
+<a name="anchor10"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.2.2"></a><h3>2.2.2.&nbsp;IP Multicast-based DoS Attacks</h3>
+
+<p>
 There are essentially two forms of IP multicast: traditional Any-Source
 Multicast (ASM), as specified in RFC 1112 [19] where multiple sources
 can send to the same multicast group, and Source-Specific Multicast
 (SSM) where the receiver must specify both the IP source address and
 the group address.  The two forms of multicast provide rather
 different DoS possibilities.
-</t>
-<t>
+
+</p>
+<p>
 ASM protocols such as PIM-SM [21], MSDP [28] and DVMRP [38] typically
 cause some routers to instantiate routing state at the time a packet
 is sent to a multicast group.  They do this to ensure that the traffic
@@ -426,12 +729,14 @@ to many multicast groups may cause both multicast routing table
 explosion (and hence control processor memory exhaustion) and
 multicast forwarding table exhaustion (and hence forwarding card
 memory exhaustion or thrashing).
-</t>
-<t>ASM also permits an attacker to send traffic to the same group as
+
+</p>
+<p>ASM also permits an attacker to send traffic to the same group as
 legitimate traffic, potentially causing network congestion and denying
 service to the legitimate group.
-</t>
-<t>SSM does not permit senders to send to arbitrary groups unless a
+
+</p>
+<p>SSM does not permit senders to send to arbitrary groups unless a
 receiver has requested the traffic.  Thus sender-based attacks on
 multicast routing state are not possible with SSM.  However, as with
 ASM, a receiver can still join a large number of multicast groups
@@ -439,32 +744,39 @@ causing routers to hold a large amount of multicast routing state,
 potentially causing memory exhaustion and hence denial-of-service to
 legitimate traffic.
 
-</t>
-<t>With IPv6, hosts are required to send ICMP Packet Too Big or Parameter
+
+</p>
+<p>With IPv6, hosts are required to send ICMP Packet Too Big or Parameter
 Problem messages under certain circumstances, even if the destination
 address is a multicast address. If the attacker can place himself in the
 appropriate position in the multicast tree, a packet with an unknown but
 mandatory Destination Option, for instance, could generate a very large
 number of responses to the claimed sender. 
-</t>
-<t>With IPv4 the same problem exists with multicast ICMP Echo Request
+
+</p>
+<p>With IPv4 the same problem exists with multicast ICMP Echo Request
 packets, but these are somewhat easier to filter. 
-</t>
-<t>
+
+</p>
+<p>
 The examples above should not be taken as exhaustive.
 These are actually specific cases of a general problem that can happen
 whene a multicast/broadcast request solicits a reply from a large
 number of nodes. 
-</t>
-</section>
-<section title="Attacks on Router Forwarding Engines">
-<t>Router vendors implement many different mechanisms for packet
+
+</p>
+<a name="anchor11"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.2.3"></a><h3>2.2.3.&nbsp;Attacks on Router Forwarding Engines</h3>
+
+<p>Router vendors implement many different mechanisms for packet
 forwarding, but broadly speaking they fall into two categories: ones
 that use a forwarding cache, and ones that do not.  With a forwarding
 cache, the forwarding engine does not hold the full routing table, but
 rather holds just the currently active subset of the forwarding table.
-</t>
-<t>Many modern routers use a loosely coupled architecture, where one or
+
+</p>
+<p>Many modern routers use a loosely coupled architecture, where one or
 more control processors handle the routing protocols, and communicate
 over an internal network link to special-purpose forwarding engines,
 which actually forward the data traffic.  In such architectures it may
@@ -473,8 +785,9 @@ the control processor and the forwarding engine.  This is possible
 because the forwarding engines support very high speed links, and the
 control processor simply cannot handle a similar rate of traffic.
 
-</t>
-<t>There may be many ways in which an attacker can trigger communication
+
+</p>
+<p>There may be many ways in which an attacker can trigger communication
 between the forwarding engines and the control processor.  The simplest
 way is for the attacker to simply send to the router's IP address, but
 this should in principle be relatively easy to prevent using filtering
@@ -490,27 +803,31 @@ the control processor might cause such a problem.  Certain multicast
 routing protocols including PIM-SM contain many such data triggered
 events that could potentially be problematic.
 
-</t>
-<t>The effects of overloading such internal communications are hard to
+
+</p>
+<p>The effects of overloading such internal communications are hard to
 predict, and very implementation-dependent.  One possible effect might
 be that the forwarding table in the forwarding engine gets out of
 synchronization with the routing table in the control processor that
 reflects what the routing protocols believe is happening.  This might
 cause traffic to be dropped or to loop.
 
-</t>
-<t>Finally, if an attacker can generate traffic that causes a router to
+
+</p>
+<p>Finally, if an attacker can generate traffic that causes a router to
 auto-install access control list (ACL) entries, perhaps by triggering a
 response from an intrusion detection system, then it may be possible to
 exhaust the ACL resources on the router.  This might prevent
 future attacks from being filtered, or worse, cause ACL processing to be
 handled by the route processor.
 
-</t>
-</section>
-</section>
-<section title="Attacks on Ongoing Communications">
-<t>Instead of attacking the end-system itself, it is also possible for an
+
+</p>
+<a name="anchor12"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.3"></a><h3>2.3.&nbsp;Attacks on Ongoing Communications</h3>
+
+<p>Instead of attacking the end-system itself, it is also possible for an
 attacker to disrupt ongoing communications.  If an attacker can observe
 a TCP connection, then it is relatively easy for them to spoof packets
 to either reset that connection or to de-synchronize it so that no
@@ -519,8 +836,9 @@ transport or application-level security mechanisms such as TLS [20] or
 ssh, because the authentication takes place after TCP has finished
 processing the packets.
 
-</t>
-<t>If an attacker cannot observe a TCP connection, but can infer that such
+
+</p>
+<p>If an attacker cannot observe a TCP connection, but can infer that such
 a connection exists, it is theoretically possible to reset or
 desynchronize that connection by spoofing packets into the connection.
 However, this might require an excessively large number of spoofed
@@ -533,23 +851,28 @@ either the dynamically selected port or the TCP initial sequence number
 as to how to reduce the vulnerability in the specific case of TCP is
 available in [34].
 
-</t>
-<t>An attacker might be able to significantly reduce the throughput of a
+
+</p>
+<p>An attacker might be able to significantly reduce the throughput of a
 connection by sending spoofed ICMP source quench packets, although most
 modern operating systems should ignore such packets.  However, care
 should be taken in the design of future transport and signaling
 protocols to avoid the introduction of similar mechanisms that could be
 exploited.
 
-</t>
-</section>
-<section title="Attacks using the Victim's Own Resources">
-<t>Instead of directly overloading the victim, it may be possible to cause
+
+</p>
+<a name="anchor13"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.4"></a><h3>2.4.&nbsp;Attacks using the Victim's Own Resources</h3>
+
+<p>Instead of directly overloading the victim, it may be possible to cause
 the victim or a machine on the same subnet as the victim to overload
 itself.
 
-</t>
-<t>An example of such an attack is documented in [7], where the attacker
+
+</p>
+<p>An example of such an attack is documented in [7], where the attacker
 spoofs the source address on a packet sent to the victim's  UDP echo
 port.  The source address is that of another machine that is running a
 UDP chargen server (a chargen server sends a character pattern back to
@@ -557,31 +880,38 @@ the originating source).  The result is that the two machines bounce
 packets back and forth as fast as they can, overloading either the
 network between them or one of the end-systems itself.
 
-</t>
-</section>
-<section title="DoS Attacks on Local Hosts or Infrastructure">
-<t>There are a number of attacks that might only be performed by a local
+
+</p>
+<a name="anchor14"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.5"></a><h3>2.5.&nbsp;DoS Attacks on Local Hosts or Infrastructure</h3>
+
+<p>There are a number of attacks that might only be performed by a local
 attacker.
 
-</t>
-<t>An attacker with access to a subnet may be able to prevent other local
+
+</p>
+<p>An attacker with access to a subnet may be able to prevent other local
 hosts from accessing the network at all by simply exhausting the address
 pool allocated by a DHCP server.  This requires being able to spoof the
 MAC address of an ethernet or wireless card, but this is quite feasible
 with certain hardware and operating systems.
 
-</t>
-<t>An alternative DHCP-based attack is simply to respond faster than the
+
+</p>
+<p>An alternative DHCP-based attack is simply to respond faster than the
 legitimate DHCP server, and to give out an address that is not useful to
 the victim.
 
-</t>
-<t>These sorts of bootstrapping attacks tend to be difficult to avoid
+
+</p>
+<p>These sorts of bootstrapping attacks tend to be difficult to avoid
 because most of the time trust relationships are established after IP
 communication has already been established.
 
-</t>
-<t>Similar attacks are possible through ARP spoofing [4]; an attacker can
+
+</p>
+<p>Similar attacks are possible through ARP spoofing [4]; an attacker can
 respond to ARP requests before the victim and prevent traffic from
 reaching the victim.  Some brands of ethernet switch allow an even
 simpler attack - simply send from the victim's MAC address, and the
@@ -589,28 +919,32 @@ switch will redirect traffic destined for the victim to the attacker's
 port. This attack might also potentially be used to block traffic from
 the victim by engaging screening or flap-dampening algorithms in
 the switch, depending on the switch design.
-</t>
-<t>It may be possible to cause broadcast storms [4] on a local LAN by
+
+</p>
+<p>It may be possible to cause broadcast storms [4] on a local LAN by
 sending a stream of unicast IP packets to the broadcast MAC address -
 some hosts on the LAN may then attempt to forward the packets to the
 correct MAC address greatly amplifying the traffic on the LAN.
 
-</t>
-<t>802.11 wireless networks provide many opportunities to deny service to
+
+</p>
+<p>802.11 wireless networks provide many opportunities to deny service to
 other users.  In some cases, the lack of defenses against DoS was
 a deliberate choice--because 802.11 operates on unlicensed spectrum
 it was assumed that there would be sources of interference and that
 producing intentional radio-level jamming would be trivial. Thus,
 the amount of DoS protection possible at higher levels was minimal.
-</t>
-<t>
+
+</p>
+<p>
 Nevertheless, some of the weaknesses of the protocols against 
 more sophisticated attacks are worth noting. The most prominent
 of these is that association is unprotected, thus allowing
 rogue APs to solicit notifications that would otherwise have
 gone to legitimate APs. 
-</t>
-<t>
+
+</p>
+<p>
 The SSID field provides effectively no defense against this kind
 of attacks. Unless encryption is enabled, it is trivial to announce
 the presence of a base station (or even of an ad-hoc mode host) with the
@@ -621,10 +955,12 @@ in this respect. The SSID space is unmanaged, so everyone's free to put
 anything they want in the SSID field.  Most host stacks don't deal
 gracefully with this. Moreover, SSIDs are very often set to the
 manufacturer's default, making them highly predictable.
-</t>
-<t>
-</t>
-<t>Some 802.11 basestations have limited memory for the number of
+
+</p>
+<p>
+
+</p>
+<p>Some 802.11 basestations have limited memory for the number of
 associations they can support.  If this is exceeded, they may drop all
 associations. 
 In an attempt to forestall this problem, some APs advertise
@@ -632,23 +968,26 @@ their load so as to enable stations to choose APs that are less
 loaded.  However, crude implementations of these algorithms can
 result in instability.
 
-</t>
-<t>Finally, as the authentication in 802.11 takes place at a comparatively
+
+</p>
+<p>Finally, as the authentication in 802.11 takes place at a comparatively
 high level in the stack, it is possible to simply deauthenticate or
 disassociate the victim from the basestation, even if WEP is in use
 [26]. Bellardo and Savage [3] describe some simple remedies that reduce
 the effectiveness of such attacks.
 While IEEE 802.11w will protect Deauthenticate or Disassociate
 frames, this attack is still possible via forging of Association frames.
-</t>
-<t>What all these attacks have in common is that they exploit
+
+</p>
+<p>What all these attacks have in common is that they exploit
 vulnerabilities in the link auto-configuration mechanisms. 
 In a wireless network it is
 necessary for a station to detect the presence of APs in order to
 choose which one to connect to.  In 802.11 this is handled via the
 Beacon and Probe Request/Response mechanisms.
-</t>
-<t>
+
+</p>
+<p>
 The Beacon cannot easily be encrypted, because the station
 needs to utilize them prior to authentication in order to discover
 which APs it may wish to communicate with. Since authentication
@@ -662,8 +1001,9 @@ shared (per-AP) key but this would require each station
 to trial-decrypt beacons until it find one that
 matches up to whatever shared authentication secret it had.
 This is not particularly convenient.
-</t>
-<t>
+
+</p>
+<p>
 As a result, discussions of Beacon frame security have largely focused
 on authentication of Beacon frames, not encryption.  Even here, solutions
 are difficult.  While it may be possible to for a station to validate a 
@@ -672,15 +1012,19 @@ Beacon
 group key provided by the AP, or verifying the Beacon parameters
 during the 4-way handshake), doing so *before* authentication may
 require synchronization of keys between APs within an SSID.
-</t>
-</section>
-<section title="DoS Attacks on Sites though DNS">
-<t>In today's Internet, DNS is of sufficient importance that if access to a
+
+</p>
+<a name="anchor15"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.6"></a><h3>2.6.&nbsp;DoS Attacks on Sites though DNS</h3>
+
+<p>In today's Internet, DNS is of sufficient importance that if access to a
 site's DNS servers is denied, the site is effectively unreachable, even
 if there is no actual communication problem with the suite itself.
 
-</t>
-<t>Many of the attacks on end-systems described above can be perpetrated on
+
+</p>
+<p>Many of the attacks on end-systems described above can be perpetrated on
 DNS servers.  As servers go, DNS servers are not particularly vulnerable
 to DoS.  So long as a DNS server has sufficient memory, a modern host
 can usually respond very rapidly to DNS requests for which it is
@@ -691,8 +1035,9 @@ further improve their resistance to DoS.  However it is important for
 authoritative servers to have relaying disabled, or it is possible for
 an attacker to force the DNS servers to hold state [39].
 
-</t>
-<t>Many of the routing attacks can also be used against DNS servers by
+
+</p>
+<p>Many of the routing attacks can also be used against DNS servers by
 targeting the routing for the server.  If the DNS server is co-located
 with the site for which is authoritative, then the fact that the DNS
 server is also unavailable is of secondary importance.  However, if all the
@@ -700,14 +1045,16 @@ DNS servers are made unavailable, this may cause email to that site to
 bounce rather than being stored while the mail servers are unreachable,
 so distribution of DNS server locations is important.
 
-</t>
-<t>Causing network congestion on links to and from a DNS server can have
+
+</p>
+<p>Causing network congestion on links to and from a DNS server can have
 similar effects to end-system attacks or routing attacks, causing DNS to
 fail to obtain an answer, and effectively denying access to the site
 being served.
 
-</t>
-<t>We note that if an attacker can deny external access to all the DNS servers
+
+</p>
+<p>We note that if an attacker can deny external access to all the DNS servers
 for
 a site, this will not only cause email to that site to be dropped, but
 will also cause email from that site to be dropped.  This is because
@@ -718,12 +1065,13 @@ check as an anti-spam measure, and spam itself can be viewed as a form
 of DoS attack.  Thus defending against one DoS attack opens up the
 vulnerability that allows another DoS attack.
 If a receiving implementation is using 
-a blackhole list (see <xref target="blackhole"/>)
+a blackhole list (see <a class="info" href="#blackhole">Section&nbsp;2.14<span> (</span><span class="info">Spam and Black-hole Lists</span><span>)</span></a>)
 served by DNS
 an attacker can also mount a DoS attack by attacking the blackhole
 server.
-</t>
-<t>Finally, a data corruption attack is possible if a site's nameserver is
+
+</p>
+<p>Finally, a data corruption attack is possible if a site's nameserver is
 permitted to relay requests from untrusted third parties [39]. The
 attacker issues a query for the data he wishes to corrupt, and the
 victim's nameserver relays the request to the authoritative nameserver.
@@ -739,8 +1087,9 @@ attacker issues many different requests for the same data with different
 DNS IDs, because many nameserver implementations will issue relayed
 requests with different DNS IDs, and so the response only has to match
 any one of these request IDs [6] [33].
-</t>
-<t>
+
+</p>
+<p>
 The use of anycast for DNS services makes it even more vulnerable to
 spoofing attacks. An attacker who can convince the ISP to accept an
 anycast route to his fake DNS server can arrange to
@@ -749,15 +1098,19 @@ Anycast DNS also makes DoS attacks on DNS easier. The idea is to
 disable one of the DNS servers while maintaining the BGP route 
 to that server. This creates failures for any client which 
 is routed to the (now defunct) server. 
-</t>
-</section>
-<section title="DoS Attacks on Links">
-<t>The simplest DoS attack is to simply send enough non-congestion-
+
+</p>
+<a name="anchor16"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.7"></a><h3>2.7.&nbsp;DoS Attacks on Links</h3>
+
+<p>The simplest DoS attack is to simply send enough non-congestion-
 controlled traffic such that a link becomes excessively congested, and
 legitimate traffic suffers unacceptably high packet loss.
 
-</t>
-<t>Under some circumstances the effect of such a link DoS can be much more
+
+</p>
+<p>Under some circumstances the effect of such a link DoS can be much more
 extensive.  We have already discussed the effects of denying access to a
 DNS server.  Congesting a link might also cause a routing protocol to
 drop an adjacency if sufficient routing packets are lost, potentially
@@ -767,41 +1120,49 @@ this is not a total panacea.  If routers are peered across a shared
 medium such as ethernet, it may be possible to congest the medium
 sufficiently that routing packets are still lost.
 
-</t>
-<t>Even if a link DoS does not cause routing packets to be lost, it may
+
+</p>
+<p>Even if a link DoS does not cause routing packets to be lost, it may
 prevent remote access to a router using ssh or SNMP.  This might make
 the router unmanageable, or prevent the attack from being correctly
 diagnosed.
 
-</t>
-<t>The prioritization of routing packets can itself cause a DoS problem.
+
+</p>
+<p>The prioritization of routing packets can itself cause a DoS problem.
 If the attacker can cause a large amount of routing flux, it may be
 possible for a router to send routing packets at a high enough rate that
 normal traffic is effectively excluded.  This is however unlikely except
 on low bandwidth links.
 
-</t>
-<t>Finally, it may be possible to an attacker to deny access to a link by
+
+</p>
+<p>Finally, it may be possible to an attacker to deny access to a link by
 causing the router to generate sufficient monitoring or report traffic
 that the link is filled.  SNMP traps are one possible vector for such an
 attack, as they are not normally congestion controlled.
 
-</t>
-<t>
+
+</p>
+<p>
 Attackers with physical access to multiple access links can easily bring down
 the link. This is particularly easy to mount and difficult to counter with
 wireless networks.
-</t>
-</section>
-<section title="DoS attacks on firewalls">
-<t>Firewalls are intended to defend the systems behind them against attack.
+
+</p>
+<a name="anchor17"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.8"></a><h3>2.8.&nbsp;DoS attacks on firewalls</h3>
+
+<p>Firewalls are intended to defend the systems behind them against attack.
 In that they restrict the traffic that can reach those systems, they may
 also aid in defending against denial-of-service attacks.  However, under
 some circumstances the firewall itself may also be used as a weapon in a
 DoS attack.
 
-</t>
-<t>There are many different types of firewall, but generally speaking they
+
+</p>
+<p>There are many different types of firewall, but generally speaking they
 fall into stateful and stateless classes.  The state here refers to
 whether the firewall holds state for the active flows traversing the
 firewall.  Stateless firewalls generally can only be attacked by
@@ -810,14 +1171,16 @@ Stateful firewalls can be attacked by sending traffic that causes the
 firewall to hold excessive state or state which has pathological
 structure.
 
-</t>
-<t>In the case of excessive state, the firewall simply runs out of memory,
+
+</p>
+<p>In the case of excessive state, the firewall simply runs out of memory,
 and can no longer instantiate the state required to pass legitimate
 flows.  Most firewalls will then fail disconnected, causing denial-of-service
 to the systems behind the firewall.
 
-</t>
-<t>In the case of pathological structure, the attacker sends traffic that
+
+</p>
+<p>In the case of pathological structure, the attacker sends traffic that
 causes the firewall's data structures to exhibit worst case behaviour.
 An example of this would be when the firewall uses hash tables to look
 up forwarding state, and the attacker can predict the hash function
@@ -828,10 +1191,13 @@ the attacker can instantiate [18]. Thus the attacker can cause
 forwarding performance to degrade to the point where service is
 effectively denied to the legitimate traffic traversing the firewall.
 
-</t>
-</section>
-<section title="DoS attacks on IDS systems">
-<t>Intrusion detection systems (IDS) suffer from similar problems to
+
+</p>
+<a name="anchor18"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.9"></a><h3>2.9.&nbsp;DoS attacks on IDS systems</h3>
+
+<p>Intrusion detection systems (IDS) suffer from similar problems to
 firewalls.  It may be possible for an attacker to cause the IDS to
 exhaust its available processing power, to run out of memory, or to
 instantiate state with pathological structure.  Unlike a firewall, an
@@ -839,8 +1205,9 @@ IDS will normally fail open, which will not deny service to the systems
 protected by the IDS.  However it may mean that subsequent attacks that
 the IDS would have detected will be missed.
 
-</t>
-<t>Some IDSs are reactive; that is on detection of a hostile event they
+
+</p>
+<p>Some IDSs are reactive; that is on detection of a hostile event they
 react to block subsequent traffic from the hostile system, or to
 terminate an ongoing connection from that system.  It may be possible
 for an attacker to spoof packets from a legitimate system, and hence
@@ -850,33 +1217,41 @@ service to it.  The effect can be particularly bad if the legitimate
 system is a router, DNS server, or other system whose performance is
 essential for the operation of a large number of other systems.
 
-</t>
-</section>
-<section title="DoS attacks on or via NTP">
-<t>Network time servers are generally not considered security-critical
+
+</p>
+<a name="anchor19"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.10"></a><h3>2.10.&nbsp;DoS attacks on or via NTP</h3>
+
+<p>Network time servers are generally not considered security-critical
 services, but under some circumstances NTP servers might be used to
 perpetrate a DoS attack.
 
-</t>
-<t>The most obvious such attack is to DoS the NTP servers themselves.  Many
+
+</p>
+<p>The most obvious such attack is to DoS the NTP servers themselves.  Many
 end systems have rather poor clock accuracy and so, without access to
 network time, their clock will naturally drift.  This can cause problems
 with distributed systems that rely on good clocks.  For example one
 commonly used revision control system can fail if it perceives the
 modification timestamp to be in the future.
 
-</t>
-<t>If the NTP servers relied on by a host can be subverted, either through
+
+</p>
+<p>If the NTP servers relied on by a host can be subverted, either through
 compromising or impersonating them, then the attacker may be able to
 control the host's system clock.  This can cause many unexpected
 consequences, including the premature expiry of dated resources such as
 encryption or authentication keys.  This in turn can prevent access to
 other more critical services.
 
-</t>
-</section>
-<section title="Physical DoS">
-<t>The discussion thus far has centered on denial-of-service attacks
+
+</p>
+<a name="anchor20"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.11"></a><h3>2.11.&nbsp;Physical DoS</h3>
+
+<p>The discussion thus far has centered on denial-of-service attacks
 perpetrated using the network.  However, computer systems are only as
 resilient as the weakest link.  It may be easier to deny service by
 causing a power failure, by cutting network cables, or by simply
@@ -885,26 +1260,35 @@ important as network security. Physical attacks can also serve
 as entry points for non-physical DoS, for instance by
 reducing the resources available to deal with overcapacity.
 
-</t>
-</section>
-<section title="Social Engineering DoS">
-<t>The weakest link may also be human.  In defending against DoS, the
+
+</p>
+<a name="anchor21"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.12"></a><h3>2.12.&nbsp;Social Engineering DoS</h3>
+
+<p>The weakest link may also be human.  In defending against DoS, the
 possibility of denial-of-service through social engineering should not
 be neglected, such as convincing an employee to make a configuration
 change that prevents normal operation.
 
-</t>
-</section>
-<section title="Legal DoS">
-<t>Computer systems cannot be considered in isolation from the social and
+
+</p>
+<a name="anchor22"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.13"></a><h3>2.13.&nbsp;Legal DoS</h3>
+
+<p>Computer systems cannot be considered in isolation from the social and
 legal systems in which they operate.  This document focuses primarily on
 the technical issues, but we note that "cease and desist" letters,
 government censorship, and other legal mechanisms also touch on denial-of-service issues.
 
-</t>
-</section>
-<section title="Spam and Black-hole Lists" anchor="blackhole">
-<t>Unsolicited commercial email, also known as "spam", can effectively
+
+</p>
+<a name="blackhole"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2.14"></a><h3>2.14.&nbsp;Spam and Black-hole Lists</h3>
+
+<p>Unsolicited commercial email, also known as "spam", can effectively
 cause denial-of-service to email systems.  While the intent is not
 denial-of-service, the large amount of unwanted mail can waste the
 recipient's time, or cause legitimate email to fail to be noticed
@@ -912,8 +1296,9 @@ amongst all the background noise.  If spam filtering software is used,
 some level of false positives is to be expected, and so these messages
 are effectively denied service.
 
-</t>
-<t>One mechanism to reduce spam is the use of black-hole lists.  The IP
+
+</p>
+<p>One mechanism to reduce spam is the use of black-hole lists.  The IP
 addresses of dial-up ISPs or mail servers used to originate or relay
 spam are added to black-hole lists.  The recipients of mail choose to
 consult these lists and reject spam if it originates or is relayed by
@@ -928,20 +1313,26 @@ policies before they subscribe.
 Similar considerations apply to feeds of bad BGP bad route 
 advertisements. 
 
-</t>
-</section>
-</section>
-<section title="Attack Amplifiers">
-<t>Many of the attacks described above rely on sending sufficient traffic
+
+</p>
+<a name="anchor23"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3"></a><h3>3.&nbsp;Attack Amplifiers</h3>
+
+<p>Many of the attacks described above rely on sending sufficient traffic
 to overwhelm the victim.  Such attacks are made much easier by the
 existence of "attack amplifiers", where an attacker can send traffic
 from the spoofed source address of the victim and cause larger responses
 to be returned to the victim.  A detailed discussion of such reflection
 attacks can be found in [31].
 
-</t>
-<section title="Methods of Attack Amplification">
-<t>The simplest such attack was the "smurf" attack [11], where an ICMP echo
+
+</p>
+<a name="anchor24"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.1"></a><h3>3.1.&nbsp;Methods of Attack Amplification</h3>
+
+<p>The simplest such attack was the "smurf" attack [11], where an ICMP echo
 request packet with the spoofed source address of the victim is sent to
 the subnet-broadcast address of a network to be used as an amplifier.
 Every system on that subnet then responds with an ICMP echo response
@@ -949,8 +1340,9 @@ that returns to the victim.  Smurf attacks are no longer such a serious
 problem, as these days routers usually drop such packets and end-systems
 do not respond to them.
 
-</t>
-<t>An alternative form of attack amplifier is typified by a DNS reflection
+
+</p>
+<p>An alternative form of attack amplifier is typified by a DNS reflection
 attack.  An attacker sends a DNS request to a DNS server requesting
 resolution of a domain name.  Again the source address of the request is
 the spoofed address of the victim.  The request is carefully chosen so
@@ -963,8 +1355,9 @@ address of the victim.  However, we note that if the victim's DNS server
 is configured to relay requests from external clients, it may be
 possible to cause it to congest its own incoming network link.
 
-</t>
-<t>Another variant of attack amplifier involves amplification through
+
+</p>
+<p>Another variant of attack amplifier involves amplification through
 retransmission.  This is typified by a TCP amplification attack known as
 "bang.c".  The attacker sends a spoofed TCP SYN with the source address
 of the victim to an arbitrary TCP server.  The server will respond with a
@@ -979,15 +1372,17 @@ many reflectors do not receive a RST in response to their SYN|ACK, and
 so continue to retransmit.  The attack can be exacerbated by firewalls
 that silently drop the incoming SYN|ACK without sending a RST.
 
-</t>
-<t>Care must also be taken with services that relay requests.  If an
+
+</p>
+<p>Care must also be taken with services that relay requests.  If an
 attacker can send a request to a proxy, and that proxy now attempts to
 connect to a victim whose address is chosen by the attacker then, if the
 proxy repeatedly resends the request when receiving no answer, this can
 also serve as an attack amplifier.
 
-</t>
-<t>Another variant of amplification occurs in protocols that include,
+
+</p>
+<p>Another variant of amplification occurs in protocols that include,
 within the protocol payload, an IP address or name of host to which
 subsequent messages should be sent. An example of such a protocol is
 the Session Initiation Protocol (SIP), which carries a payload defined
@@ -996,8 +1391,9 @@ message conveys the IP address and port to which media packets,
 typically encoded using the Real Time Transport Protocol (RTP), are
 sent.
 
-</t>
-<t>To launch this attack, an attacker sends a protocol message, and sets
+
+</p>
+<p>To launch this attack, an attacker sends a protocol message, and sets
 the IP address within the payload to point to the attack target. The
 recipient of the message will generate subsequent traffic to that IP
 address. Depending on the protocol, this attack can provide substantial
@@ -1008,13 +1404,15 @@ hundred bytes, can result in a nearly continuous stream of media packets
 at rates anywhere from a few kbits per second up to megabits per second.
 This particular attack is called the "voice hammer".
 
-</t>
-<t>Unlike the other techniques described above, this technique does not
+
+</p>
+<p>Unlike the other techniques described above, this technique does not
 require the attacker to modify packets or even spoof their source IP
 address. This makes it easier to launch.
 
-</t>
-<t>This attack is prevented through careful protocol design. Protocols
+
+</p>
+<p>This attack is prevented through careful protocol design. Protocols
 should, whenever possible, avoid including IP addresses or hostnames
 within protocol payloads as addresses to which subsequent messaging
 should be sent. Rather, when possible, messages should be sent to the
@@ -1026,48 +1424,59 @@ handshake itself needs to be lightweight (to avoid being the source of
 another DoS attack), and secured against the spoofing of the handshake
 response.
 
-</t>
-<t>Finally, a somewhat similar attack is possible with some protocols where
+
+</p>
+<p>Finally, a somewhat similar attack is possible with some protocols where
 where one message leads to another message that is not sent as a reply
 to the source address of the first message.  This can be an issue with
 protocols to enable mobility for example, and might permit an attacker
 to avoid ingress filtering.  Such protocols are notoriously difficult to
 get right.
 
-</t>
-</section>
-<section title="Strategies to Mitigate Attack Amplification">
-<t>In general, the architectural lessons to be learnt are simple:
 
-</t>
-<t>o   As far as possible, perform ingress filtering [22] [37] to prevent
+</p>
+<a name="anchor25"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.2"></a><h3>3.2.&nbsp;Strategies to Mitigate Attack Amplification</h3>
+
+<p>In general, the architectural lessons to be learnt are simple:
+
+
+</p>
+<p>o   As far as possible, perform ingress filtering [22] [37] to prevent
     source address spoofing.
 
-</t>
-<t>o   Avoid designing protocols or mechanisms that can return
+
+</p>
+<p>o   Avoid designing protocols or mechanisms that can return
     significantly larger responses than the size of the request, unless
     a handshake is performed to validate the client's source address.
     Such a handshake needs to incorporate an unpredictable nonce that is
     secure enough to mitigate the amplification effects of the protocol.
 
-</t>
-<t>o   All retransmission during initial connection setup should be
+
+</p>
+<p>o   All retransmission during initial connection setup should be
     performed by the client.
 
-</t>
-<t>o   Proxies should not arbitrarily relay requests to destinations chosen
+
+</p>
+<p>o   Proxies should not arbitrarily relay requests to destinations chosen
     by a client.
 
-</t>
-<t>o   Avoid signaling third-party connections.  Any unavoidable third-
+
+</p>
+<p>o   Avoid signaling third-party connections.  Any unavoidable third-
     party connections setup by a signaling protocol should incorporate
     lightweight validation before sending significant data.
 
-</t>
-</section>
-</section>
-<section title="DoS Mitigation Strategies">
-<t>
+
+</p>
+<a name="anchor26"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4"></a><h3>4.&nbsp;DoS Mitigation Strategies</h3>
+
+<p>
 A general problem with DoS defense is that it is not in principle
 possible to distinguish between a flash-crowd and a DoS attack.
 Indeed, having your site taken down by a flash crowd is probably
@@ -1077,23 +1486,34 @@ the web sites that are common sources of flash crowds. Thus,
 the first line of defense against DoS attacks must be to provision
 your service so that it can handle a foreseeable legitimate peak
 load. Underprovisioned sites are the easiest to take down.
-</t>
-<t>
+
+</p>
+<p>
 Specific strategies for DoS defense fall into two broad categories:
-</t>
-<list style="numbers">
-<t>Avoiding allowing attacks that are better than generic resource consumption.</t>
-<t>Minimizing the extent to which generic resource consumption attacks crowd
+
+</p>
+<ol class="text">
+<li>Avoiding allowing attacks that are better than generic resource consumption.
+</li>
+<li>Minimizing the extent to which generic resource consumption attacks crowd
 out legitimate users.
-</t>
-</list>
-<t>
+
+</li>
+</ol>
+<p>
 In the remainder of this section, we consider specific applications of these
 two approaches at a variety of levels of network system architecture.
-</t>
-<section title="Protocol Design">
-<section title="Don't Hold State for Unverified Hosts">
-<t>From an end-system server point of view, one simple aim is to avoid
+
+</p>
+<a name="anchor27"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.1"></a><h3>4.1.&nbsp;Protocol Design</h3>
+
+<a name="anchor28"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.1.1"></a><h3>4.1.1.&nbsp;Don't Hold State for Unverified Hosts</h3>
+
+<p>From an end-system server point of view, one simple aim is to avoid
 instantiating state without having completed a handshake with the client
 to validate their address, and as far as possible to push work and
 stateholding to client.  There are a number of techniques that might be
@@ -1102,27 +1522,34 @@ protocols should probably be designed to allow such techniques to be
 used, but the enabling of the mechanism should normally be at the
 server's discretion to avoid unnecessary work under normal
 circumstances.
-</t>
-</section>
-<section title="Make it Hard to Simulate a Legitimate User">
-<t>
+
+</p>
+<a name="anchor29"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.1.2"></a><h3>4.1.2.&nbsp;Make it Hard to Simulate a Legitimate User</h3>
+
+<p>
 Other than having massive overcapacity, the only real defense against
 resource consumption attacks is to preferentially discriminate
 against attackers. The general idea is to find something that legitimate
 users can do but attackers can't. The most commonly proposed approaches
 include:
-</t>
-<list style="numbers">
-<t>Puzzles: force the attacker to do some computation that would not
-be onerous for a single user but is too expensive to do en masse. [2]</t>
-<t>Reverse Turing Tests: specialized puzzles that are hard for
+
+</p>
+<ol class="text">
+<li>Puzzles: force the attacker to do some computation that would not
+be onerous for a single user but is too expensive to do en masse. [2]
+</li>
+<li>Reverse Turing Tests: specialized puzzles that are hard for
 machines to do but easy for humans, thus making automated attacks
-hard.[42]</t>
-<t>Reachability testing: force the proposed client to demonstrate
+hard.[42]
+</li>
+<li>Reachability testing: force the proposed client to demonstrate
 that it can receive traffic at a given IP address. This makes it
-easier to trace attackers.</t>
-</list>
-<t>
+easier to trace attackers.
+</li>
+</ol>
+<p>
 All of these techniques have substantial limitations. Puzzles tend
 to discriminate against legitimate users with slow computers. In
 addition, the wide availability of "bots" means that attackers
@@ -1131,10 +1558,13 @@ substantial work in attacking Reverse Turing Tests automatically,
 thus making them of limited applicability. Finally, reachability
 testing is substantially weakened by bots because the attacker
 does not need to hide his source address.
-</t>
-</section>
-<section title="Graceful Routing Degradation">
-<t>A goal with routing protocols is that of graceful degradation in
+
+</p>
+<a name="anchor30"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.1.3"></a><h3>4.1.3.&nbsp;Graceful Routing Degradation</h3>
+
+<p>A goal with routing protocols is that of graceful degradation in
 overload, and automatic recovery after the source of the overload has
 been remedied.  Some routing protocols satisfy this goal more than
 others.  Although RIP doesn't scale well, if a router runs out of memory
@@ -1142,8 +1572,9 @@ when receiving a RIP route, it can just drop the route and send an
 infinite metric to its peers.  The route will later be refreshed, and if
 the original source of the problem has been resolved, the router will
 now be able to process it correctly.
-</t>
-<t>On the other hand, BGP is stateful in the sense that a peer assumes you
+
+</p>
+<p>On the other hand, BGP is stateful in the sense that a peer assumes you
 have processed or chosen to filter any route that it sent you.  There is
 no mechanism to refresh state in the base BGP spec, and even the later
 route refresh option [16] is hard to use usefully in the presence of
@@ -1151,16 +1582,20 @@ overload.  A BGP router that cannot store a route it received has two
 choices: completely restart BGP, or shutdown one or more peerings [15].
 This means that the effects of a BGP overload are rather more severe
 than they need to be, and so amplifies the effect of any attack.
-</t>
-<t>In general, few routing protocol designs actively consider the possible
+
+</p>
+<p>In general, few routing protocol designs actively consider the possible
 behaviour of routers under overload conditions; this should be an
 explicit part of future routing protocol designs.  Although precise
 details should clearly be left to implementors, the protocol design
 needs to give them the capability to do their job properly.
-</t>
-</section>
-<section title="Autoconfiguration and Authentication">
-<t>Autoconfiguration mechanisms greatly ease deployment, and are
+
+</p>
+<a name="anchor31"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.1.4"></a><h3>4.1.4.&nbsp;Autoconfiguration and Authentication</h3>
+
+<p>Autoconfiguration mechanisms greatly ease deployment, and are
 increasingly necessary as the number of networked devices grows beyond
 what can be managed manually.  However, it should be recognised that
 unauthenticated autoconfiguration opens up many avenues for attack.
@@ -1173,11 +1608,13 @@ this spectrum within the same autoconfiguration framework.
 However, this also implies that the network elements should avoid
 acting for unauthenticated hosts, instead just letting them 
 access the network more or less directly.
-</t>
-</section>
-</section>
-<section title="Network Design and Configuration">
-<t>
+
+</p>
+<a name="anchor32"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.2"></a><h3>4.2.&nbsp;Network Design and Configuration</h3>
+
+<p>
 In general, networks should be provisioned with private, 
 out-of-band access to console or control ports so that 
 such control facilities will be available in the face of a  
@@ -1191,7 +1628,9 @@ prioritizing routing or network management traffic) fail
 during such attacks. In addition, many redundancy protocols 
 such as VRRP [50] can fail during such attacks as they 
 may be unable to keep adjacencies alive.  
-</t><t>
+
+</p>
+<p>
 There are several default configuration settings that can 
 also be exploited to generate several of the attacks 
 outlined in this document. For example, some vendors may 
@@ -1210,9 +1649,13 @@ reversible, keeping such passwords on a configuration
 archive (as part of a configuration file), even in the 
 encrypted form written by the router, can lead to 
 unauthorized access if the archive is compromized.  
-</t>
-<section title="Redundancy and Distributed Service">
-<t>
+
+</p>
+<a name="anchor33"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.2.1"></a><h3>4.2.1.&nbsp;Redundancy and Distributed Service</h3>
+
+<p>
 A basic principle of designing systems to handle failure 
 to have redundant servers which can take over when 
 one fails. This is equally true in the case of DoS attacks,
@@ -1221,41 +1664,51 @@ If service delivery points can be distributed across
 the network, then it becomes much harder to attack the
 entire service. In particular, this makes attacks on a single
 network link more difficult.
-</t>
-</section>
-<section title="Authenticate Routing Adjacencies">
-<t>In general, cryptographic authentication mechanisms are too costly to
+
+</p>
+<a name="anchor34"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.2.2"></a><h3>4.2.2.&nbsp;Authenticate Routing Adjacencies</h3>
+
+<p>In general, cryptographic authentication mechanisms are too costly to
 form the main part in DoS prevention.  However, routing adjacencies are
 too important to risk an attacker being able to inject bad routing
 information, which can affect more than the router in question.
 Additional non-cryptographic mechanisms should then be used to avoid
 arbitrary end-systems being able to cause the router to spend CPU cycles
 on validating authentication data.
-</t>
-<t>For BGP, at the very least, this implies the use of TCP MD5 [24] or
+
+</p>
+<p>For BGP, at the very least, this implies the use of TCP MD5 [24] or
 IPsec authentication, combined with the GTSM [23] to prevent
 EBGP association with non-immediate neighbours.  In future, this will
 likely imply better authentication of the routing information itself.
-</t>
-</section>
-<section title="Isolate Router-to-Router Traffic">
-<t>As far as is feasible, router-to-router traffic should be isolated from
+
+</p>
+<a name="anchor35"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.2.3"></a><h3>4.2.3.&nbsp;Isolate Router-to-Router Traffic</h3>
+
+<p>As far as is feasible, router-to-router traffic should be isolated from
 data traffic.  How this should be implemented depends on the precise
 technologies available, both in the router and at the link-layer.  The
 goal should be that failure of the link for data traffic should also
 cause failure for the routing traffic, but that an attacker cannot
 directly send packets to the control processor of the routers.
-</t>
-<t>A downside of this is that some diagnostic techniques (such as pinging
+
+</p>
+<p>A downside of this is that some diagnostic techniques (such as pinging
 consecutive routers to find the source of a delay) may no longer be
 possible.  Ideally, alternative mechanisms (which do not open up
 additional avenues for DoS) should be designed to replace such lost
 techniques.
-</t>
-</section>
-</section>
-<section title="Router Implementation Issues">
-<t>
+
+</p>
+<a name="anchor36"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.3"></a><h3>4.3.&nbsp;Router Implementation Issues</h3>
+
+<p>
 Because a router can be considered as an end-system, it can potentially
 benefit from all the prevention mechanisms prescribed for end-system
 implementation.  However one basic distinction between a router and a
@@ -1263,19 +1716,27 @@ host is that the former implements routing protocols and forwards
 data, which in turn lead to additional router specific implementation
 considerations. The issues described below are meant to be
 illustrative and not exhaustive.
-</t>
-<section title="Checking Protocol Syntax and Semantics">
-<t>
+
+</p>
+<a name="anchor37"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.3.1"></a><h3>4.3.1.&nbsp;Checking Protocol Syntax and Semantics</h3>
+
+<p>
 Protocol syntax defines the formation of the protocol messages and
 the rules of exchanges. The questions addressed by protocol syntax
 checking includes, but is not limited to, the following:
-</t>
-<list style="numbers">
-<t>Who sent the message?</t>
-<t>Does the content conform to the protocol format?</t>
-<t>Was the message sent with correct timing?</t>
-</list>
-<t>
+
+</p>
+<ol class="text">
+<li>Who sent the message?
+</li>
+<li>Does the content conform to the protocol format?
+</li>
+<li>Was the message sent with correct timing?
+</li>
+</ol>
+<p>
 The first step in protocol syntax verification is to ensure that an
 incoming message was sent by a legitimate party.  There are multiple
 ways to perform this check. One can verify the source IP address and
@@ -1287,17 +1748,21 @@ Cryptographic authentication should
 also be used whenever available to verify that an incoming message is
 indeed from an expected sender.  For BGP, at the very least, this
 implies the use of TCP MD5 [24] or IPsec authentication.
-</t>
-<t>
+
+</p>
+<p>
 In addition to the sender verification, it is also important to check
 the syntax of a received routing message, as opposed to assuming that
 all messages came in a correct format. It happened in the past that
 routers crashed upon receiving ill-formed routing messages.  Such
 faults will be prevented by performing rigorous syntax checking.
-</t>
-</section>
-<section title="Consistency Checks">
-<t>
+
+</p>
+<a name="anchor38"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.3.2"></a><h3>4.3.2.&nbsp;Consistency Checks</h3>
+
+<p>
 Protocol semantics define the meaning of the message content, the
 interpretation of the values, and the actions to be taken according
 to the content. Here is a simple example of using semantic checking.
@@ -1306,8 +1771,9 @@ withdrawal message for prefix P, B should make sure that any
 alternative path it finds to reach P does not go through A. This
 simple check is shown to significantly improve BGP convergence time
 in many cases [45].
-</t>
-<t>
+
+</p>
+<p>
 Another example of using semantic checking against false routing
 injection is described in [47].  The basic idea is to attach to the
 route announcement for prefix P a list of the valid origin ASes. Due
@@ -1321,24 +1787,29 @@ can detect the existence of false updates by observing the
 inconsistency of the received origin AS lists for P.  Research
 studies show that the "allowed origin list" test can effectively
 detect majority of falsely originated updates.
-</t>
-<t>
+
+</p>
+<p>
 Generally speaking, verifying the validity of BGP routes can be
 challenging because BGP is policy driven and policies of individual
 ISPs are not known in most cases. But assuming policies do not change
 in short time scale, in principle one could verify new updates
 against observed routes from recent past, which reflect the routing
 policies in place. Research work is needed to explore this direction.
-</t>
-<t>
+
+</p>
+<p>
 Note that while the above steps are all fairly simple and 
 don't really "bullet-proof" the protocol, each adds some 
 degree of protection. As such, the combination of the above 
 techniques can result in an efffective reduction in the 
-probability of undetected faults.</t>
-</section>
-<section title="Enhance Router Robustness through Operational Adjustments">
-<t>
+probability of undetected faults.
+</p>
+<a name="anchor39"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.3.3"></a><h3>4.3.3.&nbsp;Enhance Router Robustness through Operational Adjustments</h3>
+
+<p>
 There exist a number of configuration tunings that can enhance
 robustness of BGP operations. One example is to let BGP peers
 coordinate the setting of a limit on the number of prefixes which one
@@ -1351,8 +1822,9 @@ Note, however, that care must be taken with hard limits of this type
 because they can be used to mount a DoS because implementations
 often discard excess routes indiscriminately, thus potentially
 causing black-holing of correct routes.
-</t>
-<t>
+
+</p>
+<p>
 Another example of useful configuration tuning is to adjust the BGP's
 KeepAlive and Hold Timer values to minimize BGP peering session
 resets.  Previous measurements show that heavy traffic load, such as
@@ -1361,10 +1833,13 @@ or dropped, which in turn cause BGP peering session break down. Such
 load-induced session breaks and re-establishments can lead to
 an excessive amount of BGP updates during the periods when stable
 routing is needed most.
-</t>
-</section>
-<section title="Proper Handling of Router Resource Exhaustion">
-<t>
+
+</p>
+<a name="anchor40"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.3.4"></a><h3>4.3.4.&nbsp;Proper Handling of Router Resource Exhaustion</h3>
+
+<p>
 In addition to the resource exhaustion problems that are generally
 apply to all end systems, as described in Section 2, router
 implementations must also take special care in handling resource
@@ -1377,8 +1852,9 @@ example during a virus attack where many packets are sent to non-
 existing IP addresses, thus there are no ARP replies to the requests
 for those addresses.  Such phenomena have happened in the past and led to
 routers failing to forward packets.
-</t>
-<t>
+
+</p>
+<p>
 Another example is queue management. Many high-end routers are designed
 so that most packets can be handled purely in specialized processors
 (ASICs, FPGAs, etc.). However, exceptional packets must be
@@ -1387,27 +1863,37 @@ On some such systems, it may be possible
 mount a low-effort DoS attack by saturating
 the queues between the specialized hardware and the supporting
 processor.
-</t>
-<t>
+
+</p>
+<p>
 So the attack vector on routers/network devices is a low PPS  
 queue saturation attack on the ASIC's raw queue structure. The
 countermeasure here is to have multiple such queues designed
 in such a way that it's difficult for an attacker to arrange
 to fill multiple queues [41].
-</t>
-</section>
-</section>
-<section title="End-System Implementation Issues">
-<section title="State Lookup Complexity">
-<t>Any system that instantiates per-connection state should take great care
+
+</p>
+<a name="anchor41"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.4"></a><h3>4.4.&nbsp;End-System Implementation Issues</h3>
+
+<a name="anchor42"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.4.1"></a><h3>4.4.1.&nbsp;State Lookup Complexity</h3>
+
+<p>Any system that instantiates per-connection state should take great care
 to implement state-lookup mechanisms in such a way that performance
 can not be controlled by the attacker.  One way to achieve this is to
 use hash-tables where the hash mechanism is keyed in such a way that the
 attacker cannot instantiate a large number of flows in the same hash
 bucket.
-</t>
-<section title="Avoid Livelock">
-<t>Most operating systems use network interrupts to receive data from the
+
+</p>
+<a name="anchor43"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.4.1.1"></a><h3>4.4.1.1.&nbsp;Avoid Livelock</h3>
+
+<p>Most operating systems use network interrupts to receive data from the
 network, which is a good solution if the host spends only a small amount
 of its time handling network traffic.  However, this leaves the host
 open to livelock [29], where under heavy load the OS spends all its time
@@ -1417,26 +1903,35 @@ consider using network polling at times of heavy load, rather than being
 interrupt-driven, and should be carefully architected so that as far as
 reasonably possible, traffic received by the OS is processed to
 completion, or very cheaply discarded.
-</t>
-</section>
-<section title="Use Unpredictable Values for Session IDs">
-<t>Most recent TCP implementations use fairly good random mechanisms for
+
+</p>
+<a name="anchor44"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.4.1.2"></a><h3>4.4.1.2.&nbsp;Use Unpredictable Values for Session IDs</h3>
+
+<p>Most recent TCP implementations use fairly good random mechanisms for
 allocating the TCP initial sequence numbers.  In general, any
 dynamically allocated value used purely to identify a communication
 session should be allocated using an unpredictable mechanism, as this
 increases the search space for an attacker that wishes to disrupt
 ongoing communications.  Thus the dynamically allocated port of the
 active end of a TCP connection might also be randomly allocated.
-</t>
-<t>With DNS, the ID which is used to match responses with requests should
+
+</p>
+<p>With DNS, the ID which is used to match responses with requests should
 also be randomly generated.  However, as the ID field is only 16 bits,
 the protection is rather limited.
-</t>
-</section>
-</section>
-<section title="Operational Issues">
-<section title="Eliminate Bad Traffic Early">
-<t>
+
+</p>
+<a name="anchor45"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.4.2"></a><h3>4.4.2.&nbsp;Operational Issues</h3>
+
+<a name="anchor46"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.4.2.1"></a><h3>4.4.2.1.&nbsp;Eliminate Bad Traffic Early</h3>
+
+<p>
 Many DoS attacks are generic bandwidth consumption attacks that operate
 by clogging the link that connects the victim server to the Internet. 
 Filtering these attacks at the server does no good because the
@@ -1444,10 +1939,13 @@ traffic has already traversed the link which is the scarce resource.
 Such flows need to be filtered at some point closer to the attacker.
 Where possible, operators should filter out obviously bad traffic.
 In particular, they should perform ingress filtering [22].
-</t>
-</section>			
-<section title="Establish a Monitoring Framework">
-<t>Network operators are strongly encouraged to establish a monitoring
+
+</p>
+<a name="anchor47"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.4.2.2"></a><h3>4.4.2.2.&nbsp;Establish a Monitoring Framework</h3>
+
+<p>Network operators are strongly encouraged to establish a monitoring
 framework to detect and log abnormal network activity.  One can not
 defend against an attack one doesn't detect or understand.  Such
 monitoring tools can be used to set a baseline of "normal" traffic, and
@@ -1456,13 +1954,13 @@ type and source of the aberrant flows.
 This is extremely helpful when responding to distributed 
 DoS attacks or a flash crowd, and
 should be in place prior to the event.
-</t>
-</section>
-</section>
-</section>
-</section>
-<section title="Conclusions">
-<t>In this document we have highlighted possible avenues for DoS attacks
+
+</p>
+<a name="anchor48"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5"></a><h3>5.&nbsp;Conclusions</h3>
+
+<p>In this document we have highlighted possible avenues for DoS attacks
 on
 networks and networked systems, with the aim of encouraging protocol
 designers and network engineers towards designs that are more robust.
@@ -1470,275 +1968,430 @@ We have discussed partial solutions that reduce the effectiveness of
 attacks, and highlighted how some partial solutions can be taken
 advantage of by attackers to perpetrate alternative attacks.
 
-</t>
-<t>Our focus has primarily been on protocol and network architecture
+
+</p>
+<p>Our focus has primarily been on protocol and network architecture
 issues, but there are many things that network and service operators can
 do to lessen the threat.  Further advice and information for network
 operators can be found in [13] [37] [14].
 
-</t>
-<t>It is our hope that this document will spur discussion leading to
+
+</p>
+<p>It is our hope that this document will spur discussion leading to
 architectural solutions that reduce the succeptibility of all Internet
 systems to denial-of-service attacks.
 
-</t>
-</section>
-<section title="Security Considerations">
-<t>This entire document is about security.</t>
-</section>
-<section title="Acknowledgements">
-<t>We are very grateful to Vern Paxson, Paul Vixie, Rob Thomas, Dug Song,
+
+</p>
+<a name="anchor49"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6"></a><h3>6.&nbsp;Security Considerations</h3>
+
+<p>This entire document is about security.
+</p>
+<a name="anchor50"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.7"></a><h3>7.&nbsp;Acknowledgements</h3>
+
+<p>We are very grateful to Vern Paxson, Paul Vixie, Rob Thomas, Dug Song,
 George Jones, Jari Arkko, and Geoff Huston for their constructive comments on earlier
 versions of this document.
 
-</t>
-</section>
-<section title="Normative References">
-<t>[1] J. Abley, "Hierarchical Anycast for Global Service Distribution",
+
+</p>
+<a name="anchor51"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.8"></a><h3>8.&nbsp;Normative References</h3>
+
+<p>[1] J. Abley, "Hierarchical Anycast for Global Service Distribution",
      http://www.isc.org/tn/isc-tn-2003-1.txt
 
-</t>
-<t>[5] D.J. Bernstein, "SYN Cookies", http://cr.yp.to/syncookies.html
 
-</t>
-<t>[16] E. Chen, "Route Refresh Capability for BGP-4", RFC 2918, September
+</p>
+<p>[5] D.J. Bernstein, "SYN Cookies", http://cr.yp.to/syncookies.html
+
+
+</p>
+<p>[16] E. Chen, "Route Refresh Capability for BGP-4", RFC 2918, September
      2000
 
-</t>
-<t>[19] S. Deering, "Host extensions for IP multicasting", RFC 1112, Aug
+
+</p>
+<p>[19] S. Deering, "Host extensions for IP multicasting", RFC 1112, Aug
      1989.
 
-</t>
-<t>[20] T. Dierks, C. Allen, "The TLS Protocol, Version 1.0", RFC 2246, Jan
+
+</p>
+<p>[20] T. Dierks, C. Allen, "The TLS Protocol, Version 1.0", RFC 2246, Jan
      1999.
 
-</t>
-<t>[21] D. Estrin, D. Farinacci, A. Helmy, D. Thaler, S.  Deering, M.
+
+</p>
+<p>[21] D. Estrin, D. Farinacci, A. Helmy, D. Thaler, S.  Deering, M.
      Handley, V. Jacobson, C. Liu, P. Sharma, L. Wei, "Protocol
      Independent Multicast-Sparse Mode (PIM-SM): Protocol
      Specification", RFC 2362, June 1998.
 
-</t>
-<t>[22] P. Ferguson, D. Senie, "Network Ingress Filtering: Defeating Denial
+
+</p>
+<p>[22] P. Ferguson, D. Senie, "Network Ingress Filtering: Defeating Denial
      of Service Attacks which employ IP Source Address Spoofing", RFC
      2827, May 2000.
 
-</t>
-<t>[23]  V. Gill, J. Heasley, D. Meyer "The Generalized TTL Security
+
+</p>
+<p>[23]  V. Gill, J. Heasley, D. Meyer "The Generalized TTL Security
      Mechanism (GTSM)", RFC 3682, February 2004.
-</t>
-<t>[24] A. Heffernan, "Protection of BGP Sessions via the TCP MD5 Signature
+
+</p>
+<p>[24] A. Heffernan, "Protection of BGP Sessions via the TCP MD5 Signature
      Option", RFC 2385, August 1998.
 
-</t>
-<t>[32] Y. Rekhter, T. Li, "A Border Gateway Protocol 4 (BGP-4)", RFC 1771,
+
+</p>
+<p>[32] Y. Rekhter, T. Li, "A Border Gateway Protocol 4 (BGP-4)", RFC 1771,
      March 1995.
 
-</t>
-<t>[35] C. Villamizar, R. Chandra, R. Govindan, "BGP Route Flap Damping",
+
+</p>
+<p>[35] C. Villamizar, R. Chandra, R. Govindan, "BGP Route Flap Damping",
      RFC 2439, November 1998.
 
-</t>
-<t>[38] D. Waitzman, C. Partridge, S.E. Deering, "Distance Vector Multicast
+
+</p>
+<p>[38] D. Waitzman, C. Partridge, S.E. Deering, "Distance Vector Multicast
      Routing Protocol", RFC 1075, Nov 1988.
 
-</t>
-<t>[42] L. von Ahn, M. Blum, N. Hopper, and J. Langford. CAPTCHA: 
+
+</p>
+<p>[42] L. von Ahn, M. Blum, N. Hopper, and J. Langford. CAPTCHA: 
      Using hard AI problems for security. In Proceedings of Eurocrypt, 2003.
-</t>
-</section>
-<section title="Informative References">
-<t>[2] T. Aura, P. Nikander, J. Leiwo, "DOS-resistant authentication with
+
+</p>
+<a name="anchor52"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.9"></a><h3>9.&nbsp;Informative References</h3>
+
+<p>[2] T. Aura, P. Nikander, J. Leiwo, "DOS-resistant authentication with
      client puzzles", In B. Christianson, B. Crispo, and M. Roe,
      editors, Proceedings of the 8th International Workshop on Security
      Protocols, Lecture Notes in Computer Science, Cambridge, UK, April
      2000.
 
-</t>
-<t>[3] J. Bellardo, S. Savage, "802.11 Denial-of-Service Attacks: Real
+
+</p>
+<p>[3] J. Bellardo, S. Savage, "802.11 Denial-of-Service Attacks: Real
      Vulnerabilities and Practical Solutions", Proceedings of the USENIX
      Security Symposium, Washington D.C., August 2003.
 
-</t>
-<t>[4] S.M. Bellovin, "Security Problems in the TCP/IP Protocol Suite",
+
+</p>
+<p>[4] S.M. Bellovin, "Security Problems in the TCP/IP Protocol Suite",
      Computer Communication Review, Vol. 19, No. 2, pp. 32-48, April
      1989.
-</t>
 
-<t>[6] CCAIS/RNP Alertas do Cais ALR-19112002a, "Vulnerability in the
+</p>
+<p>[6] CCAIS/RNP Alertas do Cais ALR-19112002a, "Vulnerability in the
      sending requests control of Bind versions 4 and 8 allows DNS
      spoofing", http://www.rnp.br/cais/alertas/2002/cais-
      ALR-19112002a.html
 
-</t>
-<t>[7] CERT Advisory CA-1996-01, "UDP Port Denial-of-Service Attack", Feb
+
+</p>
+<p>[7] CERT Advisory CA-1996-01, "UDP Port Denial-of-Service Attack", Feb
      1996.
 
-</t>
-<t>[8] CERT Advisory CA-1996-21, "TCP SYN Flooding and IP Spoofing
+
+</p>
+<p>[8] CERT Advisory CA-1996-21, "TCP SYN Flooding and IP Spoofing
      Attacks", Sept 1996.
 
-</t>
-<t>[9] CERT Advisory CA-2001-09, "Statistical Weaknesses in TCP/IP Initial
+
+</p>
+<p>[9] CERT Advisory CA-2001-09, "Statistical Weaknesses in TCP/IP Initial
      Sequence Numbers", May 2001.
 
-</t>
-<t>[10] CERT Advisory CA-1996-26, "Denial-of-Service Attack via ping", Dec
+
+</p>
+<p>[10] CERT Advisory CA-1996-26, "Denial-of-Service Attack via ping", Dec
      1996.
 
-</t>
-<t>[11] CERT Advisory CA-1998-01, "Smurf IP Denial-of-Service Attacks",
+
+</p>
+<p>[11] CERT Advisory CA-1998-01, "Smurf IP Denial-of-Service Attacks",
      http://www.cert.org/advisories/CA-1998-01.html, Jan 1998.
 
-</t>
-<t>[12] CERT Incident Note IN-2000-05, "'mstream' Distributed Denial of
+
+</p>
+<p>[12] CERT Incident Note IN-2000-05, "'mstream' Distributed Denial of
      Service Tool", May 2000.
 
-</t>
-<t>[13] CERT/CC - "Managing the Threat of Denial of Service Attacks",
+
+</p>
+<p>[13] CERT/CC - "Managing the Threat of Denial of Service Attacks",
      http://www.cert.org/archive/pdf/Managing_DoS.pdf
 
-</t>
-<t>[14] CERT/CC - "Trends in Denial of Service Attack Technology",
+
+</p>
+<p>[14] CERT/CC - "Trends in Denial of Service Attack Technology",
      http://www.cert.org/archive/pdf/DoS_trends.pdf
 
-</t>
-<t>[15] D.F. Chang, R. Govindan, J. Heidemann, "An Empirical Study of
+
+</p>
+<p>[15] D.F. Chang, R. Govindan, J. Heidemann, "An Empirical Study of
      Router Response to Large Routing Table Load", Proceedings of the
      2nd Internet Measurement Workshop (IMW 2002), 2002.
 
-</t>
-<t>[17] Cisco Systems, "Configuring the BGP Maximum-Prefix Feature", Cisco
+
+</p>
+<p>[17] Cisco Systems, "Configuring the BGP Maximum-Prefix Feature", Cisco
      Document ID: 25160, http://www.cisco.com/warp/public/459/bgp-
      maximum-prefix.html
 
-</t>
-<t>[18] Scott A Crosby and Dan S Wallach, "Denial of Service via
+
+</p>
+<p>[18] Scott A Crosby and Dan S Wallach, "Denial of Service via
      Algorithmic Complexity Attacks", Proceedings of the USENIX Security
      Symposium, Washington D.C., August 2003.
 
-</t>
-<t>[25] Laurent Joncheray, "Simple Active Attack Against TCP", 5th USENIX
+
+</p>
+<p>[25] Laurent Joncheray, "Simple Active Attack Against TCP", 5th USENIX
      Security Symposium, 1995.
 
-</t>
-<t>[26] M. Lough, "A Taxonomy of Computer Attacks with Applications to
+
+</p>
+<p>[26] M. Lough, "A Taxonomy of Computer Attacks with Applications to
      Wireless", PhD thesis, Virginia Polytechnic Institute, April 2001.
 
-</t>
-<t>[27] Z. Mao, R. Govindan, G. Varghese, R. Katz, "Route Flap Dampening
+
+</p>
+<p>[27] Z. Mao, R. Govindan, G. Varghese, R. Katz, "Route Flap Dampening
      Exacerbates Internet Routing Convergence", Proceedings of ACM
      SIGCOMM, 2002.
 
-</t>
-<t>[28] D. Meyer, W. Fenner (Editors), "Multicast Source Discovery Protocol
+
+</p>
+<p>[28] D. Meyer, W. Fenner (Editors), "Multicast Source Discovery Protocol
      (MSDP)", RFC 3618, October 2003.
 
-</t>
-<t>[29] J. Mogul, KK. Ramakrishnan, "Eliminating Receive Livelock in an
+
+</p>
+<p>[29] J. Mogul, KK. Ramakrishnan, "Eliminating Receive Livelock in an
      Interrupt-driven Kernel", ACM Transactions on Computer Systems, Vol
      15, Number 3, pp. 217-252, 1997.
 
-</t>
-<t>[30] National Infrastructure Secuity Co-ordination Center (NISCC),
+
+</p>
+<p>[30] National Infrastructure Secuity Co-ordination Center (NISCC),
      Vulnerability Advisory 236929, April 2004,
      http://www.uniras.gov.uk/vuls/2004/236929/
 
-</t>
-<t>[31] V. Paxson, "An Analysis of Using Reflectors for Distributed Denial-
+
+</p>
+<p>[31] V. Paxson, "An Analysis of Using Reflectors for Distributed Denial-
      of-Service Attacks", Computer Communication Review 31(3), July
      2001.
 
-</t>
-<t>[33] Joe Stewart, "DNS Cache Poisoning - The Next Generation", Jan 27
+
+</p>
+<p>[33] Joe Stewart, "DNS Cache Poisoning - The Next Generation", Jan 27
      2003, http://www.securityfocus.com/guest/17905
 
-</t>
-<t>[34] R. Stewart (ed.), M. Dalal, (ed.) "Improving TCP's Robustness
+
+</p>
+<p>[34] R. Stewart (ed.), M. Dalal, (ed.) "Improving TCP's Robustness
    to Blind In-Window Attacks",, Internet Draft, February 2006,
    draft-ietf-tcpm-tcpsecure-04.txt
 
-</t>
-<t>[36] P. Vixie, G. Sneeringer, M. Schleifer, "Events of 21-Oct-2002",
+
+</p>
+<p>[36] P. Vixie, G. Sneeringer, M. Schleifer, "Events of 21-Oct-2002",
      http://f.root-servers.org/october21.txt
 
-</t>
-<t>[37] P. Vixie, "Securing the Edge",
+
+</p>
+<p>[37] P. Vixie, "Securing the Edge",
      http://www.icann.org/committees/security/sac004.txt
 
-</t>
-<t>[39] D. Wessels, "Running An Authoritative-Only BIND Nameserver",
+
+</p>
+<p>[39] D. Wessels, "Running An Authoritative-Only BIND Nameserver",
      http://www.isc.org/tn/isc-tn-2002-2.txt
 
-</t>
-<t>[40] M. Zalewski, "Strange Attractors and TCP/IP Sequence Number
+
+</p>
+<p>[40] M. Zalewski, "Strange Attractors and TCP/IP Sequence Number
      Analysis", http://razor.bindview.com/publish/papers/tcpseq.html
-</t>
-<t>[41] J. Bellardo and S. Savage, "802.11 Denial-of-Service Attacks:
+
+</p>
+<p>[41] J. Bellardo and S. Savage, "802.11 Denial-of-Service Attacks:
      Real Vulnerabilities and Practical Solutions", Proceedings of 
      the 12th USENIX Security Symposium, August 2003.
-</t>
-<t>[43] The whole world disappeared? http://www.merit.edu/mail.archives/
+
+</p>
+<p>[43] The whole world disappeared? http://www.merit.edu/mail.archives/
      nanog/1998-04/msg00181.html, Apr 1998.
-</t>
-<t>[44] Outage: MCI Worldcom nationwide ATM network. http://www.merit.edu/
+
+</p>
+<p>[44] Outage: MCI Worldcom nationwide ATM network. http://www.merit.edu/
      mail.archives/nanog/1999-02/msg00077.html, Feb 1999.
-</t>
-<t>[45] D. Pei, X. Zhao, L. Wang, D. Massey, A. Mankin, F. S. Wu, and L.
+
+</p>
+<p>[45] D. Pei, X. Zhao, L. Wang, D. Massey, A. Mankin, F. S. Wu, and L.
      Zhang. Improving BGP Conver-gence Through Assertions Approach. In Proc.
      of IEEE INFOCOM, June 2002.
-</t>
-<t>[46] Srikanth Chavali, Vasile Radoaca, Mo Miri, Luyuan Fang, and Susan
+
+</p>
+<p>[46] Srikanth Chavali, Vasile Radoaca, Mo Miri, Luyuan Fang, and Susan
      Hares. Peer prefix limits ex-change in bgp. 
      http://www.ietf.org/internet-drafts/draft-chavali-bgp-prefixlimit-01.txt,
      April 2004.
-</t>
-<t>[47] X. Zhao, D. Massey, A. Mankin, S.F. Wu, D. Pei, L. Wang, L. Zhang,
+
+</p>
+<p>[47] X. Zhao, D. Massey, A. Mankin, S.F. Wu, D. Pei, L. Wang, L. Zhang,
     "BGP Multiple Origin AS (MOAS) Conflicts", 
     http://nanog.org/mtg-0110/lixia.html, 2001.
-</t>
-<t> [48] Cisco Systems, "Building Security Into the Hardware",
+
+</p>
+<p> [48] Cisco Systems, "Building Security Into the Hardware",
     ftp://ftp-eng.cisco.com/cons/isp/security/CPN-Summit-2004/
     Paris-Sept-04/SE14-BUILDING-SECURITY-INTO-THE HARDWARE-c1_8_30_04.pdf,
     2004.
-</t>
-<t> [49] T. Ylonen, C. Lonvick, Ed., "The Secure Shell (SSH)
+
+</p>
+<p> [49] T. Ylonen, C. Lonvick, Ed., "The Secure Shell (SSH)
     Protocol Architecture", RFC 4251, January 2006. 
-</t>
-<t>
+
+</p>
+<p>
     [50] Knight, S., Weaver, D., Whipple, D., Hinden, R., Mitzel,
     D., Hunt, P., Higginson, P., Shand, M. and A. Lindemn,
     "Virtual Router Redundancy Protocol", RFC 2338, April
     1998.
-</t>
-<t>
+
+</p>
+<p>
     [51] D. Harrington, R. Presuhn, B. Wijnen., "An Architecture
     for Describing Simple Network Management Protocol (SNMP)
     Management Frameworks.", RFC 3411, December 2002. 
-</t>
-<t>
+
+</p>
+<p>
     [52] K. Sollins., "The TFTP Protocol (Revision 2)",
     RFC 1784, July 1992.
-</t>
-</section>
-</middle>
-<back>
-<section title="IAB Members at the time of this writing">
-<list style="symbols">
-<t>Bernard Aboba</t>
-<t>Loa Andersson</t>
-<t>Brian Carpenter</t>
-<t>Leslie Daigle</t>
-<t>Elwyn Davies</t>
-<t>Kevin Fall</t>
-<t>Olaf Kolkman</t>
-<t>Kurtis Lindvist</t>
-<t>David Meyer</t>
-<t>David Oran</t>
-<t>Eric Rescorla</t>
-<t>Dave Thaler</t>
-<t>Lixia Zhang</t>
-</list>
-</section>
-</back>
-</rfc>
+
+</p>
+<a name="anchor53"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.A"></a><h3>Appendix A.&nbsp;IAB Members at the time of this writing</h3>
+
+<ul class="text">
+<li>Bernard Aboba
+</li>
+<li>Loa Andersson
+</li>
+<li>Brian Carpenter
+</li>
+<li>Leslie Daigle
+</li>
+<li>Elwyn Davies
+</li>
+<li>Kevin Fall
+</li>
+<li>Olaf Kolkman
+</li>
+<li>Kurtis Lindvist
+</li>
+<li>David Meyer
+</li>
+<li>David Oran
+</li>
+<li>Eric Rescorla
+</li>
+<li>Dave Thaler
+</li>
+<li>Lixia Zhang
+</li>
+</ul>
+<a name="rfc.authors"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<h3>Authors' Addresses</h3>
+<table width="99%" border="0" cellpadding="0" cellspacing="0">
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Mark J. Handley (ed)</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">UCL</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Gower Street</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">London  WC1E 6BT</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">UK</td></tr>
+<tr><td class="author" align="right">Email:&nbsp;</td>
+<td class="author-text"><a href="mailto:M.Handley@cs.ucl.ac.uk">M.Handley@cs.ucl.ac.uk</a></td></tr>
+<tr cellpadding="3"><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Eric Rescorla (ed)</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Network Resonance</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">2483 E. Bayshore #212</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Palo Alto  94303</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">USA</td></tr>
+<tr><td class="author" align="right">Email:&nbsp;</td>
+<td class="author-text"><a href="mailto:ekr@networkresonance.com">ekr@networkresonance.com</a></td></tr>
+</table>
+<a name="rfc.copyright"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<h3>Intellectual Property Statement</h3>
+<p class='copyright'>
+The IETF takes no position regarding the validity or scope of any
+Intellectual Property Rights or other rights that might be claimed
+to pertain to the implementation or use of the technology
+described in this document or the extent to which any license
+under such rights might or might not be available; nor does it
+represent that it has made any independent effort to identify any
+such rights.
+Information on the procedures with respect to
+rights in RFC documents can be found in BCP&nbsp;78 and BCP&nbsp;79.</p>
+<p class='copyright'>
+Copies of IPR disclosures made to the IETF Secretariat and any
+assurances of licenses to be made available,
+or the result of an attempt made to obtain a general license or
+permission for the use of such proprietary rights by implementers or
+users of this specification can be obtained from the IETF on-line IPR
+repository at <a href='http://www.ietf.org/ipr'>http://www.ietf.org/ipr</a>.</p>
+<p class='copyright'>
+The IETF invites any interested party to bring to its attention
+any copyrights,
+patents or patent applications,
+or other
+proprietary rights that may cover technology that may be required
+to implement this standard.
+Please address the information to the IETF at <a href='mailto:ietf-ipr@ietf.org'>ietf-ipr@ietf.org</a>.</p>
+<h3>Disclaimer of Validity</h3>
+<p class='copyright'>
+This document and the information contained herein are provided
+on an &ldquo;AS IS&rdquo; basis and THE CONTRIBUTOR,
+THE ORGANIZATION HE/SHE REPRESENTS OR IS SPONSORED BY (IF ANY),
+THE INTERNET SOCIETY AND THE INTERNET ENGINEERING TASK FORCE DISCLAIM
+ALL WARRANTIES,
+EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.</p>
+<h3>Copyright Statement</h3>
+<p class='copyright'>
+Copyright &copy; The Internet Society (2006).
+This document is subject to the rights,
+licenses and restrictions contained in BCP&nbsp;78,
+and except as set forth therein,
+the authors retain all their rights.</p>
+<h3>Acknowledgment</h3>
+<p class='copyright'>
+Funding for the RFC Editor function is currently provided by the
+Internet Society.</p>
+</body></html>
