@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<rfc ipr="full3978" docName="draft-iab-dos-04.txt">
+<rfc ipr="full3978" docName="draft-iab-dos-05.txt">
 <?rfc toc="yes"?>
 <front>
      <title abbrev="DoS Considerations">Internet Denial of Service Considerations</title>
@@ -37,8 +37,25 @@
                </address>
 
            </author>
+           <author initials="" surname="Internet Architecture Board"
+fullname="Internet Architecture Board">
+               <organization>IAB</organization>
 
-           <date month="June" year="2006" />
+               <address>
+                   <postal>
+                       <street></street>
+                       <city></city> 
+                       <code></code>
+		       <state></state>
+                       <country></country>
+                   </postal>
+
+                   <email>iab@ietf.org</email>
+               </address>
+
+           </author>
+
+           <date month="July" year="2006" />
 
            <abstract>
                <t>This document provides an overview of possible avenues for denial-of-
