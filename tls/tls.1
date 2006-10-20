@@ -596,9 +596,15 @@ create 64 bytes of data, it would have to be iterated 4 times
 of the final iteration would then be discarded, leaving 64 bytes of
 output data.
 
-TLS's PRF is created by applying P_hash to the secret S. The
-hash function used in P MUST be the same hash function selected
-for the HMAC in the cipher suite.
+TLS's PRF is created by applying P_hash to the secret S as:
+.nf
+   PRF(secret, label, seed) = P_<hash>(secret, label + seed)
+.fi
+Unless the cipher suite definition specifies otherwise, 
+the hash function used in P MUST be the same hash function selected
+for the HMAC in the cipher suite. For existing cipher suites
+(which use MD5 or SHA-1), the hash MUST be SHA-1. New ciphers
+which do not use HMAC MUST explicitly specify a PRF.
 
 The label is an ASCII string. It should be included in the exact
 form it is given without a length byte or trailing null character.
@@ -2678,7 +2684,7 @@ field of this extension contains:
 
 .nf
       enum{
-          md5(0), sha1(1), sha256(2), sha512(3), (255)
+          md5(0), sha1(1), sha256(2), sha384(3), sha512(4), (255)
       } HashType;
 
       struct {
@@ -2688,7 +2694,7 @@ field of this extension contains:
 
 .in 3
 These values indicate support for MD5 [MD5], SHA-1, SHA-256,
-and SHA-512 [SHA] respectively. The server MUST NOT send this
+SHA-384, and SHA-512 [SHA] respectively. The server MUST NOT send this
 extension.
 
 Clients SHOULD send this extension if they support any algorithm other
@@ -3604,6 +3610,8 @@ finished_label
 For Finished messages sent by the client, the string "client
 finished". For Finished messages sent by the server, the
 string "server finished".
+
+Note: Previous versions of TLS hashed 
 
 .ti 7
 handshake_messages
@@ -5975,3 +5983,6 @@ Acknowledgment
 
    Funding for the RFC Editor function is currently provided by the
    Internet Society.
+
+[TODO: What to do about Finished (PRF(hash) or PRF(messages)]
+[TODO: What version number should appear in records]

@@ -678,9 +678,13 @@ Dierks & Rescorla            Standards Track                    [Page 12]draft-
    of the final iteration would then be discarded, leaving 64 bytes of
    output data.
 
-   TLS's PRF is created by applying P_hash to the secret S. The hash
+   TLS's PRF is created by applying P_hash to the secret S as:
+      PRF(secret, label, seed) = P_<hash>(secret, label + seed)
+   Unless the cipher suite definition specifies otherwise, the hash
    function used in P MUST be the same hash function selected for the
-   HMAC in the cipher suite.
+   HMAC in the cipher suite. For existing cipher suites (which use MD5
+   or SHA-1), the hash MUST be SHA-1. New ciphers which do not use HMAC
+   MUST explicitly specify a PRF.
 
    The label is an ASCII string. It should be included in the exact form
    it is given without a length byte or trailing null character.  For
@@ -696,15 +700,15 @@ Dierks & Rescorla            Standards Track                    [Page 12]draft-
    messages may include fields for length, description, and content.
    The Record Protocol takes messages to be transmitted, fragments the
    data into manageable blocks, optionally compresses the data, applies
-   a MAC, encrypts, and transmits the result. Received data is
-   decrypted, verified, decompressed, and reassembled, then delivered to
-   higher level clients.
-
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 13]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
+
+   a MAC, encrypts, and transmits the result. Received data is
+   decrypted, verified, decompressed, and reassembled, then delivered to
+   higher level clients.
 
    Four record protocol clients are described in this document: the
    handshake protocol, the alert protocol, the change cipher spec
@@ -750,15 +754,16 @@ Dierks & Rescorla            Standards Track                    [Page 13]draft-
        this connection.
 
    bulk encryption algorithm
-       An algorithm to be used for bulk encryption. This specification
-       includes the key size of this algorithm, how much of that key is
-       secret, whether it is a block or stream cipher, the block size of
-       the cipher (if appropriate).
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 14]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
+
+       An algorithm to be used for bulk encryption. This specification
+       includes the key size of this algorithm, how much of that key is
+       secret, whether it is a block or stream cipher, the block size of
+       the cipher (if appropriate).
 
    MAC algorithm
        An algorithm to be used for message authentication. This
@@ -803,16 +808,16 @@ Dierks & Rescorla            Standards Track                    [Page 14]draft-
            MACAlgorithm           mac_algorithm;
            uint8                  hash_size;
            CompressionMethod      compression_algorithm;
-           opaque                 master_secret[48];
-           opaque                 client_random[32];
-           opaque                 server_random[32];
-       } SecurityParameters;
-
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 15]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
+
+           opaque                 master_secret[48];
+           opaque                 client_random[32];
+           opaque                 server_random[32];
+       } SecurityParameters;
 
    The record layer will use the security parameters to generate the
    following four items:
@@ -857,16 +862,16 @@ Dierks & Rescorla            Standards Track                    [Page 15]draft-
 
 6.2. Record layer
 
-   The TLS Record Layer receives uninterpreted data from higher layers
-   in non-empty blocks of arbitrary size.
-
-6.2.1. Fragmentation
-
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 16]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
+
+   The TLS Record Layer receives uninterpreted data from higher layers
+   in non-empty blocks of arbitrary size.
+
+6.2.1. Fragmentation
 
    The record layer fragments information blocks into TLSPlaintext
    records carrying data in chunks of 2^14 bytes or less. Client message
@@ -911,17 +916,17 @@ Dierks & Rescorla            Standards Track                    [Page 16]draft-
        specified by the type field.
 
  Note: Data of different TLS Record layer content types MAY be
-       interleaved.  Application data is generally of lower precedence
-       for transmission than other content types.  However, records MUST
-       be delivered to the network in the same order as they are
-       protected by the record layer.  Recipients MUST receive and
-       process interleaved application layer traffic during handshakes
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 17]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+       interleaved.  Application data is generally of lower precedence
+       for transmission than other content types.  However, records MUST
+       be delivered to the network in the same order as they are
+       protected by the record layer.  Recipients MUST receive and
+       process interleaved application layer traffic during handshakes
        subsequent to the first one on a connection.
 
 
@@ -965,17 +970,17 @@ Dierks & Rescorla            Standards Track                    [Page 17]draft-
 
    The encryption and MAC functions translate a TLSCompressed structure
    into a TLSCiphertext. The decryption functions reverse the process.
-   The MAC of the record also includes a sequence number so that
-   missing, extra or repeated messages are detectable.
-
-       struct {
-           ContentType type;
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 18]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+   The MAC of the record also includes a sequence number so that
+   missing, extra or repeated messages are detectable.
+
+       struct {
+           ContentType type;
            ProtocolVersion version;
            uint16 length;
            select (CipherSpec.cipher_type) {
@@ -1019,17 +1024,17 @@ Dierks & Rescorla            Standards Track                    [Page 18]draft-
    seq_num
        The sequence number for this record.
 
-   hash
-       The hashing algorithm specified by
-       SecurityParameters.mac_algorithm.
-
-   Note that the MAC is computed before encryption. The stream cipher
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 19]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+   hash
+       The hashing algorithm specified by
+       SecurityParameters.mac_algorithm.
+
+   Note that the MAC is computed before encryption. The stream cipher
    encrypts the entire block, including the MAC. For stream ciphers that
    do not use a synchronization vector (such as RC4), the stream cipher
    state from the end of one record is simply used on the subsequent
@@ -1073,17 +1078,17 @@ Dierks & Rescorla            Standards Track                    [Page 19]draft-
        of [TLS1.0] for details of TLS 1.0 IV handling.
 
        One of the following two algorithms SHOULD be used to generate the
-       per-record IV:
-
-       (1) Generate a cryptographically strong random string R of
-           length CipherSpec.block_length. Place R
-           in the IV field. Set the mask to R. Thus, the first
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 20]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+       per-record IV:
+
+       (1) Generate a cryptographically strong random string R of
+           length CipherSpec.block_length. Place R
+           in the IV field. Set the mask to R. Thus, the first
            cipher block will be encrypted as E(R XOR Data).
 
        (2) Generate a cryptographically strong random number R of
@@ -1127,17 +1132,17 @@ Dierks & Rescorla            Standards Track                    [Page 20]draft-
        desirable to frustrate attacks on a protocol based on analysis of
        the lengths of exchanged messages. Each uint8 in the padding data
        vector MUST be filled with the padding length value. The receiver
-       MUST check this padding and SHOULD use the bad_record_mac alert
-       to indicate padding errors.
-
-   padding_length
-       The padding length MUST be such that the total size of the
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 21]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+       MUST check this padding and SHOULD use the bad_record_mac alert
+       to indicate padding errors.
+
+   padding_length
+       The padding length MUST be such that the total size of the
        GenericBlockCipher structure is a multiple of the cipher's block
        length. Legal values range from zero to 255, inclusive. This
        length specifies the length of the padding field exclusive of the
@@ -1182,15 +1187,14 @@ Dierks & Rescorla            Standards Track                    [Page 21]draft-
 
 6.3. Key calculation
 
-   The Record Protocol requires an algorithm to generate keys, and MAC
-   secrets from the security parameters provided by the handshake
-   protocol.
-
-
 
 
 Dierks & Rescorla            Standards Track                    [Page 22]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
+
+   The Record Protocol requires an algorithm to generate keys, and MAC
+   secrets from the security parameters provided by the handshake
+   protocol.
 
    The master secret is hashed into a sequence of secure bytes, which
    are assigned to the MAC secrets and keys required by the current
@@ -1236,16 +1240,16 @@ Dierks & Rescorla            Standards Track                    [Page 22]draft-
 
        session identifier
          An arbitrary byte sequence chosen by the server to identify an
-         active or resumable session state.
-
-       peer certificate
-         X509v3 [X509] certificate of the peer. This element of the
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 23]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+         active or resumable session state.
+
+       peer certificate
+         X509v3 [X509] certificate of the peer. This element of the
          state may be null.
 
        compression method
@@ -1291,15 +1295,14 @@ Dierks & Rescorla            Standards Track                    [Page 23]draft-
    handshake after the security parameters have been agreed upon, but
    before the verifying finished message is sent (see section 7.4.11
 
- Note: if a rehandshake occurs while data is flowing on a connection,
-   the communicating parties may continue to send data using the old
-   CipherSpec. However, once the ChangeCipherSpec has been sent, the new
-
 
 
 Dierks & Rescorla            Standards Track                    [Page 24]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+ Note: if a rehandshake occurs while data is flowing on a connection,
+   the communicating parties may continue to send data using the old
+   CipherSpec. However, once the ChangeCipherSpec has been sent, the new
    CipherSpec MUST be used. The first side to send the ChangeCipherSpec
    does not know that the other side has finished computing the new
    keying material (e.g. if it has to perform a time consuming public
@@ -1345,15 +1348,15 @@ Dierks & Rescorla            Standards Track                    [Page 24]draft-
            insufficient_security(71),
            internal_error(80),
            user_canceled(90),
-           no_renegotiation(100),
-           unsupported_extension(110),           /* new */
-           certificate_unobtainable(111),        /* new */
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 25]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+           no_renegotiation(100),
+           unsupported_extension(110),           /* new */
+           certificate_unobtainable(111),        /* new */
            unrecognized_name(112),               /* new */
            bad_certificate_status_response(113), /* new */
            bad_certificate_hash_value(114),      /* new */
@@ -1399,15 +1402,15 @@ Dierks & Rescorla            Standards Track                    [Page 25]draft-
    transport without waiting for the responding close_notify. No part of
    this standard should be taken to dictate the manner in which a usage
    profile for TLS manages its data transport, including when
-   connections are opened or closed.
-
-   Note: It is assumed that closing a connection reliably delivers
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 26]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+   connections are opened or closed.
+
+   Note: It is assumed that closing a connection reliably delivers
        pending data before destroying the transport.
 
 7.2.2. Error alerts
@@ -1454,14 +1457,13 @@ Dierks & Rescorla            Standards Track                    [Page 26]draft-
        that would expand to excessive length). This message is always
        fatal.
 
-   handshake_failure
-       Reception of a handshake_failure alert message indicates that the
-
 
 
 Dierks & Rescorla            Standards Track                    [Page 27]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+   handshake_failure
+       Reception of a handshake_failure alert message indicates that the
        sender was unable to negotiate an acceptable set of security
        parameters given the options available. This is a fatal error.
 
@@ -1508,13 +1510,14 @@ Dierks & Rescorla            Standards Track                    [Page 27]draft-
 
    decrypt_error
        A handshake cryptographic operation failed, including being
-       unable to correctly verify a signature, decrypt a key exchange,
-       or validate a finished message.
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 28]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
+
+       unable to correctly verify a signature, decrypt a key exchange,
+       or validate a finished message.
 
    export_restriction_RESERVED
        This alert was used in TLS 1.0 but not TLS 1.1.
@@ -1562,14 +1565,13 @@ Dierks & Rescorla            Standards Track                    [Page 28]draft-
        received an extended hello message from the party they are
        communicating with.
 
-   unsupported_extension
-       sent by clients that receive an extended server hello containing
-
 
 
 Dierks & Rescorla            Standards Track                    [Page 29]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+   unsupported_extension
+       sent by clients that receive an extended server hello containing
        an extension that they did not put in the corresponding client
        hello (see Section 2.3).  This message is always fatal.
 
@@ -1617,13 +1619,12 @@ Dierks & Rescorla            Standards Track                    [Page 29]draft-
      -  Exchange hello messages to agree on algorithms, exchange random
        values, and check for session resumption.
 
-     -  Exchange the necessary cryptographic parameters to allow the
-
 
 
 Dierks & Rescorla            Standards Track                    [Page 30]draft-ietf-tls-rfc4346-bis-01.txt  TLS                         June 2006
 
 
+     -  Exchange the necessary cryptographic parameters to allow the
        client and server to agree on a premaster secret.
 
      -  Exchange certificates and cryptographic information to allow the
@@ -1652,7 +1653,6 @@ Dierks & Rescorla            Standards Track                    [Page 30]draft-
    any cipher suite offers its promised level of security: if you
    negotiate 3DES with a 1024 bit RSA key exchange with a host whose
    certificate you have verified, you can expect to be that secure.
-
 
 
 
