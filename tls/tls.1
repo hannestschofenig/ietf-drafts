@@ -7,8 +7,8 @@
 .ds LF Dierks & Rescorla
 .ds RF FORMFEED[Page %]
 .ds CF Standards Track
-.ds LH draft-ietf-tls-rfc4346-bis-01.txt
-.ds RH June 2006
+.ds LH draft-ietf-tls-rfc4346-bis-02.txt
+.ds RH October 2006
 .ds CH TLS
 .hy 0
 .ad l
@@ -17,7 +17,7 @@
                                                              Independent
                                                            Eric Rescorla
 INTERNET-DRAFT                                   Network Resonance, Inc.
-<draft-ietf-tls-rfc4346-bis-01.txt>    June 2006 (Expires December 2006)
+<draft-ietf-tls-rfc4346-bis-02.txt>    October 2006 (Expires April 2006)
 
 .ce 2
 The TLS Protocol
@@ -68,13 +68,6 @@ tampering, or message forgery.
 Table of Contents
 
 .so contents.txt
-
-.nf
-
-.ti 0
-Change history
-
-18-Feb-06   First draft by ekr@rtfm.com
 
 .nf
 
@@ -167,7 +160,11 @@ of cryptographic algorithms. The major changes are:
 - Allow the client to indicate which hash functions it supports.
 
 .ti 5
-- Allow the server to indicate which has functions it supports
+- Allow the server to indicate which hash functions it supports
+
+.ti 5
+- Addition of support for authenticated encryption with additional
+  data modes.
 
 .ti 0
 1.1 Requirements Terminology
@@ -218,7 +215,7 @@ Protocol Specification as published by Netscape. The differences
 between this protocol and SSL 3.0 are not dramatic, but they are
 significant enough that the various versions of TLS and SSL 3.0 do not
 interoperate (although each protocol incorporates a mechanism by which
-an implementation can back down prior versions. This document is
+an implementation can back down to prior versions.) This document is
 intended primarily for readers who will be implementing the protocol
 and those doing cryptographic analysis of it. The specification has
 been written with this in mind, and it is intended to reflect the
@@ -469,10 +466,11 @@ type V2.
 .ti 0
 4.7. Cryptographic attributes
 
-The four cryptographic operations digital signing, stream cipher
-encryption, block cipher encryption, and public key encryption are
-designated digitally-signed, stream-ciphered, block-ciphered, and
-public-key-encrypted, respectively. A field's cryptographic
+The five cryptographic operations digital signing, stream cipher
+encryption, block cipher encryption, authenticated encryption
+with additional data (AEAD) encryption and public key encryption are
+designated digitally-signed, stream-ciphered, block-ciphered, aead-ciphered,
+and public-key-encrypted, respectively. A field's cryptographic
 processing is specified by prepending an appropriate key word
 designation before the field's type specification. Cryptographic
 keys are implied by the current session state (see Section 6.1).
@@ -510,6 +508,11 @@ In block cipher encryption, every block of plaintext encrypts to a
 block of ciphertext. All block cipher encryption is done in CBC
 (Cipher Block Chaining) mode, and all items which are block-ciphered
 will be an exact multiple of the cipher block length.
+
+In AEAD encryption, the plaintext is simultaneously encrypted
+and integrity protected. The input may be of any length
+and the output is generally larger than the input in order
+to accomodate the integrity check value.
 
 In public key encryption, a public key algorithm is used to encrypt
 data in such a way that it can be decrypted only with the matching
@@ -598,7 +601,9 @@ output data.
 
 TLS's PRF is created by applying P_hash to the secret S as:
 .nf
+
    PRF(secret, label, seed) = P_<hash>(secret, label + seed)
+
 .fi
 Unless the cipher suite definition specifies otherwise, 
 the hash function used in P MUST be the same hash function selected
@@ -677,7 +682,7 @@ bulk encryption algorithm
 .br
 An algorithm to be used for bulk encryption. This specification
 includes the key size of this algorithm, how much of that key is
-secret, whether it is a block or stream cipher, the block size
+secret, whether it is a block, stream, or AEAD cipher, the block size
 of the cipher (if appropriate).
 
 .ti 3
@@ -717,9 +722,11 @@ enum { server, client } ConnectionEnd;
 
 enum { null, rc4, rc2, des, 3des, des40, idea, aes } BulkCipherAlgorithm;
 
-enum { stream, block } CipherType;
+enum { stream, block, aead } CipherType;
 
-enum { null, md5, sha } MACAlgorithm;
+enum { null, md5, sha, sha256, sha384, sha512} MACAlgorithm;
+
+/* The use of "sha" above is historical and denotes SHA-1 */
 
 enum { null(0), (255) } CompressionMethod;
 
@@ -933,6 +940,7 @@ missing, extra or repeated messages are detectable.
         select (CipherSpec.cipher_type) {
             case stream: GenericStreamCipher;
             case block: GenericBlockCipher;
+            case aead: GenericAEADCipher;
         } fragment;
     } TLSCiphertext;
 
@@ -1024,10 +1032,9 @@ The MAC is generated as described in Section 6.2.3.1.
 .ti 3
 IV
 .in 7
-Unlike previous versions of SSL and TLS, TLS 1.1 uses an explicit
-IV in order to prevent the attacks described by [CBCATT].
-We recommend the following equivalently strong procedures.
-For clarity we use the following notation. 
+TLS 1.2 uses an explicit IV in order to prevent the attacks described
+by [CBCATT].  We recommend the following equivalently strong
+procedures.  For clarity we use the following notation.
 
 .nf
 IV -- the transmitted value of the IV field in the
@@ -1037,7 +1044,7 @@ mask -- the actual value which the cipher XORs with the
     plaintext prior to encryption of the first cipher block
     of the record.
 
-In prior versions of TLS, there was no IV field and the CBC residue
+In versions of TLS prior to 1.1, there was no IV field and the CBC residue
 and mask were one and the same. See Sections 6.1, 6.2.3.2 and 6.3,
 of [TLS1.0] for details of TLS 1.0 IV handling.
 
@@ -1149,6 +1156,65 @@ since MAC performance depends to some extent on the size
 of the data fragment, but it is not believed to be large enough to
 be exploitable due to the large block size of existing MACs and
 the small size of the timing signal.
+
+.ti 0
+6.2.3.3. AEAD ciphers
+
+.in 3
+For AEAD [AEAD] ciphers (such as [CCM] or [GCM]) the AEAD function converts
+TLSCompressed.fragment structures to and from AEAD
+TLSCiphertext.fragment structures. 
+
+.nf
+    aead-ciphered struct {
+        opaque IV[CipherSpec.iv_length];
+        opaque aead_output[AEADEncrypted.length];
+    } GenericAEADCipher;
+.fi
+
+AEAD ciphers take as input a single key, optional IV (depending on the
+cipher), plaintext, and "additional data" to be included in the
+authentication check. I.e.,
+
+.nf
+   AEADEncrypted = AEAD-Encrypt(key, IV, plaintext, 
+                   additional_data)
+
+.fi
+The key is either the client_write_key or the server_write_key.  When
+AEAD algorithms are used the MAC keys are of zero length and are not
+used. The length of the IV depends on the cipher suite.  If it is
+required it MUST be generated using a cryptographically strong random
+number generator. Note that the IV may be zero length.  The plaintext
+is the TLSCompressed.fragment. The additional_data is defined as
+follows:
+
+.nf
+   additional_data = seq_num + TLSCompressed.type +
+                     TLSCompressed.version + TLSCompressed.length;
+
+.fi
+Where "+" denotes concatenation. 
+
+AEADEncrypted.length will generally be larger than
+TLSCompressed.length, but by an amount that varies with the
+cipher and the required padding (if any). AEAD algorithms
+MUST NOT produce an expansion of greater than 1024 bytes.
+
+.fi
+In order to decrypt and verify, the cipher takes as input the key, IV,
+the "additional_data", and the AEADEncrypted value. The output is
+either the plaintext or an error indicating that the decryption
+failed. There is no separate integrity check.  I.e.,
+
+.nf
+TLSCompressed.fragment = AEAD-Decrypt(write_key, IV, AEADEncrypted,
+                TLSCiphertext.type + TLSCiphertext.version + 
+                TLSCiphertext.length);
+
+.fi
+If the decryption fails, a fatal bad_record_mac alert MUST
+be generated.
 
 .ti 0
 6.3. Key calculation
@@ -2127,7 +2193,7 @@ ExtendedServerHello:
         SessionID session_id;
         CipherSuite cipher_suite;
         CompressionMethod compression_method;
-	Extension server_hello_extension_list<0..2^16-1>;
+        Extension server_hello_extension_list<0..2^16-1>;
     } ExtendedServerHello;
 .fi
 
@@ -2220,16 +2286,15 @@ The extension types defined in this document are:
           server_name(0), max_fragment_length(1),
           client_certificate_url(2), trusted_ca_keys(3),
           truncated_hmac(4), status_request(5), 
-	  cert_hash_types(6), (65535)
+          cert_hash_types(6), (65535)
       } ExtensionType;
 .fi
 
 .in 3
 The list of defined extension types is maintained by the IANA. The
-current list can be found at XXX (suggest
-http://www.iana.org/assignments/tls-extensions). See sections XXX and
-YYY for more information on how new values are added.
-
+current list can be found at 
+(http://www.iana.org/assignments/tls-extensions). See sections 7.4.1.4.8
+and 11.1 for more information on how new values are added.
 
 .in 3
 Note that for all extension types (including those defined in
@@ -3070,8 +3135,8 @@ Certificate message).
 Structure of this message:
     enum {
         rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
-	rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
-	fortezza_dms_RESERVED(20),
+        rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
+        fortezza_dms_RESERVED(20),
         (255)
     } ClientCertificateType;
 
@@ -3080,7 +3145,7 @@ Structure of this message:
 
     struct {
         ClientCertificateType certificate_types<1..2^8-1>;
-	HashType certificate_hash<1..2^8-1>;
+        HashType certificate_hash<1..2^8-1>;
         DistinguishedName certificate_authorities<0..2^16-1>;
     } CertificateRequest;
 
@@ -3097,9 +3162,9 @@ A list of the types of certificate types which the client may offer.
    rsa_sign        a certificate containing an RSA key
    dss_sign        a certificate containing a DSS key
    rsa_fixed_dh    a certificate signed with RSA and containing
-		   a static DH key.
+                   a static DH key.
    dss_fixed_dh    a certificate signed with DSS and containing
-		   a static DH key
+                   a static DH key
 .fi
 
 Certificate types rsa_sign and dss_sign SHOULD contain certificates
@@ -3127,7 +3192,7 @@ list is empty then the client MAY send any certificate of the
 appropriate ClientCertificateType, unless there is some
 external arrangement to the contrary.
 
-
+.in
 .ti 1
 ClientCertificateType values are divided into three groups:
 
@@ -3476,7 +3541,7 @@ as described in [TIMING].
 
 .ti 1
 Note: The version number in the PreMasterSecret MUST be the
-version offered by the client in the ClientHello,
+version offered by the client in the ClientHello.version,
 not the version negotiated for the connection. This
 feature is designed to prevent rollback attacks. Unfortunately,
 many implementations use the negotiated version instead and therefore
@@ -3601,8 +3666,7 @@ struct {
 } Finished;
 
 verify_data
-    PRF(master_secret, finished_label, MD5(handshake_messages) +
-    SHA-1(handshake_messages)) [0..11];
+    PRF(master_secret, finished_label, Hash(handshake_messages))[0..11];
 
 finished_label
 .in 11
@@ -3611,7 +3675,8 @@ For Finished messages sent by the client, the string "client
 finished". For Finished messages sent by the server, the
 string "server finished".
 
-Note: Previous versions of TLS hashed 
+Hash denotes the negotiated hash used for the PRF. If a new
+PRF is defined, then this hash MUST be specified.
 
 .ti 7
 handshake_messages
@@ -3677,7 +3742,6 @@ The master secret is always exactly 48 bytes in length. The length
 of the premaster secret will vary depending on key exchange method.
 
 .ti 0
-.bp
 .ne 5
 8.1.1. RSA
 
@@ -3882,7 +3946,7 @@ A.1. Record layer
         uint8 major, minor;
     } ProtocolVersion;
     
-    ProtocolVersion version = { 3, 2 };     /* TLS v1.1 */
+    ProtocolVersion version = { 3, 3 };     /* TLS v1.2*/
     
     enum {
         change_cipher_spec(20), alert(21), handshake(22),
@@ -3925,6 +3989,11 @@ A.1. Record layer
         uint8 padding[GenericBlockCipher.padding_length];
         uint8 padding_length;
     } GenericBlockCipher;
+
+    aead-ciphered struct {
+        opaque IV[CipherSpec.iv_length];
+        opaque aead_output[AEADEncrypted.length];
+    } GenericAEADCipher;
 
 .ti 0
 A.2. Change cipher specs message
@@ -4879,33 +4948,33 @@ applications.
 
 .ti 0
 .bp
-E. Backward Compatibility With SSL
+E. Backward Compatibility
 
 For historical reasons and in order to avoid a profligate
 consumption of reserved port numbers, application protocols which
-are secured by TLS 1.1, TLS 1.0, SSL 3.0, and SSL 2.0 all frequently share
+are secured by TLS, SSL 3.0, and SSL 2.0 all frequently share
 the same connection port: for example, the https protocol (HTTP
 secured by SSL or TLS) uses port 443 regardless of which security
 protocol it is using. Thus, some mechanism must be determined to
 distinguish and negotiate among the various protocols.
 
-TLS versions 1.1, 1.0, and SSL 3.0 are very similar; thus, supporting both
-is easy. TLS clients who wish to negotiate with such older servers
+TLS versions 1.2, 1.1, 1.0, and SSL 3.0 are very similar; thus, supporting 
+them all at the same time is relatively easy. TLS clients who wish
+to negotiate with such older servers
 SHOULD send client hello messages using the SSL 3.0 record format
-and client hello structure, sending {3, 2} for the version field to
-note that they support TLS 1.1. If the server supports only TLS 1.0 
-or SSL 3.0,
-it will respond with a downrev 3.0 server hello; if it supports TLS 1.1
-it will respond with a TLS 1.1 server hello. The negotiation then proceeds as
+and client hello structure, sending {3, 3} for the client version field to
+note that they support TLS 1.2 and {3, 0} for the record version
+field (because the SSLv3 record format is being used--although the
+cleartext record format is the same for all versions).
+If the server supports only a downrev
+version it will respond with a downrev 3.0 server hello; if it supports TLS 1.2
+it will respond with a TLS 1.2 server hello. The negotiation then proceeds as
 appropriate for the negotiated protocol.
 
-Similarly, a TLS 1.1  server which wishes to interoperate with TLS 1.0
-or SSL 3.0 clients SHOULD accept SSL 3.0 client hello messages and respond with
-a SSL 3.0 server hello if an SSL 3.0 client hello 
-with a version field of {3, 0} is received, denoting that this client does not
-support TLS. Similarly, if a SSL 3.0 or TLS 1.0 hello with a version
-field of {3, 1} is received, the server SHOULD respond with a TLS
-1.0 hello with a version field of {3, 1}.
+Similarly, a TLS 1.2  server which wishes to interoperate with downrev
+clients SHOULD accept downrev client hello messages and respond with
+appropriate version fields. Note that the version in the server
+hello message and in the record header are the same. 
 
 Whenever a client already knows the highest protocol known to a
 server (for example, when resuming a session), it SHOULD initiate
@@ -5730,6 +5799,10 @@ ISO/IEC 9594-8:2001/Cor.1:2002, Technical Corrigendum
 Informative References
 
 .ti 3
+[AEAD]   Mcgrew, D., "Authenticated Encryption",
+July 2006, draft-mcgrew-auth-enc-00.txt.
+
+.ti 3
 [AH]     Kent, S., and Atkinson, R., "IP Authentication Header", 
 RFC 2402, November 1998.
 
@@ -5747,12 +5820,22 @@ Problems and Countermeasures", http://www.openssl.org/~bodo/tls-cbc.txt.
 http://lasecwww.epfl.ch/memo_ssl.shtml, 2003.
 
 .ti 3
+[CCM]     "NIST Special Publication 800-38C: The CCM Mode for
+Authentication and Confidentiality",
+http://csrc.nist.gov/publications/nistpubs/SP800-38C.pdf.
+
+.ti 3
 [ENCAUTH] Krawczyk, H., "The Order of Encryption and Authentication for 
 Protecting Communications (Or: How Secure is SSL?)", Crypto 2001.
 
 .ti 3
 [ESP]     Kent, S., and Atkinson, R., "IP Encapsulating Security
 Payload (ESP)", RFC 2406, November 1998.
+
+.ti 3
+[GCM]    "NIST Special Publication 800-38C: The CCM Mode for
+Authentication and Confidentiality",
+http://csrc.nist.gov/publications/nistpubs/SP800-38C.pdf.
 
 .ti 3
 [KPR03]  Klima, V., Pokorny, O., Rosa, T., "Attacking RSA-based Sessions 
@@ -5828,7 +5911,7 @@ Credits
 .in 3
 Working Group Chairs
 Eric Rescorla
-EMail: ekr@rtfm.com
+EMail: ekr@networkresonance.com
 
 Pasi Eronen
 pasi.eronen@nokia.com
@@ -5836,7 +5919,7 @@ pasi.eronen@nokia.com
 
 Editors
 
-Tim Dierks		      Eric Rescorla
+Tim Dierks                    Eric Rescorla
 Independent                   Network Resonance, Inc.
 
 EMail: tim@dierks.org         EMail: ekr@networkresonance.com
@@ -5984,5 +6067,3 @@ Acknowledgment
    Funding for the RFC Editor function is currently provided by the
    Internet Society.
 
-[TODO: What to do about Finished (PRF(hash) or PRF(messages)]
-[TODO: What version number should appear in records]
