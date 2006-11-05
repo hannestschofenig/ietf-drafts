@@ -1,0 +1,44 @@
+.PS
+picwid=3
+lht=-.25
+lspace=-.25
+
+.ps -4
+AL: box invis "Alice"
+AT: box invis "Atlanta" with .w at AL.e + (.5,0)
+BI: box invis "Biloxi" with .w at AT.e + (.5,0)
+BO: box invis "Bob" with .w at BI.e + (.5,0)
+arrow "Offer" "fingerprint=XXX" from AL.c + (0,lht) to AT.c + (-.05,lht)
+arrow "Offer" "fingerprint=XXX" from AT.c + (.05,lht) to BI.c + (-.05,lht)
+OFFER1E: arrow "Offer" "fingerprint=XXX" from BI.c + (.05,lht) to BO.c + (0,lht)
+right_brace(OFFER1E.end+(0,.15), OFFER1E.end + (0,-.15))
+"SIP" with .w at Bracept + (.12,-.02)
+
+
+lht = lht + lspace * 1.5
+CHELLO: arrow "ClientHello" "use_srtp=SRTP_AES128_CM_SHA1_80, SRTP_AES128_CM_SHA1_32, ..." from BO.c + (0,lht) to AL.c + (0,lht)
+lht = lht + lspace *1.38
+arrow "ServerHello use_srtp=SRTP_AES128_CM_SHA1_80" "Certificate, CertificateRequest, ServerHelloDone" from AL.c + (0,lht) to BO.c + (0,lht)
+lht = lht + lspace *1.38
+arrow "Certificate, ClientKeyExchange, CertificateVerify" "ChangeCipherSpecs, Finished" from BO.c + (0,lht) to AL.c + (0,lht)
+lht = lht + lspace *1.38
+CCSFIN: arrow "ChangeCipherSpecs, Finished" "" from AL.c + (0,lht) to BO.c + (0,lht)
+right_brace(CHELLO.start+ (0,.15), CCSFIN.end + (0,-.15))
+"DTLS" with .w at Bracept + (.12,-.02)
+lht = lht + lspace *1.3
+arrow <-> "SRTP" "" from AL.c + (0,lht) to BO.c + (0,lht)
+right_brace(last arrow.end + (0,.15), last arrow.end + (0,-.15))
+"Early" "Media" with .w at Bracept + (.12,-.02)
+lht = lht + lspace *1.38
+arrow <- "Answer" "fingerprint=YYY" from AL.c + (0,lht) to AT.c + (-.05,lht)
+arrow <- "Answer" "fingerprint=YYY" from AT.c + (.05,lht) to BI.c + (-.05,lht)
+ANSWER1S: arrow <- "Answer" "fingerprint=YYY" from BI.c + (.05,lht) to BO.c + (0,lht)
+right_brace(ANSWER1S.end+(0,.15), ANSWER1S.end + (0,-.15))
+"SIP" with .w at Bracept + (.12,-.02)
+
+lht = lht + lspace *1.38
+arrow <-> "SRTP" "" from AL.c + (0,lht) to BO.c + (0,lht)
+right_brace(last arrow.end + (0,.15), last arrow.end + (0,-.15))
+"Normal" "Media" with .w at Bracept + (.12,-.02)
+
+.PE

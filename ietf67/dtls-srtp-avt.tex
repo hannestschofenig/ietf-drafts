@@ -1,0 +1,174 @@
+\documentclass[helvetica,fancybox,landscape]{seminar} 
+\centerslidesfalse 
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+\input xy
+\xyoption{all}
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny Eric Rescorla} 
+\fancyfoot[C]{\tiny IETF 67} 
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+ 
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+
+\begin{slide}
+\begin{center} 
+\LARGE{{\bf Datagram Transport Layer Security
+    (DTLS) Extension to Establish Keys for Secure Real-time Transport Protocol
+    (SRTP)\\ (Phew!)}}
+\end{center} 
+\begin{center}
+\vspace{.3 in} 
+\large{Eric Rescorla}\\
+\large{David McGrew}\\
+\end{center}
+\end{slide}
+
+
+\begin{slide}
+\heading{Overview}
+
+\begin{itemize}
+\item SDP signals ``I'm willing to do DTLS'' (and here's my fingerprint)
+\item Do DTLS key exchange in media channel
+\begin{itemize}
+\item Allows reuse of existing DTLS authentication/key establishment mechanisms
+\item Use extensions to negotiate SRTP protection profiles
+\end{itemize}
+\item Use DTLS master secret to generate SRTP traffic keys
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Message Flow}
+
+\vspace{-.4 in}
+\includegraphics{dtls-srtp1}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{TLS Handshake Extension}
+
+{\tiny
+\begin{verbatim}
+   uint8 SRTPProtectionProfile[2];
+
+   struct {
+      SRTPProtectionProfiles SRTPProtectionProfiles;
+      uint8 srtp_mki<255>;
+   } UseSRTPData;
+
+   SRTPProtectionProfile SRTPProtectionProfiles<2^16-1>;
+
+   SRTPProtectionProfile SRTP_AES128_CM_SHA1_80 = {0x00, 0x01};
+   SRTPProtectionProfile SRTP_AES128_CM_SHA1_32 = {0x00, 0x02};
+   SRTPProtectionProfile SRTP_AES256_CM_SHA1_80 = {0x00, 0x03};
+   SRTPProtectionProfile SRTP_AES256_CM_SHA1_32 = {0x00, 0x04};
+   SRTPProtectionProfile SRTP_NULL_SHA1_80      = {0x00, 0x05};
+   SRTPProtectionProfile SRTP_NULL_SHA1_32      = {0x00, 0x06};
+\end{verbatim}
+}
+\end{slide}
+
+\begin{slide}
+\heading{Transporting DTLS Handshake Traffic}
+
+\begin{itemize}
+\item Current draft:
+\begin{itemize}
+\item Carried over same channel as media
+\item Directly over UDP
+\item Demuxable from RTP/STUN by first byte (S 3.6.2)
+\item One DTLS connection per media stream
+\end{itemize}
+\item Other alternatives
+\begin{itemize}
+\item In RTCP channel
+\item Header extension (a la ZRTP)
+\end{itemize}
+\item These issues are the same for any media-stream key management protocol
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Requirements Evaluation}
+
+{\tiny
+\begin{tabular}{p{3 in} p{1 in}}
+R1: Forking and retargeting MUST work with all end-points being SRTP. & Yes \\
+R2: Forking and retargeting MUST allow establishing SRTP or RTP with a mixture of SRTP- and RTP-capable targets. & Yes \\
+R3: With forking, only the entity to which the call is finally established, MUST get hold of the media encryption keys. & Yes (separate key exchange to each peer)\\
+R5: A solution SHOULD avoid clipping media before SDP answer without additional signalling. & Yes \\
+R6: A solution MUST provide protection against passive attacks. & Yes (including malicious proxies)\\ 
+R7: A solution MUST be able to support Perfect Forward Secrecy. & Yes (DHE modes) \\
+R8: A solution MUST support algorithm negotiation without incurring per-algorithm computational expense. & Yes (cipher suites negotiated first) \\
+R9: A solution MUST support multiple cipher suites without additional computational expense & Yes \\
+R10:  Endpoint identification when forking.  The Offerer must be able to associate answer with the appropriate flow endpoint.  In case of forking one might not want to perform a DH with every party but instead to associate the SDP response with the right end point. This is a performance related requirement. & Yes (but latency tradeoff) \\
+R11: A solution MUST NOT require 3rd-party certs.  If two parties share an auth infrastructure they should be able to use it. & Yes (fingerprints but 3rd-party certs are usable)
+\end{tabular}
+}
+\end{slide}
+
+\begin{slide}
+\heading{Current status}
+
+\begin{itemize}
+\item Bunch of drafts
+\begin{itemize}
+\item draft-mcgrew-tls-srtp-00, draft-fischl-sipping-media-dtls-00, draft-fischl-mmusic-sdp-dtls-00
+\item Looking for feedback
+\end{itemize}
+\item Prototype implementations in OpenSSL and EyeBeam (thanks Derek MacDonald, Dragos Liciu, Jason Fischl, Nagendra Modadugu)
+\item Open issues
+\begin{itemize}
+\item Best way to carry handshake traffic
+\item How/what to express in SDP
+\begin{itemize}
+\item Not an AVT issue
+\end{itemize}
+\end{itemize}
+
+\end{itemize}
+
+
+\end{slide}
+
+
+
+\end{document}
