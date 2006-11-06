@@ -72,18 +72,13 @@
 \end{slide}
 
 \begin{slide}
-\heading{Message Flow}
-
-\vspace{-.4 in}
-\includegraphics{dtls-srtp1}
-
-\end{slide}
-
-
-\begin{slide}
 \heading{TLS Handshake Extension}
 
-{\tiny
+\newcommand{\protocolfont}{%
+ \fontfamily{bch}\bfseries
+ \fontsize{8pt}{8pt}\selectfont}
+
+{\protocolfont
 \begin{verbatim}
    uint8 SRTPProtectionProfile[2];
 
@@ -105,6 +100,15 @@
 \end{slide}
 
 \begin{slide}
+\heading{Message Flow}
+
+\vspace{-.4 in}
+\includegraphics{dtls-srtp1}
+
+\end{slide}
+
+
+\begin{slide}
 \heading{Transporting DTLS Handshake Traffic}
 
 \begin{itemize}
@@ -120,7 +124,6 @@
 \item In RTCP channel
 \item Header extension (a la ZRTP)
 \end{itemize}
-\item These issues are the same for any media-stream key management protocol
 \end{itemize}
 \end{slide}
 
@@ -155,18 +158,33 @@ R11: A solution MUST NOT require 3rd-party certs.  If two parties share an auth 
 \item Looking for feedback
 \end{itemize}
 \item Prototype implementations in OpenSSL and EyeBeam (thanks Derek MacDonald, Dragos Liciu, Jason Fischl, Nagendra Modadugu)
-\item Open issues
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Open issue: transporting key management messages}
+
+\vspace{-.3 in}
 \begin{itemize}
-\item Best way to carry handshake traffic
-\item How/what to express in SDP
+\item An issue for any media-plane key management protocol
+\item RTCP channel
 \begin{itemize}
-\item Not an AVT issue
+\item Natural fit for RTP style
+\item But deployment of RTCP is spotty
+\end{itemize}
+\item RTP header extension
+\begin{itemize}
+\item No dependency on RTCP
+\item Not what header extension intended for
+\end{itemize}
+\item Carried directly over UDP---demuxed like STUN
+\begin{itemize}
+\item Keeps key management out of media packets
+\item Not as good fit to the RTP style
 \end{itemize}
 \end{itemize}
-
-\end{itemize}
-
-
 \end{slide}
 
 
