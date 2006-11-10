@@ -7,7 +7,7 @@ Expires:  April 9, 2007                                 October 06, 2006
 
 
      Keying Material Extractors for Transport Layer Security (TLS)
-                      draft-name-goes-here-00.txt
+                  draft-rescorla-tls-extractor-00.txt
 
 Status of this Memo
 

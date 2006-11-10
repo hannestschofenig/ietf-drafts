@@ -18,7 +18,7 @@ o]>
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-name-goes-here-00.txt" ipr="full3978">
+<rfc category="std" docName="draft-rescorla-tls-extractor-00.txt" ipr="full3978">
   <front>
     <title abbrev="TLS Extractors">Keying Material Extractors for Transport Layer Security (TLS)</title>
 
