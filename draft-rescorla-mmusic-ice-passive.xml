@@ -8,7 +8,7 @@
 
 <!ENTITY I-D.ietf-mmusic-ice SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-mmusic-ice">
 <!ENTITY I-D.ietf-behave-turn SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-behave-turn">
-o]>
+]>
 <!-- $Id -->
 <?rfc inline="yes"?>
 <?rfc toc="yes" ?>
