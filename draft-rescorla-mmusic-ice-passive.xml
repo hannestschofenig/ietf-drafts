@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY RFC1889 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1889.xml">
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC3261 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3261.xml">
+<!ENTITY RFC3489 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3489.xml">
+
+
+<!ENTITY I-D.ietf-mmusic-ice SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-mmusic-ice">
+<!ENTITY I-D.ietf-behave-turn SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-behave-turn">
+o]>
+<!-- $Id -->
+<?rfc inline="yes"?>
+<?rfc toc="yes" ?>
+<?rfc symrefs="no" ?>
+<?rfc iprnotified="no" ?>
+<!--<?rfc strict="yes" ?>-->
+<?rfc compact="yes" ?>
+<?rfc sortrefs="no" ?>
+<?rfc colonspace='yes' ?>
+<rfc category="std" docName="draft-rescorla-mmusic-ice-passive-00.txt" ipr="full3978">
+  <front>
+    <title abbrev="Passive ICE">Implementing Interactive Connectivity Establishment (ICE) in Passive-Only Mode</title>
+
+    <author fullname="Eric Rescorla" initials="E." surname="Rescorla">
+      <organization>Network Resonance</organization>
+
+      <address>
+        <postal>
+          <street>2483 E. Bayshore #212</street>
+
+          <city>Palo Alto</city>
+
+          <region>CA</region>
+
+          <code>94303</code>
+
+          <country>USA</country>
+        </postal>
+
+        <email>ekr@networkresonance.com</email>
+      </address>
+    </author>
+
+    <date day="06" month="November" year="2006" />
+
+    <abstract>
+      <t>Interactive Connectivity Establishment (ICE) is a technique
+      for discovering a set of addresses which two peers can use to
+      communicate, even in the face of topological obstacles such as
+      NATs. Because the topologies in which ICE may be used are 
+      complex, a full ICE implementation is also fairly complex.
+      Implementation which will only be deployed in settings
+      where they have public addresses (e.g., SIP-PSTN
+      gateways) can, however, be 
+      substantially simpler. This document describes a subset of
+      ICE suitable for such implementations.
+      </t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+    <t>Network Address Translation (NAT) devices are a major obstacle
+    to protocols in which a pair of network elements need to form
+    a direct connection. In many cases, such elements are able to 
+    talk to each other directly using a signalling protocol such
+    as SIP <xref target="RFC3261"/> but for efficiency reasons want
+    to send data (e.g., media over RTP <xref target="RFC1889"/>)
+    directly.
+    </t>
+    <t>A number of techniques are available for traversing NATs,
+    but entities need a mechanism for discovering which technique 
+    will work in its specific environment (and its peer's environment).
+    Internet Connectivity Establishment (ICE) <xref target="I-D.ietf-mmusic-ice"/> is such a technique.
+    </t>
+    <t>
+    The basic principle behind ICE is that each entity collects all 
+    the addresses on which it might potentially be able to send and
+    receive data. These may include its local address, addresses
+    discovered via STUN <xref target="RFC3489/"> or addresses provided
+    by media relays <xref target="I-D.ietf-behave-turn-02"/>. The
+    peers then exchange these candidate addresses and try each 
+    potential pairing in priority order
+    until they find one that is satisfactory.
+    </t>
+    <t>
+    During the design of ICE, many implementors expressed concern
+    about the complexity of the protocol and the difficulty of
+    implementing it. This draft specifies a compatible
+    simplified subset
+    of ICE called "Passive ICE" which is suitable for implementations
+    which will always be operated with public IP addresses. 
+    One particular environment where Passive ICE is intended
+    to be useful is in SIP-PSTN gateways which are generally
+    directly connected to the Internet.
+    </t>
+    </section>
+    <section title="Conventions Used In This Document">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+      document are to be interpreted as described in <xref target="RFC2119"></xref>.</t>
+    </section>
+    
+    <section anchor="section.sec" title="Security Considerations">
+    <t>
+    Security considerations go here
+    </t>
+    </section>
+    <section title="Acknowledgments">
+    <t>
+    Some people probably helped me.
+    </t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      &RFC1889;
+      &RFC2119;
+      &I-D.ietf-mmusic-ice;
+    </references>
+    <references title="Informational References">
+
+      &RFC3261;
+      &RFC3489;
+      &I-D.ietf-behave-turn;
+    </references>
+  </back>
+</rfc>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: xml
+sgml-omittag:nil
+sgml-shorttag:nil
+sgml-namecase-general:nil
+sgml-general-insert-case:lower
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:nil
+sgml-parent-document:nil
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->
+
