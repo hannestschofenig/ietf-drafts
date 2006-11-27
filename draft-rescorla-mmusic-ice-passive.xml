@@ -78,8 +78,8 @@ o]>
     The basic principle behind ICE is that each entity collects all 
     the addresses on which it might potentially be able to send and
     receive data. These may include its local address, addresses
-    discovered via STUN <xref target="RFC3489/"> or addresses provided
-    by media relays <xref target="I-D.ietf-behave-turn-02"/>. The
+    discovered via STUN <xref target="RFC3489"/> or addresses provided
+    by media relays <xref target="I-D.ietf-behave-turn"/>. The
     peers then exchange these candidate addresses and try each 
     potential pairing in priority order
     until they find one that is satisfactory.
@@ -146,6 +146,7 @@ checks from other endpoints.</t>
   implementation. Two POIIs will 
   interoperate but will not do ICE.
   </t>
+  </section>
   <section title="Passive-Only ICE Specification" anchor="main.body">
   <section title="Gathering Candidates">
   <t>
@@ -156,11 +157,103 @@ checks from other endpoints.</t>
   has a public IP address.
   </t>
   <t>
-  See: S 2.1 (paragraphs 1,2), S 5.1 (paragraphs 1, 2, 3)
+  See: Sections 2.1 (paragraphs 1,2), 5.1 (paragraphs 1, 2, 3)
   </t>
+  </section>
   <section title="Setting Priorities">
   <t>
-
+  As with full-mode ICE, the candidates must be prioritized. 
+  However, a POII will only have one candidate type: host.
+  The type preference SHOULD be set to 126.
+  </t>
+  <t>The endpoint SHOULD set the local preferences counting down from
+  65535.  Thus, a dual-homed endpoint SHOULD use the values
+  65535 and 65534.
+  </t>
+  <t>
+  The component IDs are set as in RFC XXXX.
+  </t>
+  <t>
+  Using these settings, a singly-homed endpoint which wished to do
+  RTP only would have a single candidate with priority 2130706431 
+  (0x7effffff)
+  A dual-homed endpoint which preferred interface A to interface
+  B and wanted to do both RTP and RTCP would have:
+  </t>
+  <texttable>
+  <ttcol>Interface</ttcol><ttcol>Protocol</ttcol><ttcol>Priority</ttcol>
+  <c>A</c><c>RTP</c><c>2130706431 (0x7effffff)</c>
+  <c>A</c><c>RTCP</c><c>2130706430 (0x7efffffe)</c>
+  <c>B</c><c>RTP</c><c>2130706175 (0x7efffefe)</c>
+  <c>B</c><c>RTCP</c><c>2130706174 (0x7efffefe)</c>
+  </texttable>
+  <t>
+  See: Section 5.2.
+  </t>
+  </section>
+  <section title="Encoding Candidates in SDP">
+  <t>
+  Once the candidates are gathered, a POII must encode them in an SDP
+  offer or answer. All candidates MUST be marked as host candidates.
+  </t>
+  <t>
+  In addition, a POII must set the "a=ice-passive" session-level
+  attribute in order to indicate that it is not a full ICE implementation.
+  </t>
+  <t>
+  See: Sections 5.4, 6.7
+  </t>
+  </section>
+  <section title="Receiving SDP Offers/Answers">
+  <t>
+  [TODO]
+  </t>
+  </section>
+  <section title="Performing Checks">
+  <t>
+  A POII does not perform periodic checks, but it MUST respond to 
+  periodic checks and perform triggered checks. In order to do so,
+  it MUST maintain a primitive check list. However, unlike a full
+  implementation, this list is initially empty and is populated
+  only by the receipt of periodic checks from the peer endpoint.
+  </t>
+  <t>
+  <section title="Processing Periodic Checks">
+  <t>
+  During ICE discovery, a POII will Binding Requests on the bases
+  of some or all of the candidates it included in its most
+  recent offer or answer. When such a Binding Request is 
+  received, the POII MUST:
+  </t>
+  <list style="symbols">
+  <t>Generate a STUN binding response.</t>
+  <t>If the candidate pair is not currently on the check list
+     add it to the check list and start a triggered check for this
+     candidate pair.</t>
+  </list>
+  <t>
+  See: Sections 8.2 (paragraphs 1-6).
+  </t>
+  </section>
+  <section title="Performing Triggered Checks">
+  <t>
+  Triggered checks are performed exactly as described in RFC XXX.
+  </t>
+  <t>
+  See: Section 8.1.
+  </t>
+  <section title="Concluding ICE">
+  <t>
+  A POII may not be a controlling ICE endpoint. Therefore, from
+  its perspective ICE terminates when each component has at least
+  one Valid candidate pair marked selected (i.e., a check on
+  that candidate pair has been received with the USE-CANDIDATE
+  attribute set). 
+  </t>
+  <t>
+  See: Section 9.
+  </t>
+  </section>
   </section>
   <back>
     <references title="Normative References">
