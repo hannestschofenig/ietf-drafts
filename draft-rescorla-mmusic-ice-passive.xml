@@ -113,7 +113,55 @@ o]>
     </t>
     </section>
   </middle>
+  <section title="How to Read This Document">
+  <t>
+  This document is intended to mostly relieve the implementor of a passive-only
+  ICE implementation from the burden of having to read and understand all of
+  RFC XXXX [[Insert ICE RFC # here]
+  <xref target="I-D.ietf-mmusic-ice"/>. However, it is not intended to be a
+  standalone document. Rather it is intended to be read in conjunction
+  with RFC XXXX. We assume that the reader is roughly
+  familiar with how ICE works and has read at least Sections 1-3 of 
+  RFC XXXX.
+  <
+  Section <xref target="main.body"/>, contains a description of the
+  responsibilities of a POII (POII). Each section
+  follows the same pattern: expository text followed by a pointer
+  to the relevant section of RFC XXXX. 
+  </t>
+  </section>
+  <section title="Overview of Operation">
+  <t>
+  A POII behaves much like a normal ICE
+  implementation, with three major differences:
+  </t>
+  <list style="symbols">
+  <t>It only gathers candidate addresses from its own interfaces.</t>
+  <t>It cannot be a controlling endpoint.</t>
+  <t>It does not generate periodic checks but only responds to periodic
+checks from other endpoints.</t>
+  </list>
+  <t>
+  A POII can interoperate with a normal ICE
+  implementation. Two POIIs will 
+  interoperate but will not do ICE.
+  </t>
+  <section title="Passive-Only ICE Specification" anchor="main.body">
+  <section title="Gathering Candidates">
+  <t>
+  Like any ICE implementation, a POII gathers candidates. However,
+  unlike full ICE implementations, a POII gathers them only from
+  its locally attached interfaces (host candidates). Other kinds
+  of candidates are not necessary because a POII by definition
+  has a public IP address.
+  </t>
+  <t>
+  See: S 2.1 (paragraphs 1,2), S 5.1 (paragraphs 1, 2, 3)
+  </t>
+  <section title="Setting Priorities">
+  <t>
 
+  </section>
   <back>
     <references title="Normative References">
       &RFC1889;
