@@ -18,7 +18,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-rescorla-mmusic-ice-passive-00.txt" ipr="full3978">
+<rfc category="std" docName="draft-ietf-mmusic-ice-passive-00.txt" ipr="full3978">
   <front>
     <title abbrev="Passive ICE">Implementing Interactive Connectivity Establishment (ICE) in Passive-Only Mode</title>
 
@@ -104,12 +104,13 @@
     
     <section anchor="section.sec" title="Security Considerations">
     <t>
-    Security considerations go here
+    The security considerations for this document are the same as
+    those for full ICE. 
     </t>
     </section>
-    <section title="Acknowledgments">
+    <section title="IANA Considerations">
     <t>
-    Some people probably helped me.
+    This document has no actions for IANA.
     </t>
     </section>
   </middle>
@@ -207,7 +208,7 @@ checks from other endpoints.</t>
   </section>
   <section title="Receiving SDP Offers/Answers">
   <t>
-  [TODO]
+  [TODO]  
   </t>
   </section>
   <section title="Performing Checks">
