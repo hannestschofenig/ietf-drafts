@@ -3,7 +3,8 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                         Network Resonance
-Expires:  April 9, 2007                                 October 06, 2006
+Intended status:  Standards Track                       January 14, 2007
+Expires:  July 18, 2007
 
 
      Keying Material Extractors for Transport Layer Security (TLS)
@@ -32,17 +33,17 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on April 9, 2007.
+   This Internet-Draft will expire on July 18, 2007.
 
 Copyright Notice
 
-   Copyright (C) The Internet Society (2006).
+   Copyright (C) The Internet Society (2007).
 
 Abstract
 
    A number of protocols wish to leverage Transport Layer Security (TLS)
    to perform key establishment but then use some of the keying material
-   for their own purposes.  This documend describes a general mechanism
+   for their own purposes.  This document describes a general mechanism
    for allowing that.
 
 
@@ -51,10 +52,9 @@ Abstract
 
 
 
-
-Rescorla                  Expires April 9, 2007                 [Page 1]
+Rescorla                  Expires July 18, 2007                 [Page 1]
 
-Internet-Draft               TLS Extractors                 October 2006
+Internet-Draft               TLS Extractors                 January 2007
 
 
 Table of Contents
@@ -67,8 +67,8 @@ Table of Contents
    6.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 4
      6.1.  Normative References  . . . . . . . . . . . . . . . . . . . 4
      6.2.  Informational References  . . . . . . . . . . . . . . . . . 5
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 6
-   Intellectual Property and Copyright Statements  . . . . . . . . . . 7
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 5
+   Intellectual Property and Copyright Statements  . . . . . . . . . . 6
 
 
 
@@ -108,9 +108,9 @@ Table of Contents
 
 
 
-Rescorla                  Expires April 9, 2007                 [Page 2]
+Rescorla                  Expires July 18, 2007                 [Page 2]
 
-Internet-Draft               TLS Extractors                 October 2006
+Internet-Draft               TLS Extractors                 January 2007
 
 
 1.  Introduction
@@ -164,9 +164,9 @@ Internet-Draft               TLS Extractors                 October 2006
 
 
 
-Rescorla                  Expires April 9, 2007                 [Page 3]
+Rescorla                  Expires July 18, 2007                 [Page 3]
 
-Internet-Draft               TLS Extractors                 October 2006
+Internet-Draft               TLS Extractors                 January 2007
 
 
    from the master_secret.
@@ -181,8 +181,8 @@ Internet-Draft               TLS Extractors                 October 2006
    the same label to the same master_secret, it is critical that two EKM
    values generated with the same label be used for two different
    purposes--hence the requirement for IANA registration.  However,
-   because extractors depend on the TLS PRF, it is not a threat to use
-   of an EKM value generated from one label to reveal an EKM value
+   because extractors depend on the TLS PRF, it is not a threat to the
+   use of an EKM value generated from one label to reveal an EKM value
    generated from another label.
 
 
@@ -220,9 +220,9 @@ Internet-Draft               TLS Extractors                 October 2006
 
 
 
-Rescorla                  Expires April 9, 2007                 [Page 4]
+Rescorla                  Expires July 18, 2007                 [Page 4]
 
-Internet-Draft               TLS Extractors                 October 2006
+Internet-Draft               TLS Extractors                 January 2007
 
 
 6.2.  Informational References
@@ -231,54 +231,6 @@ Internet-Draft               TLS Extractors                 October 2006
         (DTLS) Extension to Establish Keys for  Secure Real-time
         Transport Protocol (SRTP)", draft-mcgrew-tls-srtp-00 (work in
         progress), June 2006.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla                  Expires April 9, 2007                 [Page 5]
-
-Internet-Draft               TLS Extractors                 October 2006
 
 
 Author's Address
@@ -324,20 +276,29 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-Rescorla                  Expires April 9, 2007                 [Page 6]
+Rescorla                  Expires July 18, 2007                 [Page 5]
 
-Internet-Draft               TLS Extractors                 October 2006
+Internet-Draft               TLS Extractors                 January 2007
 
 
-Intellectual Property Statement
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (2007).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
 
    The IETF takes no position regarding the validity or scope of any
    Intellectual Property Rights or other rights that might be claimed to
@@ -362,31 +323,14 @@ Intellectual Property Statement
    ietf-ipr@ietf.org.
 
 
-Disclaimer of Validity
-
-   This document and the information contained herein are provided on an
-   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
-   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
-   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
-   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
-   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
-   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-
-
-Copyright Statement
-
-   Copyright (C) The Internet Society (2006).  This document is subject
-   to the rights, licenses and restrictions contained in BCP 78, and
-   except as set forth therein, the authors retain all their rights.
-
-
 Acknowledgment
 
-   Funding for the RFC Editor function is currently provided by the
-   Internet Society.
+   Funding for the RFC Editor function is provided by the IETF
+   Administrative Support Activity (IASA).
 
 
 
 
-Rescorla                  Expires April 9, 2007                 [Page 7]
+
+Rescorla                  Expires July 18, 2007                 [Page 6]
 
