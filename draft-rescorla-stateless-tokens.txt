@@ -3,7 +3,8 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                         Network Resonance
-Expires:  April 9, 2007                                 October 06, 2006
+Intended status:  Standards Track                       January 14, 2007
+Expires:  July 18, 2007
 
 
            How to Implement Secure (Mostly) Stateless Tokens
@@ -32,11 +33,11 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on April 9, 2007.
+   This Internet-Draft will expire on July 18, 2007.
 
 Copyright Notice
 
-   Copyright (C) The Internet Society (2006).
+   Copyright (C) The Internet Society (2007).
 
 Abstract
 
@@ -51,10 +52,9 @@ Abstract
 
 
 
-
-Rescorla                  Expires April 9, 2007                 [Page 1]
+Rescorla                  Expires July 18, 2007                 [Page 1]
 
-Internet-Draft              Stateless Tokens                October 2006
+Internet-Draft              Stateless Tokens                January 2007
 
 
 Table of Contents
@@ -66,16 +66,18 @@ Table of Contents
      3.2.  Token Construction and Processing  . . . . . . . . . . . .  4
      3.3.  Invalidation and Supercession  . . . . . . . . . . . . . .  5
    4.  Example Token Format . . . . . . . . . . . . . . . . . . . . .  5
-   5.  ITLs Data Structures . . . . . . . . . . . . . . . . . . . . .  8
+     4.1.  Key Rollover . . . . . . . . . . . . . . . . . . . . . . .  8
+   5.  ITLs Data Structures . . . . . . . . . . . . . . . . . . . . .  9
      5.1.  Simple Lists . . . . . . . . . . . . . . . . . . . . . . .  9
      5.2.  Bit Fields . . . . . . . . . . . . . . . . . . . . . . . .  9
-     5.3.  Bloom Filters  . . . . . . . . . . . . . . . . . . . . . .  9
+     5.3.  Bloom Filters  . . . . . . . . . . . . . . . . . . . . . . 10
    6.  Security Considerations  . . . . . . . . . . . . . . . . . . . 10
      6.1.  Failure to Authenticate  . . . . . . . . . . . . . . . . . 10
-     6.2.  Failure to Encrypt . . . . . . . . . . . . . . . . . . . . 10
+     6.2.  Failure to Encrypt . . . . . . . . . . . . . . . . . . . . 11
      6.3.  Distinguishable Encryption . . . . . . . . . . . . . . . . 11
      6.4.  Replay Attacks . . . . . . . . . . . . . . . . . . . . . . 11
-   7.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . 11
+     6.5.  Token Binding  . . . . . . . . . . . . . . . . . . . . . . 12
+   7.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . 12
    8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 12
      8.1.  Normative References . . . . . . . . . . . . . . . . . . . 12
      8.2.  Informational References . . . . . . . . . . . . . . . . . 12
@@ -106,11 +108,9 @@ Table of Contents
 
 
 
-
-
-Rescorla                  Expires April 9, 2007                 [Page 2]
+Rescorla                  Expires July 18, 2007                 [Page 2]
 
-Internet-Draft              Stateless Tokens                October 2006
+Internet-Draft              Stateless Tokens                January 2007
 
 
 1.  Introduction
@@ -164,9 +164,9 @@ Internet-Draft              Stateless Tokens                October 2006
 
 
 
-Rescorla                  Expires April 9, 2007                 [Page 3]
+Rescorla                  Expires July 18, 2007                 [Page 3]
 
-Internet-Draft              Stateless Tokens                October 2006
+Internet-Draft              Stateless Tokens                January 2007
 
 
          Client                                   Server
@@ -196,8 +196,8 @@ Internet-Draft              Stateless Tokens                October 2006
    We assume that the server has some static cryptographic keying
    material, consisting of:
 
-           K_e -- an encryption key</t>
-           K_m -- a message integrity (MAC) key</t>
+           K_e -- an encryption key
+           K_m -- a message integrity (MAC) key
 
    These keys SHOULD be randomly generated and of sufficient length to
    match whatever cryptographic algorithms are in use.  They are stored
@@ -220,9 +220,9 @@ Internet-Draft              Stateless Tokens                October 2006
 
 
 
-Rescorla                  Expires April 9, 2007                 [Page 4]
+Rescorla                  Expires July 18, 2007                 [Page 4]
 
-Internet-Draft              Stateless Tokens                October 2006
+Internet-Draft              Stateless Tokens                January 2007
 
 
    2.  Multiple encryptions of the same value S produce different tokens
@@ -263,8 +263,7 @@ Internet-Draft              Stateless Tokens                October 2006
    issueing state n+1).  A number of techniques can be used to minimize
    the size of the ITL.  For instance, it may be stored in a Bloom
    filter or each token may be assigned an index with the ITL stored as
-   a bit field.  These options are examined in more detail in Section
-   XXX.
+   a bit field.  These options are examined in more detail in Section 5.
 
 
 4.  Example Token Format
@@ -276,21 +275,22 @@ Internet-Draft              Stateless Tokens                October 2006
 
 
 
-Rescorla                  Expires April 9, 2007                 [Page 5]
+
+Rescorla                  Expires July 18, 2007                 [Page 5]
 
-Internet-Draft              Stateless Tokens                October 2006
+Internet-Draft              Stateless Tokens                January 2007
 
 
-           0                   1                   2                   3
-         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-        +---------------------------------------------------------------+
-        |                           User Name                           |
-        |                           (64 bits)                           |
-        +---------------------------------------------------------------+
-        |                        E-mail address                         |
-        /                       (variable length)                       /
-        |                                                               |
-        +---------------------------------------------------------------+
+          0                   1                   2                   3
+        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+       +---------------------------------------------------------------+
+       |                           User Name                           |
+       |                           (64 bits)                           |
+       +---------------------------------------------------------------+
+       |                        E-mail address                         |
+       /                       (variable length)                       /
+       |                                                               |
+       +---------------------------------------------------------------+
 
    Figure 1:  Example state value
 
@@ -332,44 +332,44 @@ Internet-Draft              Stateless Tokens                October 2006
 
 
 
-Rescorla                  Expires April 9, 2007                 [Page 6]
+Rescorla                  Expires July 18, 2007                 [Page 6]
 
-Internet-Draft              Stateless Tokens                October 2006
+Internet-Draft              Stateless Tokens                January 2007
 
 
-           0                   1                   2                   3
-         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-        +-------------------------------+-------------------------------+ <-+
-        |   Version (16 bits)           | Protection Suite ID (16 bits) |   |
-        +---------------------------------------------------------------+ <-+-+
-        |                                                               |     |
-        |                   Initialization Vector (IV)                  |     |
-        |                      (typically 128 bits)                     |     |
-        |                                                               |     |
-    +-> +-------------------------------+-------------------------------+ <-+-+
-    |   |                   Expiration Time (32 bits)                   |   |
-    |   +---------------------------------------------------------------+   |
-    |   |                   Sequence Number (32 bits)                   |   |
-    |   +---------------------------------------------------------------+   |
-    |   |                                                               |   |
-    |   |                          State (S)                            |   |
-    |   /                       (Variable Length)                       /   |
-    |   |                                                               |   |
-    |   |                         +-------------------------------------+   |
-    |   |                         |               Padding               |   |
-    |   +-------------------------+           Variable length           |   |
-    |   |                                                               |   |
-    +-> +---------------------------------------------------------------+ <-+
-    |   |                                                               |   |
-    |   |                            MAC                                |   |
-    |   |                    (Typically 160 bits)                       |   |
-    |   |                                                               |   |
-    |   |                                                               |   |
-    |   +---------------------------------------------------------------+   |
-    |                                                                       |
-    |                                                                       |
-    Encrypted                                                   Authenticated
-    Portion                                                           Portion
+        0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-------------------------------+-------------------------------+ <-+
+     |   Version (16 bits)           | Protection Suite ID (16 bits) |   |
+     +---------------------------------------------------------------+ <-+-+
+     |                                                               |     |
+     |                   Initialization Vector (IV)                  |     |
+     |                      (typically 128 bits)                     |     |
+     |                                                               |     |
+ +-> +-------------------------------+-------------------------------+ <-+-+
+ |   |                   Expiration Time (32 bits)                   |   |
+ |   +---------------------------------------------------------------+   |
+ |   |                   Sequence Number (32 bits)                   |   |
+ |   +---------------------------------------------------------------+   |
+ |   |                                                               |   |
+ |   |                          State (S)                            |   |
+ |   /                       (Variable Length)                       /   |
+ |   |                                                               |   |
+ |   |                         +-------------------------------------+   |
+ |   |                         |               Padding               |   |
+ |   +-------------------------+           Variable length           |   |
+ |   |                                                               |   |
+ +-> +---------------------------------------------------------------+ <-+
+ |   |                                                               |   |
+ |   |                            MAC                                |   |
+ |   |                    (Typically 160 bits)                       |   |
+ |   |                                                               |   |
+ |   |                                                               |   |
+ |   +---------------------------------------------------------------+   |
+ |                                                                       |
+ |                                                                       |
+ Encrypted                                                   Authenticated
+ Portion                                                           Portion
 
 
    Figure 2:  Example stateless token format
@@ -388,9 +388,9 @@ Internet-Draft              Stateless Tokens                October 2006
 
 
 
-Rescorla                  Expires April 9, 2007                 [Page 7]
+Rescorla                  Expires July 18, 2007                 [Page 7]
 
-Internet-Draft              Stateless Tokens                October 2006
+Internet-Draft              Stateless Tokens                January 2007
 
 
    2.  Generate a random 128-bit initialization vector.
@@ -433,21 +433,30 @@ Internet-Draft              Stateless Tokens                October 2006
    5.  If applicable, verify that the token is not on the ITL.
    6.  Deliver the token to the application
 
+4.1.  Key Rollover
+
+   One concern that people sometimes have is that you may wish to
+   periodically roll over keys.  In general, this is not necessary since
+   modern cryptosystems do not require rekeying with the traffic volumes
+   relevant here.  If this is a concern, then there are several easy
+   options, including adding a key ID, placing the sequence number in
+   the clear, or overloading the IV or protection suite ID.  If only a
+
+
+
+Rescorla                  Expires July 18, 2007                 [Page 8]
+
+Internet-Draft              Stateless Tokens                January 2007
+
+
+   few keys are used, trial verification can be used to determine which
+   one is active.
+
 
 5.  ITLs Data Structures
 
    In this section, we discuss three data structures for maintaining the
    ITL.
-
-
-
-
-
-
-Rescorla                  Expires April 9, 2007                 [Page 8]
-
-Internet-Draft              Stateless Tokens                October 2006
-
 
 5.1.  Simple Lists
 
@@ -489,6 +498,13 @@ Internet-Draft              Stateless Tokens                October 2006
    The bitmask may also be stored compressed (e.g., run length encoded),
    though of course this provides slower access.
 
+
+
+Rescorla                  Expires July 18, 2007                 [Page 9]
+
+Internet-Draft              Stateless Tokens                January 2007
+
+
 5.3.  Bloom Filters
 
    With lower invalidation rates, Bloom filters [9] can be used to store
@@ -497,17 +513,9 @@ Internet-Draft              Stateless Tokens                October 2006
    rates).  They have the drawback that they have false positives
    (tokens which appear to be invalidated but are not in fact invalid).
    In settings where the state being stored is soft (e.g., [4]), this
-
-
-
-Rescorla                  Expires April 9, 2007                 [Page 9]
-
-Internet-Draft              Stateless Tokens                October 2006
-
-
    isn't a problem but when it is hard state, then it can be.  The Bloom
    filter can be tuned for arbitrary false positive rates, but improved
-   specificity requires larger Bloom filter sized.
+   specificity requires larger Bloom filter sizes.
 
    Another issue with simple Bloom filters is that they do not allow you
    to delete entries from the ITL when the token expires.  The result is
@@ -545,6 +553,14 @@ Internet-Draft              Stateless Tokens                October 2006
    its first block will decrypt to EQ || SEQ || I', thus allowing a user
    to pose as any other user.  Such attacks are much more serious with
    CTR mode, where the whole plaintext may be tampered with.  This is
+
+
+
+Rescorla                  Expires July 18, 2007                [Page 10]
+
+Internet-Draft              Stateless Tokens                January 2007
+
+
    simply a special case of the general cryptographic rule that
    encryption cannot be counted on to provide integrity.
 
@@ -553,14 +569,6 @@ Internet-Draft              Stateless Tokens                October 2006
    Encryption of tokens is not strictly necessary in order to provide
    integrity for the tokens.  However, in most settings it is desirable
    to provide confidentiality.  In the case of TLS tickets, that is
-
-
-
-Rescorla                  Expires April 9, 2007                [Page 10]
-
-Internet-Draft              Stateless Tokens                October 2006
-
-
    because secret keying material is carried in the token.  In the case
    of GRUUs one of the purposes of the construction is to provide
    privacy.  Therefore, despite the possibility that confidentiality is
@@ -601,20 +609,39 @@ Internet-Draft              Stateless Tokens                October 2006
    another, the necessity for invalidating the old state is less
    obvious.  However, the failure to do so subjects you to replay
    attacks.  Implementations which replace state tokens therefore need
+
+
+
+Rescorla                  Expires July 18, 2007                [Page 11]
+
+Internet-Draft              Stateless Tokens                January 2007
+
+
    to maintain invalid token lists.
+
+6.5.  Token Binding
+
+   In order to prevent a token from being used outside its intended
+   context it may be necessary to bind the token to a set of verifiable
+   information associated with the intended context.  For example, if a
+   token belongs to a particular user then including the username in the
+   token allows the server to verify that the user authenticated during
+   the current session is indeed the user that was issued the token.
+   Another possibility is to bind the token to a particular key that the
+   client possess and is included in the token (note that in this case
+   the token must be encrypted).  Other information may be bound within
+   the token, which may further limit its use in other contexts.  In
+   some cases privacy or other considerations may prevent inserting this
+   information into the token.  In these cases the system should attempt
+   prevent the disclosure of the token to third parties through the use
+   of encryption and other access control mechanisms.
 
 
 7.  Acknowledgments
 
-   The material in Section 5 is based on the analysis in [8].
-
-
-
-
-
-Rescorla                  Expires April 9, 2007                [Page 11]
-
-Internet-Draft              Stateless Tokens                October 2006
+   The material in Section 5 is based on the analysis in [8].  The
+   material in Section 6.5 was contributed by Joe Salowey.  Thanks to
+   Joe Salowey for review comments.
 
 
 8.  References
@@ -638,6 +665,14 @@ Internet-Draft              Stateless Tokens                October 2006
          Server-Side State", RFC 4507, May 2006.
 
    [5]   Rosenberg, J., "Obtaining and Using Globally Routable User
+
+
+
+Rescorla                  Expires July 18, 2007                [Page 12]
+
+Internet-Draft              Stateless Tokens                January 2007
+
+
          Agent (UA) URIs (GRUU) in the  Session Initiation Protocol
          (SIP)", draft-ietf-sip-gruu-11 (work in progress),
          October 2006.
@@ -658,19 +693,6 @@ Internet-Draft              Stateless Tokens                October 2006
 
    [10]  Fan, L., Cao, P., Almeida, J., and A. Broder, "Summary Cache: A
          Scalable Wide-Area Web Cache Sharing Protocol", SIGCOMM .
-
-
-
-
-
-
-
-
-
-
-Rescorla                  Expires April 9, 2007                [Page 12]
-
-Internet-Draft              Stateless Tokens                October 2006
 
 
 Author's Address
@@ -702,34 +724,29 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla                  Expires April 9, 2007                [Page 13]
+Rescorla                  Expires July 18, 2007                [Page 13]
 
-Internet-Draft              Stateless Tokens                October 2006
+Internet-Draft              Stateless Tokens                January 2007
 
 
-Intellectual Property Statement
+Full Copyright Statement
+
+   Copyright (C) The Internet Society (2007).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
 
    The IETF takes no position regarding the validity or scope of any
    Intellectual Property Rights or other rights that might be claimed to
@@ -754,31 +771,14 @@ Intellectual Property Statement
    ietf-ipr@ietf.org.
 
 
-Disclaimer of Validity
-
-   This document and the information contained herein are provided on an
-   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
-   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
-   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
-   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
-   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
-   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-
-
-Copyright Statement
-
-   Copyright (C) The Internet Society (2006).  This document is subject
-   to the rights, licenses and restrictions contained in BCP 78, and
-   except as set forth therein, the authors retain all their rights.
-
-
 Acknowledgment
 
-   Funding for the RFC Editor function is currently provided by the
-   Internet Society.
+   Funding for the RFC Editor function is provided by the IETF
+   Administrative Support Activity (IASA).
 
 
 
 
-Rescorla                  Expires April 9, 2007                [Page 14]
+
+Rescorla                  Expires July 18, 2007                [Page 14]
 
