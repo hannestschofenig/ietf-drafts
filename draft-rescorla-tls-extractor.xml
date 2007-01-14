@@ -42,12 +42,12 @@ o]>
       </address>
     </author>
 
-    <date day="06" month="October" year="2006" />
+    <date day="14" month="January" year="2007" />
 
     <abstract>
       <t>A number of protocols wish to leverage Transport Layer Security (TLS)
       to perform key establishment but then use some of the keying material
-      for their own purposes. This documend describes a general mechanism
+      for their own purposes. This document describes a general mechanism
       for allowing that.
       </t>
     </abstract>
@@ -127,7 +127,7 @@ o]>
     for two different purposes--hence the requirement for IANA
     registration. 
     However, because extractors depend on the TLS PRF, it is not a
-    threat to use of an EKM value generated from one label to reveal an
+    threat to the use of an EKM value generated from one label to reveal an
     EKM value generated from another label.
     </t>
     </section>
