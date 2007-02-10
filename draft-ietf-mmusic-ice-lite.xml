@@ -104,7 +104,7 @@
     </section>
   <section title="Overview of Operation" anchor="overview.operation">
   <t>
-  A LII behaves much like a normal ICE
+  A Lite Ice Implementation (LII) behaves much like a normal ICE
   implementation, with three major differences:
   </t>
   <list style="symbols">
@@ -209,7 +209,9 @@
   its locally attached interfaces (host candidates). Other kinds
   of candidates are not necessary because a LII by definition
   has a public IP address. A LII may offer only one candidate per
-  component.
+  component. Note that this process is the same as what a non-ICE
+  implementation does, namely allocating ports from the local
+  interface.
   </t>
   <t>
   See: Sections 2.1 (paragraphs 1,2), 4.1 (paragraphs 1-4), 4.2
@@ -217,7 +219,8 @@
   </section>
   <section title="Setting Priorities">
   <t>
-  As with full-mode ICE, the candidates must be prioritized. 
+  As with full-mode ICE, the candidates must be prioritized,
+  using the algorithm defined in RFC XXX S 4.1.2.
   However, a LII will only have one candidate type: host.
   The type preference SHOULD be set to 126.
   </t>
@@ -242,7 +245,10 @@
   <section title="Encoding Candidates in SDP">
   <t>
   Once the candidates are gathered, a LII must encode them in an SDP
-  offer or answer. All candidates MUST be marked as host candidates.
+  offer or answer. Each candidate contains the IP address and port
+  of the candidate and the priority computed in the previous sectoin.
+  There will be one candidate for each component.
+  All candidates MUST be marked as host candidates.
   </t>
   <t>
   In addition, a LII must set the "a=ice-lite" session-level
