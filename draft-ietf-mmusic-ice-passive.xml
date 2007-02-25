@@ -211,14 +211,6 @@ checks from other endpoints.</t>
   [TODO]  
   </t>
   </section>
-  <section title="Performing Checks">
-  <t>
-  A POII does not perform periodic checks, but it MUST respond to 
-  periodic checks and perform triggered checks. In order to do so,
-  it MUST maintain a primitive check list. However, unlike a full
-  implementation, this list is initially empty and is populated
-  only by the receipt of periodic checks from the peer endpoint.
-  </t>
   <section title="Processing Periodic Checks">
   <t>
   During ICE discovery, a POII will Binding Requests on the bases
@@ -236,10 +228,6 @@ checks from other endpoints.</t>
   See: Sections 8.2 (paragraphs 1-6).
   </t>
   </section>
-  <section title="Performing Triggered Checks">
-  <t>
-  Triggered checks are performed exactly as described in RFC XXX.
-  </t>
   <t>
   See: Section 8.1.
   </t>

@@ -3,8 +3,7 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                         Network Resonance
-Intended status:  Standards Track                      November 06, 2006
-Expires:  May 10, 2007
+Expires:  May 10, 2007                                 November 06, 2006
 
 
  Implementing Interactive Connectivity Establishment (ICE) in Lite Mode
@@ -52,6 +51,7 @@ Abstract
 
 
 
+
 Rescorla                  Expires May 10, 2007                  [Page 1]
 
 Internet-Draft                  Lite ICE                   November 2006
@@ -59,24 +59,24 @@ Internet-Draft                  Lite ICE                   November 2006
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 3
-   2.  Conventions Used In This Document . . . . . . . . . . . . . . . 3
-   3.  Overview of Operation . . . . . . . . . . . . . . . . . . . . . 3
-   4.  How to Read This Document . . . . . . . . . . . . . . . . . . . 5
-   5.  Lite ICE Specification  . . . . . . . . . . . . . . . . . . . . 5
-     5.1.  Gathering Candidates  . . . . . . . . . . . . . . . . . . . 5
-     5.2.  Setting Priorities  . . . . . . . . . . . . . . . . . . . . 5
-     5.3.  Encoding Candidates in SDP  . . . . . . . . . . . . . . . . 6
-     5.4.  Receiving SDP Offers/Answers  . . . . . . . . . . . . . . . 6
-     5.5.  Processing Periodic Checks  . . . . . . . . . . . . . . . . 6
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . . . 7
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 7
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 7
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . . . 7
-     8.2.  Informational References  . . . . . . . . . . . . . . . . . 7
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 7
-   Intellectual Property and Copyright Statements  . . . . . . . . . . 9
-
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
+   2.  Conventions Used In This Document  . . . . . . . . . . . . . .  3
+   3.  Overview of Operation  . . . . . . . . . . . . . . . . . . . .  3
+   4.  How to Read This Document  . . . . . . . . . . . . . . . . . .  5
+   5.  Lite ICE Specification . . . . . . . . . . . . . . . . . . . .  5
+     5.1.  Gathering Candidates . . . . . . . . . . . . . . . . . . .  5
+     5.2.  Setting Priorities . . . . . . . . . . . . . . . . . . . .  5
+     5.3.  Encoding Candidates in SDP . . . . . . . . . . . . . . . .  6
+     5.4.  Receiving SDP Offers/Answers . . . . . . . . . . . . . . .  6
+     5.5.  Processing Periodic Checks . . . . . . . . . . . . . . . .  6
+     5.6.  Keepalives . . . . . . . . . . . . . . . . . . . . . . . .  7
+   6.  Security Considerations  . . . . . . . . . . . . . . . . . . .  7
+   7.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . .  7
+   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . .  7
+     8.1.  Normative References . . . . . . . . . . . . . . . . . . .  7
+     8.2.  Informational References . . . . . . . . . . . . . . . . .  8
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . .  9
+   Intellectual Property and Copyright Statements . . . . . . . . . . 10
 
 
 
@@ -152,8 +152,8 @@ Internet-Draft                  Lite ICE                   November 2006
 
 3.  Overview of Operation
 
-   A LII behaves much like a normal ICE implementation, with three major
-   differences:
+   A Lite Ice Implementation (LII) behaves much like a normal ICE
+   implementation, with three major differences:
    o  It only gathers candidate addresses from its own interfaces.
    o  It cannot be a controlling endpoint.
    o  It does not generate checks but only responds to periodic checks
@@ -257,22 +257,22 @@ Internet-Draft                  Lite ICE                   November 2006
    unlike full ICE implementations, a LII gathers them only from its
    locally attached interfaces (host candidates).  Other kinds of
    candidates are not necessary because a LII by definition has a public
-   IP address.  A LII may offer only one candidate per component.
+   IP address.  A LII may offer only one candidate per component.  Note
+   that this process is the same as what a non-ICE implementation does,
+   namely allocating ports from the local interface.
 
    See:  Sections 2.1 (paragraphs 1,2), 4.1 (paragraphs 1-4), 4.2
 
 5.2.  Setting Priorities
 
-   As with full-mode ICE, the candidates must be prioritized.  However,
-   a LII will only have one candidate type:  host.  The type preference
-   SHOULD be set to 126.
+   As with full-mode ICE, the candidates must be prioritized, using the
+   algorithm defined in RFC XXX S 4.1.2.  However, a LII will only have
+   one candidate type:  host.  The type preference SHOULD be set to 126.
 
    The endpoint SHOULD set the local preference to 65535.
 
    The component IDs are set as in RFC XXXX.  For RTP this means
    component ID 1 and RTCP component ID 2.
-
-   Using these settings, an endpoint which wished to do RTP only would
 
 
 
@@ -281,6 +281,7 @@ Rescorla                  Expires May 10, 2007                  [Page 5]
 Internet-Draft                  Lite ICE                   November 2006
 
 
+   Using these settings, an endpoint which wished to do RTP only would
    have a single candidate with priority 2130706431 (0x7effffff).
 
    An endpoint which to do both RTP and RTCP would have priotities
@@ -291,7 +292,10 @@ Internet-Draft                  Lite ICE                   November 2006
 5.3.  Encoding Candidates in SDP
 
    Once the candidates are gathered, a LII must encode them in an SDP
-   offer or answer.  All candidates MUST be marked as host candidates.
+   offer or answer.  Each candidate contains the IP address and port of
+   the candidate and the priority computed in the previous sectoin.
+   There will be one candidate for each component.  All candidates MUST
+   be marked as host candidates.
 
    In addition, a LII must set the "a=ice-lite" session-level attribute
    in order to indicate that it is not a full ICE implementation.
@@ -321,7 +325,22 @@ Internet-Draft                  Lite ICE                   November 2006
 
    o  Generate a STUN binding response.
    o  If the request contains the USE-CANDIDATE flag, create a new
-      candidate pair, add it to the Valid list and mark it "favored".
+      candidate pair corresponding to the addresses in the STUN request,
+      add it to the Valid list and mark it "favored".
+
+   As with ordinary ICE, the LII must combine its ufrag with the peers
+
+
+
+Rescorla                  Expires May 10, 2007                  [Page 6]
+
+Internet-Draft                  Lite ICE                   November 2006
+
+
+   ufrag and use the correct password (from the SDP) to integrity check
+   the STUN request.  Once the request has been integrity checked, the
+   LII generates a STUN response containing the transport-level source
+   address in the XOR-MAPPED-ADDRESS field.
 
    Media may be sent on a candidate pair as soon as it is added to the
    Valid list.  Once there is at least one entry on the Valid list for
@@ -329,12 +348,12 @@ Internet-Draft                  Lite ICE                   November 2006
 
    See:  Sections 7.2, 7.2.2, Section 8.
 
+5.6.  Keepalives
 
+   Like all ICE implementations, all LIIs must send keepalives on active
+   candiate pairs.
 
-
-Rescorla                  Expires May 10, 2007                  [Page 6]
-
-Internet-Draft                  Lite ICE                   November 2006
+   See:  Section 11.
 
 
 6.  Security Considerations
@@ -364,6 +383,16 @@ Internet-Draft                  Lite ICE                   November 2006
         Offer/Answer Protocols", draft-ietf-mmusic-ice-13 (work in
         progress), January 2007.
 
+
+
+
+
+
+Rescorla                  Expires May 10, 2007                  [Page 7]
+
+Internet-Draft                  Lite ICE                   November 2006
+
+
 8.2.  Informational References
 
    [4]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston, A.,
@@ -388,7 +417,34 @@ Internet-Draft                  Lite ICE                   November 2006
 
 
 
-Rescorla                  Expires May 10, 2007                  [Page 7]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                  Expires May 10, 2007                  [Page 8]
 
 Internet-Draft                  Lite ICE                   November 2006
 
@@ -444,29 +500,12 @@ Author's Address
 
 
 
-Rescorla                  Expires May 10, 2007                  [Page 8]
+Rescorla                  Expires May 10, 2007                  [Page 9]
 
 Internet-Draft                  Lite ICE                   November 2006
 
 
-Full Copyright Statement
-
-   Copyright (C) The Internet Society (2006).
-
-   This document is subject to the rights, licenses and restrictions
-   contained in BCP 78, and except as set forth therein, the authors
-   retain all their rights.
-
-   This document and the information contained herein are provided on an
-   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
-   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
-   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
-   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
-   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
-   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-
-
-Intellectual Property
+Intellectual Property Statement
 
    The IETF takes no position regarding the validity or scope of any
    Intellectual Property Rights or other rights that might be claimed to
@@ -491,14 +530,31 @@ Intellectual Property
    ietf-ipr@ietf.org.
 
 
+Disclaimer of Validity
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
+   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
+   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
+   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Copyright Statement
+
+   Copyright (C) The Internet Society (2006).  This document is subject
+   to the rights, licenses and restrictions contained in BCP 78, and
+   except as set forth therein, the authors retain all their rights.
+
+
 Acknowledgment
 
-   Funding for the RFC Editor function is provided by the IETF
-   Administrative Support Activity (IASA).
+   Funding for the RFC Editor function is currently provided by the
+   Internet Society.
 
 
 
 
-
-Rescorla                  Expires May 10, 2007                  [Page 9]
+Rescorla                  Expires May 10, 2007                 [Page 10]
 

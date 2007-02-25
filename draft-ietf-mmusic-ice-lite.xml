@@ -286,9 +286,17 @@
   <list style="symbols">
   <t>Generate a STUN binding response.</t>
   <t>If the request contains the USE-CANDIDATE flag, create
-  a new candidate pair, add it to the Valid list and mark it "favored".</t>
+  a new candidate pair corresponding to the addresses in the STUN
+  request, add it to the Valid list and mark it "favored".</t>
   </list>
   </t>
+  <t>
+  As with ordinary ICE, the LII must combine its ufrag with the peers
+  ufrag and use the correct password (from the SDP) to integrity
+  check the STUN request. Once the request has been integrity checked,
+  the LII generates a STUN response containing the transport-level
+  source address in the XOR-MAPPED-ADDRESS field.
+</t>
   <t>
   Media may be sent on a candidate pair as soon as it is added to the
   Valid list.
@@ -297,6 +305,15 @@
   </t>
   <t>  
   See: Sections 7.2, 7.2.2, Section 8.
+  </t>
+  </section>
+  <section title="Keepalives">
+  <t>
+  Like all ICE implementations, all LIIs must send keepalives on 
+  active candiate pairs and be prepared to receive keepalives.
+  </t>
+  <t>
+  See: Section 11.
   </t>
   </section>
   </section>
