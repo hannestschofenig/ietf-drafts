@@ -13,6 +13,9 @@
 <!ENTITY I-D.ietf-tls-rfc3546bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc3546bis.xml">
 <!ENTITY I-D.ietf-behave-rfc3489bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-behave-rfc3489bis.xml">
 <!ENTITY I-D.mcgrew-srtp-big-aes SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.mcgrew-srtp-big-aes.xml">
+<!ENTITY I-D.ietf-avt-rtp-and-rtcp-mux SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avt-rtp-and-rtcp-mux.xml">
+<!ENTITY I-D.rescorla-tls-extractor SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.rescorla-tls-extractor.xml">
+
 ]>
 <!-- $Id -->
 <?rfc inline="yes"?>
@@ -23,7 +26,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-mcgrew-tls-srtp-00.txt" ipr="full3978">
+<rfc category="std" docName="draft-mcgrew-tls-srtp-02.txt" ipr="full3978">
   <front>
     <title abbrev="SRTP Extension for DTLS">Datagram Transport Layer Security
     (DTLS) Extension to Establish Keys for Secure Real-time Transport Protocol
@@ -69,7 +72,7 @@
       </address>
     </author>
 
-    <date day="10" month="June" year="2006" />
+    <date day="10" month="March" year="2007" />
 
     <abstract>
       <t>The Secure Real-time Transport Protocol (SRTP) is a profile of the
@@ -151,16 +154,41 @@
       <t>In this section we define the DTLS extension and its use.</t>
 
       <section title="Usage Model">
-        <t>DTLS-SRTP is defined for point-to-point media sessions, in
+        <t>
+        DTLS-SRTP is defined for point-to-point media sessions, in
         which there are exactly two participants.  Each DTLS-SRTP
         session contains a single DTLS association (called a
-        "connection" in TLS jargon), and an SRTP context.  Each RTCP
-        flow is protected by a separate DTLS-SRTP session that is
-        independent from the DTLS-SRTP session that protects the RTP
-        packet flow.  Between a single pair of participants, there may
-        be multiple media sessions; each session MUST have its own
-        DTLS-SRTP session. One or both of the DTLS-SRTP session
-        participants MAY be RTP mixers. </t>
+        "connection" in TLS jargon), and an SRTP context.  
+        A single DTLS-SRTP session only protects data 
+        carried over a single UDP source and destination port pair.
+        </t>
+        <t>
+	  If both RTCP and RTP use the same source and destination
+	  ports <xref target="I-D.ietf-avt-rtp-and-rtcp-mux" />, then
+	  the both the RTCP packets and the RTP packets are protected
+	  by a single DTLS-SRTP session.  Otherwise, each RTCP flow is
+	  protected by a separate DTLS-SRTP session that is
+	  independent from the DTLS-SRTP session that protects the RTP
+	  packet flow.  
+        </t>
+        <t>
+          Symmetric RTP is the case in which there are two RTP
+          sessions that have their source and destination ports
+          and addresses reversed, in a manner similar to the way
+          that a TCP connection uses its ports.  Each participant
+          has an inbound RTP session and an outbound RTP session.
+          When symmetric RTP is used, a single DTLS-SRTP session
+          can protect both of the RTP sessions.  
+         </t>
+          <t> Between a single pair of participants, there may be
+          multiple media sessions.  There MUST be a separate DTLS-SRTP
+          session for each distinct pair of source and destination
+          ports used by a media session (though the sessions can
+	  share a single DTLS session!).  One or both of the DTLS-SRTP
+          session participants MAY be RTP mixers.
+          </t>
+
+
 
         <t>A DTLS-SRTP session can be indicated by an external signaling
         protocol like SIP. When the signaling exchange is integrity-protected
@@ -170,21 +198,23 @@
         DTLS-SRTP sessions in SIP and SDP, and how to authenticate the
         endpoints using fingerprints can be found in <xref
         target="I-D.fischl-mmusic-sdp-dtls"></xref> and <xref
-        target="I-D.fischl-sipping-media-dtls"></xref>.<!-- TODO: We need to check the "two m-lines" issue --></t>
+        target="I-D.fischl-sipping-media-dtls"></xref>.
 
-        <t>Each RTP stream participates in a single DTLS session. In a naive
-        implementation, this results in new DTLS session establishment
-        (complete with public key cryptography) for each media channel. For
-        example, a videophone may be sending both an audio stream and a video
-        stream, each of which would use a separate DTLS session establishment
-        exchange, which would proceed in parallel. As an optimization, the
-        DTLS-SRTP implementation SHOULD use the following strategy: a single
-        DTLS connection is established, and all other DTLS sessions wait until
-        that connection is established before proceeding with their session
-        establishment exchanges. This strategy allows the later sessions to
-        use the DTLS session re-start, which allows the amortization of the
-        expensive public key cryptography operations over multiple DTLS
-        session establishment instances.</t>
+        <t>In a naive implementation, when there are multiple media
+        sessions, there is a new DTLS session establishment (complete
+        with public key cryptography) for each media channel. For
+        example, a videophone may be sending both an audio stream and
+        a video stream, each of which would use a separate DTLS
+        session establishment exchange, which would proceed in
+        parallel. As an optimization, the DTLS-SRTP implementation
+        SHOULD use the following strategy: a single DTLS connection is
+        established, and all other DTLS sessions wait until that
+        connection is established before proceeding with their session
+        establishment exchanges. This strategy allows the later
+        sessions to use the DTLS session re-start, which allows the
+        amortization of the expensive public key cryptography
+        operations over multiple DTLS session establishment
+        instances.</t>
 
         <t><!--
     One issue that arises in this context is multiple RTP sender over
@@ -297,13 +327,16 @@
    </artwork>
           </figure>
 
-          <t>The following list indicates the SRTP transform parameters for
-          each protection profile. The parameters cipher_key_length,
-          cipher_salt_length, auth_key_length, and auth_tag_length express the
-          number of bits in the values to which they refer. The
-          maximum_lifetime parameter indicates the maximum number of packets
-          that can be protected with each single set of keys when the
-          parameter profile is in use.</t>
+          <t>The following list indicates the SRTP transform
+          parameters for each protection profile. The parameters
+          cipher_key_length, cipher_salt_length, auth_key_length, and
+          auth_tag_length express the number of bits in the values to
+          which they refer. The maximum_lifetime parameter indicates
+          the maximum number of packets that can be protected with
+          each single set of keys when the parameter profile is in
+          use.  All of these parameters apply to both RTP and RTCP,
+          unless the RTCP parameters are separately specified.
+	  </t>
 	  <t>
 	    All of the crypto algorithms in these profiles are from
 	    <xref target="RFC3711"/>, except for the AES256_CM cipher,
@@ -362,9 +395,8 @@
                   <t>auth_tag_length: 80</t>
                 </list></t>
 
-              <t hangText="SRTP_AES128_CM_HMAC_SHA1_32">Because of the short
-              authentication tag provides limited authentication, this profile
-              SHOULD NOT be used with RTCP. <list>
+              <t hangText="SRTP_AES128_CM_HMAC_SHA1_32">
+		<list>
                   <t>cipher: AES_128_CM</t>
 
                   <t>cipher_key_length: 128</t>
@@ -378,6 +410,8 @@
                   <t>auth_key_length: 160</t>
 
                   <t>auth_tag_length: 32</t>
+
+                  <t>RTCP auth_tag_length: 80</t>
                 </list></t>
 
               <t hangText="SRTP_AES256_CM_HMAC_SHA1_80"><list>
@@ -396,9 +430,8 @@
                   <t>auth_tag_length: 80</t>
                 </list></t>
 
-              <t hangText="SRTP_AES256_CM_HMAC_SHA1_32">Because of the short
-              authentication tag provides limited authentication, this profile
-              SHOULD NOT be used with RTCP. <list>
+              <t hangText="SRTP_AES256_CM_HMAC_SHA1_32">
+		<list>
                   <t>cipher: AES_128_CM</t>
 
                   <t>cipher_key_length: 128</t>
@@ -412,6 +445,8 @@
                   <t>auth_key_length: 160</t>
 
                   <t>auth_tag_length: 32</t>
+
+                  <t>RTCP auth_tag_length: 80</t>
                 </list></t>
 
               <!--
@@ -457,9 +492,8 @@
                   <t>auth_tag_length: 80</t>
                 </list></t>
 
-              <t hangText="SRTP_NULL_HMAC_SHA1_32">Because the short
-              authentication tag provides limited authentication, this profile
-              SHOULD NOT be used with RTCP. <list>
+              <t hangText="SRTP_NULL_HMAC_SHA1_32">
+		<list>
                   <t>cipher: NULL</t>
 
                   <t>cipher_key_length: 0</t>
@@ -473,6 +507,8 @@
                   <t>auth_key_length: 160</t>
 
                   <t>auth_tag_length: 32</t>
+
+                  <t>RTCP auth_tag_length: 80</t>
                 </list></t>
             </list> With all of these SRTP Parameter profiles, the following
           SRTP options are in effect: <list>
@@ -492,11 +528,12 @@
           target="I-D.ietf-mmusic-sdescriptions"></xref>.</t>
 
 	  <t>
-	    Applications using DTLS-SRTP SHOULD coordinate the SRTP 
-	    Protection Profiles between the DTLS-SRTP session
-	    that protects an RTP flow and the DTLS-SRTP session
-	    that protects the associated RTCP flow.  In particular,
-	    identical ciphers SHOULD be used.
+	    Applications using DTLS-SRTP SHOULD coordinate the SRTP
+	    Protection Profiles between the DTLS-SRTP session that
+	    protects an RTP flow and the DTLS-SRTP session that
+	    protects the associated RTCP flow (in those case in which
+	    the RTP and RTCP are not multiplexed over a common port).
+	    In particular, identical ciphers SHOULD be used.
 	    </t>
 
           <t>New SRTPProtectionProfile values must be defined by RFC 2434
@@ -559,7 +596,13 @@ This artwork is too big to fit in an RFC!  Should we rename SRTPSecurityParamete
 to SRTPparameters?
 -->
         </figure>
-
+	
+	<t>NOTE:
+	It would probably be more attractive to use a TLS extractor
+	as defined in <xref target="I-D.rescorla-tls-extractor/">.
+	However, this technique has not yet been vetted by the
+	TLS WG and therefore this remains an open issue.
+	</t>
         <t>The last four values are provided as inputs to the SRTP key
         derivation mechanism, as shown in <xref target="KeyFig"></xref> and
         detailed below. By default, the mechanism defined in Section 4.3 of
@@ -602,12 +645,18 @@ to SRTPparameters?
         </figure>
 
 	<t>
-	  Each DTLS-SRTP session protects the part of an SRTP session
-	  that passes over a single source/destinaation transport
-	  address pair, as shown in <xref target="SessionFig"/>.  When
-	  SRTP is run over that port, the SRTCP keys are not needed
-	  and are discarded.  When SRTCP is run over that port, the
-	  SRTP keys are not needed and are discarded.
+	  When both RTCP and RTP use the same source and destination
+	  ports, then both the SRTP and SRTCP keys are need.
+	  Otherwise, there are two DTLS-SRTP sessions, one of which
+	  protects the RTP packets and one of which protects the RTCP
+	  packets; each DTLS-SRTP session protects the part of an SRTP
+	  session that passes over a single source/destinaation
+	  transport address pair, as shown in
+	  <xref target="SessionFig"/>.  When a DTLS-SRTP session is
+	  protecting RTP, the SRTCP keys derived from the DTLS
+	  handshake are not needed and are discarded.  When a
+	  DTLS-SRTP session is protecting RTCP, the SRTP keys derived
+	  from the DTLS handshake are not needed and are discarded.
 	  </t>
         <figure anchor="SessionFig" title="A DTLS-SRTP session protecting RTP (1) and another one protecting RTCP (2), showing the transport addresses and keys used.">
           <artwork><![CDATA[
@@ -697,12 +746,16 @@ to SRTPparameters?
       </section>
 
       <section title="Key Usage Limitations">
-        <t>The maximum_lifetime parameter in the SRTP protection profile
-        indicates the maximum number of packets that can be protected with
-        each single encryption and authentication key. Each profile defines
-        its own limit. When this limit is reached, a new DTLS session SHOULD
-        be used to establish replacement keys, and SRTP implementations MUST
-        NOT use the existing keys for the processing of either outbound or
+        <t>The maximum_lifetime parameter in the SRTP protection
+        profile indicates the maximum number of packets that can be
+        protected with each single encryption and authentication
+        key. (Note that, since RTP and RTCP are protected with
+        independent keys, those protocols are counted separately for
+        the purposes of determining when a key has reached the end of
+        its lifetime.) Each profile defines its own limit. When this
+        limit is reached, a new DTLS session SHOULD be used to
+        establish replacement keys, and SRTP implementations MUST NOT
+        use the existing keys for the processing of either outbound or
         inbound traffic.</t>
       </section>
 
@@ -740,12 +793,15 @@ to SRTPparameters?
           target="I-D.ietf-behave-rfc3489bis"></xref>. The type of a packet
           can be determined by looking at its first byte.</t>
 
-          <t>The process for demultiplexing a packet is as follows. The
-          receiver looks at the first byte of the packet. If the value of this
-          byte is 0 or 1, then the packet is STUN. If the value is in between
-          128 and 191 (inclusive), then the packet is RTP. If the value is
-          between 20 and 63 (inclusive), the packet is DTLS. This processes is
-          summarized in <xref target="demuxFig"></xref>.</t>
+          <t>The process for demultiplexing a packet is as
+          follows. The receiver looks at the first byte of the
+          packet. If the value of this byte is 0 or 1, then the packet
+          is STUN. If the value is in between 128 and 191 (inclusive),
+          then the packet is RTP (or RTCP, if both RTCP and RTP are
+          being multiplexed over the same destination port). If the
+          value is between 20 and 63 (inclusive), the packet is
+          DTLS. This processes is summarized
+          in <xref target="demuxFig"></xref>.</t>
 
           <figure anchor="demuxFig"
                   title="The DTLS-SRTP receiver's packet demultiplexing     algorithm.  Here the field B denotes the leading byte of the packet.">
@@ -803,6 +859,24 @@ to SRTPparameters?
    <xref target="I-D.rescorla-dtls"/>.
    </t>
    -->
+   <section title="Opportunistic Probing">
+   <t>[[[Open Issue]</t>
+   <t>In discussions of media-level security, some have suggested
+   that a desirable property is to allow the endpoints to automatically
+   detect the capability to do security at the media layer without
+   interaction from the signalling. This issue is primarily out of 
+   scope for this document, however because of the demuxing mentioned
+   above, it is possible for an implementation to 
+   "probe" by sending DTLS handshake packets
+   and seeing if they are answered. A DTLS-SRTP implementation can
+   demux the packets, detect that a handshake has been requested
+   and notify the application to potentially initiate a DTLS-SRTP
+   association. It is, however, necessary to have a rule to break
+   the symmetry as to which side is client and which server. In
+   applications where the media channel is established via SDP,
+   the offeror should be the server and the answerer the client.
+   </t>   
+   </section>   
         </section>
       </section>
 
@@ -891,7 +965,7 @@ to SRTPparameters?
         source transport address as a distinct DTLS-SRTP session for the
         purposes of the DTLS association.</t>
 
-        <t>When SIP forking occurs, two methods can be used to 
+        <t>When SIP forking occurs, the following method can be used to 
 	correlate each answer to the corresponding DTLS-SRTP session. 
 	If the answers have different certificates then fingerprints
 	in the answers can be used to correlate the SIP dialogs
@@ -932,7 +1006,7 @@ to SRTPparameters?
         This attack is prevented by using different keys for MAC verification
         for each type of data. Therefore, this type of attack reduces to being
         able to forge a packet with a valid MAC, which violates a basic
-        security invariant of both DTLS and SRTP.</t>
+        security invariant of both DTLS and SRTP. Moreover, </t>
 
         <t>As an additional defense against injection into the DTLS handshake
         channel, the DTLS record type is included in the MAC. Therefore, an
@@ -1026,6 +1100,9 @@ to SRTPparameters?
     </references>
 
     <references title="Informational References">
+      
+      &I-D.ietf-avt-rtp-and-rtcp-mux;
+
       &I-D.fischl-sipping-media-dtls;
 
       &I-D.fischl-mmusic-sdp-dtls;
@@ -1039,6 +1116,8 @@ to SRTPparameters?
       &I-D.ietf-behave-rfc3489bis;
 
       &I-D.mcgrew-srtp-big-aes;
+      
+      &I-D.rescorla-tls-extractor;
 
     </references>
 
@@ -1154,25 +1233,27 @@ Finished(2)        ->
     <section anchor="appendixB" title="Open Issue: Using a single DTLS session per SRTP session">
 <t>
 In order to address the performance, bandwidth, and latency concerns
-described in <xref target="appendix"/>, it may be desirable to use a single
-DTLS session for each SRTP session.   This appendix outlines one approach
-for achieving that goal in the next subsection, and then describes its
-benefits in the following one.
+described in <xref target="appendix"/>, it may be desirable to use a
+single DTLS session for each SRTP session.  This appendix outlines one
+approach for achieving that goal in the next subsection, and then
+describes its benefits in the following one.  However, note that
+the use of symmetric RTP and the multiplexing of RTCP and RTP over a
+single port pair largely eliminates this issue, since it allows a
+bidirectional pair of SRTP sessions (complete with SRTP and SRTCP)
+to be established following a single DTLS handshake.
 </t>
 <section title="Definition">
 <t>
 This section defines the "Single DTLS" model by descibing its
 differences from the DTLS-SRTP as defined in the body of this
-document.  A point-to-point SRTP session
-consists of a unidirectional SRTP flow and a bidirectional SRTCP flow.
-In the Single-DTLS model, 
-a DTLS-SRTP session contains a single SRTP session and a single
-DTLS connection.  Within each SRTP session, there may be multiple SRTP
+document.  A point-to-point SRTP session consists of a unidirectional
+SRTP flow and a bidirectional SRTCP flow.  In the Single-DTLS model, a
+DTLS-SRTP session contains a single SRTP session and a single DTLS
+connection.  Within each SRTP session, there may be multiple SRTP
 sources; all of these sources use a single SRTP master key.  See
-<xref target="SimpleSession"/>.
-As before, the DTLS
-connection uses the same transport addresses as the RTP flow;
-receivers demultiplex packets by inspection of their first byte.
+<xref target="SimpleSession"/>.  As before, the DTLS connection
+uses the same transport addresses as the RTP flow; receivers
+demultiplex packets by inspection of their first byte.
 </t>
 
 <figure anchor="SimpleSession" title="Key derivation in the Single-DTLS model." >
@@ -1360,16 +1441,48 @@ be contrasted with <xref target="SessionFig"/>.
 </section>
 
 <section title="Pros and Cons of Single-DTLS">
+
 <t>
-Using a single DTLS session per SRTP session has potential performance
-benefits in terms of reducing latency and compution. The discussion
-of the performance of multiple parallel DTLS connections 
-in <xref target="appendix"/> applies here as well. In addition.
-It provides a good match for existing SRTP implementations, since it matches
-their SRTP policy definitions for cryptographic algorithm configuration
-and makes use of all of the derived keys rather than having to discard
-half as described in <xref target="keyDeriv"/>.
+   Using a single DTLS session per SRTP session has potential
+   performance benefits in terms of reducing latency and compution.  The
+   discussion of the performance of multiple parallel DTLS connections
+   in Appendix A applies here as well.  In addition, it provides a good
+   match for existing SRTP implementations, since it matches their SRTP
+   policy definitions for cryptographic algorithm configuration and
+   makes use of all of the derived keys rather than having to discard
+   half as described in Section 3.3.
 </t>
+
+<!--
+<t>
+Using a signle DTLS session per SRTP session has the following benefits:
+<list style="numbers">
+   <t>
+     It reduces the computational effort of establishing (or
+     re-keying) a DTLS-SRTP session by up to one half, or by at least the
+     effort of a DTLS handshake.
+   </t>
+   <t>
+     It reduces the bandwidth consumed for session initialization by up
+     to one half, or by at least the amount of bandwidth consumed by 
+     a DTLS handshake.
+   </t>
+   <t>
+     It reduces the latency of DTLS session setup by essentially one round trip.
+   </t>
+   <t>
+     It is conceptually simpler, since it puts DTLS connections and SRTP sessions into
+     one-to-one correspondence.  
+   </t>
+   <t>
+     It provides a good match for existing SRTP implementations, since it matches
+     their SRTP policy definitions and makes use of all of the SRTP keys within
+     a given session.
+     </t>
+</list>
+</t>
+-->
+
 </section>
 
     </section>
