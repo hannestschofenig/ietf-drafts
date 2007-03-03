@@ -184,7 +184,8 @@
           multiple media sessions.  There MUST be a separate DTLS-SRTP
           session for each distinct pair of source and destination
           ports used by a media session (though the sessions can
-	  share a single DTLS session!).  One or both of the DTLS-SRTP
+	  share a single DTLS session and hence amortize the initial
+	  public key handshake!).  One or both of the DTLS-SRTP
           session participants MAY be RTP mixers.
           </t>
 
@@ -199,7 +200,7 @@
         endpoints using fingerprints can be found in <xref
         target="I-D.fischl-mmusic-sdp-dtls"></xref> and <xref
         target="I-D.fischl-sipping-media-dtls"></xref>.
-
+	</t>
         <t>In a naive implementation, when there are multiple media
         sessions, there is a new DTLS session establishment (complete
         with public key cryptography) for each media channel. For
@@ -510,8 +511,10 @@
 
                   <t>RTCP auth_tag_length: 80</t>
                 </list></t>
-            </list> With all of these SRTP Parameter profiles, the following
-          SRTP options are in effect: <list>
+            </list> 
+	    <t>
+	    With all of these SRTP Parameter profiles, the following
+          SRTP options are in effect: <list style="symbols">
               <t>The TLS Key Derivation Function (KDF) is used to generate
               keys to feed into the SRTP KDF.</t>
 
@@ -519,7 +522,7 @@
               are not re-derived based on the SRTP sequence number.</t>
 
               <t>For all other parameters, the default values are used.</t>
-            </list> All SRTP parameters that are not determined by the SRTP
+            </list><t> All SRTP parameters that are not determined by the SRTP
           Protection Profile MAY be established via the signaling system. In
           particular, the relative order of Forward Error Correction and SRTP
           processing, and a suggested SRTP replay window size SHOULD be
@@ -542,7 +545,7 @@
         </section>
 
         <section title="srtp_mki value">
-          <t>The srtp_mki value can be used to indicate the capability and
+          <t>The srtp_mki value MAY be used to indicate the capability and
           desire to use the SRTP Master Key Indicator (MKI) field in the SRTP
           and SRTCP packets. The MKI field indicates to an SRTP receiver which
           key was used to protect the packet that contains that field. The
@@ -599,7 +602,7 @@ to SRTPparameters?
 	
 	<t>NOTE:
 	It would probably be more attractive to use a TLS extractor
-	as defined in <xref target="I-D.rescorla-tls-extractor/">.
+	as defined in <xref target="I-D.rescorla-tls-extractor"/>.
 	However, this technique has not yet been vetted by the
 	TLS WG and therefore this remains an open issue.
 	</t>
@@ -739,7 +742,7 @@ to SRTPparameters?
        The "use_srtp" extension conveys the RTP sequence number at
        which the SRTP keys derived after a DTLS handshake will be
        used.  
-       -->Because of the possibility of packet reorder, DTLS-SRTP
+       -->Because of the possibility of packet reordering, DTLS-SRTP
         implementations SHOULD store multiple SRTP keys sets during a re-key
         in order to avoid the need for receivers to drop packets for which
         they lack a key.</t>
@@ -860,8 +863,8 @@ to SRTPparameters?
    </t>
    -->
    <section title="Opportunistic Probing">
-   <t>[[[Open Issue]</t>
-   <t>In discussions of media-level security, some have suggested
+   <t>[[Open Issue
+   In discussions of media-level security, some have suggested
    that a desirable property is to allow the endpoints to automatically
    detect the capability to do security at the media layer without
    interaction from the signalling. This issue is primarily out of 
@@ -874,7 +877,7 @@ to SRTPparameters?
    association. It is, however, necessary to have a rule to break
    the symmetry as to which side is client and which server. In
    applications where the media channel is established via SDP,
-   the offeror should be the server and the answerer the client.
+   the offeror should be the server and the answerer the client.]]
    </t>   
    </section>   
         </section>
@@ -1006,7 +1009,7 @@ to SRTPparameters?
         This attack is prevented by using different keys for MAC verification
         for each type of data. Therefore, this type of attack reduces to being
         able to forge a packet with a valid MAC, which violates a basic
-        security invariant of both DTLS and SRTP. Moreover, </t>
+        security invariant of both DTLS and SRTP.</t>
 
         <t>As an additional defense against injection into the DTLS handshake
         channel, the DTLS record type is included in the MAC. Therefore, an
@@ -1227,7 +1230,7 @@ Finished(2)        ->
       channel. The DTLS handshake could be performed on just one of
       those channels and the same keys used for both the RTP and RTCP
       channels. This alternative is defined in
-      <xref target="appendixB"/> for study and discussion.</t>
+      <xref target="appendixB"/> for study and discussion.</t></t>
     </section>
 
     <section anchor="appendixB" title="Open Issue: Using a single DTLS session per SRTP session">
