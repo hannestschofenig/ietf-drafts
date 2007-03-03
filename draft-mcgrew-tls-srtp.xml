@@ -512,9 +512,12 @@
                   <t>RTCP auth_tag_length: 80</t>
                 </list></t>
             </list> 
+	    </t>
 	    <t>
 	    With all of these SRTP Parameter profiles, the following
-          SRTP options are in effect: <list style="symbols">
+          SRTP options are in effect:
+	  </t>
+	  <t><list style="symbols">
               <t>The TLS Key Derivation Function (KDF) is used to generate
               keys to feed into the SRTP KDF.</t>
 
@@ -522,14 +525,14 @@
               are not re-derived based on the SRTP sequence number.</t>
 
               <t>For all other parameters, the default values are used.</t>
-            </list><t> All SRTP parameters that are not determined by the SRTP
+            </list></t><t> All SRTP parameters that are not determined by the SRTP
           Protection Profile MAY be established via the signaling system. In
           particular, the relative order of Forward Error Correction and SRTP
           processing, and a suggested SRTP replay window size SHOULD be
           established in this manner. An example of how these parameters can
           be defined for SDP by is contained in <xref
           target="I-D.ietf-mmusic-sdescriptions"></xref>.</t>
-
+	  
 	  <t>
 	    Applications using DTLS-SRTP SHOULD coordinate the SRTP
 	    Protection Profiles between the DTLS-SRTP session that
@@ -1230,7 +1233,7 @@ Finished(2)        ->
       channel. The DTLS handshake could be performed on just one of
       those channels and the same keys used for both the RTP and RTCP
       channels. This alternative is defined in
-      <xref target="appendixB"/> for study and discussion.</t></t>
+      <xref target="appendixB"/> for study and discussion.</t>
     </section>
 
     <section anchor="appendixB" title="Open Issue: Using a single DTLS session per SRTP session">
