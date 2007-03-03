@@ -656,7 +656,7 @@ to SRTPparameters?
 	  Otherwise, there are two DTLS-SRTP sessions, one of which
 	  protects the RTP packets and one of which protects the RTCP
 	  packets; each DTLS-SRTP session protects the part of an SRTP
-	  session that passes over a single source/destinaation
+	  session that passes over a single source/destination
 	  transport address pair, as shown in
 	  <xref target="SessionFig"/>.  When a DTLS-SRTP session is
 	  protecting RTP, the SRTCP keys derived from the DTLS
