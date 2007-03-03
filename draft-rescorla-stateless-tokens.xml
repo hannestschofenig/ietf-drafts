@@ -16,7 +16,7 @@ o]>
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-rescorla-stateless-tokens-00.txt" ipr="full3978">
+<rfc category="std" docName="draft-rescorla-stateless-tokens-01.txt" ipr="full3978">
   <front>
     <title abbrev="Stateless Tokens">How to Implement Secure (Mostly) Stateless Tokens</title>
 
@@ -40,7 +40,7 @@ o]>
       </address>
     </author>
 
-    <date day="14" month="January" year="2007" />
+    <date day="01" month="March" year="2007" />
 
     <abstract>
       <t>A common protocol problem is to want to arrange to maintain client
@@ -118,7 +118,7 @@ o]>
     </figure>
     <t>
     In message 1, the client contacts the server. The server creates
-    some state (e.g., creates a shopping cart structure), pickles
+    some state (e.g., creates a shopping cart structure), serializes
     that into a state token, and sends it to the client in message 2.
     From the client's perspective, this token is opaque, though it
     of course has some internal structure that is parseable by the 
@@ -210,7 +210,7 @@ o]>
     </t>
     <t>
     Even with expiry, high invalidation rates can lead to large
-    ITLs (ITLs). This is especially true if you are having
+    Invalid Token Lists (ITLs). This is especially true if you are having
     state n+1 supercede state n (this is done by invalidating state n
     and then issueing state n+1). A number of techniques can be used
     to minimize the size of the ITL. For instance, it

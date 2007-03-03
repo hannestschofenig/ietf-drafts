@@ -1172,8 +1172,8 @@ TLSCiphertext.fragment structures.
     } GenericAEADCipher;
 .fi
 
-AEAD ciphers take as input a single key, optional IV (depending on the
-cipher), plaintext, and "additional data" to be included in the
+AEAD ciphers take as input a single key, a nonce, 
+plaintext, and "additional data" to be included in the
 authentication check. I.e.,
 
 .nf

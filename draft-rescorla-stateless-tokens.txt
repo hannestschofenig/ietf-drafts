@@ -3,12 +3,12 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                         Network Resonance
-Intended status:  Standards Track                       January 14, 2007
-Expires:  July 18, 2007
+Intended status:  Standards Track                         March 01, 2007
+Expires:  September 2, 2007
 
 
            How to Implement Secure (Mostly) Stateless Tokens
-                 draft-rescorla-stateless-tokens-00.txt
+                 draft-rescorla-stateless-tokens-01.txt
 
 Status of this Memo
 
@@ -33,11 +33,11 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on July 18, 2007.
+   This Internet-Draft will expire on September 2, 2007.
 
 Copyright Notice
 
-   Copyright (C) The Internet Society (2007).
+   Copyright (C) The IETF Trust (2007).
 
 Abstract
 
@@ -52,9 +52,9 @@ Abstract
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 1]
+Rescorla                Expires September 2, 2007               [Page 1]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
 Table of Contents
@@ -108,9 +108,9 @@ Table of Contents
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 2]
+Rescorla                Expires September 2, 2007               [Page 2]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
 1.  Introduction
@@ -164,9 +164,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 3]
+Rescorla                Expires September 2, 2007               [Page 3]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
          Client                                   Server
@@ -180,7 +180,7 @@ Internet-Draft              Stateless Tokens                January 2007
                            <--------- 4. I remember you  / Recovery
 
    In message 1, the client contacts the server.  The server creates
-   some state (e.g., creates a shopping cart structure), pickles that
+   some state (e.g., creates a shopping cart structure), serializes that
    into a state token, and sends it to the client in message 2.  From
    the client's perspective, this token is opaque, though it of course
    has some internal structure that is parseable by the server.
@@ -220,9 +220,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 4]
+Rescorla                Expires September 2, 2007               [Page 4]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
    2.  Multiple encryptions of the same value S produce different tokens
@@ -257,9 +257,9 @@ Internet-Draft              Stateless Tokens                January 2007
    which are invalid (there is a parallel here to certificate revocation
    lists [3]).
 
-   Even with expiry, high invalidation rates can lead to large ITLs
-   (ITLs).  This is especially true if you are having state n+1
-   supercede state n (this is done by invalidating state n and then
+   Even with expiry, high invalidation rates can lead to large Invalid
+   Token Lists (ITLs).  This is especially true if you are having state
+   n+1 supercede state n (this is done by invalidating state n and then
    issueing state n+1).  A number of techniques can be used to minimize
    the size of the ITL.  For instance, it may be stored in a Bloom
    filter or each token may be assigned an index with the ITL stored as
@@ -276,9 +276,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 5]
+Rescorla                Expires September 2, 2007               [Page 5]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
           0                   1                   2                   3
@@ -332,9 +332,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 6]
+Rescorla                Expires September 2, 2007               [Page 6]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
         0                   1                   2                   3
@@ -388,9 +388,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 7]
+Rescorla                Expires September 2, 2007               [Page 7]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
    2.  Generate a random 128-bit initialization vector.
@@ -444,9 +444,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 8]
+Rescorla                Expires September 2, 2007               [Page 8]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
    few keys are used, trial verification can be used to determine which
@@ -500,9 +500,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 9]
+Rescorla                Expires September 2, 2007               [Page 9]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
 5.3.  Bloom Filters
@@ -556,9 +556,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                [Page 10]
+Rescorla                Expires September 2, 2007              [Page 10]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
    simply a special case of the general cryptographic rule that
@@ -612,9 +612,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                [Page 11]
+Rescorla                Expires September 2, 2007              [Page 11]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
    to maintain invalid token lists.
@@ -648,8 +648,8 @@ Internet-Draft              Stateless Tokens                January 2007
 
 8.1.  Normative References
 
-   [1]  Bradner, S., "Key words for use in RFCs to Indicate Requirement
-        Levels", BCP 14, RFC 2119, March 1997.
+   [1]   Bradner, S., "Key words for use in RFCs to Indicate Requirement
+         Levels", BCP 14, RFC 2119, March 1997.
 
 8.2.  Informational References
 
@@ -668,9 +668,9 @@ Internet-Draft              Stateless Tokens                January 2007
 
 
 
-Rescorla                  Expires July 18, 2007                [Page 12]
+Rescorla                Expires September 2, 2007              [Page 12]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
          Agent (UA) URIs (GRUU) in the  Session Initiation Protocol
@@ -724,14 +724,14 @@ Author's Address
 
 
 
-Rescorla                  Expires July 18, 2007                [Page 13]
+Rescorla                Expires September 2, 2007              [Page 13]
 
-Internet-Draft              Stateless Tokens                January 2007
+Internet-Draft              Stateless Tokens                  March 2007
 
 
 Full Copyright Statement
 
-   Copyright (C) The Internet Society (2007).
+   Copyright (C) The IETF Trust (2007).
 
    This document is subject to the rights, licenses and restrictions
    contained in BCP 78, and except as set forth therein, the authors
@@ -739,10 +739,10 @@ Full Copyright Statement
 
    This document and the information contained herein are provided on an
    "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
-   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
-   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
-   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
-   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
    WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
 
@@ -780,5 +780,5 @@ Acknowledgment
 
 
 
-Rescorla                  Expires July 18, 2007                [Page 14]
+Rescorla                Expires September 2, 2007              [Page 14]
 

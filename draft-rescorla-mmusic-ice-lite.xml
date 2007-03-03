@@ -19,7 +19,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-mmusic-ice-lite-00.txt" ipr="full3978">
+<rfc category="std" docName="draft-rescorla-mmusic-ice-lite-00.txt" ipr="full3978">
   <front>
     <title abbrev="Lite ICE">Implementing Interactive Connectivity Establishment (ICE) in Lite Mode</title>
 
@@ -43,7 +43,7 @@
       </address>
     </author>
 
-    <date day="06" month="November" year="2006" />
+    <date day="25" month="February" year="2007" />
 
     <abstract>
       <t>Interactive Connectivity Establishment (ICE) is a technique
