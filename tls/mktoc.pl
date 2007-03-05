@@ -4,11 +4,11 @@ $page=1;
 while(<STDIN>){
   $page++ if(/\[Page \d+\]/);
   
-  if(/(^[\dA-F]\.\S*)\s+(.*)/){
+  if(/^(Appendix\s+)?([\dA-F]\.\S*)\s+(.*)/){
     chop;
 
-    $num=$1;
-    $entry=$2;
+    $num=$2;
+    $entry=$3;
 
     $pad=10-length($num);
     $line=$num;
