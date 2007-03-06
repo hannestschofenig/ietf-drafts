@@ -138,15 +138,13 @@ sub print_drafts_for_wg {
   open(HEADER,">$wg/HEADER")||die("Couldn't open header");
 
   print HEADER "************** WG $wg *****************\n\n";
-  print HEADER "C  R   Draft\n";
-
 
   while($file=readdir(DIR)){
     next if $file eq ".";
     next if $file eq "..";
     next if $file=~/.printed$/;
     next if $file=~/HEADER/;
-    print HEADER "[] [] $file\n";
+    print HEADER "[] $file\n";
     push(@files,$file);
   }
   
