@@ -1,28 +1,37 @@
-#!/bin/perl
-require 'getopts.pl';
+#!/usr/local/bin/perl -Tw
+use Getopt::Std;
+use File::Path;
+
+getopts("vVpnc",\%opts);
+
+# Untaint env (this is perl fodder)
+$env=$ENV{"PATH"};
+$env=~/^(.*)$/;
+$ENV{"PATH"}=$1;
+$env=$ENV{"CDPATH"};
+$env=~/^(.*)$/;
+$ENV{"CDPATH"}=$1;
 
 
-&Getopts("vVpnc");
-
-$VERBOSE=1 if $opt_v;
-$VERBOSE=2 if $opt_V;
-$NODOWNLOAD=1 if $opt_n;
-$PRINTDRAFTS=1 if $opt_p;
-$CLEAN=1 if $opt_c;
+$VERBOSE=0;
+$VERBOSE=1 if $opts{"v"};
+$VERBOSE=2 if $opts{"V"};
+$NODOWNLOAD=1 if $opts{"n"};
+$PRINTDRAFTS=1 if $opts{"p"};
+$CLEAN=1 if $opts{"c"};
 
 &usage() unless $#ARGV>=1;
 
-$mtg=shift @ARGV;
-
+$mtg_tmp=shift @ARGV;
+die("Bad meeting name $mtg_tmp") unless $mtg_tmp=~/^([\w.]*)$/;
+$mtg=$1;
 
 $AGENDA_URL="http://www3.ietf.org/proceedings/$mtg/agenda/";
 $DRAFT_URL="http://www.ietf.org/internet-drafts/";
 $PRINT_COMMAND="enscript -2rG -h";
 
-if($opt_c){
-  # Ok, this is gross but I don't know a perl macro for
-  # recursive remove
-  system("rm -rf $mtg");
+if($CLEAN){
+  rmtree([$mtg],0,0);
 }
 
 mkdir($mtg);
@@ -34,12 +43,14 @@ $ua=LWP::UserAgent->new;
 $ua->agent("DraftScraper");
 
 
-while ($wg=shift @ARGV){
+while ($wg_tmp=shift @ARGV){
+
+  die("Bad wg name") unless $wg_tmp=~/^(\w+)$/;  # untaint wg
+  $wg=$1;
+
   print STDERR "WG: $wg\n" if $VERBOSE;
   &get_drafts_for_wg($wg);
   &print_drafts_for_wg($wg) if $PRINTDRAFTS;
-
-  $wgs.=" $wg";
 }
 
 while($nf=shift @NOTFOUND){
@@ -94,7 +105,7 @@ sub list_drafts_for_wg {
     print STDERR "==============\n";
   }
 
-  while($content =~ m!(draft-[^\.\s+;\|]+\d+)!mgis){
+  while($content =~ m!(draft-[a-zA-Z\-0-9]+-\d\d)!mgis){
     my $d=$1;
 
     # Double-check filter for bad stuff
@@ -144,20 +155,38 @@ sub print_drafts_for_wg {
     next if $file eq "..";
     next if $file=~/.printed$/;
     next if $file=~/HEADER/;
+
+    next unless $file=~/^([a-zA-Z\-0-9]+-\d\d\.txt)$/;
+    $file=$1;
+
+    # Add a copy of this to the header page
     print HEADER "[] $file\n";
-    push(@files,$file);
+
+    # suppress anything already printed
+    next if -f "$wg/.printed.$file";
+
+    push(@files,$1);
   }
   
   close(HEADER);
+
+  return if($#files==-1);  #nothing to do
+
+  #Print the burst page/header
   system("$PRINT_COMMAND $wg/HEADER");
 
   while($file=shift @files){
-    next if -f "$wg/$file.printed";
     system("$PRINT_COMMAND $wg/$file");    
-    system("touch $wg/$file.printed");
+    &touch("$wg/.printed.$file");
   }
 }
 
+sub touch {
+  local($filename)=@_;
+  
+  open(OUT,">$filename");
+  close(OUT);
+}
 
 sub usage {
   print <<FOO;
