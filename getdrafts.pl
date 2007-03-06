@@ -105,11 +105,11 @@ sub list_drafts_for_wg {
     print STDERR "==============\n";
   }
 
-  while($content =~ m!(draft-[a-zA-Z\-0-9]+-\d\d)!mgis){
+  while($content =~ m!(draft-[a-z0-9\.-]+-\d\d)!mgis){
     my $d=$1;
 
     # Double-check filter for bad stuff
-    next unless $d=~/^[a-zA-Z\-0-9]+-\d\d$/;
+    next unless $d=~/^[a-z0-9\.-]+-\d\d$/;
 
     my $draft="$d.txt";
     push(@drafts,$draft);
@@ -156,7 +156,7 @@ sub print_drafts_for_wg {
     next if $file=~/.printed$/;
     next if $file=~/HEADER/;
 
-    next unless $file=~/^([a-zA-Z\-0-9]+-\d\d\.txt)$/;
+    next unless $file=~/^(draft-[a-z0-9\.-]+-\d\d.txt)$/;
     $file=$1;
 
     # Add a copy of this to the header page
