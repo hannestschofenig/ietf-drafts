@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -Tw
+#!/usr/bin/perl -Tw
 # getdrafts.pl -- an IETF draft retriever/printer
 # 
 # Eric Rescorla
