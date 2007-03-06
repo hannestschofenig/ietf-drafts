@@ -1,4 +1,9 @@
 #!/usr/local/bin/perl -Tw
+# getdrafts.pl -- an IETF draft retriever/printer
+# 
+# Eric Rescorla
+# ekr@networkresonance.com
+
 use Getopt::Std;
 use File::Path;
 
