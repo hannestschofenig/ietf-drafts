@@ -7,7 +7,7 @@
 use Getopt::Std;
 use File::Path;
 
-getopts("vVpncd:",\%opts);
+getopts("vVpncd:P:",\%opts);
 
 # Untaint env (this is perl fodder)
 $env=$ENV{"PATH"};
@@ -23,6 +23,7 @@ $VERBOSE=1 if $opts{"v"};
 $VERBOSE=2 if $opts{"V"};
 $NODOWNLOAD=1 if $opts{"n"};
 $PRINTDRAFTS=1 if $opts{"p"};
+$PRINT_COMMAND=$opts{P} if $opts{"P"};
 $CLEAN=1 if $opts{"c"};
 
 $stat_found=0;
@@ -36,7 +37,7 @@ $mtg=$1;
 
 $AGENDA_URL="http://www3.ietf.org/proceedings/$mtg/agenda/";
 $DRAFT_URL="http://www.ietf.org/internet-drafts/";
-$PRINT_COMMAND="enscript -2rG -h";
+$PRINT_COMMAND="enscript -2rG -h" unless $PRINT_COMMAND;
 
 if($opts{'d'}){
   $lp_tmp=$opts{'d'};
