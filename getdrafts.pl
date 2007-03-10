@@ -230,6 +230,8 @@ usage: [-vVpnt] getdrafts.pl <meeting-name> <wg1> <wg2>
  -p = print all the drafts that haven't been printed yet
  -n = don't download drafts that aren't here already
  -c = clean up
+ -d = print to another printer
+ -P = override the printing command entirely
 
 FOO
 
