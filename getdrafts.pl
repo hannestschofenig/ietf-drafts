@@ -7,7 +7,7 @@
 use Getopt::Std;
 use File::Path;
 
-getopts("vVpnc",\%opts);
+getopts("vVpncd:",\%opts);
 
 # Untaint env (this is perl fodder)
 $env=$ENV{"PATH"};
@@ -25,15 +25,26 @@ $NODOWNLOAD=1 if $opts{"n"};
 $PRINTDRAFTS=1 if $opts{"p"};
 $CLEAN=1 if $opts{"c"};
 
+$stat_found=0;
+$stat_total=0;
+
 &usage() unless $#ARGV>=1;
 
 $mtg_tmp=shift @ARGV;
-die("Bad meeting name $mtg_tmp") unless $mtg_tmp=~/^([\w.]*)$/;
+die("Bad meeting name $mtg_tmp: try YY<monthname> like 07mar") unless $mtg_tmp=~/^(\d\d[a-z][a-z][a-z])$/;
 $mtg=$1;
 
 $AGENDA_URL="http://www3.ietf.org/proceedings/$mtg/agenda/";
 $DRAFT_URL="http://www.ietf.org/internet-drafts/";
 $PRINT_COMMAND="enscript -2rG -h";
+
+if($opts{'d'}){
+  $lp_tmp=$opts{'d'};
+  $lp_tmp=~/^(\S+)$/;
+  $lp=$1;
+
+  $PRINT_COMMAND .= " -d $lp";
+}
 
 if($CLEAN){
   rmtree([$mtg],0,0);
@@ -61,6 +72,7 @@ while ($wg_tmp=shift @ARGV){
 while($nf=shift @NOTFOUND){
   print STDERR "NOT FOUND: $nf\n";
 }
+print STDERR "Found $stat_found out of $stat_total drafts\n";
 
 
 exit(0);
@@ -71,31 +83,36 @@ sub get_drafts_for_wg {
 
   my @drafts=&list_drafts_for_wg($wg);
 
+
   return if $#drafts==-1;
+  $stat_total+=$#drafts+1;
+
   mkdir($wg);
 
   while($draft=shift @drafts){
     if (-f "$wg/$draft") {
       print STDERR "$draft already exists\n" if $VERBOSE;
+      $stat_found++;
       next;
     };
     
-    &get_draft($draft,"$wg/$draft") unless $NODOWNLOAD;
+    my $ret=&get_draft($draft,"$wg/$draft") unless $NODOWNLOAD;
+    $stat_found++ unless $ret;
   }
 }
 
   
 sub list_drafts_for_wg {
   local($wg)=@_;
-  my $url= $AGENDA_URL. $wg . ".txt";
-  
+  my $url= $AGENDA_URL. $wg;
+
   print STDERR "  URL=$url\n" if $VERBOSE;
 
   my $req=HTTP::Request->new(GET=>$url);
   my $res=$ua->request($req);
 
   if(!$res->is_success){
-    print STDERR "Couldn't get agenda for $wg\n";
+    print STDERR "Couldn't get agenda for $wg\n" if $VERBOSE;
     push(@NOTFOUND,"WG: $wg");
     return ();
   }
@@ -103,6 +120,7 @@ sub list_drafts_for_wg {
   my $content=$res->content;
   
   my @drafts=();
+  my(%drafts)=();
 
   if($VERBOSE>1){
     print STDERR "CONTENTS======\n";
@@ -117,7 +135,12 @@ sub list_drafts_for_wg {
     next unless $d=~/^[a-z0-9\.-]+-\d\d$/;
 
     my $draft="$d.txt";
+    
+    next if $drafts{$draft};
+
     push(@drafts,$draft);
+    $drafts{$draft}=1;
+      
     print STDERR "  DRAFT: $draft\n" if $VERBOSE;
   }
 
@@ -135,14 +158,15 @@ sub get_draft {
   my $res=$ua->request($req);
 
   if(!$res->is_success){
-    print STDERR "Couldn't get draft $draft\n";
+    print STDERR "Couldn't get draft $draft\n" if $VERBOSE;
     push(@NOTFOUND,"DRAFT: $draft");
-    return;
+    return -1;
   }
 
   open(OUT,">$filename")||die("Couldn't open $filename");
   print OUT $res->content;
   close(OUT);
+  return 0;
 }
 
 sub print_drafts_for_wg {
@@ -205,6 +229,7 @@ usage: [-vVpnt] getdrafts.pl <meeting-name> <wg1> <wg2>
  -p = print all the drafts that haven't been printed yet
  -n = don't download drafts that aren't here already
  -c = clean up
+
 FOO
 
 exit(0);
