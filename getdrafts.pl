@@ -105,7 +105,43 @@ sub get_drafts_for_wg {
   
 sub list_drafts_for_wg {
   local($wg)=@_;
-  my $url= $AGENDA_URL. $wg;
+  local(@filetypes)=(".html",".txt");
+
+  my %drafts=();
+  my @drafts=();
+  
+  my $success=0;
+  my $succ=0;
+
+  foreach $filetype (@filetypes){
+    my @drafts_tmp=&get_drafts_from_agenda($wg,$filetype,\$succ);
+    
+    my $draft;
+
+    if($succ==1){
+      $success=1;
+    }
+
+    while($draft=shift @drafts_tmp){
+      next if $drafts{$draft};
+
+      push(@drafts,$draft);
+      $drafts{$draft}=1;
+    }
+  }
+
+  if(!$success){
+    print STDERR "Couldn't get agenda for $wg\n" if $VERBOSE;
+    push(@NOTFOUND,"WG: $wg");
+    return ();
+  }
+
+  return @drafts;
+}
+
+sub get_drafts_from_agenda {
+  local($wg,$filetype,$succ)=@_;
+  my $url= $AGENDA_URL. $wg . $filetype;
 
   print STDERR "  URL=$url\n" if $VERBOSE;
 
@@ -113,9 +149,8 @@ sub list_drafts_for_wg {
   my $res=$ua->request($req);
 
   if(!$res->is_success){
-    print STDERR "Couldn't get agenda for $wg\n" if $VERBOSE;
-    push(@NOTFOUND,"WG: $wg");
-    return ();
+    $$succ=0;
+    return();
   }
 
   my $content=$res->content;
@@ -145,6 +180,7 @@ sub list_drafts_for_wg {
     print STDERR "  DRAFT: $draft\n" if $VERBOSE;
   }
 
+  $$succ=1;
   @drafts;
 }
 

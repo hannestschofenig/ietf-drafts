@@ -901,18 +901,18 @@ Internet-Draft           SRTP Extension for DTLS              March 2007
 
    [7]   Perkins, C. and M. Westerlund, "Multiplexing RTP Data and
          Control Packets on a Single Port",
-         draft-ietf-avt-rtp-and-rtcp-mux-03 (work in progress),
-         December 2006.
+         draft-ietf-avt-rtp-and-rtcp-mux-04 (work in progress),
+         March 2007.
 
    [8]   Fischl, J., "Datagram Transport Layer Security (DTLS) Protocol
          for Protection of Media  Traffic Established with the Session
-         Initiation Protocol", draft-fischl-sipping-media-dtls-01 (work
-         in progress), June 2006.
+         Initiation Protocol", draft-fischl-sipping-media-dtls-02 (work
+         in progress), March 2007.
 
    [9]   Fischl, J. and H. Tschofenig, "Session Description Protocol
          (SDP) Indicators for Datagram Transport Layer  Security
-         (DTLS)", draft-fischl-mmusic-sdp-dtls-01 (work in progress),
-         June 2006.
+         (DTLS)", draft-fischl-mmusic-sdp-dtls-02 (work in progress),
+         March 2007.
 
    [10]  Andreasen, F., "Session Description Protocol Security
          Descriptions for Media Streams",
@@ -925,9 +925,8 @@ Internet-Draft           SRTP Extension for DTLS              March 2007
    [12]  Blake-Wilson, S., "Transport Layer Security (TLS) Extensions",
          draft-ietf-tls-rfc3546bis-02 (work in progress), October 2005.
 
-   [13]  Rosenberg, J., "Simple Traversal Underneath Network Address
-         Translators (NAT) (STUN)", draft-ietf-behave-rfc3489bis-05
-         (work in progress), October 2006.
+   [13]  Rosenberg, J., "Session Traversal Utilities for (NAT) (STUN)",
+         draft-ietf-behave-rfc3489bis-06 (work in progress), March 2007.
 
    [14]  McGrew, D., "The use of AES-192 and AES-256 in Secure RTP",
          draft-mcgrew-srtp-big-aes-00 (work in progress), April 2006.
@@ -945,6 +944,7 @@ Appendix A.  Open Issue: Key/Stream Interaction
    host/port quartet, etc.).  This has dual advantages of simplicity and
    independence of the security contexts for each channel.
 
+   Three concerns have been raised about the overhead of this strategy
 
 
 
@@ -953,7 +953,6 @@ McGrew & Rescorla      Expires September 11, 2007              [Page 17]
 Internet-Draft           SRTP Extension for DTLS              March 2007
 
 
-   Three concerns have been raised about the overhead of this strategy
    in the context of RTP security.  The first concern is the additional
    performance overhead of doing a separate public key operation for
    each channel.  The conventional procedure here (used in TLS and DTLS)
@@ -1001,6 +1000,7 @@ Internet-Draft           SRTP Extension for DTLS              March 2007
                       <-  ChangeCipherSpec (2)
                                   Finished (2)
                                                 <--- Channel 2 ready
+
 
 
 
