@@ -73,7 +73,7 @@
     <t>A number of techniques are available for traversing NATs,
     but entities need a mechanism for discovering which technique 
     will work in its specific environment (and its peer's environment).
-    Internet Connectivity Establishment (ICE) <xref target="I-D.ietf-mmusic-ice"/> is such a technique.
+    Interactive Connectivity Establishment (ICE) <xref target="I-D.ietf-mmusic-ice"/> is such a technique.
     </t>
     <t>
     The basic principle behind ICE is that each entity collects all 
@@ -310,7 +310,7 @@
   <section title="Keepalives">
   <t>
   Like all ICE implementations, all LIIs must send keepalives on 
-  active candiate pairs and be prepared to receive keepalives.
+  active candidate pairs and be prepared to receive keepalives.
   </t>
   <t>
   See: Section 11.

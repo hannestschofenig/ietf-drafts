@@ -1,0 +1,560 @@
+
+
+
+Network Working Group                                          D. McGrew
+Internet-Draft                                             Cisco Systems
+Intended status:  Standards Track                            E. Rescorla
+Expires:  September 30, 2007                           Network Resonance
+                                                          March 29, 2007
+
+
+             Short Authentication String Extension for DTLS
+                      draft-mcgrew-tls-sas-00.txt
+
+Status of this Memo
+
+   By submitting this Internet-Draft, each author represents that any
+   applicable patent or other IPR claims of which he or she is aware
+   have been or will be disclosed, and any of which he or she becomes
+   aware will be disclosed, in accordance with Section 6 of BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
+   This Internet-Draft will expire on September 30, 2007.
+
+Copyright Notice
+
+   Copyright (C) The IETF Trust (2007).
+
+Abstract
+
+   This draft describes a short authentication string mechanism for TLS.
+
+
+
+
+
+
+
+
+
+McGrew & Rescorla      Expires September 30, 2007               [Page 1]
+
+Internet-Draft                SAS for DTLS                    March 2007
+
+
+Table of Contents
+
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
+   2.  Conventions Used In This Document  . . . . . . . . . . . . . .  4
+   3.  Overview of Operation  . . . . . . . . . . . . . . . . . . . .  4
+   4.  Protocol Flow  . . . . . . . . . . . . . . . . . . . . . . . .  4
+   5.  Protocol Description . . . . . . . . . . . . . . . . . . . . .  5
+     5.1.  Commitment Mechanism . . . . . . . . . . . . . . . . . . .  5
+       5.1.1.  Commitment . . . . . . . . . . . . . . . . . . . . . .  6
+       5.1.2.  Revelation . . . . . . . . . . . . . . . . . . . . . .  6
+     5.2.  SAS Computation  . . . . . . . . . . . . . . . . . . . . .  7
+       5.2.1.  Representing the SAS . . . . . . . . . . . . . . . . .  7
+     5.3.  Security Considerations  . . . . . . . . . . . . . . . . .  7
+     5.4.  Security of the Commitment Mechanism . . . . . . . . . . .  7
+     5.5.  SAS Uniqueness . . . . . . . . . . . . . . . . . . . . . .  8
+     5.6.  Security of SAS Transport  . . . . . . . . . . . . . . . .  8
+     5.7.  UI Issues  . . . . . . . . . . . . . . . . . . . . . . . .  8
+   6.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . .  8
+   7.  References . . . . . . . . . . . . . . . . . . . . . . . . . .  9
+     7.1.  Normative References . . . . . . . . . . . . . . . . . . .  9
+     7.2.  Informational References . . . . . . . . . . . . . . . . .  9
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . .  9
+   Intellectual Property and Copyright Statements . . . . . . . . . . 10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+McGrew & Rescorla      Expires September 30, 2007               [Page 2]
+
+Internet-Draft                SAS for DTLS                    March 2007
+
+
+1.  Introduction
+
+   Public key cryptography can provide the basis for establishing secure
+   TLS [2] connections, but it requires that each endpoint know the
+   public key of the other endpoint in advance.  In some situations, it
+   is not possible to provide authenticated public keys, e.g. due to the
+   lack of a supporting Public Key Infrastructure (PKI) with a root key
+   trusted by both users, but there is an opportunity to use an
+   interaction between human users to provide some authentication of
+   public keys.  For example, a user on one end of a connection can read
+   an authentication string displayed to a user on the other end of the
+   connection, who can confirm that it matches the authentication string
+   displayed at the other end of the connection.  Another example is as
+   a side channel to authenticate a wireless connection (cf. [4]
+
+   Because it is awkward for human users to read and verify long
+   sequences of characters, it is important that such a system uses a
+   short authentication string (SAS), for instance, a sequence of four
+   characters, a four-digit identification number, or a keyword selected
+   from a list of 2^16 words.  Because the SAS is short, any protocol
+   that relies on SAS authentication must protect against attacks in
+   which an active adversary manipulates the SAS value on one connection
+   so that it matches the SAS value on another connection.  This
+   potential attack can be defeated by a commitment scheme; this scheme
+   prevents a would- be attacker from manipulating the SAS value.
+
+   In this document, we define an extension to the Transport Layer
+   Security (TLS) protocol that provides a way to use an SAS to
+   authenticate a connection.  Our method works with the existing X.509
+   certificate-based authentication in TLS, and it can deliver better
+   security for the case in which one or more self-signed certifcates
+   are used.  Additionally, it can be used with normal certificates.
+   These certificates can be cached after a successful SAS verification;
+   thus the SAS mechanism can be used to bootstrap a certificate-based
+   infrastructure.  While the security of SAS is less than that of a
+   full PKI, the use of cached SAS-validated certificates supplies
+   better security than self-signed certificates, and the caching of
+   these certificates relieves the human user of the burden of
+   repeatedly performing the manual SAS validation steps.
+
+   The goals for the SAS method are:
+
+   o  To provide a high a level of security as possible; e.g., to detect
+      an active attacker with a failure rate that is not much higher
+      than 1/2^b, where b is the number of bits in the SAS.
+   o  To work with both x.509 certificate authentication and anonymous
+      Diffie-Hellman.
+
+
+
+
+McGrew & Rescorla      Expires September 30, 2007               [Page 3]
+
+Internet-Draft                SAS for DTLS                    March 2007
+
+
+   o  To maintain security even when a certificate or public key is
+      predictable to an adversary; this property enables the use of
+      long-term certificates and long-term public keys without any loss
+      of security.
+   o  To require only minimal changes to the TLS protocol, and to have
+      minimal impact to TLS implementations.
+
+   [[NOTE:  This mechanism is a strawman.  It has seen very minimal
+   review and therefore is likely to change over time.]]
+
+
+2.  Conventions Used In This Document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [1].
+
+
+3.  Overview of Operation
+
+   The SAS is computed as a product of the handshake operations.  The
+   basic idea is to have the SAS be unpredictable to the client (before
+   it receives the server's Finished message) and unpredictable to the
+   server (before it receives the message containing the Finished from
+   the client).  This prevents either side from forcing the SAS in a
+   particular exchange to a given value.  In order to do this, we need
+   to have each side commit to a secret value which is only revealed
+   after the other side has revealed all of the variable material under
+   its control.
+
+
+4.  Protocol Flow
+
+   The following figure shows the protocol flow with the SAS scheme.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+McGrew & Rescorla      Expires September 30, 2007               [Page 4]
+
+Internet-Draft                SAS for DTLS                    March 2007
+
+
+         Client                                               Server
+
+         ClientHello + commitment     -------->
+
+                                            ServerHello + commitment
+                                                        Certificate*
+                                                  ServerKeyExchange*
+                                                 CertificateRequest*
+                                      <--------      ServerHelloDone
+         Certificate*
+         ClientKeyExchange
+         CertificateVerify*
+         CommitmentReveal
+         [ChangeCipherSpec]
+         Finished                     -------->
+                                                    CommitmentReveal
+                                                  [ChangeCipherSpec]
+                                      <--------             Finished
+
+         <Computes SAS>                               <Computes SAS>
+
+                       Figure 1: Commitment Protocol Flow
+
+   Each side generates a random secret value and commits to it in their
+   Hello message.  They then reveal it after the other side has
+   transmitted all of their variable data.  The SAS computation includes
+   the secret values, thus preventing either side from forcing the SAS
+   to a given value.  If we assume that the voice channel over which the
+   SAS is transmitted is secure then the entire handshake can be
+   authenticated.
+
+
+5.  Protocol Description
+
+   The SAS mechanism consists of two parts.  In the first, the TLS
+   handshake is performed using the new commitment mechanism.  In the
+   second, each side computes their SAS value and exchanges it via some
+   unspecified mechanism, though the paradigmatic example is via voice
+   over the negotiated channel as in ZRTP [3].  This section describes
+   the details of these parts.
+
+5.1.  Commitment Mechanism
+
+   In the commitment mechanism, each side generates a fresh pseudorandom
+   value X and then transmits a commitment for X, C(X) to the other
+   side.  At the end of the handshake, once all variable material from
+   the other side has been received, each side reveals their commitment.
+   The sides then verify that each side has correctly fulfilled their
+
+
+
+McGrew & Rescorla      Expires September 30, 2007               [Page 5]
+
+Internet-Draft                SAS for DTLS                    March 2007
+
+
+   commitment as an additional check on the handshake.
+
+5.1.1.  Commitment
+
+   The client requests support for the commitment feature by sending the
+   "commitment" extension in its ClientHello.  The "extension_data"
+   field contains a CommitmentValues structure;
+
+        struct {
+          CommitmentValue values<2^16-1>;
+        } CommitmentValues;
+
+        struct {
+          HashType hash_type;
+          opaque hash_value<255>;
+        } CommitmentValue;
+
+   In order to generate the CommitmentValue structure the client
+   generates a fresh random opaque value X of length 1..255 (it is
+   RECOMMENDED that this value be at least 80 bits).  For each hash
+   function it is willing to support it generates a commitment by
+   computing H(X).  For each CommitmentValue, the "hash_type" value
+   contains the identity of the hash and the "hash_value" contains H(X)
+   using that hash.  At least SHA-256 MUST be included.
+
+   If the server is willing to use the commitment feature, it MUST
+   respond with its own "commitment" extension.  Otherwise it MUST
+   ignore the extension.  It MUST select one of the hashes offered by
+   the client and send only that hash.
+
+5.1.2.  Revelation
+
+   The second stage of the commitment mechanism is to reveal the value X
+   which was previously committed to.  This is done with a
+   CommitmentReveal handshake message.  The CommitmentReveal message is
+   sent right before the Finished message, as shown in Figure 1.
+
+        struct {
+          opaque value<255>;
+        } CommitmentValue;
+
+   The CommitmentReveal contains the value X which was committed to in
+   the "commitment" extension.  Recipients MUST verify that the hash
+   value sent in the "commitment" extension sent by the other side,
+   using the hash algorithm selected by the server.  If the commitment
+   does not match, a fatal "decrypt_error" MUST be generated and the
+   handshake terminated.  The CommitmentReveal message MUST be included
+   in the Finished computation.  Thus, the client's Finished does not
+
+
+
+McGrew & Rescorla      Expires September 30, 2007               [Page 6]
+
+Internet-Draft                SAS for DTLS                    March 2007
+
+
+   include the server's CommitmentReveal but the servers includes both.
+
+5.2.  SAS Computation
+
+   The SAS computation is computed using the following algorithm.
+
+        HandshakeSignature = PRF(master_secret, "sas value",
+           Client.verify_data + Server.verify_data)[20]
+
+   A k-bit long SAS is computed by taking the leading k bits of the
+   HandshakeSignature value.  Therefore an m-bit SAS is a prefix of an
+   n-bit SAS where n>m.  A 20-bit SAS is recommended.
+
+5.2.1.  Representing the SAS
+
+   SAS values SHOULD be represented using the base32 representation
+   described at:  http://en.wikipedia.org/wiki/Base32. [[ TODO:  Exactly
+   how to do this is an open issue, but probably we want some sort of
+   base32/base256 encoding, but this is really orthogonal to the crypto
+   issue, which is what this is fundamentally about ]]
+
+5.3.  Security Considerations
+
+   The first question to ask is whether this mechanism weakens TLS per
+   se.  Fundamentally, it allows one side to inject controlled inputs
+   into the TLS handshake, thus allowing either side to perturb the
+   Finished messages.  However, TLS already allowed a substantial amount
+   of variable content (certificates, key exchange messages, etc.,) so
+   this does not appear to introduce new security issues.
+
+5.4.  Security of the Commitment Mechanism
+
+   The purpose of the commitment mechanism is to ensure that neither
+   side can control the value of the SAS.  Because the SAS is based on
+   the entire handshake (via the Finished messages), and this includes a
+   secret value from the server's CommitmentReveal message, the client
+   clearly cannot control the SAS (assuming that the server is using a
+   strong PRNG and that the hash function used is first preimage
+   resistant.)
+
+   Because the server contributes the final variable value, the server
+   could potentially influence the SAS.  However, the required server
+   CommitmentValue depends on the rest of the handshake, including the
+   client's CommitmentValue, which the server does not have at the time
+   when the server generates his own commitment in the "commitment"
+   extension.  In order to attack this mechanism, the server would need
+   to be able to generate multiple potential CommitmentValue preimages
+   that matches its commitment.  This could be done by generating a
+
+
+
+McGrew & Rescorla      Expires September 30, 2007               [Page 7]
+
+Internet-Draft                SAS for DTLS                    March 2007
+
+
+   number of preimages which all generate the same hash image.  Thus,
+   the chosen hash function MUST be collision resistant and 1st and 2nd
+   preimage resistant in order that a recipient cannot infer the commit
+   value from the commitment.
+
+   See [5] for the design and analysis of a related scheme for proving
+   authentication of a string.  This design is informed by similar
+   principles.
+
+5.5.  SAS Uniqueness
+
+   An attacker mounting an MITM attack will have the same SAS to both
+   sides with probability 1/(2^k).  This will allow him to mount a
+   successful MITM with probability 1/(2^k).
+
+5.6.  Security of SAS Transport
+
+   The mechanism described here requires that the SAS be transported in
+   a secure fashion.  In at least one application (ZRTP) it has been
+   suggested that the SAS be carried in a voice channel protected by the
+   key exchange.  It is not clear that this is in fact a secure
+   mechanism, because voice channels are subject to manipulation of
+   various kinds.  This includes "bucket-brigade" style attacks as well
+   as simple voice spoofing.  However, this is somewhat out of scope for
+   this extension.
+
+   SAS should not be used for tying into external automated key
+   management systems.  Fingerprints or full-domain MACs should be used.
+   Importantly, the sole motivation for the new protocol machinery
+   defined in this draft is the desire to allow users to read a short
+   authentication string, e.g. one that represents a 25-bit value
+   instead of a 128-bit value.
+
+5.7.  UI Issues
+
+   SAS mechanisms put a significant burden on users, and lack of care on
+   the part of users can significantly raise the chance of success for
+   an attacker.
+
+
+6.  Acknowledgments
+
+   Thanks.
+
+
+7.  References
+
+
+
+
+
+McGrew & Rescorla      Expires September 30, 2007               [Page 8]
+
+Internet-Draft                SAS for DTLS                    March 2007
+
+
+7.1.  Normative References
+
+   [1]  Bradner, S., "Key words for use in RFCs to Indicate Requirement
+        Levels", BCP 14, RFC 2119, March 1997.
+
+   [2]  Dierks, T. and E. Rescorla, "The Transport Layer Security (TLS)
+        Protocol Version 1.1", RFC 4346, April 2006.
+
+7.2.  Informational References
+
+   [3]  Zimmermann, P., "ZRTP: Media Path Key Agreement for Secure RTP",
+        draft-zimmermann-avt-zrtp-03 (work in progress), March 2007.
+
+   [4]  McCune, A., Perrig, A., and M. Reiter, "Seeing-is-Believing:
+        Using Camera Phones for Human-Verifiable Authentication", IEEE
+        Symposium on Security and Privacy 2005, May 2005.
+
+   [5]  Vaudenay, S., "Secure Communications over Insecure Channels
+        Based on Short Authenticated Strings", CRYPTO 2005, August 2005.
+
+
+Authors' Addresses
+
+   David McGrew
+   Cisco Systems
+   510 McCarthy Blvd.
+   Milpitas, CA  95305
+   USA
+
+   Email:  mcgrew@cisco.com
+
+
+   Eric Rescorla
+   Network Resonance
+   2483 E. Bayshore #212
+   Palo Alto, CA  94303
+   USA
+
+   Email:  ekr@networkresonance.com
+
+
+
+
+
+
+
+
+
+
+
+
+McGrew & Rescorla      Expires September 30, 2007               [Page 9]
+
+Internet-Draft                SAS for DTLS                    March 2007
+
+
+Full Copyright Statement
+
+   Copyright (C) The IETF Trust (2007).
+
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
+
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
+
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
+
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
+
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
+
+
+Acknowledgment
+
+   Funding for the RFC Editor function is provided by the IETF
+   Administrative Support Activity (IASA).
+
+
+
+
+
+McGrew & Rescorla      Expires September 30, 2007              [Page 10]
+

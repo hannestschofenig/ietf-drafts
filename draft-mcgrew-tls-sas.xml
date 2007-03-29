@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY rfc1889 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1889.xml">
+<!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY rfc2434 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2434.xml">
+<!ENTITY rfc3550 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3550.xml">
+<!ENTITY rfc4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
+<!ENTITY rfc4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
+<!ENTITY rfc3711 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
+<!ENTITY I-D.fischl-sipping-media-dtls SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.fischl-sipping-media-dtls.xml">
+<!ENTITY I-D.fischl-mmusic-sdp-dtls SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.fischl-mmusic-sdp-dtls.xml">
+<!ENTITY I-D.ietf-mmusic-sdescriptions SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-mmusic-sdescriptions.xml">
+<!ENTITY I-D.ietf-tls-rfc2246-bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc2246-bis.xml">
+<!ENTITY I-D.ietf-tls-rfc3546bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc3546bis.xml">
+<!ENTITY I-D.ietf-behave-rfc3489bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-behave-rfc3489bis.xml">
+<!ENTITY I-D.mcgrew-srtp-big-aes SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.mcgrew-srtp-big-aes.xml">
+<!ENTITY I-D.ietf-avt-rtp-and-rtcp-mux SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avt-rtp-and-rtcp-mux.xml">
+<!ENTITY I-D.rescorla-tls-extractor SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.rescorla-tls-extractor.xml">
+<!ENTITY I-D.zimmermann-avt-zrtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.zimmermann-avt-zrtp.xml">
+]>
+<!-- $Id -->
+<?rfc inline="yes"?>
+<?rfc toc="yes" ?>
+<?rfc symrefs="no" ?>
+<?rfc iprnotified="no" ?>
+<?rfc strict="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc sortrefs="no" ?>
+<?rfc colonspace='yes' ?>
+<rfc category="std" docName="draft-mcgrew-tls-sas-00.txt" ipr="full3978">
+  <front>
+    <title abbrev="SAS for DTLS">Short Authentication String Extension for DTLS</title>
+    <author fullname="David McGrew" initials="D." surname="McGrew">
+      <organization>Cisco Systems</organization>
+
+      <address>
+        <postal>
+          <street>510 McCarthy Blvd.</street>
+
+          <city>Milpitas</city>
+
+          <region>CA</region>
+
+          <code>95305</code>
+
+          <country>USA</country>
+        </postal>
+
+        <email>mcgrew@cisco.com</email>
+      </address>
+    </author>
+
+    <author fullname="Eric Rescorla" initials="E." surname="Rescorla">
+      <organization>Network Resonance</organization>
+
+      <address>
+        <postal>
+          <street>2483 E. Bayshore #212</street>
+
+          <city>Palo Alto</city>
+
+          <region>CA</region>
+
+          <code>94303</code>
+
+          <country>USA</country>
+        </postal>
+
+        <email>ekr@networkresonance.com</email>
+      </address>
+    </author>
+
+    <date day="29" month="March" year="2007" />
+
+    <abstract>
+      <t>This draft describes a short authentication string
+	 mechanism for TLS.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+    <t>
+    Public key cryptography can provide the basis for establishing
+    secure TLS <xref target="RFC4346"/> connections, but it requires that each endpoint know
+    the public key of the other endpoint in advance.  In some
+    situations, it is not possible to provide authenticated public
+    keys, e.g. due to the lack of a supporting Public Key
+    Infrastructure (PKI) with a root key trusted by both users, but
+    there is an opportunity to use an interaction between human users
+    to provide some authentication of public keys.  For example, a
+    user on one end of a connection can read an authentication string
+    displayed to a user on the other end of the connection, who can
+    confirm that it matches the authentication string displayed at the
+    other end of the connection. Another example is as a side channel
+    to authenticate a wireless connection (cf. <xref target="MPK05"/>
+    </t>
+    <t>
+    Because it is awkward for human
+    users to read and verify long sequences of characters, it is
+    important that such a system uses a short authentication string
+    (SAS), for instance, a sequence of four characters, a four-digit
+    identification number, or a keyword selected from a list of 2^16
+    words. Because the SAS is short, any protocol that relies on SAS
+    authentication must protect against attacks in which an active
+    adversary manipulates the SAS value on one connection so that it
+    matches the SAS value on another connection.  This potential attack
+    can be defeated by a commitment scheme; this scheme prevents a would-
+    be attacker from manipulating the SAS value.
+
+    </t>
+    <t>
+    In this document, we define an extension to the Transport Layer
+    Security (TLS) protocol that provides a way to use an SAS to
+    authenticate a connection.  Our method works with the existing
+    X.509 certificate-based authentication in TLS, and it can deliver
+    better security for the case in which one or more self-signed
+    certifcates are used.  Additionally, it can be used with normal
+    certificates.  These certificates can be cached after a successful
+    SAS verification; thus the SAS mechanism can be used to bootstrap
+    a certificate-based infrastructure.  While the security of SAS is
+    less than that of a full PKI, the use of cached SAS-validated
+    certificates supplies better security than self-signed
+    certificates, and the caching of these certificates relieves the
+    human user of the burden of repeatedly performing the manual SAS
+    validation steps.
+    </t>
+    <t>
+    The goals for the SAS method are:
+    </t>
+    <t>
+    <list style="symbols">
+    <t>To provide a high a level of security as possible; e.g., to
+     detect an active attacker with a failure rate that is not much
+     higher than 1/2^b, where b is the number of bits in the SAS.
+     </t>
+     <t>
+     To work with both x.509 certificate authentication and 
+     anonymous Diffie-Hellman.
+     </t>
+     <t>
+     To maintain security even when a certificate or public key is
+     predictable to an adversary; this property enables the use of
+     long-term certificates and long-term public keys without any loss
+     of security.
+     </t>
+     <t>
+     To require only minimal changes to the TLS protocol, and to have
+     minimal impact to TLS implementations.
+     </t>
+   </list>
+   </t>
+   <t>
+   [[NOTE: This mechanism is a strawman. It has seen very minimal review 
+   and therefore is likely to change over time.]]
+   </t>
+    </section>
+    <section title="Conventions Used In This Document">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+      document are to be interpreted as described in <xref
+      target="RFC2119"></xref>.</t>
+    </section>
+  <section title="Overview of Operation">
+  <t>
+  The SAS is computed as a product of the handshake operations.
+  The basic idea is to have the SAS be unpredictable to the client
+  (before it receives the server's Finished message) and
+  unpredictable to the server (before it receives the message containing
+  the Finished from the client). This prevents either side from
+  forcing the SAS in a particular exchange 
+  to a given value. In order to do this, we need
+  to have each side commit to a secret value which is only revealed
+  after the other side has revealed all of the variable material
+  under its control. 
+  </t>
+  </section>
+  <section title="Protocol Flow">
+  <t>
+  The following figure shows the protocol flow with the SAS scheme.
+  </t>
+  <figure>
+     <artwork><![CDATA[	
+      Client                                               Server
+
+      ClientHello + commitment     -------->
+   
+                                         ServerHello + commitment
+                                                     Certificate*
+                                               ServerKeyExchange*
+                                              CertificateRequest*
+                                   <--------      ServerHelloDone
+      Certificate*
+      ClientKeyExchange
+      CertificateVerify*
+      CommitmentReveal
+      [ChangeCipherSpec]
+      Finished                     -------->
+                                                 CommitmentReveal
+                                               [ChangeCipherSpec]
+                                   <--------             Finished
+
+      <Computes SAS>                               <Computes SAS>
+
+                    Figure 1: Commitment Protocol Flow
+]]></artwork>
+        </figure>
+  <t>
+  Each side generates a random secret value and commits to it 
+  in their Hello message. They then reveal it after the other
+  side has transmitted all of their variable data. The SAS
+  computation includes the secret values, thus preventing
+  either side from forcing the SAS to a given value. If we
+  assume that the voice channel over which the SAS is transmitted is
+  secure then the entire handshake can be authenticated.
+  </t>
+  </section>
+  <section title="Protocol Description">
+  <t>
+  The SAS mechanism consists of two parts. In the first, the
+  TLS handshake is performed using the new commitment mechanism.
+  In the second, each side computes their SAS value and exchanges
+  it via some unspecified mechanism, though the paradigmatic
+  example is via voice over the negotiated channel as in ZRTP
+  <xref target="I-D.zimmermann-avt-zrtp"/>.
+  This section describes the details of these parts.
+  </t>
+  <section title="Commitment Mechanism">
+  <t>
+  In the commitment mechanism, each side generates a fresh pseudorandom
+  value X and then transmits a commitment for X, C(X) to the other
+  side. At the end of the handshake, once all variable material from
+  the other side has been received, each side reveals their commitment.
+  The sides then verify that each side has correctly fulfilled their
+  commitment as an additional check on the handshake.
+  </t>
+  <section title="Commitment">
+  <t>
+  The client requests support for the commitment feature by sending
+  the "commitment" extension in its ClientHello. The "extension_data"
+  field contains a CommitmentValues structure;
+  </t>
+  <figure>
+     <artwork><![CDATA[	
+     struct {
+       CommitmentValue values<2^16-1>;
+     } CommitmentValues;
+
+     struct {
+       HashType hash_type;     
+       opaque hash_value<255>;
+     } CommitmentValue;
+]]></artwork>
+        </figure>
+  <t>
+  In order to generate the CommitmentValue structure the client generates
+  a fresh random opaque value X of length 1..255 (it is RECOMMENDED
+  that this value be at least 80 bits). For each hash function it 
+  is willing to support it generates a commitment by computing H(X).
+  For each CommitmentValue, the "hash_type" value contains the identity
+  of the hash and the "hash_value" contains H(X) using that hash.
+  At least SHA-256 MUST be included.
+  </t>
+  <t>
+  If the server is willing to use the commitment feature, it MUST respond
+  with its own "commitment" extension. Otherwise it MUST ignore the
+  extension. It MUST select one of the hashes offered by the client
+  and send only that hash.
+  </t>
+  </section>
+  <section title="Revelation">
+  <t>
+  The second stage of the commitment mechanism is to reveal the value
+  X which was previously committed to. This is done with a CommitmentReveal
+  handshake message. The CommitmentReveal message is sent right before
+  the Finished message, as shown in Figure 1.
+  </t>
+  <figure>
+     <artwork><![CDATA[	
+     struct {
+       opaque value<255>;
+     } CommitmentValue;
+]]></artwork>
+        </figure>
+  <t>
+  The CommitmentReveal contains the value X which was committed to 
+  in the "commitment" extension. Recipients MUST verify that the
+  hash value sent in the "commitment" extension sent by the other
+  side, using the hash algorithm selected by the server. If the
+  commitment does not match, a fatal "decrypt_error" MUST be
+  generated and the handshake terminated. The CommitmentReveal
+  message MUST be included in the Finished computation. Thus, the
+  client's Finished does not include the server's CommitmentReveal
+  but the servers includes both.
+  </t>
+  </section>
+  </section>
+  <section title="SAS Computation">
+  <t>
+  The SAS computation is computed using the following algorithm.
+  </t>
+  <figure>
+     <artwork><![CDATA[	
+     HandshakeSignature = PRF(master_secret, "sas value",
+        Client.verify_data + Server.verify_data)[20]
+]]></artwork>
+        </figure>
+  <t>
+  A k-bit long SAS is computed by taking the leading
+  k bits of the HandshakeSignature value. Therefore an m-bit
+  SAS is a prefix of an n-bit SAS where n&gt;m. A 20-bit SAS is
+  recommended. 
+  </t>
+  <section title="Representing the SAS">
+  <t>
+  SAS values SHOULD be represented using the base32 representation
+  described at: http://en.wikipedia.org/wiki/Base32.
+  [[ TODO: Exactly how to do this is an open issue, but probably
+  we want some sort of base32/base256 encoding, but this is really
+  orthogonal to the crypto issue, which is what this is fundamentally
+  about ]]
+  </t>
+  </section>
+  </section>
+  <section title="Security Considerations">
+  <t>
+  The first question to ask is whether this mechanism weakens TLS
+  per se. Fundamentally, it allows one side to inject controlled inputs
+  into the TLS handshake, thus allowing either side to perturb 
+  the Finished messages. However, TLS already allowed a substantial
+  amount of variable content (certificates, key exchange messages,
+  etc.,) so this does not appear to introduce new security issues.
+  </t>
+  </section>
+  <section title="Security of the Commitment Mechanism">
+  <t>
+  The purpose of the commitment mechanism is to ensure that
+  neither side can control the value of the SAS. Because the
+  SAS is based on the entire handshake (via the Finished
+  messages), and this includes a secret value from the 
+  server's CommitmentReveal message, the client clearly cannot
+  control the SAS (assuming that the server is using a strong
+  PRNG and that the hash function used is first preimage
+  resistant.)
+  </t>
+  <t>
+  Because the server contributes the final variable value,
+  the server could potentially influence the SAS. However,
+  the required server CommitmentValue depends on
+  the rest of the handshake, including the client's CommitmentValue,
+  which the server does not have at the time when the server 
+  generates his own commitment in the "commitment" extension.
+  In order to attack this mechanism, the server would need to
+  be able to generate multiple potential CommitmentValue preimages
+  that matches its commitment. This could be done by generating
+  a number of preimages which all generate the same hash image.
+  Thus, the chosen hash function MUST be collision resistant and
+  1st and 2nd preimage resistant in order 
+  that a recipient cannot infer the commit value from the commitment.
+  </t>
+  <t>
+  See <xref target="Vau05"/> for the design and analysis of a 
+  related scheme for proving authentication of a string. This
+  design is informed by similar principles.
+  </t>
+  </section>
+  <section title="SAS Uniqueness">
+  <t>
+  An attacker mounting an MITM attack will have the same SAS to
+  both sides with probability 1/(2^k). This will allow him to
+  mount a successful MITM with probability 1/(2^k).
+  </t>
+  </section>
+  <section title="Security of SAS Transport">
+  <t>
+  The mechanism described here requires that the SAS be transported
+  in a secure fashion. In at least one application (ZRTP) it has been 
+  suggested that the SAS be carried in a voice channel protected
+  by the key exchange. It is not clear that this is in fact a
+  secure mechanism, because voice channels are subject to manipulation
+  of various kinds. This includes "bucket-brigade" style attacks
+  as well as simple voice spoofing. However, this is somewhat out of scope for this extension.
+  </t>
+  <t>
+  SAS should not be used for tying into external automated key 
+  management systems. Fingerprints or full-domain MACs should 
+  be used.
+  Importantly, the sole motivation for the new protocol
+  machinery defined in this draft is the desire to allow users to read
+  a short authentication string, e.g. one that represents a 25-bit
+  value instead of a 128-bit value.
+  </t>	
+  </section>    
+  <section title="UI Issues">
+  <t>
+  SAS mechanisms put a significant burden on users, and lack of care
+  on the part of users can significantly raise the chance of success
+  for an attacker.
+  </t>
+  </section>
+  </section>
+  <section title="Acknowledgments">
+    <t>Thanks.</t>
+  </section>
+
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      &rfc2119;
+      &rfc4346;
+    </references>
+
+    <references title="Informational References">
+      &I-D.zimmermann-avt-zrtp;
+
+      <reference anchor="MPK05">
+        <front>
+        <title>Seeing-is-Believing: Using Camera Phones for Human-Verifiable Authentication</title>
+        <author initials="A." surname="McCune" fullname="Jonathan M. McCune">
+	<organization abbrev="None">None</organization>
+	</author>
+        <author initials="A." surname="Perrig" fullname="Adrian Perrig">
+	<organization abbrev="None">None</organization>
+	</author>
+        <author initials="M.K." surname="Reiter" fullname="Michael K. Reiter">
+	<organization abbrev="None">None</organization>
+	</author>
+        <date month="May" year="2005"/>
+	</front>
+        <seriesInfo name="IEEE Symposium on Security and Privacy" value="2005"/>
+      </reference>      
+      <reference anchor="Vau05">
+        <front>
+        <title>Secure Communications over Insecure Channels Based on Short Authenticated Strings</title>
+        <author initials="S." surname="Vaudenay" fullname="Serge Vaudenay">
+	<organization abbrev="None">None</organization>
+	</author>
+        <date month="August" year="2005"/>
+	</front>
+        <seriesInfo name="CRYPTO" value="2005"/>
+      </reference>      
+
+    </references>
+
+
+  
+  </back>
+</rfc>
+<!-- Keep this comment at the end of the file
+Local variables:
+mode: xml
+sgml-omittag:nil
+sgml-shorttag:nil
+sgml-namecase-general:nil
+sgml-general-insert-case:lower
+sgml-minimize-attributes:nil
+sgml-always-quote-attributes:t
+sgml-indent-step:2
+sgml-indent-data:nil
+sgml-parent-document:nil
+sgml-exposed-tags:nil
+sgml-local-catalogs:nil
+sgml-local-ecat-files:nil
+End:
+-->
