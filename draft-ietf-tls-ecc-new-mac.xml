@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY rfc4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
+<!ENTITY rfc4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
+<!ENTITY rfc4492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4492.xml">
+<!ENTITY rfc3686 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3686.xml">
+<!ENTITY I-D.ietf-tls-rfc4346-bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc4346-bis.xml">
+<!ENTITY I-D.ietf-tls-ctr SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-ctr.xml">
+<!ENTITY I-D.mcgrew-auth-enc SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.mcgrew-auth-enc.xml">
+<!ENTITY I-D.salowey-tls-rsa-aes-gcm SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.salowey-tls-rsa-aes-gcm.xml">
+
+]>
+
+<!-- $Id -->
+<?rfc toc="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc inline="yes"?>
+<?rfc toc="yes" ?>
+<?rfc iprnotified="no" ?>
+<?rfc compact="yes" ?>
+<?rfc sortrefs="no" ?>
+<?rfc colonspace='yes' ?>
+<rfc category="std" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-00.txt">
+
+<front>
+     <title abbrev="TLS ECC New MAC">TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode</title>
+           <author initials="E.K." surname="Rescorla"
+                   fullname="Eric Rescorla">
+               <organization>Network Resonance</organization>
+
+               <address>
+                   <postal>
+                       <street>2483 E. Bayshore #212</street>
+                       <city>Palo Alto</city> 
+                       <code>94303</code>
+		       <state>CA</state>
+                       <country>USA</country>
+                   </postal>
+
+                   <email>ekr@networkresonance.com</email>
+               </address>
+
+           </author>
+
+           <date month="April" year="2007" />
+
+           <abstract>
+               <t>RFC 4492 describes elliptic curve cipher suites for
+               Transport Layer Security (TLS). However, all those
+               cipher suites use SHA-1 as their MAC algorithm. This
+               document describes eight new CipherSuites for TLS/DTLS
+               which specify stronger digest algorithms. Four
+	       use HMAC with SHA-256 or SHA-384 and four use
+	       AES in Galois Counter Mode (GCM).
+</t>
+           </abstract>
+       </front>
+<middle>
+<section title="Introduction" anchor="intro">
+<t>
+RFC 4492 <xref target="RFC4492"/> describes Elliptic Curve Cryptography
+(ECC) cipher suites for Transport Layer Security (TLS). However, all of the RFC
+4492 suites use HMAC-SHA1 as their MAC algorithm. Due to recent
+analytic work on SHA-1 [REF], the IETF is gradually moving away
+from SHA-1 and towards stronger hash algorithms. This document
+specifies TLS ECC cipher suites which replace SHA-256 and SHA-384
+rather than SHA-1.
+</t>
+<t>
+TLS 1.2 <xref target="I-D.ietf-tls-rfc4346-bis"/>, adds support for authenticated encryption with additional data (AEAD)
+cipher modes <xref target="I-D.mcgrew-auth-enc"/>. This document
+also specifies a set of ECC cipher suites using one such mode,
+Galois Counter Mode (GCM) <xref target="GCM"/>. Another document
+<xref target="I-D.salowey-tls-rsa-aes-gcm"/>, provides support for
+GCM with other key establishment methods.
+</t>
+<section title="Conventions Used In This Document">
+  <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in <xref
+    target="RFC2119"></xref>.</t>
+</section>
+</section>
+<section title="Cipher Suites">
+<t>
+This document defines 8 new cipher suites to be added to TLS. All use
+Elliptic Curve Cryptography for key exchange and digital signature, as
+defined in RFC 4492.
+</t>
+<section title="HMAC-based Cipher Suites">
+<t>
+The first four cipher suites use AES in CBC mode with an
+HMAC-based MAC:
+</t>
+<artwork>
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256  = {0xXX,XX}  
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384  = {0xXX,XX}
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX}
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX}
+</artwork>
+<t>
+These four cipher suites are the same as the corresponding cipher
+suites in RFC 4492 (TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, 
+TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
+and TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA) except that SHA-256 is
+used for the MAC with AES-128 and SHA-384 is used for the MAC
+with AES-256. As described in TLS 1.2, the digest used
+for the MAC MUST also be used in the PRF.
+</t>
+</section>
+<section title="Galois Counter Mode-based Cipher Suites">
+<t>
+The second four cipher suites use the new authenticated encryption
+modes defined in TLS 1.2 with AES in Galois Counter Mode (GCM) 
+<xref target="GCM"/>:
+</t>
+<artwork>
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256  = {0xXX,XX}  
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384  = {0xXX,XX}
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256   = {0xXX,XX}
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX}
+</artwork>
+<t>
+These cipher suites use the authenticated encryption with additional
+data algorithms AEAD_AES_128_GCM and AEAD_AES_256_GCM described in
+<xref target="I-D.mcgrew-auth-enc"/>. The "nonce" input to the AEAD
+algorithm SHALL be 12 bytes long, and constructed as follows:
+</t>
+<artwork>
+          struct {
+             case client:
+                 uint32 client_write_IV;  // low order 32-bits
+             case server:
+                 uint32 server_write_IV;  // low order 32-bits
+             uint64 seq_num;
+          } GCMNonce.
+</artwork>
+<t>
+In DTLS, the 64-bit seq_num is the 16-bit epoch concatenated with
+the 48-bit seq_num.
+</t>
+<t>
+This construction allows the internal counter to be 32-bits long,
+which is the most convenient size for use with GCM. 
+</t>
+<t>Note: the role played by the client_write_IV and server_write_IV
+is often called "salt" in counter mode specifications <xref target="RFC3686"/>.
+</t>
+<t>
+Because GCM does not use HMAC as a MAC function, the hash function for
+the TLS PRF must be explicitly specified.
+</t>
+<t>For
+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 and
+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be SHA-256.
+</t>
+<t>
+For
+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 and
+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be SHA-384.
+</t>
+</section>
+<section title="Acknowledgements">
+<t>
+This work was supported by the US Department of Defense.
+</t>
+</section>
+<section title="TLS Versions">
+<t>
+Because these cipher suites depend on features available only in TLS
+1.2 (PRF flexibility and combined authenticated encryption cipher
+modes), they MUST NOT be negotiated in older versions of TLS. Clients
+MUST NOT offer these cipher suites if they do not offer TLS 1.2 or
+later. Servers which select an earlier version of TLS MUST NOT select
+one of these cipher suites. Because TLS has no way for the client to
+indicate that it supports TLS 1.2 but not earlier, a non-compliant
+server might potentially negotiate TLS 1.1 or earlier and select one
+of the cipher suites in this document. Clients MUST check the
+TLS version and generate a fatal "illegal_parameter" alert
+if they detect an incorrect version.
+</t>
+</section>
+<section title="Security Considerations">
+<t>The security considerations in RFC 4346 and RFC 4492 apply to
+this document as well. The remainder of this section describes
+security considerations
+specific to the cipher suites described in this document.
+</t>
+<section title="Downgrade Attack">
+<t>
+TLS negotiation is only as secure as the weakest cipher suite
+that is supported. For instance, an implementation which 
+supports both 160-bit and 256-bit elliptic curves can be
+subject to an active downgrade attack to the 160-bit security
+level. An attacker who can attack that can then forge the Finished
+handshake check and successfully mount a man-in-the-middle
+attack.
+</t>
+<t>
+In environments where there is a concern about this
+form of attack, implementations SHOULD only offer cipher
+suites which are as strong as their minimum acceptable
+security level.
+</t>
+</section>
+<section title="Perfect Forward Secrecy">
+<t>
+The static ECDH cipher suites specified in this document do
+not provide perfect forward secrecy (PFS). Thus, compromise
+of a single static key leads to potential decryption of all traffic
+protected using that key. Implementors of this specification
+SHOULD provide at least one ECDHE mode of operation.
+</t>
+</section>
+<section title="Counter Reuse with GCM">
+<t>
+AES-GCM is only secure if the counter is never reused. The
+IV construction algorithm above is designed to ensure that that
+cannot happen.
+</t>
+</section>
+</section>	
+<section title="IANA Considerations">
+<t>
+IANA has assigned the following values for the SuiteB cipher suites:
+<artwork>
+   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX}  
+   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX}
+   CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256    = {0xXX,XX}
+   CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384    = {0xXX,XX}
+   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256   = {0xXX,XX}  
+   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX}
+   CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256    = {0xXX,XX}
+   CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384    = {0xXX,XX}
+</artwork>
+</t>
+</section>
+</section>
+</middle>
+<back>
+<references title="Normative References">
+
+&rfc2119;
+&rfc3686;
+&rfc4346;
+&rfc4347;
+&rfc4492;
+&I-D.mcgrew-auth-enc;
+&I-D.ietf-tls-rfc4346-bis;
+&I-D.ietf-tls-ctr;
+
+<reference anchor="AES">
+        <front>
+          <title abbrev="AES">Specification for the Advanced Encryption Standard (AES)</title>
+
+          <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology"><organization></organization>
+          </author>
+
+          <date month="November" year="2001" />
+        </front>
+
+        <seriesInfo name="FIPS"
+                    value="197" />
+</reference>
+
+<reference anchor="SHS">
+        <front>
+          <title abbrev="SHS">Secure Hash Standard</title>
+
+          <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology">
+          </author>
+
+          <date month="August" year="2002" />
+        </front>
+
+        <seriesInfo name="FIPS"
+                    value="180-2" />
+</reference>
+
+<reference anchor="GCM">
+        <front>
+          <title abbrev="GCM">Recommendation for Block Cipher Modes of Operation: Galois;/Counter Mode (GCM) for Confidentiality and Authentication</title>
+
+          <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology">
+          </author>
+
+          <date month="April" year="2006" />
+        </front>
+
+        <seriesInfo name="SP"
+                    value="800-38D" />
+</reference>
+
+</references>
+<references title="Informative References">
+&I-D.salowey-tls-rsa-aes-gcm;
+</references>
+</back>
+</rfc>
