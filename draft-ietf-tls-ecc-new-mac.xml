@@ -21,7 +21,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-00.txt">
+<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-00.txt"> 
 
 <front>
      <title abbrev="TLS ECC New MAC">TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode</title>
@@ -62,7 +62,7 @@
 RFC 4492 <xref target="RFC4492"/> describes Elliptic Curve Cryptography
 (ECC) cipher suites for Transport Layer Security (TLS). However, all of the RFC
 4492 suites use HMAC-SHA1 as their MAC algorithm. Due to recent
-analytic work on SHA-1 [REF], the IETF is gradually moving away
+analytic work on SHA-1 <xref target="Wang05"/>, the IETF is gradually moving away
 from SHA-1 and towards stronger hash algorithms. This document
 specifies TLS ECC cipher suites which replace SHA-256 and SHA-384
 rather than SHA-1.
@@ -90,24 +90,30 @@ defined in RFC 4492.
 </t>
 <section title="HMAC-based Cipher Suites">
 <t>
-The first four cipher suites use AES in CBC mode with an
+The first four cipher suites use AES <xref target="AES"/> in CBC mode with an
 HMAC-based MAC:
 </t>
 <artwork>
-     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256  = {0xXX,XX}  
-     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384  = {0xXX,XX}
-     CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX}
-     CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX}
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256  = {0xXX,XX};  
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384  = {0xXX,XX};
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX};
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX};
 </artwork>
 <t>
 These four cipher suites are the same as the corresponding cipher
 suites in RFC 4492 (TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, 
 TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
-and TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA) except that SHA-256 is
-used for the MAC with AES-128 and SHA-384 is used for the MAC
-with AES-256. As described in TLS 1.2, the digest used
-for the MAC MUST also be used in the PRF.
+and TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA) except for the hash and PRF
+algorithms, which are SHA-256 and SHA-384 <xref target="SHS"/> as follows.
 </t>
+<artwork>
+     Cipher Suite                                MAC          PRF
+     ------------                                ---          ---
+     TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256     HMAC-SHA-256 P_SHA-256 
+     TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384     HMAC-SHA-384 P_SHA-384
+     TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256      HMAC-SHA-256 P_SHA-256 
+     TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384      HMAC-SHA-384 P_SHA-384
+</artwork>
 </section>
 <section title="Galois Counter Mode-based Cipher Suites">
 <t>
@@ -116,10 +122,10 @@ modes defined in TLS 1.2 with AES in Galois Counter Mode (GCM)
 <xref target="GCM"/>:
 </t>
 <artwork>
-     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256  = {0xXX,XX}  
-     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384  = {0xXX,XX}
-     CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256   = {0xXX,XX}
-     CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX}
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256  = {0xXX,XX};
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384  = {0xXX,XX};
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256   = {0xXX,XX};
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX};
 </artwork>
 <t>
 These cipher suites use the authenticated encryption with additional
@@ -129,13 +135,15 @@ algorithm SHALL be 12 bytes long, and constructed as follows:
 </t>
 <artwork>
           struct {
-             case client:
-                 uint32 client_write_IV;  // low order 32-bits
-             case server:
-                 uint32 server_write_IV;  // low order 32-bits
+             opaque salt[4];
              uint64 seq_num;
           } GCMNonce.
 </artwork>
+<t>
+The salt value is either the client_write_IV if the client is sending
+or the server_write_IV if the server is sending. These IVs SHALL be
+4 bytes long.
+</t>
 <t>
 In DTLS, the 64-bit seq_num is the 16-bit epoch concatenated with
 the 48-bit seq_num.
@@ -148,18 +156,16 @@ which is the most convenient size for use with GCM.
 is often called "salt" in counter mode specifications <xref target="RFC3686"/>.
 </t>
 <t>
-Because GCM does not use HMAC as a MAC function, the hash function for
-the TLS PRF must be explicitly specified.
+The PRF algorithms SHALL be as follows:
 </t>
 <t>For
 TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 and
-TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be SHA-256.
+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be P_SHA-256.
 </t>
 <t>
 For
 TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 and
-TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be SHA-384.
-</t>
+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be P_SHA-384.</t>
 </section>
 <section title="Acknowledgements">
 <t>
@@ -197,12 +203,6 @@ level. An attacker who can attack that can then forge the Finished
 handshake check and successfully mount a man-in-the-middle
 attack.
 </t>
-<t>
-In environments where there is a concern about this
-form of attack, implementations SHOULD only offer cipher
-suites which are as strong as their minimum acceptable
-security level.
-</t>
 </section>
 <section title="Perfect Forward Secrecy">
 <t>
@@ -223,16 +223,16 @@ cannot happen.
 </section>	
 <section title="IANA Considerations">
 <t>
-IANA has assigned the following values for the SuiteB cipher suites:
+IANA has assigned the following values for these cipher suites:
 <artwork>
-   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX}  
-   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX}
-   CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256    = {0xXX,XX}
-   CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384    = {0xXX,XX}
-   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256   = {0xXX,XX}  
-   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX}
-   CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256    = {0xXX,XX}
-   CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384    = {0xXX,XX}
+   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX};
+   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX};
+   CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256    = {0xXX,XX};
+   CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384    = {0xXX,XX};
+   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256   = {0xXX,XX};  
+   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX};
+   CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256    = {0xXX,XX};
+   CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384    = {0xXX,XX};
 </artwork>
 </t>
 </section>
@@ -243,12 +243,9 @@ IANA has assigned the following values for the SuiteB cipher suites:
 
 &rfc2119;
 &rfc3686;
-&rfc4346;
-&rfc4347;
 &rfc4492;
 &I-D.mcgrew-auth-enc;
 &I-D.ietf-tls-rfc4346-bis;
-&I-D.ietf-tls-ctr;
 
 <reference anchor="AES">
         <front>
@@ -289,8 +286,18 @@ IANA has assigned the following values for the SuiteB cipher suites:
         </front>
 
         <seriesInfo name="SP"
-                    value="800-38D" />
+                    value="800-38D (DRAFT)" />
 </reference>
+<reference anchor="Wang05">
+        <front>
+	<title abbrev="Wang05">Finding Collisions in the Full SHA-1</title>
+	<author initials="X" surname="Wang" fullname="Xiaoyun Wang"/>
+	<author initials="Y.L." surname="Yin" fullname="Yiqun Lisa Yin"/>
+	<author initials="H." surname="Yu" fullname="Hongbo Yu"/>
+	<date month="August" year="2005"/>
+	</front>
+	<seriesInfo name="CRYPTO" value="2005"/>
+</reference>		
 
 </references>
 <references title="Informative References">
