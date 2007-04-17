@@ -64,13 +64,13 @@ Table of Contents
    2.  Cipher Suites . . . . . . . . . . . . . . . . . . . . . . . . . 3
      2.1.  HMAC-based Cipher Suites  . . . . . . . . . . . . . . . . . 3
      2.2.  Galois Counter Mode-based Cipher Suites . . . . . . . . . . 4
-     2.3.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . 5
+     2.3.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . 4
      2.4.  TLS Versions  . . . . . . . . . . . . . . . . . . . . . . . 5
      2.5.  Security Considerations . . . . . . . . . . . . . . . . . . 5
        2.5.1.  Downgrade Attack  . . . . . . . . . . . . . . . . . . . 5
        2.5.2.  Perfect Forward Secrecy . . . . . . . . . . . . . . . . 5
        2.5.3.  Counter Reuse with GCM  . . . . . . . . . . . . . . . . 5
-     2.6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . 6
+     2.6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . 5
    3.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 6
      3.1.  Normative References  . . . . . . . . . . . . . . . . . . . 6
      3.2.  Informative References  . . . . . . . . . . . . . . . . . . 7
@@ -203,12 +203,6 @@ Internet-Draft               TLS ECC New MAC                  April 2007
    In DTLS, the 64-bit seq_num is the 16-bit epoch concatenated with the
    48-bit seq_num.
 
-   This construction allows the internal counter to be 32-bits long,
-   which is the most convenient size for use with GCM.
-
-   Note:  the role played by the client_write_IV and server_write_IV is
-   often called "salt" in counter mode specifications [RFC3686].
-
    The PRF algorithms SHALL be as follows:
 
    For TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 and
@@ -217,6 +211,12 @@ Internet-Draft               TLS ECC New MAC                  April 2007
    For TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 and
    TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be P_SHA-384.
 
+2.3.  Acknowledgements
+
+   This work was supported by the US Department of Defense.
+
+
+
 
 
 
@@ -224,10 +224,6 @@ Rescorla                Expires October 19, 2007                [Page 4]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
-
-2.3.  Acknowledgements
-
-   This work was supported by the US Department of Defense.
 
 2.4.  TLS Versions
 
@@ -273,6 +269,10 @@ Internet-Draft               TLS ECC New MAC                  April 2007
    construction algorithm above is designed to ensure that that cannot
    happen.
 
+2.6.  IANA Considerations
+
+   IANA has assigned the following values for these cipher suites:
+
 
 
 
@@ -280,10 +280,6 @@ Rescorla                Expires October 19, 2007                [Page 5]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
-
-2.6.  IANA Considerations
-
-   IANA has assigned the following values for these cipher suites:
 
       CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX};
       CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX};
@@ -301,10 +297,6 @@ Internet-Draft               TLS ECC New MAC                  April 2007
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
-
-   [RFC3686]  Housley, R., "Using Advanced Encryption Standard (AES)
-              Counter Mode With IPsec Encapsulating Security Payload
-              (ESP)", RFC 3686, January 2004.
 
    [RFC4492]  Blake-Wilson, S., Bolyard, N., Gupta, V., Hawk, C., and B.
               Moeller, "Elliptic Curve Cryptography (ECC) Cipher Suites
@@ -329,6 +321,14 @@ Internet-Draft               TLS ECC New MAC                  April 2007
 
    [GCM]      National Institute of Standards and Technology,
               "Recommendation for Block Cipher Modes of Operation:
+              Galois;/Counter Mode (GCM) for Confidentiality and
+              Authentication", SP 800-38D (DRAFT), April 2006.
+
+   [Wang05]   Wang, X., Yin, Y., and H. Yu, "Finding Collisions in the
+              Full SHA-1", CRYPTO 2005, August 2005.
+
+
+
 
 
 
@@ -336,12 +336,6 @@ Rescorla                Expires October 19, 2007                [Page 6]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
-
-              Galois;/Counter Mode (GCM) for Confidentiality and
-              Authentication", SP 800-38D (DRAFT), April 2006.
-
-   [Wang05]   Wang, X., Yin, Y., and H. Yu, "Finding Collisions in the
-              Full SHA-1", CRYPTO 2005, August 2005.
 
 3.2.  Informative References
 
@@ -360,6 +354,12 @@ Author's Address
    USA
 
    Email:  ekr@networkresonance.com
+
+
+
+
+
+
 
 
 

@@ -149,13 +149,6 @@ In DTLS, the 64-bit seq_num is the 16-bit epoch concatenated with
 the 48-bit seq_num.
 </t>
 <t>
-This construction allows the internal counter to be 32-bits long,
-which is the most convenient size for use with GCM. 
-</t>
-<t>Note: the role played by the client_write_IV and server_write_IV
-is often called "salt" in counter mode specifications <xref target="RFC3686"/>.
-</t>
-<t>
 The PRF algorithms SHALL be as follows:
 </t>
 <t>For
@@ -242,7 +235,6 @@ IANA has assigned the following values for these cipher suites:
 <references title="Normative References">
 
 &rfc2119;
-&rfc3686;
 &rfc4492;
 &I-D.mcgrew-auth-enc;
 &I-D.ietf-tls-rfc4346-bis;
