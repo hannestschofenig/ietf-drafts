@@ -3,8 +3,8 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                         Network Resonance
-Intended status:  Informational                           April 17, 2007
-Expires:  October 19, 2007
+Intended status:  Informational                           April 22, 2007
+Expires:  October 24, 2007
 
 
 TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter
@@ -34,7 +34,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on October 19, 2007.
+   This Internet-Draft will expire on October 24, 2007.
 
 Copyright Notice
 
@@ -52,7 +52,7 @@ Abstract
 
 
 
-Rescorla                Expires October 19, 2007                [Page 1]
+Rescorla                Expires October 24, 2007                [Page 1]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
@@ -108,7 +108,7 @@ Table of Contents
 
 
 
-Rescorla                Expires October 19, 2007                [Page 2]
+Rescorla                Expires October 24, 2007                [Page 2]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
@@ -164,7 +164,7 @@ Internet-Draft               TLS ECC New MAC                  April 2007
 
 
 
-Rescorla                Expires October 19, 2007                [Page 3]
+Rescorla                Expires October 24, 2007                [Page 3]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
@@ -220,7 +220,7 @@ Internet-Draft               TLS ECC New MAC                  April 2007
 
 
 
-Rescorla                Expires October 19, 2007                [Page 4]
+Rescorla                Expires October 24, 2007                [Page 4]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
@@ -276,7 +276,7 @@ Internet-Draft               TLS ECC New MAC                  April 2007
 
 
 
-Rescorla                Expires October 19, 2007                [Page 5]
+Rescorla                Expires October 24, 2007                [Page 5]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
@@ -332,7 +332,7 @@ Internet-Draft               TLS ECC New MAC                  April 2007
 
 
 
-Rescorla                Expires October 19, 2007                [Page 6]
+Rescorla                Expires October 24, 2007                [Page 6]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
@@ -388,7 +388,7 @@ Author's Address
 
 
 
-Rescorla                Expires October 19, 2007                [Page 7]
+Rescorla                Expires October 24, 2007                [Page 7]
 
 Internet-Draft               TLS ECC New MAC                  April 2007
 
@@ -444,5 +444,5 @@ Acknowledgment
 
 
 
-Rescorla                Expires October 19, 2007                [Page 8]
+Rescorla                Expires October 24, 2007                [Page 8]
 
