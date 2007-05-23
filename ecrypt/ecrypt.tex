@@ -1,0 +1,993 @@
+\documentclass[semrot,fancybox]{seminar}
+
+\usepackage{ifpdf}
+\usepackage{graphicx}
+\input xy
+\xyoption{all}
+\ifpdf
+%%%%%%%%
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+\fi
+
+\usepackage{graphicx}
+\usepackage{color} 
+\usepackage{slidesec}
+\renewcommand{\familydefault}{\sfdefault}  
+
+\input{seminar.bug}
+\input{seminar.bg2} % See the Seminar bugs list
+
+\slideframe{none}
+\centerslidesfalse
+
+
+\usepackage{fancyhdr}
+
+% Headers and footers personalization using the `fancyhdr' package
+\fancyhf{} % Clear all fields
+\renewcommand{\headrulewidth}{0mm}
+\renewcommand{\footrulewidth}{0.1mm}
+
+\fancyfoot[L]{\tiny Eric Rescorla}
+\fancyfoot[C]{\tiny ECRYPT Hash Workshop 2007}
+\fancyfoot[R]{\tiny \theslide}
+
+\newcommand{\heading}[1]{%
+  \begin{center}
+    \large\bf
+    #1
+  \end{center}
+  \vspace{.4 in}}
+
+
+\begin{document} 
+
+\begin{slide}
+
+\begin{center}
+\LARGE{{\bf}Indigestion: Assessing the impact of known and future hash function attacks}
+
+\vspace{1 in}
+\large{
+\begin{tabular}{c}
+Eric Rescorla \vspace{-.1 in}\\
+Network Resonance \vspace{-.1 in}\\
+\texttt{ekr@networkresonance.com} 
+\end{tabular}
+}
+
+\end{center}
+\end{slide}
+
+\begin{slide}
+\heading{Overview}
+
+\begin{itemize}
+\item Hash functions are used all over cryptographic protocols
+\item Only a few common functions
+\begin{itemize}
+\item MD5, SHA-1, SHA-256, SHA-384, SHA-512
+\item Only MD5 and SHA-1 are commonly used
+\item No good theoretical foundation for constructions
+\end{itemize}
+\item First good attacks on MD5 and SHA-1 published in 2004-2005
+\item Impact of current attacks on our protocols?
+\item Impact of plausible future attacks?
+\item What's being done about it?
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Review of hash function terminology}
+
+\begin{description}
+\item[Collision] Find $M$, $M'$ st $H(M)=H(M')$
+\item[1st preimage] Given $X$, find $M$ st $H(M) = X$
+\item[2nd preimage] Given $M$, find $M'$ st $H(M')=H(M)$
+\end{description}
+\vspace{.15 in}
+In a perfect hash function of length $l$:
+\begin{itemize}
+\item Collisions require $2^{l/2}$ effort to find 
+\item 1st and 2nd preimages require $2^l$ effort to find
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{The Current Situation}
+
+\vspace{-.15 in}
+
+\begin{description}
+\item[MD5] Collisions can be easily found [Wang et al.][Klima06]``Target'' collisions
+can be found with $2^{52}$ effort [Stevens et al.]. 
+\item[SHA-1] Collisions in SHA-1 with $2^{63}$ effort (design goal = $80$ bits) [Wang et al.]
+\item[Certificates] Lenstra et al. demonstrate a pair of certificates with
+different public keys but the same hash (and hence signature) 
+\item[HMAC] Theoretical forgery attacks [Kim et al.]
+\end{description}
+\vspace{.05 in}
+Important limitations:
+\begin{itemize}
+\item None of these attacks allows you to compute a preimage
+\item The colliders are not totally controllable
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{How hash functions are used}
+
+\begin{itemize}
+\item Digital signatures
+\item Key derivation (PRFs, KDFs)
+\item MACs
+\item Data fingerprinting (e.g., Tripwire)
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{The Wang collision attack}
+
+\begin{itemize}
+\item Start with an arbitrary hash state (IV)
+\item Compute four blocks $M_0, M_1, M_0', M_1'$ st.
+\begin{itemize}
+\item  $H(M_0, M_1) = H(M_0', M_1')$
+\end{itemize}
+\item Relationships between colliders are not free
+\begin{itemize}
+\item Some bits must be the same, some different, some arbitrary, some fixed
+\end{itemize}
+\item How practical is this?
+\begin{itemize}
+\item Very for MD5: Klima shows 17 seconds on a 3.2 GHz P4
+\item Not so for SHA-1: $2^{63}$ operations
+\begin{itemize}
+\item No collision published yet for SHA-1
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{The Stevens target collision attack}
+
+\begin{itemize}
+\item Start with two messages $M_a, M_b$
+\item Compute two suffixes $S_a, S_b$ st.
+\begin{itemize}
+\item $H(M_a || S_a) = H(M_b || S_b)$
+\end{itemize}
+\item How practical is this?
+\begin{itemize}
+\item Suffixes are long (~4000 bits)
+\begin{itemize}
+\item And random-looking
+\end{itemize}
+\item Work factor is about $2^{52}$ (for now)
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+
+\heading{Overview}
+
+\begin{itemize}
+\item Hash functions are used all over cryptographic protocols
+\item Only a few common functions
+\begin{itemize}
+\item MD5, SHA-1, SHA-256, SHA-384, SHA-512
+\item Only MD5 and SHA-1 are commonly used
+\item No good theoretical foundation for constructions
+\end{itemize}
+\item First good attacks on MD5 and SHA-1 published in 2004-2005
+\item {\color{red}Impact of current attacks on our protocols?}
+\item Impact of plausible future attacks?
+\item What's being done about it?
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Essential Elements of a Collision Attack}
+
+\begin{enumerate}
+\item Need a three party situation
+\begin{itemize}
+\item Alice generates a message
+\item Bob (and maybe Alice) signs it
+\item Carol acts upon it
+\end{itemize}
+\end{enumerate}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Proposed Uses of Collision Attacks}
+\begin{itemize}
+\item Contract signing (classic example)
+\item Forging certificates
+\item Compromised software distribution [Kaminsky]
+\item Fake authorizations [Daum and Lucks]
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Contract Signing and Collisions}
+
+\vspace{-.4 in}
+
+\begin{itemize}
+\item Attacker generates two variants
+\begin{itemize}
+\item M1 = "I will pay Eric \$10.00/hr"  (a bargain)
+\item M2 = "I will pay Eric \$10000/hr"  (a rip-off)
+\end{itemize}
+\item Attacker gets victim to sign M1 (E.g., in an S/MIME message)
+\item Then claims victim signed M2
+\begin{itemize}
+\item And he has evidence to prove it
+\end{itemize}
+\item Small problems
+\begin{itemize}
+\item  Real contracts don't have random garbage
+\item Victim has both variants
+\end{itemize}
+\item Big problem
+\begin{itemize}
+\item This isn't how contracts actually work
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Contracts in the Real World}
+
+\vspace{-.2 in}
+\begin{itemize}
+\item You and I negotiate a contract
+\begin{itemize}
+\item Your lawyer sends me the final copy
+\item I sign the last page
+\item I fax it over to you
+\item You fax it back
+\end{itemize}
+\item No attempt is made to bind contents to signature
+\begin{itemize}
+\item At most, I might initial each page
+\item But sometimes, just last page is exchanged!
+\end{itemize}
+\item Signature is unverified
+\begin{itemize}
+\item How does relying party know, anyway?
+\item An "X" can be binding!
+\end{itemize}
+\item {\color{red}It's the intention that counts}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Essential Elements of a Collision Attack (Revised)}
+
+\begin{enumerate}
+\item Need a three party situation
+\begin{itemize}
+\item Alice generates a message
+\item Bob (and maybe Alice) signs it
+\item Carol acts upon it
+\end{itemize}
+\item \emph{Signature needs to be mechanically evaluated}
+\item \emph{Find somewhere to hide the random junk}
+\end{enumerate}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Software Distribution}
+
+\begin{itemize}
+\item Many software distributions use hashes for integrity checking
+\item Generate a patch for a Foolix 1.0 in two versions
+\begin{itemize}
+\item One innocuous
+\item One containing a remote exploit
+\end{itemize}
+\item When Foolix 1.1 is released I swing into action
+\begin{itemize}
+\item Break into Foolix's distribution server
+\item Replace the good version with my version
+\item ...
+\item Profit
+\end{itemize}
+\item That sounded a lot better in my head...
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Problems with Software Distribution Attacks}
+
+\vspace{-.3 in}
+\begin{itemize}
+\item Hard to predict contents of binaries (prefix)
+\begin{itemize}
+\item Compilation timestamps
+\item Especially if other people are checking in stuff
+\end{itemize}
+\item Somewhat easier on source, but...
+\begin{itemize}
+\item Other people still might check in
+\item Plus CVS/SVN timestamps, Id values, etc.
+\end{itemize}
+\item Still need to somehow replace the ``good'' copy of the program
+\begin{itemize}
+\item Theoretically easier if program is P2P-distributed
+\item ... Unless that distribution includes its own checksums
+\end{itemize}
+\item Why go to all this trouble?
+\begin{itemize}
+\item Most programs aren't that well reviewed anyway
+\item How hard is it to insert vulnerabilities anyway?
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Impact of a single collision}
+\vspace{-.35 in}
+\begin{itemize}
+\item Collisions are easy to generate with MD5
+\item But expensive with SHA-1 ($2^{63}$)
+\begin{itemize}
+\item ... none have been generated yet 
+\item Eventually one will be as a demonstration
+\end{itemize}
+\item What can you do then?
+\begin{itemize}
+\item Use it as a binary switch
+\item Daum and Lucks show a switch-hitting
+postscript doc
+\end{itemize}
+\begin{tabular}{|l|r|}
+\hline
+A\hspace{.5 in}&B\\
+\hline
+\multicolumn{2}{|l|}{
+if(A)  }\\
+\multicolumn{2}{|l|}{
+\hspace{.25 in}display X} \\
+\multicolumn{2}{|l|}{
+else} \\
+\multicolumn{2}{|l|}{
+\hspace{.25 in}display Y}\\
+\hline
+\end{tabular}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+
+\heading{Targeted Collisions and Certificates}
+
+\begin{itemize}
+\item Randomized values make regular collision attacks impractical
+\begin{itemize}
+\item Cert is packed too tightly to tweak DNs
+\item Best attack is to demonstrate two certs with same DN and different public keys
+\end{itemize}
+\item Targeted collisions are better
+\begin{itemize}
+\item Can start with different DNs
+\item And then ``repair'' to a collision
+\end{itemize}
+\item This isn't really practical
+\begin{itemize}
+\item Requires way too many blocks
+\item Too many computations
+\item And knowledge of prefix values
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+
+\begin{slide}
+\heading{Bottom Line: Current Status}
+
+\begin{itemize}
+\item Not affected
+\begin{itemize}
+  \item Key derivation functions (PRFs)
+  \item Peer authentication without non-repudiation (SSL, IPsec,
+     SSH, etc.)
+  \item Message authentication (HMAC)
+  \item Challenge-response protocols (probably)
+\end{itemize}
+\item· Affected
+\begin{itemize}
+  \item Non-repudiation (at least technically)
+  \item Certificate issuance -- but only in some special cases
+  \item Timestamps (maybe)
+\end{itemize}
+\item {\color{red} This assumes certificates remain secure}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Overview}
+
+\begin{itemize}
+\item Hash functions are used all over cryptographic protocols
+\item Only a few common functions
+\begin{itemize}
+\item MD5, SHA-1, SHA-256, SHA-384, SHA-512
+\item Only MD5 and SHA-1 are commonly used
+\item No good theoretical foundation for constructions
+\end{itemize}
+\item First good attacks on MD5 and SHA-1 published in 2004-2005
+\item Impact of current attacks on our protocols?
+\item {\color{red}Impact of plausible future attacks?}
+\item What's being done about it?
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Potential Future Attacks}
+
+\begin{itemize}
+\item Controllable collisions
+\item 2nd preimage
+\item 1st preimage
+\item Compromise of HMAC
+\begin{itemize}
+\item Forgery
+\item Some kind of reversal
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Controllable Collisions and certificates}
+
+\begin{itemize}
+\item What if we could really control collisions?
+\item Attacker generates two names
+\begin{itemize}
+\item    Good: \texttt{www.attacker.com}
+\item    Bad: \texttt{www.a-victim.com}
+\end{itemize}
+\item Sends a CSR with good name to CA
+\begin{itemize}
+\item CA signs cert
+\item Attacker now has cert with victim's name
+\end{itemize}
+\item Two problems
+\begin{itemize}
+\item Can you predict the prefix?
+\item What about the random padding?
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{The structure of certificates}
+
+\begin{verbatim}
+ TBSCertificate ::= SEQUENCE {
+         version               Integer value=2
+         serialNumber          Integer (chosen by CA)
+         signature             algorithm identifier
+         issuer                CA's name
+         validity              date range
+         subject               subject's name
+         subjectPublicKeyInfo  public key
+         extensions            arbitrary stuff
+ }
+\end{verbatim}
+
+\begin{itemize}
+\item The signature is over $H(TBSCertificate)$
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Prefix prediction}
+\vspace{-.35 in}
+\begin{itemize}
+\item Knowing which values to use depends on the prefix
+\begin{itemize}
+\item But the prefix isn't totally fixed
+\item This is a total design accident!
+\end{itemize}
+\item All but serial number and validity are fixed
+\begin{itemize}
+\item Sequential serial numbers are easy to predict
+\begin{itemize}
+\item  At least to within a few
+\item  Verisign uses $H(time\_us)$ which is hard to predict
+\end{itemize}
+\item  How quantum is the validity?
+\begin{itemize}
+\item  Verisign seems to use a fixed "not before" but a "not after" based
+       on the current time
+\item  So predictable to within a few hundred seconds?
+\end{itemize}
+\end{itemize}
+\item Attacker is likely to need to try the attack a number of
+times
+\item Randomizing serial number is a simple countermeasure
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{A vulnerable certificate structure}
+
+\begin{verbatim}
+TBSCertificate ::= SEQUENCE {
+         version               Integer value=3
+         signature             algorithm identifier
+         issuer                CA's name
+         subject               subject's name
+         subjectPublicKeyInfo  public key
+         serialNumber          Integer (chosen by CA)
+         validity              date range
+         extensions            arbitrary stuff
+}
+\end{verbatim}
+\end{slide}
+
+
+\begin{slide}
+\heading{Hiding the randomness}
+
+\begin{itemize}
+\item Remember, we want a specific target name
+\begin{itemize}
+\item E.g. \texttt{www.amazon.com}
+\item Though we have flexibility in the name we send the CA
+\end{itemize}
+\item  Random padding can be concealed in pubkey
+\begin{itemize}
+\item Remember, modulus doesn't have to be p*q
+\item As long as we can factor it
+\begin{itemize}
+\item     ... which is likely for a random modulus [Back 04]
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{2nd Preimage Attacks}
+
+\begin{itemize}
+\item Attack description:
+\begin{itemize}
+\item Given some message M
+\item Find some message M' st H(M) = H(M')
+\end{itemize}
+\item Classic example: message forgery
+\begin{itemize}
+\item Start with signed "Good" message
+\item Transform it into signed "Bad" message
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{2nd preimages and certificates}
+
+\begin{itemize}
+\item This is really serious
+\begin{itemize}
+\item Attacker should be able to forge a cert of his 
+\item Validity of all certs with this digest would be questionable
+\item Say goodbye to any cert-based protocol
+\item No useful countermeasures
+\end{itemize}
+\item How likely do we think this is with MD5?
+\begin{itemize}
+\item If so, really bad
+\item Lots of valid certificates use MD5!
+\end{itemize}
+\item SHA-1 comfort level is higher
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{2nd preimages and other protocols}
+\vspace{-.35 in}
+\begin{itemize}
+\item Remember: three major uses of hashes
+\begin{itemize}
+\item MACs
+\item Key expansion
+\item Signatures
+\end{itemize}
+\item Only signatures are threatened
+\item But they're commonly used
+\begin{itemize}
+\item SSH, SSL, IPsec key agreement
+\begin{itemize}
+\item  Signatures are over nonces
+\item  Only works if very fast (need to beat timeouts)
+\end{itemize}
+\item S/MIME authentication
+\end{itemize}
+\item {\color{red} And of course all but SSH depend on certificates}
+\item So, this is bad...
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Distributed Hash Tables}
+
+\begin{itemize}
+\item DHTs use hashes a lot
+\begin{itemize}
+\item Values typically stored as $H(lookup\_key)$
+\begin{itemize}
+\item Sometimes $H(Value)$
+\end{itemize}
+\item Identities are often $H(IP)$
+\item Hashes used for data integrity
+\end{itemize}
+\item Collisions aren't that useful here
+\begin{itemize}
+\item You just contaminate your own data
+\end{itemize}
+\item Preimages let you contaminate other people's data
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Compromise of HMAC}
+
+\begin{itemize}
+\item HMAC is \emph{the} standard MAC for most protocols
+\item Proofs of security [Bellare et al.]
+\begin{itemize}
+\item But these don't apply if the interior hash function is weak
+\end{itemize}
+\item So, what if we had a good attack?
+\begin{itemize}
+\item Forge new messages without the key
+\item Extract the key?
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Impact of HMAC Forgery: SSL/TLS}
+
+\begin{itemize}
+\item SSL/TLS uses authenticate then encrypt (AtE)
+\begin{itemize}
+\item Send $E(K_e, Message || HMAC(K_m, Message))$
+\end{itemize}
+\item Block ciphers
+\begin{itemize}
+\item Can't re-insert the MAC
+\begin{itemize}
+\item It gets randomized
+\end{itemize}
+\item And wouldn't match the data in any case
+\end{itemize}
+\item Stream ciphers
+\begin{itemize}
+\item Can reinsert MAC
+\item ... but only if you know the plaintext
+\item And need to know \emph{entire} plaintext to get a match
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Impact of HMAC Forgery: IPsec}
+
+\begin{itemize}
+\item IPsec uses encrypt then authenticate (EtA)
+\begin{itemize}
+\item Send $E(K_e, Message) || HMAC(K_m, Ciphertext)$
+\end{itemize}
+\item Easy to do an existential forgery
+\begin{itemize}
+\item Modify ciphertext and produce matching MAC
+\item Works with block or CTR-mode ciphers
+\end{itemize}
+\item Harder to do a targeted forgery
+\begin{itemize}
+\item Unless you know the plaintext
+\begin{itemize}
+\item Or part of it
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Impact of HMAC Key Reversal}
+
+\vspace{-.35 in}
+
+\begin{itemize}
+\item Can you extract master key from HMAC-based KDF?
+\begin{itemize}
+\item Given $X, HMAC(K, X)$, extract $K$
+\item $|K|$ must be not too much larger than length of HMAC output
+\end{itemize}
+\item Plausible scenarios
+\begin{itemize}
+\item IPsec (remember, EtA)
+\begin{itemize}
+\item Extract $K_m$, work backward to master key (typically DH ZZ)
+\begin{itemize}
+\item Remember: use $H(K)$ when $|K| > blocksize$, 
+\end{itemize}
+\end{itemize}
+\item SSL/TLS (only in NULL encryption mode)
+\begin{itemize}
+\item Extract $K_m$, work backward to master secret
+\begin{itemize}
+\item This doesn't work with RSA ($|MS|$ = 384 bits)
+\item Plausible with DH but need to work backward to PMS
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\item Truncation helps here
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Overview}
+
+\begin{itemize}
+\item Hash functions are used all over cryptographic protocols
+\item Only a few common functions
+\begin{itemize}
+\item MD5, SHA-1, SHA-256, SHA-384, SHA-512
+\item Only MD5 and SHA-1 are commonly used
+\item No good theoretical foundation for constructions
+\end{itemize}
+\item First good attacks on MD5 and SHA-1 published in 2004-2005
+\item Impact of current attacks on our protocols?
+\item Impact of plausible future attacks?
+\item {\color{red}What's being done about it?}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Transitioning to New Hash Functions}
+
+\begin{itemize}
+\item IETF currently upgrading all protocols
+\item Currently available
+\begin{itemize}
+\item SHA-256, SHA-384, SHA-512
+\end{itemize}
+\item New but ``API compatible constructions''
+\begin{itemize}
+\item Just define new code points and drop in
+\item Hopefully these will come out of NIST competition
+\end{itemize}
+\item Incompatible constructions
+\begin{itemize}
+\item Randomized hashes
+\begin{itemize}
+\item Where do we put the randomizer?
+\end{itemize}
+\item ...
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Transition Strategy Goals}
+
+\begin{itemize}
+\item \textbf{Backward compatibility}
+\begin{itemize}
+\item Switch-hitting can speak to old
+\item New can speak to switch-hitting
+\end{itemize}
+\item \textbf{Newest common version}
+\begin{itemize}
+\item Two switch-hitting implementations should use the new version
+\end{itemize}
+\item \textbf{Downgrade protection}
+\begin{itemize}
+\item Attacker can't force you to use a weaker algorithm
+\end{itemize}
+\item Don't have to change protocol structure again for newer algorithms
+\item Diversity in certificates makes this harder
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{S/MIME Transition Issues}
+\vspace{-.2in}
+\begin{itemize}
+\item Major problem is first message (if signed)
+\item Assume sender has two certificates
+\begin{itemize}
+\item Otherwise there's no choice
+\end{itemize}
+\item Sender has no information about receiver's capabilities
+\begin{itemize}
+\item Either certificate is potentially wrong
+\item Have to guess based on overall upgrade rate
+\end{itemize}
+\item Why not sign twice (once with each certificate)
+\begin{itemize}
+\item Some implementations don't like partially verifiable messages
+\item S/MIME standard wasn't totally clear here
+\begin{itemize}
+\item Clarification in RFC 4853 [Housley]
+\end{itemize}
+\end{itemize}
+\item Subsequent messages can use capabilities attributes
+\end{itemize}
+\end{slide}
+
+
+%% \begin{slide}
+%% \heading{Uses of Hash Functions in TLS}
+
+%% \begin{itemize}
+%% \item Individually and negotiable
+%% \begin{itemize}
+%% \item Certificates 
+%% \item Per-record MAC
+%% \end{itemize}
+%% \item MD5 and SHA-1 hardwired
+%% \begin{itemize}
+%% \item Digitally-signed element (for \textsf{ServerKeyExchange} and \textsf{CertificateVerify})
+%% \item KDF
+%% \item Finished message
+%% \end{itemize}
+%% \end{itemize}
+
+%%\end{slide}
+
+
+\begin{slide}
+\heading{Certificate Selection}
+
+\begin{itemize}
+\item Problem: I have certs signed with different algorithms
+\begin{itemize}
+\item Need to somehow select one
+\item New TLS extension: \texttt{cert\_hash\_types}
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Per-record MAC}
+
+\begin{itemize}
+\item Not much to worry about here
+\begin{itemize}
+\item HMAC doesn't depend on collision-resistance
+\item Not clear about how much preimage-resistance is required
+\end{itemize}
+\item Already part of TLS negotiation
+\begin{itemize}
+\item New cipher suites being created
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{KDF}
+
+\begin{itemize}
+\item HMAC-based PRF construction
+\begin{itemize}
+\item XOR SHA-1 and MD5 values
+\item Belt-and-suspenders
+\begin{itemize}
+\item Oops
+\end{itemize}
+\end{itemize}
+\item Switching to a negotiated PRF
+\begin{itemize}
+\item Old PRF construction with stronger hashes
+\item Alternate PRF constructions (GOST, NIST 800-56)
+\end{itemize}
+\item This applies to \textsf{Finished} PRF too
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{IPsec}
+
+\begin{itemize}
+\item Mostly the same issues as SSL/TLS
+\begin{itemize}
+\item Which certificates to use if you have more than one?
+\item Which hash functions initiator should use in ``revised public key mode''
+\end{itemize}
+\item Heuristics proposed in [Bell06]
+\item IETF doesn't plan any changes
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Summary}
+
+\begin{itemize}
+\item Existing systems aren't that threatened by current attacks
+\begin{itemize}
+\item But enough to cause widespread protocol redesigns
+\end{itemize}
+\item There's a surprising amount of robustness in our protocols
+\begin{itemize}
+\item But certificates are a big single point of failure
+\end{itemize}
+\item But future attacks could be extremely bad
+\item We're in a race with analytic progress
+\end{itemize}
+\end{slide}
+
+
+
+
+
+\end{document}
