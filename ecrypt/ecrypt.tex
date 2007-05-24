@@ -40,6 +40,7 @@
 \fancyfoot[C]{\tiny ECRYPT Hash Workshop 2007}
 \fancyfoot[R]{\tiny \theslide}
 
+
 \newcommand{\heading}[1]{%
   \begin{center}
     \large\bf
@@ -104,29 +105,6 @@ In a perfect hash function of length $l$:
 \end{slide}
 
 \begin{slide}
-\heading{The Current Situation}
-
-\vspace{-.15 in}
-
-\begin{description}
-\item[MD5] Collisions can be easily found [Wang et al.][Klima06]``Target'' collisions
-can be found with $2^{52}$ effort [Stevens et al.]. 
-\item[SHA-1] Collisions in SHA-1 with $2^{63}$ effort (design goal = $80$ bits) [Wang et al.]
-\item[Certificates] Lenstra et al. demonstrate a pair of certificates with
-different public keys but the same hash (and hence signature) 
-\item[HMAC] Theoretical forgery attacks [Kim et al.]
-\end{description}
-\vspace{.05 in}
-Important limitations:
-\begin{itemize}
-\item None of these attacks allows you to compute a preimage
-\item The colliders are not totally controllable
-\end{itemize}
-\end{slide}
-
-
-
-\begin{slide}
 \heading{How hash functions are used}
 
 \begin{itemize}
@@ -140,7 +118,31 @@ Important limitations:
 
 
 \begin{slide}
-\heading{The Wang collision attack}
+\heading{The Current Situation}
+
+\vspace{-.15 in}
+
+\begin{description}
+\item[MD5] Collisions can be easily found [WY04][Klima06]``Target'' collisions
+can be found with $2^{52}$ effort [SLW06]. 
+\item[SHA-1] Collisions in SHA-1 with $2^{63}$ effort (design goal = $80$ bits) [Wang et al.]
+\item[Certificates] Lenstra et al. demonstrate a pair of certificates with
+different public keys but the same hash (and hence signature) [LWW05]
+\item[HMAC] Semi-theoretical forgery attacks [KBBH06][CY06]
+\end{description}
+\vspace{.05 in}
+Important limitations:
+\begin{itemize}
+\item None of these attacks allows you to compute a preimage
+\item The colliders are not totally controllable
+\end{itemize}
+\end{slide}
+
+
+
+
+\begin{slide}
+\heading{Basic Collision Attack}
 
 \begin{itemize}
 \item Start with an arbitrary hash state (IV)
@@ -152,6 +154,7 @@ Important limitations:
 \begin{itemize}
 \item Some bits must be the same, some different, some arbitrary, some fixed
 \end{itemize}
+\item IV must be known
 \item How practical is this?
 \begin{itemize}
 \item Very for MD5: Klima shows 17 seconds on a 3.2 GHz P4
@@ -164,7 +167,7 @@ Important limitations:
 \end{slide}
 
 \begin{slide}
-\heading{The Stevens target collision attack}
+\heading{Target Collision Attack}
 
 \begin{itemize}
 \item Start with two messages $M_a, M_b$
@@ -335,7 +338,7 @@ Important limitations:
 \begin{itemize}
 \item Hard to predict contents of binaries (prefix)
 \begin{itemize}
-\item Compilation timestamps
+\item Compiler version, flags, timestamps, ...
 \item Especially if other people are checking in stuff
 \end{itemize}
 \item Somewhat easier on source, but...
@@ -358,8 +361,8 @@ Important limitations:
 \end{slide}
 
 \begin{slide}
-\heading{Impact of a single collision}
-\vspace{-.35 in}
+\heading{Impact of a Single Collision}
+\vspace{-.45 in}
 \begin{itemize}
 \item Collisions are easy to generate with MD5
 \item But expensive with SHA-1 ($2^{63}$)
@@ -373,41 +376,39 @@ Important limitations:
 \item Daum and Lucks show a switch-hitting
 postscript doc
 \end{itemize}
-\begin{tabular}{|l|r|}
-\hline
-A\hspace{.5 in}&B\\
-\hline
-\multicolumn{2}{|l|}{
-if(A)  }\\
-\multicolumn{2}{|l|}{
-\hspace{.25 in}display X} \\
-\multicolumn{2}{|l|}{
-else} \\
-\multicolumn{2}{|l|}{
-\hspace{.25 in}display Y}\\
-\hline
-\end{tabular}
 \end{itemize}
 
+\begin{tabular}{p{1 in}|p{1 in}}
+{\color{blue}\texttt{collider1}} & {\color{red}\texttt{collider2}} \\
+\texttt{if(collider1)} & \texttt{if(collider1)} \\
+\texttt{  display X} & \texttt{  display X}\\
+\texttt{else} & \texttt{else}\\
+\texttt{  display Y} & \texttt{  display Y}\\
+\end{tabular}
 \end{slide}
 
 
 \begin{slide}
 
-\heading{Targeted Collisions and Certificates}
+\heading{Target Collisions and Certificates}
 
+\vspace{-.2 in}
 \begin{itemize}
-\item Randomized values make regular collision attacks impractical
+\item Basic collision attacks seem hard to mount on certificates
 \begin{itemize}
 \item Cert is packed too tightly to tweak DNs
-\item Best attack is to demonstrate two certs with same DN and different public keys
+\item Best attack is to demonstrate two certs
+with same DN and different public keys
 \end{itemize}
 \item Targeted collisions are better
 \begin{itemize}
 \item Can start with different DNs
 \item And then ``repair'' to a collision
+\begin{itemize}
+\item Repair blocks hidden in public keys
 \end{itemize}
-\item This isn't really practical
+\end{itemize}
+\item This isn't currently practical
 \begin{itemize}
 \item Requires way too many blocks
 \item Too many computations
@@ -418,12 +419,11 @@ else} \\
 
 
 
-
 \begin{slide}
 \heading{Bottom Line: Current Status}
 
 \begin{itemize}
-\item Not affected
+\item Not affected (much)
 \begin{itemize}
   \item Key derivation functions (PRFs)
   \item Peer authentication without non-repudiation (SSL, IPsec,
@@ -467,7 +467,6 @@ else} \\
 \begin{itemize}
 \item Controllable collisions
 \item 2nd preimage
-\item 1st preimage
 \item Compromise of HMAC
 \begin{itemize}
 \item Forgery
@@ -478,7 +477,7 @@ else} \\
 
 
 \begin{slide}
-\heading{Controllable Collisions and certificates}
+\heading{More Controllable Collisions and Certificates}
 
 \begin{itemize}
 \item What if we could really control collisions?
@@ -502,7 +501,7 @@ else} \\
 
 
 \begin{slide}
-\heading{The structure of certificates}
+\heading{The Structure of Certificates}
 
 \begin{verbatim}
  TBSCertificate ::= SEQUENCE {
@@ -526,7 +525,7 @@ else} \\
 
 
 \begin{slide}
-\heading{Prefix prediction}
+\heading{Prefix Prediction}
 \vspace{-.35 in}
 \begin{itemize}
 \item Knowing which values to use depends on the prefix
@@ -548,8 +547,8 @@ else} \\
 \item  So predictable to within a few hundred seconds?
 \end{itemize}
 \end{itemize}
-\item Attacker is likely to need to try the attack a number of
-times
+\item Attacker is likely to need to try the attack a large number of
+times 
 \item Randomizing serial number is a simple countermeasure
 \end{itemize}
 
@@ -557,7 +556,7 @@ times
 
 
 \begin{slide}
-\heading{A vulnerable certificate structure}
+\heading{A Vulnerable Certificate Structure}
 
 \begin{verbatim}
 TBSCertificate ::= SEQUENCE {
@@ -574,54 +573,56 @@ TBSCertificate ::= SEQUENCE {
 \end{slide}
 
 
+%% \begin{slide}
+%% \heading{Hiding the randomness}
+
+%% \begin{itemize}
+%% \item Remember, we want a specific target name
+%% \begin{itemize}
+%% \item E.g. \texttt{www.amazon.com}
+%% \item Though we have flexibility in the name we send the CA
+%% \end{itemize}
+%% \item  Random padding can be concealed in pubkey
+%% \begin{itemize}
+%% \item Remember, modulus doesn't have to be p*q
+%% \item As long as we can factor it
+%% \begin{itemize}
+%% \item     ... which is likely for a random modulus [Back 04]
+%% \end{itemize}
+%% \item May also be able to construct a valid modulus
+%% \end{itemize}
+%% \end{itemize}
+
+%% \end{slide}
+
+
+
+
+%% \begin{slide}
+%% \heading{2nd Preimage Attacks}
+
+%% \begin{itemize}
+%% \item Attack description:
+%% \begin{itemize}
+%% \item Given some message M
+%% \item Find some message M' st H(M) = H(M')
+%% \end{itemize}
+%% \item Classic example: message forgery
+%% \begin{itemize}
+%% \item Start with signed "Good" message
+%% \item Transform it into signed "Bad" message
+%% \end{itemize}
+%% \end{itemize}
+%% \end{slide}
+
+
 \begin{slide}
-\heading{Hiding the randomness}
-
-\begin{itemize}
-\item Remember, we want a specific target name
-\begin{itemize}
-\item E.g. \texttt{www.amazon.com}
-\item Though we have flexibility in the name we send the CA
-\end{itemize}
-\item  Random padding can be concealed in pubkey
-\begin{itemize}
-\item Remember, modulus doesn't have to be p*q
-\item As long as we can factor it
-\begin{itemize}
-\item     ... which is likely for a random modulus [Back 04]
-\end{itemize}
-\end{itemize}
-\end{itemize}
-
-\end{slide}
-
-
-
-\begin{slide}
-\heading{2nd Preimage Attacks}
-
-\begin{itemize}
-\item Attack description:
-\begin{itemize}
-\item Given some message M
-\item Find some message M' st H(M) = H(M')
-\end{itemize}
-\item Classic example: message forgery
-\begin{itemize}
-\item Start with signed "Good" message
-\item Transform it into signed "Bad" message
-\end{itemize}
-\end{itemize}
-\end{slide}
-
-
-\begin{slide}
-\heading{2nd preimages and certificates}
+\heading{2nd Preimages and Certificates}
 
 \begin{itemize}
 \item This is really serious
 \begin{itemize}
-\item Attacker should be able to forge a cert of his 
+\item Attacker should be able to forge a cert of his choice
 \item Validity of all certs with this digest would be questionable
 \item Say goodbye to any cert-based protocol
 \item No useful countermeasures
@@ -638,7 +639,7 @@ TBSCertificate ::= SEQUENCE {
 
 
 \begin{slide}
-\heading{2nd preimages and other protocols}
+\heading{2nd Preimages and Other Protocols}
 \vspace{-.35 in}
 \begin{itemize}
 \item Remember: three major uses of hashes
@@ -647,7 +648,7 @@ TBSCertificate ::= SEQUENCE {
 \item Key expansion
 \item Signatures
 \end{itemize}
-\item Only signatures are threatened
+\item Only signatures are directly threatened
 \item But they're commonly used
 \begin{itemize}
 \item SSH, SSL, IPsec key agreement
@@ -663,27 +664,6 @@ TBSCertificate ::= SEQUENCE {
 \end{slide}
 
 
-\begin{slide}
-\heading{Distributed Hash Tables}
-
-\begin{itemize}
-\item DHTs use hashes a lot
-\begin{itemize}
-\item Values typically stored as $H(lookup\_key)$
-\begin{itemize}
-\item Sometimes $H(Value)$
-\end{itemize}
-\item Identities are often $H(IP)$
-\item Hashes used for data integrity
-\end{itemize}
-\item Collisions aren't that useful here
-\begin{itemize}
-\item You just contaminate your own data
-\end{itemize}
-\item Preimages let you contaminate other people's data
-\end{itemize}
-\end{slide}
-
 
 \begin{slide}
 \heading{Compromise of HMAC}
@@ -692,13 +672,14 @@ TBSCertificate ::= SEQUENCE {
 \item HMAC is \emph{the} standard MAC for most protocols
 \item Proofs of security [Bellare et al.]
 \begin{itemize}
-\item But these don't apply if the interior hash function is weak
+\item But these don't apply if the interior hash function is weak [KBBH06][CY06]
 \end{itemize}
 \item So, what if we had a good attack?
 \begin{itemize}
 \item Forge new messages without the key
 \item Extract the key?
 \end{itemize}
+\item This turns out to depend on protocol details
 \end{itemize}
 
 \end{slide}
@@ -712,6 +693,7 @@ TBSCertificate ::= SEQUENCE {
 \begin{itemize}
 \item Send $E(K_e, Message || HMAC(K_m, Message))$
 \end{itemize}
+\item Hard to get MAC/Message pairs to work with...
 \item Block ciphers
 \begin{itemize}
 \item Can't re-insert the MAC
@@ -737,6 +719,7 @@ TBSCertificate ::= SEQUENCE {
 \begin{itemize}
 \item Send $E(K_e, Message) || HMAC(K_m, Ciphertext)$
 \end{itemize}
+\item Easy to get MAC/Message pairs to work with
 \item Easy to do an existential forgery
 \begin{itemize}
 \item Modify ciphertext and produce matching MAC
@@ -755,31 +738,28 @@ TBSCertificate ::= SEQUENCE {
 \begin{slide}
 \heading{Impact of HMAC Key Reversal}
 
-\vspace{-.35 in}
+\vspace{-.4 in}
 
 \begin{itemize}
 \item Can you extract master key from HMAC-based KDF?
-\begin{itemize}
-\item Given $X, HMAC(K, X)$, extract $K$
-\item $|K|$ must be not too much larger than length of HMAC output
-\end{itemize}
 \item Plausible scenarios
 \begin{itemize}
 \item IPsec (remember, EtA)
 \begin{itemize}
-\item Extract $K_m$, work backward to master key (typically DH ZZ)
-\begin{itemize}
-\item Remember: use $H(K)$ when $|K| > blocksize$, 
-\end{itemize}
+\item Extract $K_m$, work backward to SKEYSEED
 \end{itemize}
 \item SSL/TLS (only in NULL encryption mode)
 \begin{itemize}
-\item Extract $K_m$, work backward to master secret
+\item Extract $K_m$, work backward to MS
+\end{itemize}
+\end{itemize}
+\item Impact of master key size?
 \begin{itemize}
-\item This doesn't work with RSA ($|MS|$ = 384 bits)
-\item Plausible with DH but need to work backward to PMS
-\end{itemize}
-\end{itemize}
+\item Remember: if $|K| > blocksize$, HMAC uses $H(K)$
+\item DH ZZ will be hashed
+\item Elliptic curve ZZ may not be
+\item Static RSA PMS (TLS) may not be?
+\item What about intermediate master secrets?
 \end{itemize}
 \item Truncation helps here
 \end{itemize}
@@ -862,11 +842,6 @@ TBSCertificate ::= SEQUENCE {
 \begin{itemize}
 \item Otherwise there's no choice
 \end{itemize}
-\item Sender has no information about receiver's capabilities
-\begin{itemize}
-\item Either certificate is potentially wrong
-\item Have to guess based on overall upgrade rate
-\end{itemize}
 \item Why not sign twice (once with each certificate)
 \begin{itemize}
 \item Some implementations don't like partially verifiable messages
@@ -874,6 +849,11 @@ TBSCertificate ::= SEQUENCE {
 \begin{itemize}
 \item Clarification in RFC 4853 [Housley]
 \end{itemize}
+\end{itemize}
+\item Sender has no information about receiver's capabilities
+\begin{itemize}
+\item Either certificate is potentially wrong
+\item Have to guess based on overall upgrade rate
 \end{itemize}
 \item Subsequent messages can use capabilities attributes
 \end{itemize}
@@ -901,8 +881,11 @@ TBSCertificate ::= SEQUENCE {
 
 
 \begin{slide}
-\heading{Certificate Selection}
+\heading{TLS Transition Issues (I)}
 
+\begin{itemize}
+\item IETF doing TLS 1.2 to fix this
+\item Certificate Selection
 \begin{itemize}
 \item Problem: I have certs signed with different algorithms
 \begin{itemize}
@@ -910,28 +893,18 @@ TBSCertificate ::= SEQUENCE {
 \item New TLS extension: \texttt{cert\_hash\_types}
 \end{itemize}
 \end{itemize}
-\end{slide}
-
-
-\begin{slide}
-\heading{Per-record MAC}
-
+\item Per-record MAC
 \begin{itemize}
-\item Not much to worry about here
-\begin{itemize}
-\item HMAC doesn't depend on collision-resistance
-\item Not clear about how much preimage-resistance is required
-\end{itemize}
 \item Already part of TLS negotiation
 \begin{itemize}
 \item New cipher suites being created
 \end{itemize}
 \end{itemize}
-
+\end{itemize}
 \end{slide}
 
 \begin{slide}
-\heading{KDF}
+\heading{TLS Transition Issues (II): KDF}
 
 \begin{itemize}
 \item HMAC-based PRF construction
@@ -952,15 +925,35 @@ TBSCertificate ::= SEQUENCE {
 
 \end{slide}
 
+%% \begin{slide}
+%% \heading{TLS Transition Issues (III): Digitally-signed element}
+
+%% \begin{itemize}
+%% \item RSA
+%% \begin{itemize}
+%% \item Sign a concatenated MD5/SHA of handshake messages
+%% \end{itemize}
+%% \item DSA/ECC
+%% \begin{itemize}
+%% \item Sign a SHA-1 hash
+%% \end{itemize}
+%% \item Replace with a single hash function
+%% \begin{itemize}
+%% \item Again, how to negotiate this?
+%% \end{itemize}
+%% \end{itemize}
+%% \end{slide}
+
 
 \begin{slide}
-\heading{IPsec}
+\heading{IPsec Transition Issues}
 
 \begin{itemize}
-\item Mostly the same issues as SSL/TLS
+\item AH/ESP transition smoothly
+\item IKE has mostly the same issues as SSL/TLS
 \begin{itemize}
 \item Which certificates to use if you have more than one?
-\item Which hash functions initiator should use in ``revised public key mode''
+\item Which hash functions initiator should use in ``revised public key mode'' (IKEv1)
 \end{itemize}
 \item Heuristics proposed in [Bell06]
 \item IETF doesn't plan any changes
@@ -977,6 +970,7 @@ TBSCertificate ::= SEQUENCE {
 \begin{itemize}
 \item But enough to cause widespread protocol redesigns
 \end{itemize}
+\item At least partly by accident
 \item There's a surprising amount of robustness in our protocols
 \begin{itemize}
 \item But certificates are a big single point of failure
@@ -987,7 +981,62 @@ TBSCertificate ::= SEQUENCE {
 \end{slide}
 
 
+%TODO: Review Kaminsky
+%TODO: Review Laurie signature paper
+%TODO: Two blocks?
+%TODO: Comparison of collision/preimage countermeasures
 
+\begin{slide}
+\heading{Appendix Material}
+\end{slide}
+
+\begin{slide}
+\heading{Distributed Hash Tables}
+
+\begin{itemize}
+\item DHTs typically based on cryptographic hash functions
+\begin{itemize}
+\item Values typically stored as $H(lookup\_key)$
+\begin{itemize}
+\item This isn't security critical 
+\item Sometimes $H(Value)$
+\end{itemize}
+\item Identities are often $H(IP)$
+\begin{itemize}
+\item This is security critical
+\end{itemize}
+\item Hashes used for data integrity
+\end{itemize}
+\item Collisions aren't that useful here
+\begin{itemize}
+\item You just contaminate your own data
+\end{itemize}
+\item Preimages let you contaminate other people's data
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Identity Choice in DHTs}
+
+\begin{itemize}
+\item Node $X$ is responsible for storing lookup keys near $X$
+\begin{itemize}
+\item An attacker might want to choose their location
+\item To control specific data
+\end{itemize}
+\item It seems like compromised hashes should help here
+\begin{itemize}
+\item Choose specific identity info st. $H(identity)=X$
+\end{itemize}
+\item But mostly an optimization
+\begin{itemize}
+\item Easy to brute force for typical DHT sizes
+\item Problem is getting control of the identity space
+\end{itemize}
+\end{itemize}
+
+\end{slide}
 
 
 \end{document}
