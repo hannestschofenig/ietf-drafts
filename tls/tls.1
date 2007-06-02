@@ -7,17 +7,17 @@
 .ds LF Dierks & Rescorla
 .ds RF FORMFEED[Page %]
 .ds CF Standards Track
-.ds LH draft-ietf-tls-rfc4346-bis-03.txt
-.ds RH March 2007
+.ds LH draft-ietf-tls-rfc4346-bis-04.txt
+.ds RH June 2007
 .ds CH TLS
 .hy 0
 .ad l
 .nf
-                                                              Tim Dierks
-                                                             Independent
-                                                           Eric Rescorla
-INTERNET-DRAFT                                   Network Resonance, Inc.
-<draft-ietf-tls-rfc4346-bis-03.txt>  March 2007 (Expires September 2007)
+INTERNET-DRAFT                                                Tim Dierks
+Obsoletes (if approved): 4346                                Independent
+Intended status:  Proposed Standard                        Eric Rescorla
+                                                 Network Resonance, Inc.
+<draft-ietf-tls-rfc4346-bis-04.txt>    June 2007 (Expires December 2007)
 
 .ce 2
 The TLS Protocol
@@ -102,8 +102,8 @@ in this mode while another protocol is using the Record Protocol
 as a transport for negotiating security parameters.
 
 .in 3
-The TLS Record Protocol is used for encapsulation of various higher
-level protocols. One such encapsulated protocol, the TLS Handshake
+The TLS Record Protocol is used for encapsulation of various higher-level
+protocols. One such encapsulated protocol, the TLS Handshake
 Protocol, allows the server and client to authenticate each other
 and to negotiate an encryption algorithm and cryptographic keys
 before the application protocol transmits or receives its first byte
@@ -136,7 +136,7 @@ transparently. The TLS standard, however, does not specify how
 protocols add security with TLS; the decisions on how to initiate
 TLS handshaking and how to interpret the authentication certificates
 exchanged are left to the judgment of the designers and
-implementors of protocols which run on top of TLS. 
+implementors of protocols that run on top of TLS. 
 
 .ti 0
 1.1 Requirements Terminology
@@ -250,7 +250,7 @@ several sources in its structure. Although it resembles the
 programming language "C" in its syntax and XDR [XDR] in both its
 syntax and intent, it would be risky to draw too many parallels. The
 purpose of this presentation language is to document TLS only; it
-has no have general application beyond that particular goal.
+has no general application beyond that particular goal.
 
 .ti 0
 4.1. Basic Block Size
@@ -289,7 +289,7 @@ A vector (single dimensioned array) is a stream of homogeneous data
 elements. The size of the vector may be specified at documentation
 time or left unspecified until runtime. In either case, the length
 declares the number of bytes, not the number of elements, in the
-vector. The syntax for specifying a new type, T' that is a fixed-length
+vector. The syntax for specifying a new type, T', that is a fixed-length
 vector of type T is
 
     T T'[n];
@@ -469,7 +469,7 @@ For example:
 .fi
 .ne 2
 Variant structures may be qualified (narrowed) by specifying a value
-for the selector prior to the type. For example, a
+for the selector prior to the type. For example, an
 
     orange VariantRecord
 
@@ -494,8 +494,8 @@ opaque vector <0..2^16-1>, where the length is specified by the
 signing algorithm and key.
 
 In RSA signing, the opaque vector contains the signature generated
-using the RSASSA-PKCS1-v1_5 signature scheme defined in [PKCS1B]. 
-As discussed in [PKCS1B], the DigestInfo MUST be DER encoded and
+using the RSASSA-PKCS1-v1_5 signature scheme defined in [PKCS1]. 
+As discussed in [PKCS1], the DigestInfo MUST be DER encoded and
 for digest algorithms without parameters (which include SHA-1) the
 DigestInfo.AlgorithmIdentifier.parameters field SHOULD be omitted
 but implementations MUST accept both without parameters and with
@@ -535,7 +535,7 @@ private key. A public-key-encrypted element is encoded as an opaque
 vector <0..2^16-1>, where the length is specified by the signing
 algorithm and key.
 
-RSA encryption is done using the RSAES-PKCS1-v1_5 encryption scheme defined in [PKCS1B].
+RSA encryption is done using the RSAES-PKCS1-v1_5 encryption scheme defined in [PKCS1].
 
 In the following example
 
@@ -549,7 +549,7 @@ In the following example
 .fi
 the contents of hash are used as input for the signing algorithm,
 and then the entire structure is encrypted with a stream cipher. The
-length of this structure, in bytes would be equal to two bytes for
+length of this structure, in bytes, would be equal to two bytes for
 field1 and field2, plus two bytes for the length of the signature,
 plus the length of the output of the signing algorithm. This is
 known because the algorithm and key used for the
@@ -644,7 +644,7 @@ messages may include fields for length, description, and content.
 The Record Protocol takes messages to be transmitted, fragments the
 data into manageable blocks, optionally compresses the data, applies
 a MAC, encrypts, and transmits the result. Received data is
-decrypted, verified, decompressed, and reassembled, and then delivered
+decrypted, verified, decompressed, reassembled, and then delivered
 to higher-level clients.
 
 Four record protocol clients are described in this document: the
@@ -669,7 +669,7 @@ not defined in this document unless negotiated by some extension.
 6.1. Connection States
 
 A TLS connection state is the operating environment of the TLS
-Record Protocol. It specifies a compression algorithm, encryption
+Record Protocol. It specifies a compression algorithm, an encryption
 algorithm, and MAC algorithm. In addition, the parameters for these
 algorithms are known: the MAC secret and the bulk encryption keys
 for the connection in both the read and the write
@@ -706,7 +706,7 @@ of the cipher (if appropriate).
 MAC algorithm
 .br
 An algorithm to be used for message authentication. This
-specification includes the size of the hash that is returned by
+specification includes the size of the value returned by
 the MAC algorithm.
 
 .ti 3
@@ -1075,7 +1075,7 @@ an integral multiple of the block cipher's block length. The
 padding MAY be any length up to 255 bytes, as long as it
 results in the TLSCiphertext.length being an integral multiple
 of the block length. Lengths longer than necessary might be
-desirable to frustrate attacks on a protocol based on analysis
+desirable to frustrate attacks on a protocol that are based on analysis
 of the lengths of exchanged messages. Each uint8 in the padding
 data vector MUST be filled with the padding length value. The
 receiver MUST check this padding and SHOULD use the 
@@ -1290,8 +1290,8 @@ cipher spec
 .in 9
 Specifies the bulk data encryption algorithm (such as null, DES,
 etc.) and a MAC algorithm (such as MD5 or SHA). It also defines
-cryptographic attributes such as the hash_size. (See Appendix
-A.6 for formal definition,)
+cryptographic attributes such as the mac_length. (See Appendix
+A.6 for formal definition.)
 
 .in 7
 master secret
@@ -1639,7 +1639,7 @@ For all errors where an alert level is not explicitly specified, the
 sending party MAY determine at its discretion whether this is a
 fatal error or not; if an alert with a level of warning is received,
 the receiving party MAY decide at its discretion whether to treat
-this as a fatal error or not.  However, all messages which are
+this as a fatal error or not.  However, all messages that are
 transmitted with a level of fatal MUST be treated as fatal messages.
 
 .in 3
@@ -1756,13 +1756,11 @@ TLS_NULL_WITH_NULL_NULL is established).
 
    ClientHello                  -------->
                                                    ServerHello
-                                                  Certificate*
                                             CertificateStatus*
                                             ServerKeyExchange*
                                            CertificateRequest*
                                 <--------      ServerHelloDone
    Certificate*
-   CertificateURL*
    ClientKeyExchange
    CertificateVerify*
    [ChangeCipherSpec]
@@ -2149,7 +2147,7 @@ server_version
 This field will contain the lower of that suggested by the
 client in the client hello and the highest supported by the
 server. For this version of the specification, the version is
-3.2.  (See Appendix E for details about backward compatibility.)
+3.3.  (See Appendix E for details about backward compatibility.)
 
 .in 7
 .ti 3
@@ -2293,7 +2291,7 @@ field of this extension contains:
       } HashType;
 
       struct {
-            HashType types<255>;
+            HashType types<1..255>;
       } CertHashTypes;
 .fi
 
@@ -2352,7 +2350,7 @@ DH_RSA                  Diffie-Hellman key. The algorithm used
 
 .in 3
 .fi
-All certificate profiles, and key and cryptographic formats are defined
+All certificate profiles and key and cryptographic formats are defined
 by the IETF PKIX working group [PKIX]. When a key usage extension is
 present, the digitalSignature bit MUST be set for the key to be
 eligible for signing, as described above, and the keyEncipherment
@@ -2766,7 +2764,7 @@ random 48-byte value and proceed using it as the premaster
 secret. Thus, the server will act identically whether the
 received RSA block is correctly encoded or not. 
 
-[PKCS1B] defines a newer version of PKCS#1 encoding that is
+[PKCS1] defines a newer version of PKCS#1 encoding that is
 more secure against the Bleichenbacher attack. However, for
 maximal compatibility with TLS 1.0, TLS 1.1 retains the
 original encoding. No variants of the Bleichenbacher attack
@@ -3042,7 +3040,7 @@ suite TLS_RSA_WITH_3DES_EDE_CBC_SHA.
 
 .fi
 Application data messages are carried by the Record Layer and are
-fragmented, compressed and encrypted based on the current connection
+fragmented, compressed, and encrypted based on the current connection
 state. The messages are treated as transparent data to the record
 layer.
 
@@ -3108,86 +3106,6 @@ This document defines one new TLS extension, cert_hash_type,
 which is to be (has been) allocated value TBD-BY-IANA in the
 TLS ExtensionType registry.
 
-
-.ti 0
-12.1 Extensions
-
-.in 3
-Section 11 describes a registry of ExtensionType values to be
-maintained by the IANA. ExtensionType values are to be assigned via 
-IETF Consensus as defined in RFC 2434 [IANA]. The initial registry 
-corresponds to the definition of "ExtensionType" in Section 2.3.
-
-The MIME type "application/pkix-pkipath" has been registered by the
-IANA with the following template:
-
-.nf
-   To: ietf-types@iana.org Subject: Registration of MIME media type
-   application/pkix-pkipath
-
-   MIME media type name: application
-   MIME subtype name: pkix-pkipath
-
-   Optional parameters: version (default value is "1")
-
-   Encoding considerations:
-      This MIME type is a DER encoding of the ASN.1 type PkiPath,
-      defined as follows:
-        PkiPath ::= SEQUENCE OF Certificate
-        PkiPath is used to represent a certification path.  Within the
-        sequence, the order of certificates is such that the subject of
-        the first certificate is the issuer of the second certificate,
-        etc.
-
-      This is identical to the definition published in [X509-4th-TC1]; 
-      note that it is different from that in [X509-4th].
-
-      All Certificates MUST conform to [PKIX].  (This should be
-      interpreted as a requirement to encode only PKIX-conformant
-      certificates using this type.  It does not necessarily require
-      that all certificates that are not strictly PKIX-conformant must
-      be rejected by relying parties, although the security consequences
-      of accepting any such certificates should be considered
-      carefully.)
-
-      DER (as opposed to BER) encoding MUST be used.  If this type is
-      sent over a 7-bit transport, base64 encoding SHOULD be used.
-
-   Security considerations:
-      The security considerations of [X509-4th] and [PKIX] (or any
-      updates to them) apply, as well as those of any protocol that uses
-      this type (e.g., TLS).
-
-      Note that this type only specifies a certificate chain that can be
-      assessed for validity according to the relying party's existing
-      configuration of trusted CAs; it is not intended to be used to
-      specify any change to that configuration.
-
-   Interoperability considerations:
-      No specific interoperability problems are known with this type,
-      but for recommendations relating to X.509 certificates in general,
-      see [PKIX].
-
-   Published specification: this memo, and [PKIX].
-
-   Applications which use this media type: TLS.  It may also be used by
-      other protocols, or for general interchange of PKIX certificate
-
-   Additional information:
-      Magic number(s): DER-encoded ASN.1 can be easily recognized.
-        Further parsing is required to distinguish from other ASN.1
-        types.
-      File extension(s): .pkipath
-      Macintosh File Type Code(s): not specified
-
-   Person & email address to contact for further information:
-      Magnus Nystrom <magnus@rsasecurity.com>
-
-   Intended usage: COMMON
-
-   Change controller:
-      IESG <iesg@ietf.org>
-.fi
 
 .ti 0
 .bp
@@ -3270,11 +3188,11 @@ A.3. Alert Messages
             close_notify(0),
             unexpected_message(10),
             bad_record_mac(20),
-            decryption_failed(21),
+            decryption_failed_RESERVED(21),
             record_overflow(22),
             decompression_failure(30),
             handshake_failure(40),
-            no_certificate_RESERVED (41),
+            no_certificate_RESERVED(41),
             bad_certificate(42),
             unsupported_certificate(43),
             certificate_revoked(44),
@@ -3352,7 +3270,12 @@ A.4.1. Hello Messages
         SessionID session_id;
         CipherSuite cipher_suites<2..2^16-1>;
         CompressionMethod compression_methods<1..2^8-1>;
-        Extension client_hello_extension_list<0..2^16-1>;
+        select (extensions_present) {
+            case false: 
+                struct {};
+            case true:         
+                Extension extensions<0..2^16-1>;
+        }		      
     } ClientHello;
 
     struct {
@@ -3361,6 +3284,12 @@ A.4.1. Hello Messages
         SessionID session_id;
         CipherSuite cipher_suite;
         CompressionMethod compression_method;
+        select (extensions_present) {
+            case false: 
+                struct {};
+            case true:         
+                Extension extensions<0..2^16-1>;
+        }
     } ServerHello;
 
     struct {
@@ -3381,15 +3310,6 @@ A.4.2. Server Authentication and Key Exchange Messages
         ASN.1Cert certificate_list<0..2^24-1>;
     } Certificate;
 
-    struct {
-        CertificateStatusType status_type;
-        select (status_type) {
-            case ocsp: OCSPResponse;
-        } response;
-    } CertificateStatus;
-
-    opaque OCSPResponse<1..2^24-1>;
-    
     enum { diffie_hellman } KeyExchangeAlgorithm;
     
     struct {
@@ -3660,7 +3580,7 @@ to initialize a connection state. SecurityParameters includes:
     enum { null, rc4, rc2, des, 3des, des40, aes, idea }
     BulkCipherAlgorithm;
 
-    enum { stream, block } CipherType;
+    enum { stream, block, aead } CipherType;
 
     enum { null, md5, sha } MACAlgorithm;
 
@@ -4067,8 +3987,8 @@ To estimate the amount of seed material being produced, add the
 number of bits of unpredictable information in each seed byte. For
 example, keystroke timing values taken from a PC compatible's 18.2
 Hz timer provide 1 or 2 secure bits each, even though the total size
-of the counter value is 16 bits or more. Seeding a 128-bit PRNG, one
-would thus require approximately 100 such timer values.
+of the counter value is 16 bits or more. Seeding a 128-bit PRNG would
+thus require approximately 100 such timer values.
 
 [RANDOM] provides guidance on the generation of random values.
 
@@ -4303,7 +4223,7 @@ TLS servers will reject Version 2.0 sessions with TLS-capable
 clients.
 
 When TLS clients are in Version 2.0 compatibility mode, they set the
-right-hand (least-significant) 8 random bytes of the PKCS padding
+right-hand (least significant) 8 random bytes of the PKCS padding
 (not including the terminal null of the padding) for the RSA
 encryption of the ENCRYPTED-KEY-DATA field of the CLIENT-MASTER-KEY
 to 0x03 (the other padding bytes are random). After decrypting the
@@ -4587,12 +4507,12 @@ The most robust method, called encrypt-then-authenticate, first applies
 encryption to the data and then applies a MAC to the ciphertext. 
 This method ensures that the integrity and confidentiality goals 
 are obtained with ANY pair of encryption and MAC functions, provided 
-that the former is secure against chosen plaintext attacks and the 
+that the former is secure against chosen plaintext attacks and that the 
 MAC is secure against chosen-message attacks.  TLS uses another method, 
 called authenticate-then-encrypt, in which first a MAC is computed 
 on the plaintext and then the concatenation of plaintext and MAC 
 is encrypted.  This method has been proven secure for CERTAIN combinations 
-of encryption functions and MAC functions, but is not guaranteed 
+of encryption functions and MAC functions, but it is not guaranteed 
 to be secure in general. In particular, it has been shown that there 
 exist perfectly secure encryption functions (secure even in the information-theoretic sense) that combined with any secure MAC function, fail 
 to provide the confidentiality goal against an active attack.  
@@ -4609,12 +4529,12 @@ concatenation of plaintext and MAC tag.
 The other is the case of CBC mode using a secure block cipher.
 In this case, security can be shown if one applies one CBC encryption pass to 
 the concatenation of plaintext and MAC and uses a new, independent, and
-unpredictable, IV for each new pair of plaintext and MAC.
+unpredictable IV for each new pair of plaintext and MAC.
 In previous versions of SSL, CBC mode was used properly 
 EXCEPT that it used a predictable IV in the form of the last block
 of the previous ciphertext.  This made TLS open to chosen plaintext attacks.
-This verson of the protocol is immune to those attacks.
-For exact details in the encryption modes proven secure see [ENCAUTH].
+This version of the protocol is immune to those attacks.
+For exact details in the encryption modes proven secure, see [ENCAUTH].
 
 .ti 0
 .ne 5
@@ -4775,40 +4695,18 @@ Institute of Standards and Technology, U.S. Department of Commerce,
 Keyed-Hashing for Message Authentication", RFC 2104, February 1997.
 
 .ti 3
-[HTTP]   Fielding, R., Gettys, J., Mogul, J., Frystyk, H.,
-Masinter, L., Leach, P. and T. Berners-Lee, "Hypertext
-Transfer Protocol -- HTTP/1.1", RFC 2616, June 1999.
-
-.ti 3
 [IDEA]   X. Lai, "On the Design and Security of Block Ciphers," ETH
 Series in Information Processing, v. 1, Konstanz: Hartung-Gorre
 Verlag, 1992.
-
-.ti 3
-[IDNA]    Faltstrom, P., Hoffman, P. and A. Costello,
-"Internationalizing Domain Names in Applications
-(IDNA)", RFC 3490, March 2003.
 
 .ti 3
 [MD5]    Rivest, R., "The MD5 Message Digest Algorithm", RFC 1321,
 April 1992.
 
 .ti 3
-[OCSP]   Myers, M., Ankney, R., Malpani, A., Galperin, S. and
-C. Adams, "Internet X.509 Public Key Infrastructure:
-Online Certificate Status Protocol - OCSP", RFC 2560,
-June 1999.
-
-.ti 3
-[PKCS1B] J. Jonsson, B. Kaliski, "Public-Key Cryptography Standards
+[PKCS1] J. Jonsson, B. Kaliski, "Public-Key Cryptography Standards
 (PKCS) #1: RSA Cryptography Specifications Version 2.1", RFC 3447,
 February 2003.
-
-.ti 3
-[PKIOP]  Housley, R. and P. Hoffman, "Internet X.509 Public Key
-Infrastructure - Operation Protocols: FTP and HTTP",
-RFC 2585, May 1999.
-
 
 .ti 3
 [PKIX]   Housley, R., Ford, W., Polk, W. and D. Solo, "Internet Public
@@ -4838,26 +4736,9 @@ Levels", BCP 14, RFC 2119, March 1997.
 Considerations Section in RFCs", BCP 25, RFC 2434, October 1998. 
 
 .ti 3
-[TLSAES] Chown, P., "Advanced Encryption Standard (AES) Ciphersuites for
-Transport Layer Security (TLS)", RFC 3268, June 2002.
-
-.ti 3
-[TLSEXT] Blake-Wilson, S., Nystrom, M., Hopwood, D., Mikkelsen, J., 
-Wright, T., "Transport Layer Security (TLS) Extensions",
-RFC 3546, June 2003.
-	 
-.ti 3
-[TLSKRB] Medvinsky, A. and M. Hur, "Addition of Kerberos Cipher Suites to
-Transport Layer Security (TLS)", RFC 2712, October 1999.
-
-.ti 3
 [URI]    Berners-Lee, T., Fielding, R. and L. Masinter,
 "Uniform Resource Identifiers (URI): Generic Syntax",
 RFC 2396, August 1998.
-
-.ti 3
-[UTF8]   Yergeau, F., "UTF-8, a transformation format of ISO
-10646", RFC 3629, November 2003.
 
 .ti 3
 [X509-4th] ITU-T Recommendation X.509 (2000) | ISO/IEC 9594-
@@ -4958,6 +4839,19 @@ September 1981.
 .ti 3
 [TIMING] Boneh, D., Brumley, D., "Remote timing attacks are practical",
 USENIX Security Symposium 2003.
+
+.ti 3
+[TLSAES] Chown, P., "Advanced Encryption Standard (AES) Ciphersuites for
+Transport Layer Security (TLS)", RFC 3268, June 2002.
+
+.ti 3
+[TLSEXT] Blake-Wilson, S., Nystrom, M., Hopwood, D., Mikkelsen, J., 
+Wright, T., "Transport Layer Security (TLS) Extensions",
+RFC 3546, June 2003.
+
+.ti 3
+[TLSKRB] Medvinsky, A. and M. Hur, "Addition of Kerberos Cipher Suites to
+Transport Layer Security (TLS)", RFC 2712, October 1999.
 
 .ti 3
 [TLS1.0] Dierks, T., and C. Allen, "The TLS Protocol, Version 1.0",

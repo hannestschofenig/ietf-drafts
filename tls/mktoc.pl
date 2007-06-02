@@ -4,7 +4,7 @@ $page=1;
 while(<STDIN>){
   $page++ if(/\[Page \d+\]/);
   
-  if(/^(Appendix\s+)?([\dA-F]\.\S*)\s+(.*)/){
+  if(/^(Appendix\s+)?([\dA-F]+\.\S*)\s+(.*)/){
     chop;
 
     $num=$2;
