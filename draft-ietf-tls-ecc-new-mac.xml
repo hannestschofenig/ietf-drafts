@@ -21,7 +21,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-00.txt"> 
+<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-01.txt"> 
 
 <front>
      <title abbrev="TLS ECC New MAC">TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode</title>
@@ -43,7 +43,7 @@
 
            </author>
 
-           <date month="April" year="2007" />
+           <date month="June" year="2007" />
 
            <abstract>
                <t>RFC 4492 describes elliptic curve cipher suites for
@@ -90,7 +90,8 @@ defined in RFC 4492.
 </t>
 <section title="HMAC-based Cipher Suites">
 <t>
-The first four cipher suites use AES <xref target="AES"/> in CBC mode with an
+The first four cipher suites use AES <xref target="AES"/> in CBC 
+<xref target="CBC"/> mode with an
 HMAC-based MAC:
 </t>
 <artwork>
@@ -128,25 +129,40 @@ modes defined in TLS 1.2 with AES in Galois Counter Mode (GCM)
      CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX};
 </artwork>
 <t>
-These cipher suites use the authenticated encryption with additional
+These cipher suites use authenticated encryption with additional
 data algorithms AEAD_AES_128_GCM and AEAD_AES_256_GCM described in
 <xref target="I-D.mcgrew-auth-enc"/>. The "nonce" input to the AEAD
-algorithm SHALL be 12 bytes long, and constructed as follows:
+algorithm SHALL be 12 bytes long, and is "partially implicit" (see
+Section 3.2.1 of <xref target="I-D.mcgrew-auth-enc"/>). Part of
+the nonce is generated as part of the handshake process and
+is static for the entire session and part is carried in each packet.
 </t>
 <artwork>
           struct {
              opaque salt[4];
-             uint64 seq_num;
+             opaque explicit_nonce_part[8];
           } GCMNonce.
 </artwork>
 <t>
 The salt value is either the client_write_IV if the client is sending
 or the server_write_IV if the server is sending. These IVs SHALL be
-4 bytes long.
+4 bytes long. 
 </t>
 <t>
-In DTLS, the 64-bit seq_num is the 16-bit epoch concatenated with
-the 48-bit seq_num.
+The explicit_nonce_part is chosen by the sender and included in the
+packet.  Each value of the explicit_nonce_part MUST be distinct from
+all other values, for any fixed key. Failure to meet this  
+uniqueness requirement can significantly degrade security.
+The explicit_nonce_part is carried in the IV field of the 
+GenericAEADCipher structure. Therefore, for all the algorithms defined
+in this section, SecurityParameters.iv_length=8.
+</t>
+<t>
+In the case of TLS the counter MAY be the 64-bit sequence number.   
+In the case of Datagram TLS <xref target="RFC4347"/> [NOTE: there
+needs to be a new DTLS draft for AEAD, this is a placeholder]
+the counter MAY be formed from the concatenation of  
+the 16-bit epoch with the 48-bit sequence number. 
 </t>
 <t>
 The PRF algorithms SHALL be as follows:
@@ -164,12 +180,16 @@ TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be P_SHA-384.</t>
 <t>
 This work was supported by the US Department of Defense.
 </t>
+<t>
+David McGrew contributed substantual sections of the GCM nonce
+text as well as providing a review of this document.
+</t>
 </section>
 <section title="TLS Versions">
 <t>
 Because these cipher suites depend on features available only in TLS
 1.2 (PRF flexibility and combined authenticated encryption cipher
-modes), they MUST NOT be negotiated in older versions of TLS. Clients
+modes), they MUST NOT be negotiated by older versions of TLS. Clients
 MUST NOT offer these cipher suites if they do not offer TLS 1.2 or
 later. Servers which select an earlier version of TLS MUST NOT select
 one of these cipher suites. Because TLS has no way for the client to
@@ -209,7 +229,7 @@ SHOULD provide at least one ECDHE mode of operation.
 <section title="Counter Reuse with GCM">
 <t>
 AES-GCM is only secure if the counter is never reused. The
-IV construction algorithm above is designed to ensure that that
+IV construction algorithm above is designed to ensure that this
 cannot happen.
 </t>
 </section>
@@ -236,6 +256,7 @@ IANA has assigned the following values for these cipher suites:
 
 &rfc2119;
 &rfc4492;
+&rfc4347;
 &I-D.mcgrew-auth-enc;
 &I-D.ietf-tls-rfc4346-bis;
 
@@ -265,6 +286,20 @@ IANA has assigned the following values for these cipher suites:
 
         <seriesInfo name="FIPS"
                     value="180-2" />
+</reference>
+
+<reference anchor="CBC">
+        <front>
+          <title abbrev="GCM">Recommendation for Block Cipher Modes of Operation - Methods and Techniques</title>
+
+          <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology">
+          </author>
+
+          <date month="December" year="2001" />
+        </front>
+
+        <seriesInfo name="SP"
+                    value="800-38A" />
 </reference>
 
 <reference anchor="GCM">
