@@ -101,7 +101,7 @@ Dierks & Rescorla            Standards Track                     [Page 1]draft-
    7.4.6.    Client Certificate                                          49
    7.4.7.    Client Key Exchange Message                                 49
    7.4.7.1.  RSA Encrypted Premaster Secret Message                      50
-   7.4.7.1.  Client Diffie-Hellman Public Value                          52
+   7.4.7.1.  Client Diffie-Hellman Public Value                          53
    7.4.8.    Certificate verify                                          53
    7.4.9.    Finished                                                    54
    8.        Cryptographic Computations                                  55
@@ -117,7 +117,7 @@ Dierks & Rescorla            Standards Track                     [Page 2]draft-
    9.        Mandatory Cipher Suites                                     56
    10.       Application Data Protocol                                   56
    11.       Security Considerations                                     56
-   12.       IANA Considerations                                         56
+   12.       IANA Considerations                                         57
    A.        Protocol Constant Values                                    59
    A.1.      Record Layer                                                59
    A.2.      Change Cipher Specs Message                                 60
@@ -2290,7 +2290,8 @@ Dierks & Rescorla            Standards Track                    [Page 42]draft-
 
    These values indicate support for MD5 [MD5], SHA-1, SHA-256, SHA-384,
    and SHA-512 [SHA] respectively. The server MUST NOT send this
-   extension.
+   extension. The values are indicated in descending order of
+   preference.
 
    Clients SHOULD send this extension if they support any algorithm
    other than SHA-1. If this extension is not used, servers SHOULD
@@ -2319,12 +2320,13 @@ Dierks & Rescorla            Standards Track                    [Page 42]draft-
        Key Exchange Algorithm  Certificate Key Type
 
        RSA                     RSA public key; the certificate MUST
-                               allow the key to be used for encryption.
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 43]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
+
+                               allow the key to be used for encryption.
 
        DHE_DSS                 DSS public key.
 
@@ -2372,14 +2374,14 @@ Dierks & Rescorla            Standards Track                    [Page 43]draft-
    to send in response to the server's authentication request.
 
  Note: PKCS #7 [PKCS7] is not used as the format for the certificate
-       vector because PKCS #6 [PKCS6] extended certificates are not
-       used. Also, PKCS #7 defines a SET rather than a SEQUENCE, making
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 44]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
 
+       vector because PKCS #6 [PKCS6] extended certificates are not
+       used. Also, PKCS #7 defines a SET rather than a SEQUENCE, making
        the task of parsing the list more difficult.
 
 7.4.3. Server Key Exchange Message
@@ -2426,13 +2428,14 @@ Dierks & Rescorla            Standards Track                    [Page 44]draft-
    message is DSA, the hash algorithm MUST be SHA-1.  [TODO: This is
    incorrect. What it should say is that it must be specified in the
    SPKI of the cert. However, I don't believe this is actually defined.
-   Rather, the DSA certs just say dsa. We need new certs to say
-   dsaWithSHAXXX.]
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 45]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
+
+   Rather, the DSA certs just say dsa. We need new certs to say
+   dsaWithSHAXXX.]
 
    If the SignatureAlgorithm is RSA, then any hash function accepted by
    the client MAY be used. The selected hash function MUST be indicated
@@ -2479,14 +2482,14 @@ Dierks & Rescorla            Standards Track                    [Page 45]draft-
 
        signed_params
            For non-anonymous key exchanges, a hash of the corresponding
-           params value, with the signature appropriate to that hash
-           applied.
-
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 46]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
+
+           params value, with the signature appropriate to that hash
+           applied.
 
        hash
            Hash(ClientHello.random + ServerHello.random + ServerParams)
@@ -2533,15 +2536,15 @@ Dierks & Rescorla            Standards Track                    [Page 46]draft-
 
        opaque DistinguishedName<1..2^16-1>;
 
-       struct {
-           ClientCertificateType certificate_types<1..2^8-1>;
-           HashType certificate_hash<1..2^8-1>;
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 47]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
 
+       struct {
+           ClientCertificateType certificate_types<1..2^8-1>;
+           HashType certificate_hash<1..2^8-1>;
            DistinguishedName certificate_authorities<0..2^16-1>;
        } CertificateRequest;
 
@@ -2565,8 +2568,11 @@ Dierks & Rescorla            Standards Track                    [Page 47]draft-
 
 
        certificate_hash
-           A list of acceptable hash algorithms to be used in
-           certificate signatures.
+           A list of acceptable hash algorithms to be used in signatures
+           in both the client certificate and the CertificateVerify.
+           These algorithms are listed in descending order of
+           preference.
+
 
        certificate_authorities
            A list of the distinguished names of acceptable certificate
@@ -2586,16 +2592,14 @@ Dierks & Rescorla            Standards Track                    [Page 47]draft-
            used in SSLv3.
 
 
- Note: DistinguishedName is derived from [X501]. DistinguishedNames are
-           represented in DER-encoded format.
-
- Note: It is a fatal handshake_failure alert for an anonymous server to
-
-
 
 Dierks & Rescorla            Standards Track                    [Page 48]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
 
+ Note: DistinguishedName is derived from [X501]. DistinguishedNames are
+           represented in DER-encoded format.
+
+ Note: It is a fatal handshake_failure alert for an anonymous server to
        request client authentication.
 
 7.4.5 Server hello done
@@ -2641,15 +2645,14 @@ Dierks & Rescorla            Standards Track                    [Page 48]draft-
 
 7.4.7. Client Key Exchange Message
 
-   When this message will be sent:
-       This message is always sent by the client. It MUST immediately
-       follow the client certificate message, if it is sent. Otherwise
-
 
 
 Dierks & Rescorla            Standards Track                    [Page 49]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
 
+   When this message will be sent:
+       This message is always sent by the client. It MUST immediately
+       follow the client certificate message, if it is sent. Otherwise
        it MUST be the first message sent by the client after it receives
        the server hello done message.
 
@@ -2695,15 +2698,15 @@ Dierks & Rescorla            Standards Track                    [Page 49]draft-
 
        client_version
            The latest (newest) version supported by the client. This is
-           used to detect version roll-back attacks. Upon receiving the
-           premaster secret, the server SHOULD check that this value
-           matches the value transmitted by the client in the client
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 50]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
 
+           used to detect version roll-back attacks. Upon receiving the
+           premaster secret, the server SHOULD check that this value
+           matches the value transmitted by the client in the client
            hello message.
 
        random
@@ -2749,15 +2752,15 @@ Dierks & Rescorla            Standards Track                    [Page 50]draft-
         2. Decrypt the message M
 
         3. If the PKCS#1 padding is not correct, or the length of
-           message M is not exactly 48 bytes:
-              premaster secret = ClientHello.client_version || R
-           else If ClientHello.client_version <= TLS 1.0, and
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 51]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
 
+           message M is not exactly 48 bytes:
+              premaster secret = ClientHello.client_version || R
+           else If ClientHello.client_version <= TLS 1.0, and
            version number check is explicitly disabled:
               premaster secret = M
            else:
@@ -2803,15 +2806,15 @@ Dierks & Rescorla            Standards Track                    [Page 51]draft-
    [TIMING].
 
 
-7.4.7.1. Client Diffie-Hellman Public Value
-
-   Meaning of this message:
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 52]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
 
+7.4.7.1. Client Diffie-Hellman Public Value
+
+   Meaning of this message:
        This structure conveys the client's Diffie-Hellman public value
        (Yc) if it was not already included in the client's certificate.
        The encoding used for Yc is determined by the enumerated
@@ -2857,14 +2860,14 @@ Dierks & Rescorla            Standards Track                    [Page 52]draft-
        The Signature type is defined in 7.4.3.
 
 
-       The hash function MUST be one of the algorithms offered in the
-       CertificateRequest message.
-
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 53]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
+
+       The hash function MUST be one of the algorithms offered in the
+       CertificateRequest message.
 
        If the SignatureAlgorithm being used to sign the ServerKeyExchange
        message is DSA, the hash function used MUST be SHA-1.
@@ -2912,13 +2915,13 @@ Dierks & Rescorla            Standards Track                    [Page 53]draft-
            opaque verify_data[12];
        } Finished;
 
-       verify_data
-           PRF(master_secret, finished_label, Hash(handshake_messages))[0..11];
-
 
 
 Dierks & Rescorla            Standards Track                    [Page 54]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
+
+       verify_data
+           PRF(master_secret, finished_label, Hash(handshake_messages))[0..11];
 
        finished_label
            For Finished messages sent by the client, the string "client
@@ -2965,15 +2968,15 @@ Dierks & Rescorla            Standards Track                    [Page 54]draft-
 
 8.1. Computing the Master Secret
 
-   For all key exchange methods, the same algorithm is used to convert
-   the pre_master_secret into the master_secret. The pre_master_secret
-   should be deleted from memory once the master_secret has been
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 55]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
 
+   For all key exchange methods, the same algorithm is used to convert
+   the pre_master_secret into the master_secret. The pre_master_secret
+   should be deleted from memory once the master_secret has been
    computed.
 
        master_secret = PRF(pre_master_secret, "master secret",
@@ -3019,14 +3022,15 @@ Dierks & Rescorla            Standards Track                    [Page 55]draft-
 11. Security Considerations
 
    Security issues are discussed throughoutthis memo, especially in
-   Appendices D, E, and F.
-
-12. IANA Considerations
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 56]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
+
+   Appendices D, E, and F.
+
+12. IANA Considerations
 
    This document uses several registries that were originally created in
    [RFC4346]. IANA is requested to update (has updated) these to
@@ -3072,22 +3076,18 @@ Dierks & Rescorla            Standards Track                    [Page 56]draft-
       Future values in the range 0-63 (decimal) inclusive are
       assigned via Standards Action [RFC2434].  Values in the
       range 64-223 (decimal) inclusive are assigned via
-      Specification Required [RFC2434].  Values from 224-255
-      (decimal) inclusive are reserved for Private Use [RFC2434].
-
-   This document defines one new TLS extension, cert_hash_type, which is
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 57]draft-ietf-tls-rfc4346-bis-04.txt  TLS                         June 2007
 
 
+      Specification Required [RFC2434].  Values from 224-255
+      (decimal) inclusive are reserved for Private Use [RFC2434].
+
+   This document defines one new TLS extension, cert_hash_type, which is
    to be (has been) allocated value TBD-BY-IANA in the TLS ExtensionType
    registry.
-
-
-
-
 
 
 
@@ -4726,7 +4726,8 @@ Changes in This Version
      - Improvements to signature hash agility text [Issue 41].
      Still not completely fixed.
 
-     - Changed cert_hash_types to signature hash types
+     - Changed cert_hash_types to signature hash types and indicated a
+   preference order.
 
      - Strengthened language about when alerts are required. Note
      that it is still legal under some circumstances to close
@@ -4748,7 +4749,6 @@ Normative References
    [DSS]    NIST FIPS PUB 186-2, "Digital Signature Standard," National
             Institute of Standards and Technology, U.S. Department of
             Commerce, 2000.
-
 
 
 

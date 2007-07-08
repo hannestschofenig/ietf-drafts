@@ -2326,7 +2326,7 @@ field of this extension contains:
 .in 3
 These values indicate support for MD5 [MD5], SHA-1, SHA-256,
 SHA-384, and SHA-512 [SHA] respectively. The server MUST NOT send this
-extension.
+extension. The values are indicated in descending order of preference.
 
 Clients SHOULD send this extension if they support any algorithm other
 than SHA-1. If this extension is not used, servers SHOULD assume that
@@ -2614,8 +2614,10 @@ is a holdover from TLS 1.0 and 1.1.
 certificate_hash
 .in 11
 .fi
-A list of acceptable hash algorithms to be used in certificate
-signatures.
+A list of acceptable hash algorithms to be used in signatures
+in both the client certificate and the CertificateVerify.
+These algorithms are listed in descending order of preference.
+
 
 .ti 7
 certificate_authorities
@@ -4695,7 +4697,8 @@ Changes in This Version
   Still not completely fixed.
 
 .ti 5
-- Changed cert_hash_types to signature hash types
+- Changed cert_hash_types to signature hash types and indicated
+a preference order.
 
 .ti 5
 - Strengthened language about when alerts are required. Note
