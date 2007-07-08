@@ -17,7 +17,7 @@ INTERNET-DRAFT                                                Tim Dierks
 Obsoletes (if approved): 4346                                Independent
 Intended status:  Proposed Standard                        Eric Rescorla
                                                  Network Resonance, Inc.
-<draft-ietf-tls-rfc4346-bis-04.txt>    June 2007 (Expires December 2007)
+<draft-ietf-tls-rfc4346-bis-04.txt>     July 2007 (Expires January 2008)
 
 .ce 2
 The TLS Protocol
@@ -182,6 +182,18 @@ of cryptographic algorithms. The major changes are:
 
 .ti 5
 - The usual clarifications and editorial work.
+
+.ti 5
+- Added some guidance that DH groups should be checked.
+
+.ti 5
+- Cleaned up description of Bleichenbacher/Klima attack defenses.
+
+.ti 5
+- Tighter checking of EncryptedPreMasterSecret version numbers.
+
+.ti 5
+- Stronger language about when alerts MUST be sent.
 
 
 .ti 0
@@ -497,7 +509,7 @@ In RSA signing, the opaque vector contains the signature generated
 using the RSASSA-PKCS1-v1_5 signature scheme defined in [PKCS1]. 
 As discussed in [PKCS1], the DigestInfo MUST be DER encoded and
 for digest algorithms without parameters (which include SHA-1) the
-DigestInfo.AlgorithmIdentifier.parameters field SHOULD be omitted
+DigestInfo.AlgorithmIdentifier.parameters field MUST be NULL
 but implementations MUST accept both without parameters and with
 NULL parameters. Note
 that earlier versions of TLS used a different RSA signature scheme
@@ -1457,8 +1469,23 @@ party.  Upon transmission or receipt of a fatal alert message, both
 parties immediately close the connection. Servers and clients MUST
 forget any session-identifiers, keys, and secrets
 associated with a failed connection. Thus, any connection terminated
-with a fatal alert MUST NOT be resumed. The following error alerts are
-defined:
+with a fatal alert MUST NOT be resumed. 
+
+Whenever an implementation encounters a condition which is defined
+as a fatal alert, it MUST send the appropriate alert prior to
+closing the connection. In cases where an implementation chooses
+to send an alert which MAY be a warning alert but intends to close
+the connection immediately afterwards, it MUST send that alert
+at the fatal alert level. 
+
+If an alert with a level of warning is sent and received, generally
+the connection can continue normally.  If the receiving party
+decides not to proceed with the connection (e.g., after having
+received a no_renegotiation alert that it is not willing to
+accept), it SHOULD send a fatal alert to terminate the connection.
+
+
+The following error alerts are defined:
 
 unexpected_message
 .in 7
@@ -1756,6 +1783,7 @@ TLS_NULL_WITH_NULL_NULL is established).
 
    ClientHello                  -------->
                                                    ServerHello
+                                                  Certificate*
                                             CertificateStatus*
                                             ServerKeyExchange*
                                            CertificateRequest*
@@ -2210,7 +2238,7 @@ The extension format is:
       } Extension;
 
       enum {
-          cert_hash_types(TBD-BY-IANA), (65535)
+          signature_hash_types(TBD-BY-IANA), (65535)
       } ExtensionType;
 
 .fi
@@ -2280,9 +2308,9 @@ consideration in any major design change.
 .ti 0
 7.4.1.4.1 Cert Hash Types
 
-The client MAY use the "cert_hash_types" to indicate
-to the server which hash functions may be used in the
-signature on the server's certificate. The "extension_data"
+The client MAY use the "signature_hash_types" to indicate
+to the server which hash functions may be used in 
+digital signatures. The "extension_data"
 field of this extension contains:
 
 .nf
@@ -2292,7 +2320,7 @@ field of this extension contains:
 
       struct {
             HashType types<1..255>;
-      } CertHashTypes;
+      } SignatureHashTypes;
 .fi
 
 .in 3
@@ -2441,11 +2469,22 @@ algorithm does not provide enough information for the client to
 exchange a premaster secret.
 
 .in 3
+If the client has offered the SignatureHashTypes extension, the hash
+function MUST be one of those listed in that extension. Otherwise it
+MUST be assumed that only SHA-1 is supported.
+
 If the SignatureAlgorithm being used to sign the ServerKeyExchange
-message is DSA, the hash function used MUST be SHA-1. If the
-SignatureAlgorithm it must be the same hash function used in the
-signature of the server's certificate (found in the Certificate)
-message. This algorithm is denoted Hash below. Hash.length is the
+message is DSA, the hash algorithm MUST be SHA-1.
+[TODO: This is incorrect. What it should say is that it must
+be specified in the SPKI of the cert. However, I don't believe
+this is actually defined. Rather, the DSA certs just say
+dsa. We need new certs to say dsaWithSHAXXX.]
+
+If the SignatureAlgorithm is RSA, then any hash function accepted
+by the client MAY be used. The selected hash function MUST be
+indicated in the digest_algorithm field of the signature structure. 
+
+The hash algorithm is denoted Hash below. Hash.length is the
 length of the output of that algorithm.
 
 .nf
@@ -2504,6 +2543,7 @@ Structure of this message:
         select (SignatureAlgorithm) {   
             case anonymous: struct { };
             case rsa:
+                HashType digest_algorithm;       // NEW
                 digitally-signed struct {
                     opaque hash[Hash.length];
                 };
@@ -2747,29 +2787,65 @@ This random value is generated by the client and is used to
 generate the master secret, as specified in Section 8.1.
 
 .fi
+.ti 1
+Note: The version number in the PreMasterSecret is the version
+offered by the client in the ClientHello.client_version, not the
+version negotiated for the connection.  This feature is designed
+to prevent rollback attacks.  Unfortunately, some old
+implementations use the negotiated version instead and therefore
+checking the version number may lead to failure to interoperate
+with such incorrect client implementations. 
+
+Client implementations MUST always send the correct version
+number in PreMasterSecret. If ClientHello.client_version is TLS
+1.1 or higher, server implementations MUST check the version
+number as described in the note below. If the version number is
+earlier than 1.0, server implementations SHOULD check the
+version number, but MAY have a configuration option to disable
+the check. Note that if the check fails, the PreMasterSecret
+SHOULD be randomized as described below.
+
 .in 3
-An attack discovered by Daniel Bleichenbacher [BLEI] can be used
-to attack a TLS server which is using PKCS#1 v 1.5 encoded RSA. The
-attack takes advantage of the fact that by failing in different
-ways, a TLS server can be coerced into revealing whether a
-particular message, when decrypted, is properly PKCS#1 v1.5 formatted
-or not.
+Note: Attacks discovered by Bleichenbacher [BLEI] and Klima et al. 
+[KPR03] can be used to attack a TLS server that reveals whether
+a particular message, when decrypted, is properly PKCS#1
+formatted, contains a valid PreMasterSecret structure, or has
+the correct version number.
 
-In order to avoid this vulnerability, implementations MUST
-treat
+The best way to avoid these vulnerabilities is to treat
 incorrectly formatted messages in a manner indistinguishable
-from correctly formatted RSA blocks. Thus, when it receives an
-incorrectly formatted RSA block, a server should generate a
-random 48-byte value and proceed using it as the premaster
-secret. Thus, the server will act identically whether the
-received RSA block is correctly encoded or not. 
+from correctly formatted RSA blocks. In other words:
 
-[PKCS1] defines a newer version of PKCS#1 encoding that is
-more secure against the Bleichenbacher attack. However, for
-maximal compatibility with TLS 1.0, TLS 1.1 retains the
-original encoding. No variants of the Bleichenbacher attack
-are known to exist provided that the above recommendations are
-followed.
+.nf
+     1. Generate a string R of 46 random bytes
+     
+     2. Decrypt the message M
+     
+     3. If the PKCS#1 padding is not correct, or the length of 
+        message M is not exactly 48 bytes:
+           premaster secret = ClientHello.client_version || R
+        else If ClientHello.client_version <= TLS 1.0, and
+        version number check is explicitly disabled:
+           premaster secret = M
+        else:
+           premaster secret = ClientHello.client_version || M[2..47]
+.fi
+     
+In any case, a TLS server MUST NOT generate an alert if
+processing an RSA-encrypted premaster secret message fails, or
+the version number is not as expected. Instead, it MUST continue
+the handshake with a randomly generated premaster secret. 
+It may be useful to log the real cause of failure for
+troubleshooting purposes; however, care must be taken to 
+avoid leaking the information to an attacker (though, e.g.,
+timing, log files, or other channels.
+
+The RSAES-OAEP encryption scheme defined in [PKCS1] is more
+secure against the Bleichenbacher attack. However, for maximal
+compatibility with earlier versions of TLS, this specification
+uses the RSAES-PKCS1-v1_5 scheme. No variants of the
+Bleichenbacher attack are known to exist provided that the above
+recommendations are followed.
 
 .ti 1
 Implementation Note: Public-key-encrypted data is represented as an
@@ -2798,22 +2874,6 @@ the same LAN. Accordingly, implementations that use static RSA
 keys MUST use RSA blinding or some other anti-timing technique,
 as described in [TIMING].
 
-.ti 1
-Note: The version number in the PreMasterSecret MUST be the
-version offered by the client in the ClientHello.version,
-not the version negotiated for the connection. This
-feature is designed to prevent rollback attacks. Unfortunately,
-many implementations use the negotiated version instead and therefore
-checking the version number may lead to failure to interoperate with
-such incorrect client implementations. Client implementations MUST and
-Server implementations MAY check the version number. In practice,
-since the TLS handshake MACs prevent downgrade and no good
-attacks are known on those MACs, 
-ambiguity is not considered a serious security risk.
-Note that if servers choose to to check the version number, they
-MUST randomize the PreMasterSecret in case of error, rather
-than generate an alert, in order to avoid variants on the
-Bleichenbacher attack. [KPR03]
 
 .ti 0
 7.4.7.1. Client Diffie-Hellman Public Value
@@ -2878,10 +2938,24 @@ struct {
      Signature signature;
 } CertificateVerify;
 
-The Signature type is defined in 7.4.3. If the SignatureAlgorithm
-is DSA, then the sha_hash value must be used. If it is RSA,
-the same function (denoted Hash) must be used as was used to
-create the signature for the client's certificate.
+The Signature type is defined in 7.4.3.
+
+
+The hash function MUST be one of the algorithms offered in the
+CertificateRequest message.
+
+If the SignatureAlgorithm being used to sign the ServerKeyExchange
+message is DSA, the hash function used MUST be SHA-1. 
+[TODO: This is incorrect. What it should say is that it must
+be specified in the SPKI of the cert. However, I don't believe
+this is actually defined. Rather, the DSA certs just say
+dsa. We need new certs to say dsaWithSHAXXX]
+
+If the SignatureAlgorithm is RSA, then any of the functions offered
+by the server may be used. The selected hash function MUST be
+indicated in the digest_algorithm field of the signature structure. 
+
+The hash algorithm is denoted Hash below.
 
 CertificateVerify.signature.hash
     Hash(handshake_messages);
@@ -3298,7 +3372,7 @@ A.4.1. Hello Messages
     } Extension;
 
     enum {
-        cert_hash_types(TBD-BY-IANA), (65535)
+        signature_hash_types(TBD-BY-IANA), (65535)
     } ExtensionType;
 
 .ti 0
@@ -3338,6 +3412,7 @@ A.4.2. Server Authentication and Key Exchange Messages
         select (SignatureAlgorithm) {   
             case anonymous: struct { };
             case rsa:
+                HashType digest_algorithm;       // NEW
                 digitally-signed struct {
                     opaque hash[Hash.length];
                 };
@@ -4158,7 +4233,7 @@ msg_type
 .in 7
 .fi
 This field, in conjunction with the version field, identifies a
-version 2 client hello message. The value SHOULD be one (1).
+version 2 client hello message. The value MUST be one (1).
 
 .ti 3
 version
@@ -4176,8 +4251,7 @@ cannot be zero and MUST be a multiple of the V2CipherSpec length
 .ne 4
 session_id_length
 .br
-This field MUST have a value of zero. MUST be zero
-for a client that claims to support TLS 1.2.
+This field MUST have a value of zero for a client that claims to support TLS 1.2.
 
 .ti 3
 challenge_length
@@ -4185,7 +4259,7 @@ challenge_length
 The length in bytes of the client's challenge to the server to
 authenticate itself. Historically, permissible values are between 16 and 32 bytes
 inclusive. When using the SSLv2 backward compatible
-handshake the client MUST use a 32-byte challenge.
+handshake the client SHOULD use a 32 byte challenge.
 
 .ti 3
 cipher_specs
@@ -4218,18 +4292,22 @@ E.2. Avoiding Man-in-the-Middle Version Rollback
 
 .in 3
 When TLS clients fall back to Version 2.0 compatibility mode, they
-SHOULD use special PKCS #1 block formatting. This is done so that
-TLS servers will reject Version 2.0 sessions with TLS-capable
-clients.
+MUST use special PKCS#1 block formatting. This is done so that TLS
+servers will reject Version 2.0 sessions with TLS-capable clients.
 
-When TLS clients are in Version 2.0 compatibility mode, they set the
-right-hand (least significant) 8 random bytes of the PKCS padding
-(not including the terminal null of the padding) for the RSA
-encryption of the ENCRYPTED-KEY-DATA field of the CLIENT-MASTER-KEY
-to 0x03 (the other padding bytes are random). After decrypting the
-ENCRYPTED-KEY-DATA field, servers that support TLS SHOULD issue an
-error if these eight padding bytes are 0x03. Version 2.0 servers
-receiving blocks padded in this manner will proceed normally.
+When a client negotiates SSL 2.0 but also supports TLS, it MUST set
+the right-hand (least-significant) 8 random bytes of the PKCS
+padding (not including the terminal null of the padding) for the
+RSA encryption of the ENCRYPTED-KEY-DATA field of the
+CLIENT-MASTER-KEY to 0x03 (the other padding bytes are random).
+
+When a TLS-capable server negotiates SSL 2.0 it SHOULD, after
+decrypting the ENCRYPTED-KEY-DATA field, check that these eight
+padding bytes are 0x03. If they are not, the server SHOULD generate
+a random value for SECRET-KEY-DATA, and continue the handshake
+(which will eventually fail since the keys will not match).  Note
+that reporting the error situation to the client could make the
+server vulnerable to attacks described in [BLEI].
 
 .ti 0
 .bp
@@ -4376,6 +4454,14 @@ be computed very quickly, therefore the performance cost is minimized.
 Additionally, using a fresh key for each handshake provides
 Perfect Forward Secrecy. Implementations SHOULD generate a new
 X for each handshake when using DHE ciphersuites.
+
+Because TLS allows the server to provide arbitrary DH groups, the
+client SHOULD verify the correctness of the DH group. [TODO: provide a
+reference to some document describing how] and that it is of suitable
+size as defined by local policy. The client SHOULD also verify that
+the DH public exponent appears to be of adequate size. The server MAY choose to
+assist the client by providing a known group, such as those defined in
+[IKEALG] or [MODP]. These can be verified by simple comparison.
 
 .ti 0
 F.1.2. Version Rollback Attacks
@@ -4584,88 +4670,37 @@ in Appendices D, E, and F.
 
 
 .ti 0
-Changes in This Version
+Changes in This Version 
 
 .in 3
 [RFC Editor: Please delete this]
 
 .ti 5
-- Forbid decryption_failed [issue 5]
+- Added some guidance about checking DH groups and exponents. 
+  [Issues 15 and 43]
 
 .ti 5
-- Fix CertHashTypes declaration [issue 20]
+- DigestInfo now MUST be NULL but must be accepted either way
+  per discussion in Prague [Issue 22]
 
 .ti 5
-- Fix client_version in 7.4.1.2 [issue 19]
+- Improved versions of Bleichenbacher/Klima/Version number 
+  text for the EPMS (due to Eronen) [Issue 17]
 
 .ti 5
-- Require Bleichenbacher and timing attack protection [issues 17 and
-  12].
+- Cleaned up SSLv2 backward compatibility text [Issue 25]
 
 .ti 5
-- Merged RFC-editor changes back in.
+- Improvements to signature hash agility text [Issue 41].
+  Still not completely fixed.
 
 .ti 5
-- Editorial changes from NIST [issue 8]
+- Changed cert_hash_types to signature hash types
 
 .ti 5
-- Clarified the meaning of HelloRequest [issue 39]
-
-.ti 5
-- Editorial nits from Peter Williams [issue 35]
-
-.ti 5
-- Made maximum fragment size a MUST [issue 9]
-
-.ti 5
-- Clarified that resumption is not mandatory and servers may
-  refuse [issue 37]
-
-.ti 5
-- Fixed identifier for cert_hash_types [issue 38]
-
-.ti 5
-- Forbid sending unknown record types [issue 11]
-
-.ti 5
-- Clarify that DH parameters and other integers are unsigned [issue 28]
-
-.ti 5
-- Clarify when a server Certificate is sent [isssue 29]
-
-.ti 5
-- Prohibit zero-length fragments [issue 10]
-
-.ti 5
-- Fix reference for DES/3DES [issue 18]
-
-.ti 5
-- Clean up some notes on deprecated alerts [issue 6]
-
-.ti 5
-- Remove ephemeral RSA [issue 3]
-
-.ti 5
-- Stripped out discussion of how to generate the IV and replaced 
-it with a randomness/unpredictability requirement [issue 7]
-
-.ti 5
-- Replaced the PKCS#1 text with references to PKCS#1 v2. This
-also includes DigestInfo encoding [issues 1 and 22]
-
-.ti 5
-- Removed extension definitions and merged the ExtendedHello 
-definitions [issues 31 and 32]
-
-.ti 5
-- Replaced CipherSpec references with SecurityParameters references
-[issue 2]
-
-.ti 5
-- Cleaned up IANA text [issues 33 and 34]
-
-.ti 5
-- Cleaned up backward compatibility text [issue 25]
+- Strengthened language about when alerts are required. Note
+  that it is still legal under some circumstances to close 
+  a connection with no alert.
 
 .ti 0
 Normative References
@@ -4756,7 +4791,7 @@ Informative References
 
 .ti 3
 [AEAD]   Mcgrew, D., "Authenticated Encryption",
-July 2006, draft-mcgrew-auth-enc-00.txt.
+February 2007, draft-mcgrew-auth-enc-02.txt.
 
 .ti 3
 [AH]     Kent, S., and Atkinson, R., "IP Authentication Header", 
@@ -4794,8 +4829,18 @@ Authentication and Confidentiality",
 http://csrc.nist.gov/publications/nistpubs/SP800-38C.pdf.
 
 .ti 3
+[IKEALG] Schiller, J., "Cryptographic Algorithms for Use in the
+Internet Key Exchange Version 2 (IKEv2)", RFC 4307, December
+2005.
+
+.ti 3
 [KPR03]  Klima, V., Pokorny, O., Rosa, T., "Attacking RSA-based Sessions 
 in SSL/TLS", http://eprint.iacr.org/2003/052/, March 2003.
+
+.ti 3
+[MODP]   Kivinen, T. and M. Kojo, "More Modular Exponential
+(MODP) Diffie-Hellman groups for Internet Key Exchange
+(IKE)", RFC 3526, May 2003.
 
 .ti 3
 [PKCS6]  RSA Laboratories, "PKCS #6: RSA Extended Certificate Syntax
