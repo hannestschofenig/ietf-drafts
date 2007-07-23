@@ -1,0 +1,324 @@
+\documentclass[fancybox]{seminar}
+\usepackage{graphicx}
+\usepackage{slidesec}
+
+\input{seminar.bug}
+\input{seminar.bg2} % See the Seminar bugs list
+
+\slideframe{none}
+\renewcommand{\familydefault}{\sfdefault}  
+
+\usepackage{fancyhdr}
+
+% Headers and footers personalization using the `fancyhdr' package
+\fancyhf{} % Clear all fields
+\renewcommand{\headrulewidth}{0mm}
+\renewcommand{\footrulewidth}{0.1mm}
+
+\fancyfoot[L]{\tiny Eric Rescorla}
+\fancyfoot[C]{\tiny TLS, IETF 67}
+\fancyfoot[R]{\tiny \theslide}
+
+
+% To center horizontally the headers and footers (see seminar.bug)
+\renewcommand{\headwidth}{\textwidth}
+
+% To adjust the frame length to the header and footer ones
+\autoslidemarginstrue
+\pagestyle{fancy}
+
+\newcommand{\heading}[1]{%
+  \begin{center}
+    \large\bf
+    #1
+  \end{center}
+  \vspace{.4 in}}
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}TLS WG}\\
+
+\vspace{.3 in}
+\large{Eric Rescorla}\\
+\large{Network Resonance}\\
+\large{\texttt{ekr@networkresonance.com}}
+
+\end{center}
+\end{slide}
+
+\begin{slide}
+\heading{Agenda}
+
+{\tiny
+\begin{enumerate}
+\item Agenda bashing (5 minutes) - chairs
+\begin{itemize}
+\item Bluesheets
+\item Agenda changes
+\item Scribe for minutes
+\item Jabber scribe
+\end{itemize}
+\item Document status (5 minutes) - chairs
+\begin{itemize}
+\item Progress since last IETF
+\item IANA considerations reminder
+\end{itemize}      
+\item TLS 1.2 (45 minutes?) - Eric Rescorla
+\item Counter Mode IVs (10 minutes) - Eric Rescorla
+\item TLS Record Layer bugs (10 minutes) - Pasi Eronen
+\item TLS Evidence Extensions (15 minutes) - Russ Housley
+\item KDF (15 minutes) - Tim Polk
+\item SPNEGO and TLS (5 minutes) - Stefan Santesson
+\end{enumerate}
+}
+
+\end{slide}
+
+\begin{slide}
+\heading{Document Status}
+
+{\tiny
+\begin{tabular}{|p{1.5 in}|p{1.4 in}|p{.7 in}|}
+\hline
+TLS 1.1 & RFC 4346 (PS) & Published \\
+Extensions (revised) & RFC 4346 (PS) & Published \\
+Datagram Transport Layer Security & RFC 4347 (PS) & Published \\
+ECC Cipher Suites & RFC 4492 (PS) & Published \\
+Transport Layer Security (TLS) Session Resumption without
+Server-Side State & RFC 4505 (PS) & Published \\
+TLS User Mapping Extension & RFC 4681 & \textbf{Published} \\
+TLS Handshake Message for Supplemental Data & RFC 4680 & \textbf{Published} \\
+Transport Layer Security (TLS) Authorization Extensions & draft-housley-tls-authz-extns-07 & RFC Ed Queue \\
+Using OpenPGP keys for TLS authentication & draft-ietf-tls-openpgp-keys-10 & \textbf{RFC Ed Queue} \\
+Using SRP for TLS Authentication & draft-ietf-tls-srp-12 & Editors revising \\
+Pre-Shared Key Cipher Suites with NULL Encryption for Transport Layer Security (TLS) & draft-ietf-tls-psk-null (Proposed Standard) & \textbf{RFC Ed Queue} \\
+AES Counter Mode Cipher Suites for TLS and DTLS & draft-ietf-tls-ctr-01.txt & Working... \\
+The TLS Protocol Version 1.2 & draft-ietf-tls-rfc4346-bis-02.txt & Working... \\
+\hline
+\end{tabular}
+}
+\end{slide}
+
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}TLS 1.2 Status}\\
+
+\vspace{.3 in}
+\large{Eric Rescorla}\\
+\large{Network Resonance}\\
+\large{\texttt{ekr@networkresonance.com}}
+
+\end{center}
+\end{slide}
+
+\begin{slide}
+\heading{TLS 1.2 Status}
+
+\begin{itemize}
+\item New draft (-02)
+\begin{itemize}
+\item Technical
+\begin{itemize}
+\item Fixed PRF text (but still need to discuss)
+\item Added support for combined authenticated encryption modes (per charter)
+\item $verify\_data$ values now computed with $Hash()$
+\end{itemize}
+\item Editorial
+\begin{itemize}
+\item Protocol version fixes (cleanup)
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{PRF Discussion}
+
+Pasi asks mailing list:
+
+\begin{quote}
+1) Default PRF is tied to the TLS version number: in other words,
+ciphersuites that don't specify anything else (including all
+currently defined ciphersuites) will use the new TLS 1.2 PRF
+(details of which are TBD) when TLS 1.2 is negotiated.
+
+2) The new PRF will be used only for new ciphersuites that
+explicitly say so; all currently defined ciphersuites continue to
+use the current (TLS 1.0/1.1) PRF even when TLS 1.2 is negotiated.
+\end{quote}
+
+General consensus on list was for \#1. Still need to nail down
+details.
+\end{slide}
+
+
+\begin{slide}
+\heading{Original Proposal for default PRF}
+
+\vspace{-.2 in}
+\begin{itemize}
+\item $P\_hash()$ using only one hash function
+\begin{itemize}
+\item This is what -01 was supposed to say but I broke it
+\end{itemize}
+\item Hash function is tied to HMAC
+\item Default hash function is SHA-1
+\begin{itemize}
+\item Nothing weaker should be specified
+\end{itemize}
+\item Two proposed variants
+\begin{itemize}
+\item Default hash function is SHA-256
+\item Use a fixed hash function not tied to HMAC (probably SHA-256)
+\end{itemize}
+\item Recommendation: ???
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Combined authenticated encryption modes}
+
+\begin{itemize}
+\item One algorithm that provides both encryption and authentication
+\begin{itemize}
+\item With a single key
+\item Examples: GCM, CCM
+\item See draft-mcgrew-auth-enc-001
+\end{itemize}
+\item How do we interface with them?
+\begin{itemize}
+\item Just make a hole... cipher suites defined in other drafts
+\item s/stream, block/stream, block, aead/
+\item No separate MAC value to encrypt
+\item MAC key no longer necessary
+\item Read Section 6.2.3.3
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{verify\_data}
+
+\begin{itemize}
+\item Discussion on list about whether to feed it into PRF directly
+\begin{itemize}
+\item My read of people's opinions: NO
+\end{itemize}
+\item Current text: $Hash(handshake\_messages)$
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Target Schedule}
+
+\begin{itemize}
+\item Reach consensus on this stuff here and on list
+\item New version by end of year
+\item Be done by Prague
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}TLS Counter Mode}\\
+
+\vspace{.3 in}
+\large{Eric Rescorla}\\
+\large{Network Resonance}\\
+\large{\texttt{ekr@networkresonance.com}}
+
+\end{center}
+\end{slide}
+
+
+\begin{slide}
+\heading{Document Almost Done... we thought}
+
+\begin{itemize}
+\item Current block format:
+\end{itemize}
+
+{\small
+\begin{verbatim}
+struct {
+   case client:
+      uint48 client_write_IV;  // low order 48-bits
+   case server:
+      uint48 server_write_IV;  // low order 48-bits
+   uint64 seq_num;
+   uint16 blk_ctr;
+} CtrBlk;
+\end{verbatim}
+}
+
+\begin{itemize}
+\item Issue raised by Steve Kent
+\begin{itemize}
+\item Should we use an explicit IV?
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Why an explicit IV?}
+
+\begin{itemize}
+\item Unique IVs are a security condition
+\begin{itemize}
+\item Much more than with CBC or stream ciphers
+\item This suggests they need to be within the FIPS-140 evaluation boundary
+\end{itemize}
+\item Obvious solution: crypto hardware controls sequence number
+\begin{itemize}
+\item This is a problem with more than one hardware unit
+\item ... need to coordinate sequence numbers
+\end{itemize}
+\item An explicit IV lets each hardware unit generate its own IV
+\item 64 bits is plenty
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Strawman Explicit IV Proposal}
+
+\vspace{-.35 in}
+\begin{itemize}
+\item Use a 64-bit explicit IV
+\end{itemize}
+
+{\small
+\begin{verbatim}
+struct {
+   case client:
+      uint48 client_write_IV;  // low order 48-bits
+   case server:
+      uint48 server_write_IV;  // low order 48-bits
+   uint64 iv;
+   uint16 blk_ctr;
+} CtrBlk;
+\end{verbatim}
+}
+
+
+\begin{itemize}
+\item Note: the IV can't be randomly generated
+\begin{itemize}
+\item Birthday collision problems
+\item Use a counter or LSFR
+\item Can segment the space between hardware units
+\end{itemize}
+\item Is this worth paying 8 bytes/packet for?
+\end{itemize}
+\end{slide}
+
+	
+
+\end{document}
