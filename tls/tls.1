@@ -7,20 +7,20 @@
 .ds LF Dierks & Rescorla
 .ds RF FORMFEED[Page %]
 .ds CF Standards Track
-.ds LH draft-ietf-tls-rfc4346-bis-04.txt
+.ds LH draft-ietf-tls-rfc4346-bis-05.txt
 .ds RH June 2007
 .ds CH TLS
 .hy 0
 .ad l
 .nf
 INTERNET-DRAFT                                                Tim Dierks
-Obsoletes (if approved): 4346                                Independent
+Obsoletes (if approved):  RFC 3268, 4346, 4366              Independent
 Intended status:  Proposed Standard                        Eric Rescorla
                                                  Network Resonance, Inc.
-<draft-ietf-tls-rfc4346-bis-04.txt>     July 2007 (Expires January 2008)
+<draft-ietf-tls-rfc4346-bis-05.txt>  September 2007 (Expires March 2008)
 
 .ce 2
-The TLS Protocol
+The Transport Layer Security (TLS) Protocol
 Version 1.2
  
 .ti 0
@@ -155,7 +155,7 @@ of cryptographic algorithms. The major changes are:
 
 .ti 5
 - Merged in TLS Extensions definition and AES Cipher Suites from
-  external documents.
+  external documents [TLSEXT] and [TLSAES].
 
 .ti 5
 - Replacement of MD5/SHA-1 combination in the PRF. Addition
@@ -195,6 +195,19 @@ of cryptographic algorithms. The major changes are:
 .ti 5
 - Stronger language about when alerts MUST be sent.
 
+.ti 5
+- Added an Implementation Pitfalls sections
+
+.ti 5
+- Harmonized the requirement to send an empty certificate list
+  after certificate_request even when no certs are available.
+
+.ti 5
+- Made the verify_data length depend on the cipher suite.
+
+.ti 5
+- TLS_RSA_WITH_AES_128_CBC_SHA is now the mandatory to implement
+  cipher suite.
 
 .ti 0
 2. Goals
@@ -544,7 +557,7 @@ to accomodate the integrity check value.
 In public key encryption, a public key algorithm is used to encrypt
 data in such a way that it can be decrypted only with the matching
 private key. A public-key-encrypted element is encoded as an opaque
-vector <0..2^16-1>, where the length is specified by the signing
+vector <0..2^16-1>, where the length is specified by the encryption
 algorithm and key.
 
 RSA encryption is done using the RSAES-PKCS1-v1_5 encryption scheme defined in [PKCS1].
@@ -587,23 +600,26 @@ For example:
     Example1 ex1 = {1, 4};  /* assigns f1 = 1, f2 = 4 */
 
 .ti 0
-5. HMAC and the Pseudorandom fFunction
+5. HMAC and the Pseudorandom Function
 
 .fi
-A number of operations in the TLS record and handshake layer
-requires a keyed MAC; this is a secure digest of some data protected
-by a secret. Forging the MAC is infeasible without knowledge of the
-MAC secret. The construction TLS provides for this operation is known as
-HMAC and is described in [HMAC]. Cipher suites MAY define their
-own MACs.
+The TLS record layer uses a keyed Message Authentication Code (MAC) to
+protect message integrity. The cipher suites defined in this document
+use a construction known as HMAC, described in [HMAC], which is based
+on a hash function. Other cipher suites MAY define their own MAC
+constructions, if needed.
 
 In addition, a construction is required to do expansion of secrets
 into blocks of data for the purposes of key generation or
-validation. This pseudo-random function (PRF) takes as input a
-secret, a seed, and an identifying label and produces an output of
-arbitrary length. We define one PRF, based on HMAC, which is
-used for all cipher suites in this document. Cipher suites
-MAY define their own PRFs.
+validation. This pseudo-random function (PRF) takes as input a secret,
+a seed, and an identifying label and produces an output of arbitrary
+length.
+
+In this section, we define one PRF, based on HMAC. This PRF with the
+SHA-256 hash function is used for all cipher suites defined in this
+document and in TLS documents published prior to this document. New
+cipher suites MUST explicitly specify a PRF and in general SHOULD use
+the TLS PRF with SHA-256 or a stronger standard hash function.
 
 First, we define a data expansion function, P_hash(secret, data)
 that uses a single hash function to expand a secret and seed into
@@ -634,12 +650,6 @@ TLS's PRF is created by applying P_hash to the secret S as:
    PRF(secret, label, seed) = P_<hash>(secret, label + seed)
 
 .fi
-All the cipher suites defined in this document and in TLS documents
-prior to this document MUST use SHA-256
-as the basis for their PRF. New cipher suites MUST specify
-a PRF and in general SHOULD use the TLS PRF with SHA-256
-or a stronger standard hash function. 
-
 The label is an ASCII string. It should be included in the exact
 form it is given without a length byte or trailing null character.
 For example, the label "slithy toves" would be processed by hashing
@@ -663,18 +673,18 @@ Four record protocol clients are described in this document: the
 handshake protocol, the alert protocol, the change cipher spec
 protocol, and the application data protocol. In order to allow
 extension of the TLS protocol, additional record types can be
-supported by the record protocol. New record type values are assigned by IANA as described in Section 11.
+supported by the record protocol. New record type values are assigned by IANA as described in Section 12.
 
+Implementations MUST NOT send record types not defined in this
+document unless negotiated by some extension.  If a TLS
+implementation receives an unexpected record type, it MUST send
+a unexpected_message alert."
 
-If a TLS implementation receives a record type it does not understand, it
-SHOULD just ignore it. 
-Any protocol designed for use over TLS MUST
-be carefully designed to deal with all possible attacks against it.
-Note that because the type and length of a record are not protected
-by encryption, care SHOULD be taken to minimize the value of traffic
-analysis of these values. 
-Implementations MUST not send record types
-not defined in this document unless negotiated by some extension.
+Any protocol designed for use over TLS MUST be carefully
+designed to deal with all possible attacks against it.  Note
+that because the type and length of a record are not protected
+by encryption, care SHOULD be taken to minimize the value of
+traffic analysis of these values.
 
 .ti 0
 .ne 5
@@ -682,7 +692,7 @@ not defined in this document unless negotiated by some extension.
 
 A TLS connection state is the operating environment of the TLS
 Record Protocol. It specifies a compression algorithm, an encryption
-algorithm, and MAC algorithm. In addition, the parameters for these
+algorithm, and a MAC algorithm. In addition, the parameters for these
 algorithms are known: the MAC secret and the bulk encryption keys
 for the connection in both the read and the write
 directions. Logically, there are always four connection states
@@ -768,10 +778,12 @@ struct {
     CipherType             cipher_type;
     uint8                  enc_key_length;
     uint8                  block_length;
-    uint8                  iv_length;
+    uint8                  fixed_iv_length;
+    uint8                  record_iv_length;
     MACAlgorithm           mac_algorithm;
     uint8                  mac_length;
     uint8                  mac_key_length;
+    uint8                  verify_data_length;
     CompressionMethod      compression_algorithm;
     opaque                 master_secret[48];
     opaque                 client_random[32];
@@ -893,7 +905,7 @@ ClientHello.
 length
 .br
 The length (in bytes) of the following TLSPlaintext.fragment.
-The length MUST not exceed 2^14.
+The length MUST NOT exceed 2^14.
 
 .ti 3
 fragment
@@ -902,7 +914,7 @@ The application data. This data is transparent and treated as an
 independent block to be dealt with by the higher-level protocol
 specified by the type field.
 
-Implementations MUST not send
+Implementations MUST NOT send
 zero-length fragments of Handshake, Alert, or Change Cipher Spec 
 content types. Zero-length fragments of Application data MAY be
 sent as they are potentially useful as a traffic analysis countermeasure.
@@ -947,7 +959,7 @@ length
 .in 7
 .fi
 The length (in bytes) of the following TLSCompressed.fragment.
-The length should not exceed 2^14 + 1024.
+The length MUST NOT exceed 2^14 + 1024.
 
 .ti 3
 fragment
@@ -1000,7 +1012,7 @@ The version field is identical to TLSCompressed.version.
 length
 .br
 The length (in bytes) of the following TLSCiphertext.fragment.
-The length may not exceed 2^14 + 2048.
+The length MUST NOT exceed 2^14 + 2048.
 
 .ti 3
 fragment
@@ -1023,9 +1035,9 @@ TLSCiphertext.fragment structures.
 
 The MAC is generated as:
 
-    HMAC_hash(MAC_write_secret, seq_num + TLSCompressed.type +
-                  TLSCompressed.version + TLSCompressed.length +
-                  TLSCompressed.fragment));
+    MAC(MAC_write_secret, seq_num + TLSCompressed.type +
+            TLSCompressed.version + TLSCompressed.length +
+            TLSCompressed.fragment);
 
 where "+" denotes concatenation.
 
@@ -1059,13 +1071,15 @@ block TLSCiphertext.fragment structures.
 
 .ne 3
 .nf
+struct {
+    opaque IV[SecurityParameters.record_iv_length];
     block-ciphered struct {
-        opaque IV[SecurityParameters.block_length];
         opaque content[TLSCompressed.length];
         opaque MAC[SecurityParameters.mac_length];
         uint8 padding[GenericBlockCipher.padding_length];
         uint8 padding_length;
-    } GenericBlockCipher;
+    };
+} GenericBlockCipher;
 
 The MAC is generated as described in Section 6.2.3.1.
 
@@ -1073,10 +1087,14 @@ The MAC is generated as described in Section 6.2.3.1.
 IV
 .in 7
 .fi
-TLS 1.2 uses an explicit IV in order to prevent the attacks described
-by [CBCATT]. The IV SHOULD be chosen at random and MUST be unpredictable.
-In order to decrypt, thereceiver decrypts the entire GenericBlockCipher structure and then
-discards the first cipher block, corresponding to the IV component.
+The Initialization Vector (IV) SHOULD be chosen at random, and
+MUST be unpredictable. Note that in versions of TLS prior to
+1.1, there was no IV field, and the last ciphertext block of
+the previous record (the "CBC residue") was used as the
+IV. This was changed to prevent the attacks described in
+[CBCATT]. For block ciphers, the IV length is of length
+SecurityParameters.record_iv_length which is equal to the
+SecurityParameters.block_size.
 
 .ti 3
 padding
@@ -1090,7 +1108,7 @@ of the block length. Lengths longer than necessary might be
 desirable to frustrate attacks on a protocol that are based on analysis
 of the lengths of exchanged messages. Each uint8 in the padding
 data vector MUST be filled with the padding length value. The
-receiver MUST check this padding and SHOULD use the 
+receiver MUST check this padding and MUST use the 
 bad_record_mac alert to indicate padding errors.
 
 .ti 3
@@ -1104,7 +1122,9 @@ the padding_length field itself.
 
 .in 3
 The encrypted data length (TLSCiphertext.length) is one more than
-the sum of TLSCompressed.length, SecurityParameters.mac_length, and
+the sum of 
+one more than the sum of SecurityParameters.block_length,
+TLSCompressed.length, SecurityParameters.mac_length, and
 padding_length.
 
 .in 1
@@ -1112,8 +1132,7 @@ Example: If the block length is 8 bytes, the content length
 .in 10
 (TLSCompressed.length) is 61 bytes, and the MAC length is 20
 bytes, then the length before padding is 82 bytes (this does not
-include the IV, which may or may not be encrypted, as 
-discussed above). Thus, the
+include the IV. Thus, the
 padding length modulo 8 must be equal to 6 in order to make
 the total length an even multiple of 8 bytes (the block
 length). The padding length can be 6, 14, 22, and so on,
@@ -1156,10 +1175,13 @@ TLSCompressed.fragment structures to and from AEAD
 TLSCiphertext.fragment structures. 
 
 .nf
-    aead-ciphered struct {
-        opaque IV[SecurityParameters.iv_length];
-        opaque aead_output[AEADEncrypted.length];
-    } GenericAEADCipher;
+   struct {
+      opaque nonce_explicit[SecurityParameters.record_iv_length];
+
+      aead-ciphered struct {
+          opaque content[TLSCompressed.length];
+      };
+   } GenericAEADCipher;
 .fi
 
 AEAD ciphers take as input a single key, a nonce, a plaintext,
@@ -1168,18 +1190,16 @@ as described in Section 2.1 of [AEAD].  These inputs are as
 follows.
 
 The key is either the client_write_key or the server_write_key.
-The MAC key will be of length zero.
+No MAC key is used.
 
-The nonce supplied to the AEAD operations is determined by the IV in
-aead-ciphered struct. Each IV used in distinct invocations of the
-AEAD encryption operation MUST be distinct, for any fixed value of the
-key.  Implementations SHOULD use the recommended nonce formation method
-of [AEAD] to generate IVs, and MAY use any other method that meets this
-requirement.  The length of the IV depends on the AEAD cipher; that
-length MAY be zero. Note that in many cases it is appropriate to
-use the partially implicit nonce technique of S 3.2.1 of AEAD, in
-which case the client_write_iv and server_write_iv should be used
-as the "fixed-common".
+Each AEAD cipher suite has to specify how the nonce supplied to
+the AEAD operation is constructed, and what is the length of the
+GenericAEADCipher.nonce_explicit part. In many cases, it is
+appropriate to use the partially implicit nonce technique
+described in Section 3.2.1 of [AEAD]; in this case, the implicit
+part SHOULD be derived from key_block as client_write_iv and
+server_write_iv (as described in Section 6.3), and the explicit
+part is included in GenericAEAEDCipher.nonce_explicit.
 
 The plaintext is the TLSCompressed.fragment.
 
@@ -1191,8 +1211,10 @@ additional_data, is defined as follows:
                      TLSCompressed.version + TLSCompressed.length;
 
 .fi
+Where "+" denotes concatenation. 
+
 The aead_output consists of the ciphertext output by the AEAD
-encryption operation.  AEADEncrypted.length will generally be larger
+encryption operation.  The length will generally be larger
 than TLSCompressed.length, but by an amount that varies with the AEAD
 cipher.  Since the ciphers might incorporate padding, the amount of
 overhead could vary with different TLSCompressed.length values.  Each
@@ -1204,10 +1226,7 @@ Symbolically,
                    additional_data)
 
 .fi
-Where "+" denotes concatenation. 
 
-
-.fi
 In order to decrypt and verify, the cipher takes as input the key, IV,
 the "additional_data", and the AEADEncrypted value. The output is
 either the plaintext or an error indicating that the decryption
@@ -1215,8 +1234,9 @@ failed. There is no separate integrity check.  I.e.,
 
 .nf
 TLSCompressed.fragment = AEAD-Decrypt(write_key, IV, AEADEncrypted,
-                TLSCiphertext.type + TLSCiphertext.version + 
-                TLSCiphertext.length);
+                                      additional_data)
+.fi
+	
 
 .fi
 If the decryption fails, a fatal bad_record_mac alert MUST
@@ -1257,15 +1277,18 @@ partitioned as follows:
     client_write_MAC_secret[SecurityParameters.mac_key_length]
     server_write_MAC_secret[SecurityParameters.mac_key_length]
     client_write_key[SecurityParameters.enc_key_length]
-    server_write_key[SecurityParameters.enc_key_length]
-
+    server_write_key[SecurityParameters.enc_key_length] 
+    client_write_IV[SecurityParameters.fixed_iv_length]
+    server_write_IV[SecurityParameters.fixed_iv_length]
 .fi
+
+The client_write_IV and server_write_IV are only generated for
+implicit nonce techniques as described in Section 3.2.1 of [AEAD].
 
 Implementation note:
 .in 7
 The currently defined cipher suite which requires
-the most material is AES_256_CBC_SHA, defined
-in [TLSAES]. It requires 2 x 32 byte
+the most material is AES_256_CBC_SHA. It requires 2 x 32 byte
 keys and 2 x 20 byte MAC secrets, for a total 104 bytes of key material.
 
 .ti 0
@@ -1289,7 +1312,7 @@ active or resumable session state.
 .in 7
 peer certificate
 .in 9
-X509v3 [X509] certificate of the peer. This element of the state
+X509v3 [PKIX] certificate of the peer. This element of the state
 may be null.
 
 .in 7
@@ -1347,8 +1370,7 @@ Immediately after sending this message, the sender MUST instruct
 the record layer to make the write pending state the write active
 state. (See Section 6.1.) The change cipher spec message is sent
 during the handshake after the security parameters have been agreed
-upon, but before the verifying finished message is sent (see Section
-7.4.11
+upon, but before the verifying finished message is sent.
 
 .ti 1
 Note: If a rehandshake occurs while data is flowing on a connection,
@@ -1403,7 +1425,7 @@ by the current connection state.
         internal_error(80),
         user_canceled(90),
         no_renegotiation(100),
-        unsupported_extension(110),           /* new */
+        unsupported_extension(110),
         (255)
     } AlertDescription;
 
@@ -1658,8 +1680,7 @@ unsupported_extension
 .br
 sent by clients that
 receive an extended server hello containing an extension that they
-did not put in the corresponding client hello (see Section 2.3).
-This message is always fatal.
+did not put in the corresponding client hello. This message is always fatal.
 
 .in 3
 For all errors where an alert level is not explicitly specified, the
@@ -1671,7 +1692,7 @@ transmitted with a level of fatal MUST be treated as fatal messages.
 
 .in 3
 New Alert values are assigned by IANA as described 
-in Section 11.
+in Section 12.
 
 .ti 0
 7.3. Handshake Protocol Overview
@@ -1744,8 +1765,7 @@ the client key exchange. New key exchange methods can be created by
 specifying a format for these messages and by defining the use of the
 messages to allow the client and server to agree upon a shared
 secret. This secret MUST be quite long; currently defined key
-exchange methods exchange secrets that range from 48 to 128 bytes
-in length.
+exchange methods exchange secrets that range from 46 bytes upwards.
 
 Following the hello messages, the server will send its certificate,
 if it is to be authenticated. Additionally, a server key exchange
@@ -1756,7 +1776,7 @@ client, if that is appropriate to the cipher suite selected. Next, the
 server will send the server hello done message, indicating that the
 hello-message phase of the handshake is complete. The server will
 then wait for a client response. If the server has sent a
-certificate request message, the client must send the certificate
+certificate request message, the client MUST send the certificate
 message. The client key exchange message is now sent, and the
 content of that message will depend on the public key algorithm
 selected between the client hello and the server hello. If the
@@ -1770,13 +1790,11 @@ Cipher Spec. The client then immediately sends the finished message
 under the new algorithms, keys, and secrets. In response, the server
 will send its own change cipher spec message, transfer the pending
 to the current Cipher Spec, and send its finished message under the
-new 
-.bp
-Cipher Spec. At this point, the handshake is complete, and the
+new Cipher Spec. At this point, the handshake is complete, and the
 client and server may begin to exchange application layer data. (See
 flow chart below.) Application data MUST NOT be sent prior to
 the completion of the first handshake (before a cipher suite other
-TLS_NULL_WITH_NULL_NULL is established).
+than TLS_NULL_WITH_NULL_NULL is established).
 .nf
 
    Client                                               Server
@@ -1784,7 +1802,6 @@ TLS_NULL_WITH_NULL_NULL is established).
    ClientHello                  -------->
                                                    ServerHello
                                                   Certificate*
-                                            CertificateStatus*
                                             ServerKeyExchange*
                                            CertificateRequest*
                                 <--------      ServerHelloDone
@@ -1860,8 +1877,7 @@ transmitted as specified by the current active session state.
         certificate(11), server_key_exchange (12),
         certificate_request(13), server_hello_done(14),
         certificate_verify(15), client_key_exchange(16),
-        finished(20)
-	(255)
+        finished(20), (255)
     } HandshakeType;
 
     struct {
@@ -1895,7 +1911,7 @@ which should be ignored by the client if it arrives in the middle of
 a handshake.
 
 New Handshake message types are assigned by IANA as
-described in Section 11.
+described in Section 12.
 
 .ti 0
 7.4.1. Hello Messages
@@ -1920,7 +1936,7 @@ Hello request is a simple notification that the client should
 begin the negotiation process anew by sending a client hello
 message when convenient. This message is not intended to
 establish which side is the client or server but merely to
-initiate a new negotiation. Servers SHOULD not send a 
+initiate a new negotiation. Servers SHOULD NOT send a 
 HelloRequest immediately upon the client's initial connection.
 It is the client's job to send a ClientHello at that time.
 
@@ -1936,7 +1952,7 @@ sends a hello request but does not receive a client hello in
 response, it may close the connection with a fatal alert.
 
 .in 3
-After sending a hello request, servers SHOULD not repeat the request
+After sending a hello request, servers SHOULD NOT repeat the request
 until the subsequent handshake negotiation is complete.
 
 Structure of this message:
@@ -2011,7 +2027,7 @@ SessionID are defined by the server.
 Warning:
 .in 7
 Because the SessionID is transmitted without encryption or
-immediate MAC protection, servers MUST not place confidential
+immediate MAC protection, servers MUST NOT place confidential
 information in session identifiers or let the contents of fake
 session identifiers cause any breach of security. (Note that the
 content of the handshake as a whole, including the SessionID, is
@@ -2040,14 +2056,14 @@ by the client, ordered according to the client's preference.
         ProtocolVersion client_version;
         Random random;
         SessionID session_id;
-        CipherSuite cipher_suites<2..2^16-1>;
+        CipherSuite cipher_suites<2..2^16-2>;
         CompressionMethod compression_methods<1..2^8-1>;
         select (extensions_present) {
             case false: 
                 struct {};
             case true:         
                 Extension extensions<0..2^16-1>;
-        }		      
+        };		      
     } ClientHello;
 
 .in 3
@@ -2158,7 +2174,7 @@ Structure of this message:
                 struct {};
             case true:         
                 Extension extensions<0..2^16-1>;
-        }
+        };
     } ServerHello;
 
 .in 3
@@ -2254,21 +2270,15 @@ Here:
 extension type.
 
 .in 3
-The list of extension types, as defined in Section 2.3, is 
-maintained by the Internet Assigned Numbers Authority (IANA). Thus 
-an application needs to be made to the IANA in order to obtain a new  
-extension type value. Since there are subtle (and not so subtle) 
-interactions that may occur in this protocol between new features and 
-existing features which may result in a significant reduction in 
-overall security, new values SHALL be defined only through the IETF 
-Consensus process specified in [IANA].
-(This means that new assignments can be made only via RFCs approved 
-by the IESG.) The initial set of extensions is defined in a
-companion document [TBD].
+The initial set of extensions is defined in a companion document
+[TLSEXT]. The list of extension types is maintained by IANA as
+described in Section 12.
 
-.in 3
-The following considerations should be taken into account when
-designing new extensions:
+There are subtle (and not so subtle) interactions that may occur in
+this protocol between new features and existing features which may
+result in a significant reduction in overall security, The following
+considerations should be taken into account when designing new
+extensions:
 
 .ti 5
 -  Some cases where a server does not agree to an extension are error
@@ -2490,7 +2500,7 @@ length of the output of that algorithm.
 .nf
 .in 3
 Structure of this message:
-    enum { diffie_hellman } KeyExchangeAlgorithm;
+    enum { diffie_hellman, rsa} KeyExchangeAlgorithm;
 
     struct {
         opaque dh_p<1..2^16-1>;
@@ -2623,8 +2633,9 @@ These algorithms are listed in descending order of preference.
 certificate_authorities
 .in 11
 .fi
-A list of the distinguished names of acceptable certificate
-authorities. These distinguished names may specify a desired
+A list of the distinguished names [X501] of acceptable
+certificateauthorities, represented in DER-encoded 
+format. These distinguished names may specify a desired
 distinguished name for a root CA or for a subordinate CA;
 thus, this message can be used both to describe known roots
 and a desired authorization space. If the certificate_authorities
@@ -2635,15 +2646,10 @@ external arrangement to the contrary.
 .in
 .ti 1
 New ClientCertificateType values are assigned by IANA 
-as described in Section 11.
+as described in Section 12.
 
 Note: Values listed as RESERVED may not be used. They were used in
 SSLv3.
-
-
-.ti 1
-Note: DistinguishedName is derived from [X501]. DistinguishedNames are
-represented in DER-encoded format.
 
 .ti 1
 Note: It is a fatal handshake_failure alert for an anonymous server to
@@ -2686,7 +2692,7 @@ When this message will be sent:
 This is the first message the client can send after receiving a
 server hello done message. This message is only sent if the
 server requests a certificate. If no suitable certificate is
-available, the client SHOULD send a certificate message
+available, the client MUST send a certificate message
 containing no certificates. That is, the certificate_list structure
 has a length of zero. If client authentication is required
 by the server for the handshake to continue, it may respond with
@@ -2724,7 +2730,7 @@ exchange method is DH_RSA or DH_DSS, client certification has
 been requested, and the client was able to respond with a
 certificate that contained a Diffie-Hellman public key whose
 parameters (group and generator) matched those specified by the
-server in its certificate, this message MUST not contain any
+server in its certificate, this message MUST NOT contain any
 data.
 
 .ti 3
@@ -2767,10 +2773,7 @@ client_version
 .in 11
 .fi
 The latest (newest) version supported by the client. This is
-used to detect version roll-back attacks. Upon receiving the
-premaster secret, the server SHOULD check that this value
-matches the value transmitted by the client in the client
-hello message.
+used to detect version roll-back attacks.
 
 .ti 7
 random
@@ -2840,7 +2843,7 @@ the handshake with a randomly generated premaster secret.
 It may be useful to log the real cause of failure for
 troubleshooting purposes; however, care must be taken to 
 avoid leaking the information to an attacker (though, e.g.,
-timing, log files, or other channels.
+timing, log files, or other channels.)
 
 The RSAES-OAEP encryption scheme defined in [PKCS1] is more
 secure against the Bleichenbacher attack. However, for maximal
@@ -2871,14 +2874,14 @@ dependent on the protocol version.
 
 .ti 1
 Implementation Note: It is now known that remote timing-based attacks
-on SSL are possible, at least when the client and server are on
+on TLS are possible, at least when the client and server are on
 the same LAN. Accordingly, implementations that use static RSA
 keys MUST use RSA blinding or some other anti-timing technique,
 as described in [TIMING].
 
 
 .ti 0
-7.4.7.1. Client Diffie-Hellman Public Value
+7.4.7.2. Client Diffie-Hellman Public Value
 
 .ti 3
 Meaning of this message:
@@ -2997,11 +3000,12 @@ send and receive application data over the connection.
 
 .nf
 struct {
-    opaque verify_data[12];
+    opaque verify_data[SecurityParameters.verify_data_length];
 } Finished;
 
 verify_data
-    PRF(master_secret, finished_label, Hash(handshake_messages))[0..11];
+    PRF(master_secret, finished_label, Hash(handshake_messages))
+    [0..SecurityParameters.verify_data_length-1];
 
 finished_label
 .in 11
@@ -3012,6 +3016,16 @@ string "server finished".
 
 Hash denotes the negotiated hash used for the PRF. If a new
 PRF is defined, then this hash MUST be specified.
+
+In previous versions of TLS, the verify_data was always 12 octets
+long. In the current version of TLS, it depends on the cipher
+suite. Any cipher suite which does not explicitly specify
+SecurityParameters.verify_data_length has a SecurityParameters.verify_data_length equal to 12. This includes all existing cipher suites.
+Note that this representation has the same encoding as with
+previous versions.
+
+Future cipher suites MAY specify other lengths but such length
+MUST be at least 12 bytes.
 
 .ti 7
 handshake_messages
@@ -3032,14 +3046,14 @@ handshake.
 The value handshake_messages includes all handshake
 messages starting at client hello up to, but not including, this
 finished message. This may be different from handshake_messages in
-Section 7.4.9 because it would include the certificate verify
+Section 7.4.8 because it would include the certificate verify
 message (if sent). Also, the handshake_messages for the finished
 message sent by the client will be different from that for the
 finished message sent by the server, because the one that is sent
 second will include the prior one.
 
 .ti 1
-Note: Change cipher spec messages, alerts and, any other record types
+Note: Change cipher spec messages, alerts, and any other record types
 .in 7
 are not handshake messages and are not included in the hash
 computations. Also, Hello Request messages are omitted from
@@ -3109,7 +3123,7 @@ certificate.
 .in 3
 In the absence of an application profile standard specifying
 otherwise, a TLS compliant application MUST implement the cipher
-suite TLS_RSA_WITH_3DES_EDE_CBC_SHA.
+suite TLS_RSA_WITH_AES_128_CBC_SHA.
 
 .ti 0
 10. Application Data Protocol
@@ -3124,7 +3138,7 @@ layer.
 11. Security Considerations
 
 .fi
-Security issues are discussed throughoutthis memo,
+Security issues are discussed throughout this memo,
 especially in Appendices D, E, and F.
 
 .ti 0
@@ -3133,7 +3147,7 @@ especially in Appendices D, E, and F.
 This document uses several registries that were originally
 created in [RFC4346]. IANA is requested to update (has updated)
 these to reference this document. The registries and their
-allocation policies (unchanged from [RFC4346]) are listed
+allocation policies (unchanged from [TLS1.1]) are listed
 below.
 
 o  TLS ClientCertificateType Identifiers Registry: Future
@@ -3182,7 +3196,9 @@ This document defines one new TLS extension, cert_hash_type,
 which is to be (has been) allocated value TBD-BY-IANA in the
 TLS ExtensionType registry.
 
-
+This document also uses the TLS Compression Method Identifiers
+Registry, defined in [RFC3749].  IANA is requested to allocate 
+value  0 for the "null" compression method.
 .ti 0
 .bp
 Appendix A. Protocol Constant Values
@@ -3235,14 +3251,16 @@ A.1. Record Layer
         opaque MAC[SecurityParameters.mac_length];
     } GenericStreamCipher;
     
-    block-ciphered struct {
-        opaque IV[SecurityParameters.block_length];
-        opaque content[TLSCompressed.length];
-        opaque MAC[SecurityParameters.mac_length];
-        uint8 padding[GenericBlockCipher.padding_length];
-        uint8 padding_length;
+    struct {
+        opaque IV[SecurityParameters.record_iv_length];
+        block-ciphered struct {
+            opaque content[TLSCompressed.length];
+            opaque MAC[SecurityParameters.mac_length];
+            uint8 padding[GenericBlockCipher.padding_length];
+            uint8 padding_length;
+        };
     } GenericBlockCipher;
-
+    
     aead-ciphered struct {
         opaque IV[SecurityParameters.iv_length];
         opaque aead_output[AEADEncrypted.length];
@@ -3351,7 +3369,7 @@ A.4.1. Hello Messages
                 struct {};
             case true:         
                 Extension extensions<0..2^16-1>;
-        }		      
+        };		      
     } ClientHello;
 
     struct {
@@ -3365,7 +3383,7 @@ A.4.1. Hello Messages
                 struct {};
             case true:         
                 Extension extensions<0..2^16-1>;
-        }
+        };
     } ServerHello;
 
     struct {
@@ -3399,6 +3417,7 @@ A.4.2. Server Authentication and Key Exchange Messages
             case diffie_hellman:
                 ServerDHParams params;
                 Signature signed_params;
+        }
     } ServerKeyExchange;
 
     enum { anonymous, rsa, dsa } SignatureAlgorithm;
@@ -3478,7 +3497,7 @@ A.4.3. Client Authentication and Key Exchange Messages
 A.4.4. Handshake Finalization Message
 
     struct {
-        opaque verify_data[12];
+        opaque verify_data[SecurityParameters.verify_data_length];
     } Finished;
 
 .ti 0
@@ -3490,7 +3509,7 @@ The following values define the CipherSuite codes used in the client
 hello and server hello messages.
 
 A CipherSuite defines a cipher specification supported in TLS
-Version 1.1.
+Version 1.2.
 
 TLS_NULL_WITH_NULL_NULL is specified and is the initial state of a
 TLS connection during the first handshake on that channel, but MUST
@@ -3603,37 +3622,11 @@ purposes and to reserve the numbers.
  CipherSuite TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA  = { 0x00,0x14 };
  CipherSuite TLS_DH_anon_EXPORT_WITH_RC4_40_MD5     = { 0x00,0x17 };
  CipherSuite TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA  = { 0x00,0x19 };
-
 .fi
-The following cipher suites were defined in [TLSKRB] and are included
-here for completeness. See [TLSKRB] for details:
-
-.nf
- CipherSuite      TLS_KRB5_WITH_DES_CBC_SHA            = { 0x00,0x1E };
- CipherSuite      TLS_KRB5_WITH_3DES_EDE_CBC_SHA       = { 0x00,0x1F };
- CipherSuite      TLS_KRB5_WITH_RC4_128_SHA            = { 0x00,0x20 };
- CipherSuite      TLS_KRB5_WITH_IDEA_CBC_SHA           = { 0x00,0x21 };
- CipherSuite      TLS_KRB5_WITH_DES_CBC_MD5            = { 0x00,0x22 };
- CipherSuite      TLS_KRB5_WITH_3DES_EDE_CBC_MD5       = { 0x00,0x23 };
- CipherSuite      TLS_KRB5_WITH_RC4_128_MD5            = { 0x00,0x24 };
- CipherSuite      TLS_KRB5_WITH_IDEA_CBC_MD5           = { 0x00,0x25 };
-
-.fi
-The following exportable cipher suites were defined in [TLSKRB] and are
-included here for completeness. TLS 1.2 implementations MUST NOT negotiate
-these cipher suites.
-
- CipherSuite      TLS_KRB5_EXPORT_WITH_DES_CBC_40_SHA  = { 0x00,0x26 };
- CipherSuite      TLS_KRB5_EXPORT_WITH_RC2_CBC_40_SHA  = { 0x00,0x27 };
- CipherSuite      TLS_KRB5_EXPORT_WITH_RC4_40_SHA      = { 0x00,0x28 };
- CipherSuite      TLS_KRB5_EXPORT_WITH_DES_CBC_40_MD5  = { 0x00,0x29 };
- CipherSuite      TLS_KRB5_EXPORT_WITH_RC2_CBC_40_MD5  = { 0x00,0x2A };
- CipherSuite      TLS_KRB5_EXPORT_WITH_RC4_40_MD5      = { 0x00,0x2B };
-
 
 .ti 1
 New cipher suite values are assigned by IANA as described
-in Section 11.
+in Section 12.
 
 .ti 1
 .ne 3
@@ -3672,10 +3665,12 @@ BulkCipherAlgorithm, and MACAlgorithm may be added to. */
         CipherType cipher_type;
         uint8 enc_key_length;
         uint8 block_length;
-        uint8 iv_length;
+	uint8 fixed_iv_length;	
+        uint8 record_iv_length;
         MACAlgorithm mac_algorithm;
         uint8 mac_length;
         uint8 mac_key_length;
+        uint8 verify_data_length;
         CompressionMethod compression_algorithm;
         opaque master_secret[48];
         opaque client_random[32];
@@ -3868,8 +3863,7 @@ are examples of one-way hash functions.
 .ti 3
 RC2
 .br
-A block cipher developed by Ron Rivest at RSA Data Security,
-Inc. [RSADSI] described in [RC2].
+A block cipher developed by Ron Rivest, described in [RC2].
 
 .ti 3
 RC4
@@ -3966,7 +3960,7 @@ TLS_RSA_WITH_IDEA_CBC_SHA               RSA            IDEA_CBC     SHA
 TLS_RSA_WITH_DES_CBC_SHA                RSA            DES_CBC      SHA
 TLS_RSA_WITH_3DES_EDE_CBC_SHA           RSA            3DES_EDE_CBC SHA
 TLS_RSA_WITH_AES_128_CBC_SHA            RSA            AES_128_CBC  SHA
-TLS_RSA_WITH_AES_256_SHA                RSA            AES_256_CBC  SHA
+TLS_RSA_WITH_AES_256_CBC_SHA            RSA            AES_256_CBC  SHA
 TLS_DH_DSS_WITH_DES_CBC_SHA             DH_DSS         DES_CBC      SHA
 TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA        DH_DSS         3DES_EDE_CBC SHA
 TLS_DH_RSA_WITH_DES_CBC_SHA             DH_RSA         DES_CBC      SHA
@@ -3998,7 +3992,6 @@ TLS_DH_anon_WITH_AES_256_CBC_SHA        DH_anon        AES_256_CBC  SHA
       DH_anon         Anonymous DH, no signatures        None
       DH_DSS          DH with DSS-based certificates     None
       DH_RSA          DH with RSA-based certificates     None
-                                                         RSA = none
       NULL            No key exchange                    N/A
       RSA             RSA key exchange                   None
 
@@ -4007,10 +4000,7 @@ TLS_DH_anon_WITH_AES_256_CBC_SHA        DH_anon        AES_256_CBC  SHA
     
     NULL         Stream   0          0         0     N/A
     IDEA_CBC     Block   16         16         8      8
-    RC2_CBC_40   Block    5         16         8      8
-    RC4_40       Stream   5         16         0     N/A
     RC4_128      Stream  16         16         0     N/A
-    DES40_CBC    Block    5          8         8      8
     DES_CBC      Block    8          8         8      8
     3DES_EDE_CBC Block   24         24         8      8
 
@@ -4028,7 +4018,7 @@ TLS_DH_anon_WITH_AES_256_CBC_SHA        DH_anon        AES_256_CBC  SHA
    IV Size
        The amount of data needed to be generated for the initialization
        vector. Zero for stream ciphers; equal to the block size for
-       block ciphers.
+       block ciphers (this is equal to SecurityParameters.record_iv_length).
 
    Block Size
        The amount of data a block cipher enciphers in one chunk; a
@@ -4055,10 +4045,9 @@ D.1 Random Number Generation and Seeding
 
 TLS requires a cryptographically secure pseudorandom number
 generator (PRNG). Care must be taken in designing and seeding PRNGs.
-PRNGs based on secure hash operations, most notably MD5 and/or SHA,
+PRNGs based on secure hash operations, most notably SHA-1,
 are acceptable, but cannot provide more security than the size of
-the random number generator state. (For example, MD5-based PRNGs
-usually provide 128 bits of state.)
+the random number generator state.
 
 To estimate the amount of seed material being produced, add the
 number of bits of unpredictable information in each seed byte. For
@@ -4092,6 +4081,72 @@ man-in-the-middle attacks. Applications should also enforce minimum
 and maximum key sizes. For example, certificate chains containing
 512-bit RSA keys or signatures are not appropriate for high-security
 applications.
+
+.ti 0
+D.4 Implementation Pitfalls
+
+Implementation experience has shown that certain parts of earlier
+TLS specifications are not easy to understand, and have been a
+source of interoperability and security problems. Many of these
+areas have been clarified in this document, but this appendix
+contains a short list of the most important things that require
+special attention from implementors.
+
+TLS protocol issues:
+
+o  Do you correctly handle handshake messages that are fragmented
+   to multiple TLS records (see Section 6.2.1)? Including corner
+   cases like a ClientHello that is split to several small
+   fragments?
+
+o  Do you ignore the TLS record layer version number in all TLS
+   records before ServerHello (see Appendix E.1)?
+
+o  Do you handle TLS extensions in ClientHello correctly,
+   including omitting the extensions field completely?
+
+o  Do you support renegotiation, both client and server initiated?
+   While renegotiation this is an optional feature, supporting 
+   it is highly recommended.
+
+o  When the server has requested a client certificate, but no 
+   suitable certificate is available, do you correctly send
+   an empty Certificate message, instead of omitting the whole
+   message (see Section 7.4.6)?
+
+Cryptographic details:
+
+o  In RSA-encrypted Premaster Secret,  do you correctly send and 
+   verify the version number? When an error is encountered, do 
+   you continue the handshake to avoid the Bleichenbacher 
+   attack (see Section 7.4.7.1)?
+
+o  What countermeasures do you use to prevent timing attacks against
+   RSA decryption and signing operations (see Section 7.4.7.1)?
+
+o  When verifying RSA signatures, do you accept both NULL and
+   missing parameters (see Section 4.7)? Do you verify that the
+   RSA padding doesn't have additional data after the hash value?
+   [FI06]
+
+o  When using Diffie-Hellman key exchange, do you correctly strip
+   leading zero bytes from the negotiated key (see Section 8.1.2)? 
+
+o  Does your TLS client check that the Diffie-Hellman parameters 
+   sent by the server are acceptable (see Section F.1.1.3)?
+
+o  How do you generate unpredictable IVs for CBC mode ciphers
+   (see Section 6.2.3.2)? 
+
+o  How do you address CBC mode timing attacks (Section 6.2.3.2)?
+
+o  Do you use a strong and, most importantly, properly seeded
+   random number generator (see Appendix D.1) for generating the
+   premaster secret (for RSA key exchange), Diffie-Hellman private
+   values, the DSA "k" parameter, and other security-critical
+   values?
+
+
 
 .ti 0
 .bp
@@ -4290,7 +4345,7 @@ long.
 Note: Requests to resume a TLS session MUST use a TLS client hello.
 
 .ti 0
-E.2. Avoiding Man-in-the-Middle Version Rollback
+E.3. Avoiding Man-in-the-Middle Version Rollback
 
 .in 3
 When TLS clients fall back to Version 2.0 compatibility mode, they
@@ -4369,8 +4424,6 @@ key extracted from the server key exchange message. The result is
 sent in a client key exchange message. Since eavesdroppers do not
 know the server's private key, it will be infeasible for them to
 decode the pre_master_secret. 
-
-Note: No anonymous RSA Cipher Suites are defined in this document.
 
 With Diffie-Hellman, the server's public parameters are contained in
 the server key exchange message and the client's are sent in the
@@ -4511,7 +4564,7 @@ the encryption keys and MAC secrets are secure, the connection
 should be secure and effectively independent from previous
 connections. Attackers cannot use known encryption keys or MAC
 secrets to compromise the master_secret without breaking the secure
-hash operations (which use both SHA and MD5).
+hash operations.
 
 Sessions cannot be resumed unless both the client and server agree.
 If either party suspects that the session may have been compromised,
@@ -4522,19 +4575,6 @@ may be able to impersonate the compromised party until the
 corresponding session ID is retired. Applications that may be run in
 relatively insecure environments should not write session IDs to
 stable storage.
-
-.ti 0
-F.1.5 Extensions
-
-.in 3
-Security considerations for the extension mechanism in general, and
-the design of new extensions, are described in the previous section.
-A security analysis of each of the extensions defined in this
-document is given below.
-
-.in 3
-In general, implementers should continue to monitor the state of the
-art, and address any weaknesses identified.
 
 .ti 0
 .ne 5
@@ -4645,23 +4685,6 @@ These attacks cannot in general be defended against by a
 TCP-using protocol.  Implementors or users who are concerned
 with this class of attack should use IPsec AH [AH] or ESP [ESP].
 
-.ti 0
-F.6. Final Notes
-
-.in 3
-For TLS to be able to provide a secure connection, both the client
-and server systems, keys, and applications must be secure. In
-addition, the implementation must be free of security errors.
-
-The system is only as strong as the weakest key exchange and
-authentication algorithm supported, and only trustworthy
-cryptographic functions should be used. Short public keys 
-and anonymous servers should be used with
-great caution. Implementations and users must be careful when
-deciding which certificates and certificate authorities are
-acceptable; a dishonest certificate authority can do tremendous
-damage.
-
 .bp
 .ti 0
 .ti 0
@@ -4678,32 +4701,28 @@ Changes in This Version
 [RFC Editor: Please delete this]
 
 .ti 5
-- Added some guidance about checking DH groups and exponents. 
-  [Issues 15 and 43]
+- Added compression methods to the IANA considerations.
 
 .ti 5
-- DigestInfo now MUST be NULL but must be accepted either way
-  per discussion in Prague [Issue 22]
+- Misc. editorial changes/clarifications
 
 .ti 5
-- Improved versions of Bleichenbacher/Klima/Version number 
-  text for the EPMS (due to Eronen) [Issue 17]
+- Added an Implementation Pitfalls sections
+  [Issue 26]
 
 .ti 5
-- Cleaned up SSLv2 backward compatibility text [Issue 25]
+- Harmonized the requirement to send an empty certificate list
+  after certificate_request even when no certs are available.
+  [Issue 48]
 
 .ti 5
-- Improvements to signature hash agility text [Issue 41].
-  Still not completely fixed.
+- Made the verify_data length depend on the cipher suite
+  [Issue 49]
 
 .ti 5
-- Changed cert_hash_types to signature hash types and indicated
-a preference order.
+- TLS_RSA_WITH_AES_128_CBC_SHA is now the mandatory to implement
+  cipher suite [Issue 56]
 
-.ti 5
-- Strengthened language about when alerts are required. Note
-  that it is still legal under some circumstances to close 
-  a connection with no alert.
 
 .ti 0
 Normative References
@@ -4714,7 +4733,7 @@ Normative References
 FIPS 197.  November 26, 2001.
 
 .ti 3
-[3DES]   National Institute of Standards and Tecnology, 
+[3DES]   National Institute of Standards and Technology, 
 "Recommendation for the Triple Data Encryption Algorithm (TDEA) 
 Block Cipher", NIST Special Publication 800-67, May 2004.
 
@@ -4726,8 +4745,7 @@ Block Cipher", NIST Special Publication 800-67, May 2004.
 [DSS]    NIST FIPS PUB 186-2, "Digital Signature Standard," National
 Institute of Standards and Technology, U.S. Department of Commerce,
 2000.
-
-
+PKI
 .ti 3
 [HMAC]   Krawczyk, H., Bellare, M., and R. Canetti, "HMAC:
 Keyed-Hashing for Message Authentication", RFC 2104, February 1997.
@@ -4747,9 +4765,9 @@ April 1992.
 February 2003.
 
 .ti 3
-[PKIX]   Housley, R., Ford, W., Polk, W. and D. Solo, "Internet Public
-Key Infrastructure: Part I: X.509 Certificate and CRL Profile",
-RFC 3280, April 2002.
+[PKIX]   Housley, R., Ford, W., Polk, W. and D. Solo, "Internet
+X.509 Public Key Infrastructure Certificate and Certificate
+Revocation List (CRL) Profile", RFC 3280, April 2002.
 
 .ti 3
 [RC2]    Rivest, R., "A Description of the RC2(r) Encryption Algorithm",
@@ -4757,7 +4775,7 @@ RFC 2268, March 1998.
 
 .ti 3 
 [SCH]    B. Schneier. "Applied Cryptography: Protocols, Algorithms, and Source
-Code in C, 2ed", Published by John Wiley & Sons, Inc. 1996.
+Code in C, 2nd ed.", Published by John Wiley & Sons, Inc. 1996.
 
 .ti 3
 .ne 3 
@@ -4772,22 +4790,6 @@ Levels", BCP 14, RFC 2119, March 1997.
 .ti 3 
 [RFC2434] Narten, T. and H. Alvestrand, "Guidelines for Writing an IANA
 Considerations Section in RFCs", BCP 25, RFC 2434, October 1998. 
-
-.ti 3
-[URI]    Berners-Lee, T., Fielding, R. and L. Masinter,
-"Uniform Resource Identifiers (URI): Generic Syntax",
-RFC 2396, August 1998.
-
-.ti 3
-[X509-4th] ITU-T Recommendation X.509 (2000) | ISO/IEC 9594-
-8:2001, "Information Systems - Open Systems
-Interconnection - The Directory:  Public key and
-Attribute certificate frameworks."
-
-.ti 3
-[X509-4th-TC1] ITU-T Recommendation X.509(2000) Corrigendum 1(2001) |
-ISO/IEC 9594-8:2001/Cor.1:2002, Technical Corrigendum
-1 to ISO/IEC 9594:8:2001.
 
 .ti 0
 Informative References
@@ -4810,13 +4812,14 @@ Cryptology -- CRYPTO'98, LNCS vol. 1462, pages: 1-12, 1998.
 Problems and Countermeasures", http://www.openssl.org/~bodo/tls-cbc.txt.
 
 .ti 3
-[CBCTIME] Canvel, B., "Password Interception in a SSL/TLS Channel",
-http://lasecwww.epfl.ch/memo_ssl.shtml, 2003.
+[CBCTIME] Canvel, B., Hiltgen, A., Vaudenay, S., and M. Vuagnoux,
+"Password Interception in a SSL/TLS Channel", Advances in
+Cryptology -- CRYPTO 2003, LNCS vol. 2729, 2003.
 
 .ti 3
 [CCM]     "NIST Special Publication 800-38C: The CCM Mode for
 Authentication and Confidentiality",
-http://csrc.nist.gov/publications/nistpubs/SP800-38C.pdf.
+http://csrc.nist.gov/publications/nistpubs/800-38C/SP800-38C.pdf
 
 .ti 3
 [ENCAUTH] Krawczyk, H., "The Order of Encryption and Authentication for 
@@ -4827,9 +4830,15 @@ Protecting Communications (Or: How Secure is SSL?)", Crypto 2001.
 Payload (ESP)", RFC 4303, December 2005.
 
 .ti 3
-[GCM]    "NIST Special Publication 800-38C: The CCM Mode for
-Authentication and Confidentiality",
-http://csrc.nist.gov/publications/nistpubs/SP800-38C.pdf.
+[FI06] Hal Finney, "Bleichenbacher's RSA signature forgery based
+on implementation error", ietf-openpgp@imc.org mailing list, 27
+August 2006,
+http://www.imc.org/ietf-openpgp/mail-archive/msg14307.html.
+
+.ti 3
+[GCM]     "NIST Special Publication 800-38D DRAFT (June, 2007):
+Recommendation for Block Cipher Modes of Operation:
+Galois/Counter Mode (GCM) and GMAC"
 
 .ti 3
 [IKEALG] Schiller, J., "Cryptographic Algorithms for Use in the
@@ -4854,9 +4863,18 @@ Standard," version 1.5, November 1993.
 Standard," version 1.5, November 1993.
 
 .ti 3
-[RANDOM] Eastlake, D., 3rd, Schiller, J., and S. Crocker,
+[RANDOM]  Eastlake, D., 3rd, Schiller, J., and S. Crocker,
 "Randomness Requirements for Security", BCP 106, RFC 4086,
 June 2005.
+
+.ti 3
+[RFC3749] Hollenbeck, S., "Transport Layer Security Protocol
+Compression Methods", RFC 3749, May 2004.
+
+.ti 3
+[RFC4366] Blake-Wilson, S., Nystrom, M., Hopwood, D., Mikkelsen, J., 
+Wright, T., "Transport Layer Security (TLS) Extensions",
+RFC 4366, April 2006.
 
 .ti 3
 [RSA]    R. Rivest, A. Shamir, and L. M. Adleman, "A Method for
@@ -4872,7 +4890,7 @@ RFC 1948, May 1996.
 Corp., Feb 9, 1995.
 
 .ti 3
-[SSL3]   A. Frier, P. Karlton, and P. Kocher, "The SSL 3.0 Protocol",
+[SSL3]   A. Freier, P. Karlton, and P. Kocher, "The SSL 3.0 Protocol",
 Netscape Communications Corp., Nov 18, 1996.
 
 .ti 3
@@ -4893,13 +4911,8 @@ USENIX Security Symposium 2003.
 Transport Layer Security (TLS)", RFC 3268, June 2002.
 
 .ti 3
-[TLSEXT] Blake-Wilson, S., Nystrom, M., Hopwood, D., Mikkelsen, J., 
-Wright, T., "Transport Layer Security (TLS) Extensions",
-RFC 3546, June 2003.
-
-.ti 3
-[TLSKRB] Medvinsky, A. and M. Hur, "Addition of Kerberos Cipher Suites to
-Transport Layer Security (TLS)", RFC 2712, October 1999.
+[TLSEXT], Eastlake, D.E.,  "Transport Layer Security (TLS) Extensions:
+Extension Definitions", July 2007, draft-ietf-tls-rfc4366-bis-00.txt.
 
 .ti 3
 [TLS1.0] Dierks, T., and C. Allen, "The TLS Protocol, Version 1.0",
@@ -4912,11 +4925,6 @@ RFC 4346, April, 2006.
 .ti 3
 [X501] ITU-T Recommendation X.501: Information Technology - Open
 Systems Interconnection - The Directory: Models, 1993.
-
-.ti 3
-[X509] ITU-T Recommendation X.509 (1997 E): Information
-Technology - Open Systems Interconnection - "The Directory - Authentication
-Framework". 1988.
 
 .ti 3
 [XDR]    Srinivansan, R., Sun Microsystems, "XDR: External Data
@@ -4980,6 +4988,8 @@ Anil Gangolli
 anil@busybuddha.org
 
 Kipp Hickman
+
+Alfred Hoenes
 
 David Hopwood
 Independent Consultant
