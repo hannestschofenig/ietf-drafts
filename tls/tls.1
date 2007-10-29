@@ -169,7 +169,9 @@ of cryptographic algorithms. The major changes are:
 .ti 5
 - Substantial cleanup to the clients and servers ability to
   specify which digest and signature algorithms they will
-  accept.
+  accept. Note that this also relaxes some of the constraints
+  on signature and digest algorithms from previous versions of
+  TLS.
 
 .ti 5
 - Addition of support for authenticated encryption with additional
@@ -179,7 +181,7 @@ of cryptographic algorithms. The major changes are:
 - Tightened up a number of requirements.
 
 .ti 5
-- Added some guidance that DH groups should be checked.
+- Added some guidance that DH groups should be checked for size.
 
 .ti 5
 - Cleaned up description of Bleichenbacher/Klima attack defenses.
@@ -2406,65 +2408,106 @@ will always immediately follow the server hello message.
 .ti 3
 Meaning of this message:
 .br
-The certificate type MUST be appropriate for the selected cipher
-suite's key exchange algorithm, and is generally an X.509v3
-certificate.
+This message conveys the server's certificate to the
+client. The certificate MUST be appropriate for the
+negotiated cipher suite's key exchange algorithm, and any
+negotiated extensions.
 
-If the client provided a "signature_algorithms" extension,
-then all certificates provided by the server MUST be signed
-by a digest/signature algorithm pair that appears in that extension.
-Note that this implies that a certificate containing
-a key for one signature algorithm MAY be signed using
-a different signature algorithm (for instance,
-an RSA key signed with a DSA key.) This is a departure from
-TLS 1.1, which required that the algorithms be the same.
-Note that this also implies that the DH_DSS and DH_RSA key
-exchange algorithms also do not restrict the algorithm used
-to sign the certificate. Fixed DH certificates MAY be signed
-with any digest/signature algorithm pair appearing in the
-extension.
-
-If no "signature_algorithms" extension is present, the
-signature algorithm used to sign the certificate MUST be the same
-as the type of the key in the certificate, with the exception
-of the DH_DSS and DH_RSA cipher suites, as noted below.
-In this case, the server has no way of knowing which 
-digest algorithms the client supports and SHOULD prefer SHA-1
-if it has multiple certificates.
-
-The certificate MUST contain a key that matches the key
-exchange method, as follows. Unless otherwise specified,
-the public key MAY be of any length.
+In particular:
 
 .nf
-Key Exchange Algorithm  Certificate Key Type
+o  The certificate type MUST be X.509v3, unless explicitly 
+   negotiated otherwise (e.g., [TLSPGP]).
 
-RSA                     RSA public key; the certificate MUST
-                        allow the key to be used for encryption.
+o  The "server_name" and "trusted_ca_keys" extensions 
+   [4366bis] are used to guide certificate selection.
 
-DHE_DSS                 DSS public key.
+o  The certificate's public key (and associated restrictions) 
+   has to be compatible with the selected key exchange 
+   algorithm.
 
-DHE_RSA                 RSA public key that can be used for
-                        signing.
+   Key Exchange Alg.  Certificate Key Type
 
-DH_DSS                  Diffie-Hellman key. The algorithm used
-                        to sign the certificate MUST be DSS if
-			no "signature_algorithms" extension
-			is present.
+   RSA                RSA public key; the certificate MUST
+   RSA_PSK            allow the key to be used for encryption
+                      (the keyEncipherment bit MUST be set
+                      if the key usage extension is present).
+		      Note: RSA_PSK is defined in [TLSPSK].
+		      
+   DHE_RSA            RSA public key; the certificate MUST
+   ECDHE_RSA          allow the key to be used for signing
+                      (the digitalSignature bit MUST be set
+                      if the key usage extension is present)
+                      with the signature scheme and hash 
+                      algorithm that will be employed in the 
+                      server key exchange message.
 
-DH_RSA                  Diffie-Hellman key. The algorithm used
-                        to sign the certificate MUST be RSA if
-			no "signature_algorithms" extension
-			is present.
+   DHE_DSS            DSA public key; the certificate MUST
+                      allow the key to be used for signing with
+                      the hash algorithm that will be employed 
+                      in the server key exchange message.
+
+   DH_DSS             Diffie-Hellman public key; the 
+   DH_RSA             keyAgreement bit MUST be set if the
+                      key usage extension is present.
+
+   ECDH_ECDSA         ECDH-capable public key; the public key 
+   ECDH_RSA           MUST use a curve and point format supported
+                      by the client, as described in [TLSECC].
+
+   ECDHE_ECDSA        ECDSA-capable public key; the certificate
+                      MUST allow the key to be used for signing
+                      with the hash algorithm that will be 
+                      employed in the server key exchange 
+                      message. The public key MUST use a curve
+                      and point format supported by the client,
+                      as described in  [TLSECC].
+
+.fi
+If the client provided a "signature_algorithms" extension, then all
+certificates provided by the server MUST be signed by a
+digest/signature algorithm pair that appears in that extension.  Note
+that this implies that a certificate containing a key for one
+signature algorithm MAY be signed using a different signature
+algorithm (for instance, an RSA key signed with a DSA key.) This is a
+departure from TLS 1.1, which required that the algorithms be the
+same.  Note that this also implies that the DH_DS, DH_RSA, ECDH_ECDSA,
+and ECDH_RSA key exchange algorithms do not restrict the algorithm
+used to sign the certificate. Fixed DH certificates MAY be signed with
+any digest/signature algorithm pair appearing in the extension.
+The naming is historical. 
+
+If no "signature_algorithms" extension is present, the end-entity
+certificate MUST be signed as follows:
+
+.nf
+   Key Exchange Alg.  Signature Algorithm Used by Issuer
+
+   RSA                RSA (RSASSA-PKCS1-v1_5)
+   DHE_RSA 
+   DH_RSA 
+   RSA_PSK 
+   ECDH_RSA 
+   ECDHE_RSA
+
+   DHE_DSS            DSA
+   DH_DSS
+
+   ECDH_ECDSA         ECDSA               
+   ECDHE_ECDSA
 .fi
 
 .in 3
-All certificate profiles and key and cryptographic formats are defined
-by the IETF PKIX working group [PKIX]. When a key usage extension is
-present, the digitalSignature bit MUST be set for the key to be
-eligible for signing, as described above, and the keyEncipherment
-bit MUST be present to allow encryption, as described above. The
-keyAgreement bit must be set on Diffie-Hellman certificates.
+If the server has multiple certificates, it chooses one of them
+based on the above-mentioned criteria (in addition to other
+criteria, such as transport layer endpoint, local configuration
+and preferences, etc.).
+
+Note that there are certificates that use algorithms and/or
+algorithm combinations that cannot be currently used with TLS.
+For example, a certificate with RSASSA-PSS signature key
+(id-RSASSA-PSS OID in SubjectPublicKeyInfo) cannot be used
+because TLS defines no corresponding signature algorithm.
 
 As CipherSuites that specify new key exchange methods are specified
 for the TLS Protocol, they will imply certificate format and the
@@ -2477,19 +2520,21 @@ Structure of this message:
     struct {
         ASN.1Cert certificate_list<0..2^24-1>;
     } Certificate;
+.fi
 
 .ti 3
 certificate_list
 .in 7
-.fi
-This is a sequence (chain) of X.509v3 certificates. The sender's
-certificate must come first in the list. Each following
-certificate must directly certify the one preceding it. Because
-certificate validation requires that root keys be distributed
-independently, the self-signed certificate that specifies the
-root certificate authority may optionally be omitted from the
-chain, under the assumption that the remote end must already
-possess it in order to validate it in any case.
+
+This is a sequence (chain) of certificates. The sender's
+certificate MUST come first in the list. Each following
+certificate MUST directly certify the one preceding
+it. Because certificate validation requires that root keys
+be distributed independently, the self-signed certificate
+that specifies the root certificate authority MAY
+optionally be omitted from the chain, under the assumption
+that the remote end must already possess it in order to
+validate it in any case.
 
 .in 3
 The same message type and structure will be used for the client's
@@ -2783,27 +2828,84 @@ struct { } ServerHelloDone;
 .ti 0
 7.4.6. Client Certificate
 
+.fi
 .ti 3
 When this message will be sent:
 .br
 This is the first message the client can send after receiving a
 server hello done message. This message is only sent if the
 server requests a certificate. If no suitable certificate is
-available, the client MUST send a certificate message
-containing no certificates. That is, the certificate_list structure
-has a length of zero. If client authentication is required
-by the server for the handshake to continue, it may respond with
-a fatal handshake failure alert. Client certificates are sent
-using the Certificate structure defined in Section 7.4.2.
+available, the client SHOULD send a certificate message
+containing no certificates. That is, the certificate_list
+structure has a length of zero. If client authentication is
+required by the server for the handshake to continue, it may
+respond with a fatal handshake failure alert. Client
+certificates are sent using the Certificate structure defined
+in Section 7.4.2.
 
+.ti 3
+Meaning of this message:
+.br
+This message conveys the client's certificate to the server;
+the server will use it when verifying the certificate verify
+message (when the client authentication is based on signing),
+or calculate the premaster secret (for non-ephemeral
+Diffie-Hellman).  The certificate MUST be appropriate for the
+negotiated cipher suite's key exchange algorithm, and any
+negotiated extensions.
 
-.ti 1
-Note: When using a static Diffie-Hellman based key exchange method
-(DH_DSS or DH_RSA), if client authentication is requested, the
-Diffie-Hellman group and generator encoded in the client's
-certificate MUST match the server specified Diffie-Hellman
-parameters if the client's parameters are to be used for the key
-exchange.
+In particular:
+
+.nf
+o  The certificate type MUST be X.509v3, unless explicitly 
+   negotiated otherwise (e.g. [TLSPGP]).
+
+o  The certificate's public key (and associated restrictions) 
+   has to be compatible with the certificate  types listed in 
+   CertificateRequest:
+
+   Client Cert. Type   Certificate Key Type
+
+   rsa_sign            RSA public key; the certificate MUST allow
+                       the key to be used for signing with the
+                       signature scheme and hash algorithm that
+                       will be employed in the certificate verify
+                       message.
+
+   dss_sign            DSA public key; the certificate MUST allow
+                       the key to be used for signing with the
+                       hash algorithm that will be employed in
+                       the certificate verify message.
+
+   ecdsa_sign          ECDSA-capable public key; the certificate
+                       MUST allow the key to be used for signing
+                       with the hash algorithm that will be
+                       employed in the certificate verify
+                       message; the public key MUST use a
+                       curve and point format supported by the
+                       server.
+                   
+   rsa_fixed_dh        Diffie-Hellman public key; MUST use
+   dss_fixed_dh        the same parameters as server's key.
+
+   rsa_fixed_ecdh      ECDH-capable public key; MUST use 
+   ecdsa_fixed_ecdh    the same curve as server's key, and
+                       MUST use a point format supported by
+
+o  If the certificate_authorities list in the certificate
+   request message was non-empty, the certificate SHOULD be
+   issued by one of the listed CAs.
+
+o  The certificates MUST be signed using an acceptable digest/signature
+   algorithm pair, as described in Section 7.4.4. Note that this
+   relaxes the constraints on certificate signing algorithms
+   found in prior versions of TLS. 
+.fi
+
+.in 3
+Note that as with the server certificate, there are certificates that
+use algorithms/algorithm combinations that cannot be currently
+used with TLS.
 
 .ti 0
 7.4.7. Client Key Exchange Message
@@ -4835,6 +4937,8 @@ Changes in This Version
 
 - Editorial issues [Issue 59]
 
+- Cleaned up certificate text in 7.4.2 and 7.4.6 [Issue 57]
+
 .fi
 .ti 0
 Normative References
@@ -5029,8 +5133,21 @@ USENIX Security Symposium 2003.
 Transport Layer Security (TLS)", RFC 3268, June 2002.
 
 .ti 3
-[TLSEXT], Eastlake, D.E.,  "Transport Layer Security (TLS) Extensions:
+[TLSECC] Blake-Wilson, S., Bolyard, N., Gupta, V., Hawk, C., and
+Moeller, B., "Elliptic Curve Cryptography (ECC) Cipher Suites
+for Transport Layer Security (TLS)", RFC 4492, May 2006.
+
+.ti 3
+[TLSEXT] Eastlake, D.E.,  "Transport Layer Security (TLS) Extensions:
 Extension Definitions", July 2007, draft-ietf-tls-rfc4366-bis-00.txt.
+
+.ti 3
+[TLSPGP] Mavrogiannopoulos, N., "Using OpenPGP keys for TLS
+authentication", draft-ietf-tls-openpgp-keys-11, July 2006.
+
+.ti 3
+[TLSPSK]  Eronen, P., Tschofenig, H., "Pre-Shared Key Ciphersuites 
+for Transport Layer Security (TLS)", RFC 4279, December 2005.
 
 .ti 3
 [TLS1.0] Dierks, T., and C. Allen, "The TLS Protocol, Version 1.0",
