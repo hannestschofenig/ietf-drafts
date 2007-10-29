@@ -609,8 +609,8 @@ Dierks & Rescorla            Standards Track                    [Page 11]draft-
 
  Note: In current terminology, DSA refers to the Digital Signature
    Algorithm and DSS refers to the NIST standard. For historical
-   reasons, this document uses DSS to refer to the algorithm,
-   as was done in SSLv3.
+   reasons, this document uses DSS and DSA interchangeably
+   to refer to the DSA algorithm, as was done in SSLv3.
 
    In stream cipher encryption, the plaintext is exclusive-ORed with an
    identical amount of output generated from a cryptographically secure
@@ -2302,7 +2302,7 @@ Dierks & Rescorla            Standards Track                    [Page 42]draft-
    change from TLS 1.1 where there are no explicit rules but as a
    practical matter one can assume that the peer supports MD5 and SHA-1.
 
-   Servers MUST NOTsend this extension.
+   Servers MUST NOT send this extension.
 
 7.4.2. Server Certificate
 
@@ -2318,120 +2318,12 @@ Dierks & Rescorla            Standards Track                    [Page 42]draft-
        certificate MUST be appropriate for the negotiated cipher suite's
        key exchange algorithm, and any negotiated extensions.
 
-       In particular:
-
-
-
-
-Dierks & Rescorla            Standards Track                    [Page 43]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
-
-
-       o  The certificate type MUST be X.509v3, unless explicitly
-          negotiated otherwise (e.g., [TLSPGP]).
-
-       o  The "server_name" and "trusted_ca_keys" extensions
-          [4366bis] are used to guide certificate selection.
-
-       o  The certificate's public key (and associated restrictions)
-          has to be compatible with the selected key exchange
-          algorithm.
-
-          Key Exchange Alg.  Certificate Key Type
-
-          RSA                RSA public key; the certificate MUST
-          RSA_PSK            allow the key to be used for encryption
-                             (the keyEncipherment bit MUST be set
-                             if the key usage extension is present).
-                       Note: RSA_PSK is defined in [TLSPSK].
-
-          DHE_RSA            RSA public key; the certificate MUST
-          ECDHE_RSA          allow the key to be used for signing
-                             (the digitalSignature bit MUST be set
-                             if the key usage extension is present)
-                             with the signature scheme and hash
-                             algorithm that will be employed in the
-                             server key exchange message.
-
-          DHE_DSS            DSA public key; the certificate MUST
-                             allow the key to be used for signing with
-                             the hash algorithm that will be employed
-                             in the server key exchange message.
-
-          DH_DSS             Diffie-Hellman public key; the
-          DH_RSA             keyAgreement bit MUST be set if the
-                             key usage extension is present.
-
-          ECDH_ECDSA         ECDH-capable public key; the public key
-          ECDH_RSA           MUST use a curve and point format supported
-                             by the client, as described in [TLSECC].
-
-          ECDHE_ECDSA        ECDSA-capable public key; the certificate
-                             MUST allow the key to be used for signing
-                             with the hash algorithm that will be
-                             employed in the server key exchange
-                             message. The public key MUST use a curve
-                             and point format supported by the client,
-                             as described in  [TLSECC].
-
-       If the client provided a "signature_algorithms" extension, then
-
-
-
-Dierks & Rescorla            Standards Track                    [Page 44]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
-
-
-       all certificates provided by the server MUST be signed by a
-       digest/signature algorithm pair that appears in that extension.
-       Note that this implies that a certificate containing a key for
-       one signature algorithm MAY be signed using a different signature
-       algorithm (for instance, an RSA key signed with a DSA key.) This
-       is a departure from TLS 1.1, which required that the algorithms
-       be the same.  Note that this also implies that the DH_DS, DH_RSA,
-       ECDH_ECDSA, and ECDH_RSA key exchange algorithms do not restrict
-       the algorithm used to sign the certificate. Fixed DH certificates
-       MAY be signed with any digest/signature algorithm pair appearing
-       in the extension.  The naming is historical.
-
-       If no "signature_algorithms" extension is present, the end-entity
-       certificate MUST be signed as follows:
-
-          Key Exchange Alg.  Signature Algorithm Used by Issuer
-
-          RSA                RSA (RSASSA-PKCS1-v1_5)
-          DHE_RSA
-          DH_RSA
-          RSA_PSK
-          ECDH_RSA
-          ECDHE_RSA
-
-          DHE_DSS            DSA
-          DH_DSS
-
-          ECDH_ECDSA         ECDSA
-          ECDHE_ECDSA
-
-   If the server has multiple certificates, it chooses one of them based
-   on the above-mentioned criteria (in addition to other criteria, such
-   as transport layer endpoint, local configuration and preferences,
-   etc.).
-
-   Note that there are certificates that use algorithms and/or algorithm
-   combinations that cannot be currently used with TLS.  For example, a
-   certificate with RSASSA-PSS signature key (id-RSASSA-PSS OID in
-   SubjectPublicKeyInfo) cannot be used because TLS defines no
-   corresponding signature algorithm.
-
-   As CipherSuites that specify new key exchange methods are specified
-   for the TLS Protocol, they will imply certificate format and the
-   required encoded keying information.
-
    Structure of this message:
        opaque ASN.1Cert<1..2^24-1>;
 
 
 
-
-Dierks & Rescorla            Standards Track                    [Page 45]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
+Dierks & Rescorla            Standards Track                    [Page 43]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
        struct {
@@ -2458,6 +2350,114 @@ Dierks & Rescorla            Standards Track                    [Page 45]draft-
        vector because PKCS #6 [PKCS6] extended certificates are not
        used. Also, PKCS #7 defines a SET rather than a SEQUENCE, making
        the task of parsing the list more difficult.
+
+   The following rules apply to the certificates sent by the server:
+
+   -  The certificate type MUST be X.509v3, unless explicitly
+      negotiated otherwise (e.g., [TLSPGP]).
+
+   -  The certificate's public key (and associated restrictions)
+      MUST be compatible with the selected key exchange
+      algorithm.
+
+      Key Exchange Alg.  Certificate Key Type
+
+      RSA                RSA public key; the certificate MUST
+      RSA_PSK            allow the key to be used for encryption
+                         (the keyEncipherment bit MUST be set
+                         if the key usage extension is present).
+                         Note: RSA_PSK is defined in [TLSPSK].
+
+      DHE_RSA            RSA public key; the certificate MUST
+      ECDHE_RSA          allow the key to be used for signing
+                         (the digitalSignature bit MUST be set
+                         if the key usage extension is present)
+                         with the signature scheme and hash
+                         algorithm that will be employed in the
+
+
+
+Dierks & Rescorla            Standards Track                    [Page 44]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
+
+
+                         server key exchange message.
+
+      DHE_DSS            DSA public key; the certificate MUST
+                         allow the key to be used for signing with
+                         the hash algorithm that will be employed
+                         in the server key exchange message.
+
+      DH_DSS             Diffie-Hellman public key; the
+      DH_RSA             keyAgreement bit MUST be set if the
+                         key usage extension is present.
+
+      ECDH_ECDSA         ECDH-capable public key; the public key
+      ECDH_RSA           MUST use a curve and point format supported
+                         by the client, as described in [TLSECC].
+
+      ECDHE_ECDSA        ECDSA-capable public key; the certificate
+                         MUST allow the key to be used for signing
+                         with the hash algorithm that will be
+                         employed in the server key exchange
+                         message. The public key MUST use a curve
+                         and point format supported by the client,
+                         as described in  [TLSECC].
+
+   -  The "server_name" and "trusted_ca_keys" extensions
+      [4366bis] are used to guide certificate selection.
+
+   If the client provided a "signature_algorithms" extension, then all
+   certificates provided by the server MUST be signed by a
+   digest/signature algorithm pair that appears in that extension.  Note
+   that this implies that a certificate containing a key for one
+   signature algorithm MAY be signed using a different signature
+   algorithm (for instance, an RSA key signed with a DSA key.) This is a
+   departure from TLS 1.1, which required that the algorithms be the
+   same.  Note that this also implies that the DH_DS, DH_RSA,
+   ECDH_ECDSA, and ECDH_RSA key exchange algorithms do not restrict the
+   algorithm used to sign the certificate. Fixed DH certificates MAY be
+   signed with any digest/signature algorithm pair appearing in the
+   extension.  The naming is historical.
+
+   If no "signature_algorithms" extension is present, the end-entity
+   certificate MUST be signed as follows:
+
+      Key Exchange Alg.  Signature Algorithm Used by Issuer
+
+      RSA                RSA (RSASSA-PKCS1-v1_5)
+      DHE_RSA
+      DH_RSA
+      RSA_PSK
+
+
+
+Dierks & Rescorla            Standards Track                    [Page 45]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
+
+
+      ECDH_RSA
+      ECDHE_RSA
+
+      DHE_DSS            DSA
+      DH_DSS
+
+      ECDH_ECDSA         ECDSA
+      ECDHE_ECDSA
+
+   If the server has multiple certificates, it chooses one of them based
+   on the above-mentioned criteria (in addition to other criteria, such
+   as transport layer endpoint, local configuration and preferences,
+   etc.).
+
+   Note that there are certificates that use algorithms and/or algorithm
+   combinations that cannot be currently used with TLS.  For example, a
+   certificate with RSASSA-PSS signature key (id-RSASSA-PSS OID in
+   SubjectPublicKeyInfo) cannot be used because TLS defines no
+   corresponding signature algorithm.
+
+   As CipherSuites that specify new key exchange methods are specified
+   for the TLS Protocol, they will imply certificate format and the
+   required encoded keying information.
+
 
 7.4.3. Server Key Exchange Message
 
@@ -2495,12 +2495,73 @@ Dierks & Rescorla            Standards Track                    [Page 46]draft-
        (with the result being the premaster secret) or a public key for
        some other algorithm.
 
-   As additional CipherSuites are defined for TLS that include new key
-   exchange algorithms, the server key exchange message will be sent if
-   and only if the certificate type associated with the key exchange
-   algorithm does not provide enough information for the client to
-   exchange a premaster secret.
+   Structure of this message:
+       enum { diffie_hellman, rsa} KeyExchangeAlgorithm;
 
+       struct {
+           opaque dh_p<1..2^16-1>;
+           opaque dh_g<1..2^16-1>;
+           opaque dh_Ys<1..2^16-1>;
+       } ServerDHParams;     /* Ephemeral DH parameters */
+
+   dh_p
+       The prime modulus used for the Diffie-Hellman operation.
+
+   dh_g
+       The generator used for the Diffie-Hellman operation.
+
+   dh_Ys
+       The server's Diffie-Hellman public value (g^X mod p).
+
+       struct {
+           select (KeyExchangeAlgorithm) {
+               case diffie_hellman:
+                   ServerDHParams params;
+                   Signature signed_params;
+           };
+       } ServerKeyExchange;
+
+       struct {
+           select (KeyExchangeAlgorithm) {
+               case diffie_hellman:
+                   ServerDHParams params;
+           };
+        } ServerParams;
+
+
+   params
+       The server's key exchange parameters.
+
+   signed_params
+       For non-anonymous key exchanges, a hash of the corresponding
+       params value, with the signature appropriate to that hash
+       applied.
+
+
+
+Dierks & Rescorla            Standards Track                    [Page 47]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
+
+
+   hash
+       Hash(ClientHello.random + ServerHello.random + ServerParams)
+
+
+       struct {
+           select (SignatureAlgorithm) {
+             case anonymous: struct { };
+               case rsa:
+                 SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
+                 digitally-signed struct {
+                     opaque hash[Hash.length];
+                 };
+               case dsa:
+                 SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
+                 digitally-signed struct {
+                     opaque hash[Hash.length];
+                 };
+               };
+           };
+       } Signature;
    If the client has offered the "signature_algorithms" extension, the
    signature algorithm and digest algorithm MUST be a pair listed in
    that extension. Note that there is a possibility for inconsistencies
@@ -2528,77 +2589,17 @@ Dierks & Rescorla            Standards Track                    [Page 46]draft-
    The hash algorithm is denoted Hash below. Hash.length is the length
    of the output of that algorithm.
 
-   Structure of this message:
-       enum { diffie_hellman, rsa} KeyExchangeAlgorithm;
-
-       struct {
-           opaque dh_p<1..2^16-1>;
-           opaque dh_g<1..2^16-1>;
-           opaque dh_Ys<1..2^16-1>;
-       } ServerDHParams;     /* Ephemeral DH parameters */
-
-
-
-Dierks & Rescorla            Standards Track                    [Page 47]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
-
-
-       dh_p
-           The prime modulus used for the Diffie-Hellman operation.
-
-       dh_g
-           The generator used for the Diffie-Hellman operation.
-
-       dh_Ys
-           The server's Diffie-Hellman public value (g^X mod p).
-
-       struct {
-           select (KeyExchangeAlgorithm) {
-               case diffie_hellman:
-                   ServerDHParams params;
-                   Signature signed_params;
-           };
-       } ServerKeyExchange;
-
-       struct {
-           select (KeyExchangeAlgorithm) {
-               case diffie_hellman:
-                   ServerDHParams params;
-           };
-        } ServerParams;
-
-       params
-           The server's key exchange parameters.
-
-       signed_params
-           For non-anonymous key exchanges, a hash of the corresponding
-           params value, with the signature appropriate to that hash
-           applied.
-
-       hash
-           Hash(ClientHello.random + ServerHello.random + ServerParams)
-
-       struct {
-           select (SignatureAlgorithm) {
-             case anonymous: struct { };
-               case rsa:
-                 SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
-                 digitally-signed struct {
-                     opaque hash[Hash.length];
-                 };
-               case dsa:
-                 SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
-                 digitally-signed struct {
-                     opaque hash[Hash.length];
-                 };
+   As additional CipherSuites are defined for TLS that include new key
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 48]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-               };
-           };
-       } Signature;
+   exchange algorithms, the server key exchange message will be sent if
+   and only if the certificate type associated with the key exchange
+   algorithm does not provide enough information for the client to
+   exchange a premaster secret.
 
 7.4.4. Certificate Request
 
@@ -2613,8 +2614,7 @@ Dierks & Rescorla            Standards Track                    [Page 48]draft-
        enum {
            rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
            rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
-           fortezza_dms_RESERVED(20),
-           (255)
+           fortezza_dms_RESERVED(20), (255)
        } ClientCertificateType;
 
 
@@ -2628,35 +2628,32 @@ Dierks & Rescorla            Standards Track                    [Page 48]draft-
        } CertificateRequest;
 
 
-       certificate_types
-           A list of the types of certificate types which the client may
-           offer.
-              rsa_sign        a certificate containing an RSA key
-              dss_sign        a certificate containing a DSS key
-              rsa_fixed_dh    a certificate containing a static DH key.
-              dss_fixed_dh    a certificate containing a static DH key
+   certificate_types
+    A list of the types of certificate types which the client may offer.
+       rsa_sign        a certificate containing an RSA key
+       dss_sign        a certificate containing a DSS key
+       rsa_fixed_dh    a certificate containing a static DH key.
+       dss_fixed_dh    a certificate containing a static DH key
 
-       supported_signature_algorithms
-           A list of the digest/signature algorithm pairs that the
-           server is able to verify, listed in descending order of
-           preference.
+   supported_signature_algorithms
+    A list of the digest/signature algorithm pairs that the server is
+    able to verify, listed in descending order of preference.
 
-       certificate_authorities
-           A list of the distinguished names [X501] of acceptable
-           certificate_authorities, represented in DER-encoded format.
+   certificate_authorities
+    A list of the distinguished names [X501] of acceptable
+    certificate_authorities, represented in DER-encoded format. These
+    distinguished names may specify a desired distinguished name for a
+    root CA or for a subordinate CA; thus, this message can be used both
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 49]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-           These distinguished names may specify a desired distinguished
-           name for a root CA or for a subordinate CA; thus, this
-           message can be used both to describe known roots and a
-           desired authorization space. If the certificate_authorities
-           list is empty then the client MAY send any certificate of the
-           appropriate ClientCertificateType, unless there is some
-           external arrangement to the contrary.
+    to describe known roots and a desired authorization space. If the
+    certificate_authorities list is empty then the client MAY send any
+    certificate of the appropriate ClientCertificateType, unless there
+    is some external arrangement to the contrary.
 
    The interaction of the certificate_types and
    supported_signature_algorithms fields is somewhat complicated.
@@ -2686,11 +2683,11 @@ Dierks & Rescorla            Standards Track                    [Page 49]draft-
        with a certificate containing a static DH key, signed with RSA-
        SHA1.
 
- New ClientCertificateType values are assigned by IANA as described in
-       Section 12.
+       New ClientCertificateType values are assigned by IANA as
+       described in Section 12.
 
-       Note: Values listed as RESERVED may not be used. They were used
-       in SSLv3.
+ Note: Values listed as RESERVED may not be used. They were used in
+       SSLv3.
 
  Note: It is a fatal handshake_failure alert for an anonymous server to
        request client authentication.
@@ -2698,15 +2695,15 @@ Dierks & Rescorla            Standards Track                    [Page 49]draft-
 
 7.4.5 Server hello done
 
+   When this message will be sent:
+       The server hello done message is sent by the server to indicate
+       the end of the server hello and associated messages. After
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 50]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-   When this message will be sent:
-       The server hello done message is sent by the server to indicate
-       the end of the server hello and associated messages. After
        sending this message, the server will wait for a client response.
 
    Meaning of this message:
@@ -2746,19 +2743,20 @@ Dierks & Rescorla            Standards Track                    [Page 50]draft-
 
        In particular:
 
-       o  The certificate type MUST be X.509v3, unless explicitly
+       -  The certificate type MUST be X.509v3, unless explicitly
           negotiated otherwise (e.g. [TLSPGP]).
 
-       o  The certificate's public key (and associated restrictions)
+       -  The certificate's public key (and associated restrictions)
           has to be compatible with the certificate  types listed in
           CertificateRequest:
+
+          Client Cert. Type   Certificate Key Type
+
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 51]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
-
-          Client Cert. Type   Certificate Key Type
 
           rsa_sign            RSA public key; the certificate MUST allow
                               the key to be used for signing with the
@@ -2786,14 +2784,14 @@ Dierks & Rescorla            Standards Track                    [Page 51]draft-
           ecdsa_fixed_ecdh    the same curve as server's key, and
                               MUST use a point format supported by
 
-       o  If the certificate_authorities list in the certificate
+       -  If the certificate_authorities list in the certificate
           request message was non-empty, the certificate SHOULD be
           issued by one of the listed CAs.
 
-       o  The certificates MUST be signed using an acceptable digest/signature
-          algorithm pair, as described in Section 7.4.4. Note that this
-          relaxes the constraints on certificate signing algorithms
-          found in prior versions of TLS.
+       -  The certificates MUST be signed using an acceptable digest/
+          signature algorithm pair, as described in Section 7.4.4. Note
+          that this relaxes the constraints on certificate signing
+          algorithms found in prior versions of TLS.
 
    Note that as with the server certificate, there are certificates that
    use algorithms/algorithm combinations that cannot be currently used
@@ -2807,12 +2805,13 @@ Dierks & Rescorla            Standards Track                    [Page 51]draft-
    the first message sent by the client after it receives the server
    hello done message.
 
+   Meaning of this message:
+
 
 
 Dierks & Rescorla            Standards Track                    [Page 52]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-   Meaning of this message:
    With this message, the premaster secret is set, either though direct
    transmission of the RSA-encrypted secret, or by the transmission of
    Diffie-Hellman parameters that will allow each side to agree upon the
@@ -2860,13 +2859,13 @@ Dierks & Rescorla            Standards Track                    [Page 52]draft-
            public-key-encrypted PreMasterSecret pre_master_secret;
        } EncryptedPreMasterSecret;
 
+       pre_master_secret
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 53]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-       pre_master_secret
            This random value is generated by the client and is used to
            generate the master secret, as specified in Section 8.1.
 
@@ -2914,13 +2913,13 @@ Dierks & Rescorla            Standards Track                    [Page 53]draft-
    RSA-encrypted premaster secret message fails, or the version number
    is not as expected. Instead, it MUST continue the handshake with a
    randomly generated premaster secret.  It may be useful to log the
+   real cause of failure for troubleshooting purposes; however, care
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 54]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-   real cause of failure for troubleshooting purposes; however, care
    must be taken to avoid leaking the information to an attacker
    (though, e.g., timing, log files, or other channels.)
 
@@ -2968,13 +2967,13 @@ Dierks & Rescorla            Standards Track                    [Page 54]draft-
    Structure of this message:
        enum { implicit, explicit } PublicValueEncoding;
 
+       implicit
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 55]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-       implicit
            If the client certificate already contains a suitable Diffie-
            Hellman key, then Yc is implicit and does not need to be sent
            again. In this case, the client key exchange message will be
@@ -3022,13 +3021,13 @@ Dierks & Rescorla            Standards Track                    [Page 55]draft-
 
        Because DSA signatures do not contain any secure indication of
        digest algorithm, it must be unambiguous which digest algorithm
+       is to be used with any key.  DSA keys specified with Object
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 56]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-       is to be used with any key.  DSA keys specified with Object
        Identifier 1 2 840 10040 4 1 MUST only be used with SHA-1.
        Future revisions of [PKIX] MAY define new object identifiers for
        DSA with other digest algorithms.
@@ -3076,13 +3075,13 @@ Dierks & Rescorla            Standards Track                    [Page 56]draft-
            octets long. In the current version of TLS, it depends on the
            cipher suite. Any cipher suite which does not explicitly
            specify SecurityParameters.verify_data_length has a
+           SecurityParameters.verify_data_length equal to 12. This
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 57]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-           SecurityParameters.verify_data_length equal to 12. This
            includes all existing cipher suites.  Note that this
            representation has the same encoding as with previous
            versions. Future cipher suites MAY specify other lengths but
@@ -3130,13 +3129,13 @@ Dierks & Rescorla            Standards Track                    [Page 57]draft-
    should be deleted from memory once the master_secret has been
    computed.
 
+       master_secret = PRF(pre_master_secret, "master secret",
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 58]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-       master_secret = PRF(pre_master_secret, "master secret",
                            ClientHello.random + ServerHello.random)
                           [0..47];
 
@@ -3184,37 +3183,37 @@ Dierks & Rescorla            Standards Track                    [Page 58]draft-
 12. IANA Considerations
 
    This document uses several registries that were originally created in
+   [TLS1.1]. IANA is requested to update (has updated) these to
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 59]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-   [TLS1.1]. IANA is requested to update (has updated) these to
    reference this document. The registries and their allocation policies
    (unchanged from [TLS1.1]) are listed below.
 
-   o  TLS ClientCertificateType Identifiers Registry: Future
+   -  TLS ClientCertificateType Identifiers Registry: Future
       values in the range 0-63 (decimal) inclusive are assigned via
       Standards Action [RFC2434]. Values in the range 64-223
       (decimal) inclusive are assigned Specification Required
       [RFC2434]. Values from 224-255 (decimal) inclusive are
       reserved for Private Use [RFC2434].
 
-   o  TLS Cipher Suite Registry: Future values with the first byte
+   -  TLS Cipher Suite Registry: Future values with the first byte
       in the range 0-191 (decimal) inclusive are assigned via
       Standards Action [RFC2434].  Values with the first byte in
       the range 192-254 (decimal) are assigned via Specification
       Required [RFC2434]. Values with the first byte 255 (decimal)
       are reserved for Private Use [RFC2434].
 
-   o  TLS ContentType Registry: Future values are allocated via
+   -  TLS ContentType Registry: Future values are allocated via
       Standards Action [RFC2434].
 
-   o  TLS Alert Registry: Future values are allocated via
+   -  TLS Alert Registry: Future values are allocated via
       Standards Action [RFC2434].
 
-   o  TLS HandshakeType Registry: Future values are allocated via
+   -  TLS HandshakeType Registry: Future values are allocated via
       Standards Action [RFC2434].
 
    This document also uses a registry originally created in [RFC4366].
@@ -3222,13 +3221,13 @@ Dierks & Rescorla            Standards Track                    [Page 59]draft-
    document.  The registry and its allocation policy (unchanged from
    [RFC4366]) is listed below:.
 
-   o  TLS ExtensionType Registry: Future values are allocated
+   -  TLS ExtensionType Registry: Future values are allocated
       via IETF Consensus [RFC2434]
 
    In addition, this document defines one new registry to be maintained
    by IANA:
 
-   o  TLS SignatureAlgorithm Registry: The registry will be initially
+   -  TLS SignatureAlgorithm Registry: The registry will be initially
       populated with the values described in Section 7.4.1.4.1.
       Future values in the range 0-63 (decimal) inclusive are
       assigned via Standards Action [RFC2434].  Values in the
@@ -3236,15 +3235,15 @@ Dierks & Rescorla            Standards Track                    [Page 59]draft-
       Specification Required [RFC2434].  Values from 224-255
       (decimal) inclusive are reserved for Private Use [RFC2434].
 
-   o  TLS HashAlgorithm Registry: The registry will be initially
+   -  TLS HashAlgorithm Registry: The registry will be initially
       populated with the values described in Section 7.4.1.4.1.
+      Future values in the range 0-63 (decimal) inclusive are
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 60]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-      Future values in the range 0-63 (decimal) inclusive are
       assigned via Standards Action [RFC2434].  Values in the
       range 64-223 (decimal) inclusive are assigned via
       Specification Required [RFC2434].  Values from 224-255
@@ -3257,6 +3256,7 @@ Dierks & Rescorla            Standards Track                    [Page 60]draft-
    This document also uses the TLS Compression Method Identifiers
    Registry, defined in [RFC3749].  IANA is requested to allocate value
    0 for the "null" compression method.
+
 
 
 
@@ -4275,48 +4275,48 @@ Dierks & Rescorla            Standards Track                    [Page 79]draft-
 
    TLS protocol issues:
 
-   o  Do you correctly handle handshake messages that are fragmented
+   -  Do you correctly handle handshake messages that are fragmented
       to multiple TLS records (see Section 6.2.1)? Including corner
       cases like a ClientHello that is split to several small
       fragments?
 
-   o  Do you ignore the TLS record layer version number in all TLS
+   -  Do you ignore the TLS record layer version number in all TLS
       records before ServerHello (see Appendix E.1)?
 
-   o  Do you handle TLS extensions in ClientHello correctly,
+   -  Do you handle TLS extensions in ClientHello correctly,
       including omitting the extensions field completely?
 
-   o  Do you support renegotiation, both client and server initiated?
+   -  Do you support renegotiation, both client and server initiated?
       While renegotiation this is an optional feature, supporting
       it is highly recommended.
 
-   o  When the server has requested a client certificate, but no
+   -  When the server has requested a client certificate, but no
       suitable certificate is available, do you correctly send
       an empty Certificate message, instead of omitting the whole
       message (see Section 7.4.6)?
 
    Cryptographic details:
 
-   o  In RSA-encrypted Premaster Secret,  do you correctly send and
+   -  In RSA-encrypted Premaster Secret,  do you correctly send and
       verify the version number? When an error is encountered, do
       you continue the handshake to avoid the Bleichenbacher
       attack (see Section 7.4.7.1)?
 
-   o  What countermeasures do you use to prevent timing attacks against
+   -  What countermeasures do you use to prevent timing attacks against
       RSA decryption and signing operations (see Section 7.4.7.1)?
 
-   o  When verifying RSA signatures, do you accept both NULL and
+   -  When verifying RSA signatures, do you accept both NULL and
       missing parameters (see Section 4.7)? Do you verify that the
       RSA padding doesn't have additional data after the hash value?
       [FI06]
 
-   o  When using Diffie-Hellman key exchange, do you correctly strip
+   -  When using Diffie-Hellman key exchange, do you correctly strip
       leading zero bytes from the negotiated key (see Section 8.1.2)?
 
-   o  Does your TLS client check that the Diffie-Hellman parameters
+   -  Does your TLS client check that the Diffie-Hellman parameters
       sent by the server are acceptable (see Section F.1.1.3)?
 
-   o  How do you generate unpredictable IVs for CBC mode ciphers
+   -  How do you generate unpredictable IVs for CBC mode ciphers
       (see Section 6.2.3.2)?
 
 
@@ -4324,9 +4324,9 @@ Dierks & Rescorla            Standards Track                    [Page 79]draft-
 Dierks & Rescorla            Standards Track                    [Page 80]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-   o  How do you address CBC mode timing attacks (Section 6.2.3.2)?
+   -  How do you address CBC mode timing attacks (Section 6.2.3.2)?
 
-   o  Do you use a strong and, most importantly, properly seeded
+   -  Do you use a strong and, most importantly, properly seeded
       random number generator (see Appendix D.1) for generating the
       premaster secret (for RSA key exchange), Diffie-Hellman private
       values, the DSA "k" parameter, and other security-critical
