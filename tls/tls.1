@@ -144,11 +144,12 @@ implementors of protocols that run on top of TLS.
 .fi
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-document are to be interpreted as described in RFC 2119 [RFC2119].
+document are to be interpreted as described in RFC 2119 [REQ].
 
 .ti 0
 1.2 Major Differences from TLS 1.1
-.in 3 
+.in 3
+ 
 This document is a revision of the TLS 1.1 [TLS1.1] protocol
 which contains improved flexibility, particularly for negotiation
 of cryptographic algorithms. The major changes are:
@@ -178,9 +179,6 @@ of cryptographic algorithms. The major changes are:
 - Tightened up a number of requirements.
 
 .ti 5
-- The usual clarifications and editorial work.
-
-.ti 5
 - Added some guidance that DH groups should be checked.
 
 .ti 5
@@ -206,6 +204,8 @@ of cryptographic algorithms. The major changes are:
 - TLS_RSA_WITH_AES_128_CBC_SHA is now the mandatory to implement
   cipher suite.
 
+.ti 5
+- The usual clarifications and editorial work.
 
 .ti 0
 2. Goals
@@ -537,6 +537,12 @@ above, the contents of which are the DER encoding of:
          s       INTEGER
     }
 
+.ti 1
+Note: In current terminology, DSA refers to the Digital Signature
+Algorithm and DSS refers to the NIST standard. For historical
+reasons, this document uses DSS to refer to the algorithm,
+as was done in SSLv3.
+
 .fi
 In stream cipher encryption, the plaintext is exclusive-ORed with an
 identical amount of output generated from a cryptographically secure
@@ -615,7 +621,8 @@ length.
 
 In this section, we define one PRF, based on HMAC. This PRF with the
 SHA-256 hash function is used for all cipher suites defined in this
-document and in TLS documents published prior to this document. New
+document and in TLS documents published prior to this document when
+TLS 1.2 is negotiated. New
 cipher suites MUST explicitly specify a PRF and in general SHOULD use
 the TLS PRF with SHA-256 or a stronger standard hash function.
 
@@ -642,7 +649,7 @@ create 64 bytes of data, it will have to be iterated 4 times
 of the final iteration will then be discarded, leaving 64 bytes of
 output data.
 
-TLS's PRF is created by applying P_hash to the secret S as:
+TLS's PRF is created by applying P_hash to the secret as:
 .nf
 
    PRF(secret, label, seed) = P_<hash>(secret, label + seed)
@@ -676,7 +683,7 @@ supported by the record protocol. New record type values are assigned by IANA as
 Implementations MUST NOT send record types not defined in this
 document unless negotiated by some extension.  If a TLS
 implementation receives an unexpected record type, it MUST send
-a unexpected_message alert."
+an unexpected_message alert.
 
 Any protocol designed for use over TLS MUST be carefully
 designed to deal with all possible attacks against it.  Note
@@ -720,7 +727,7 @@ bulk encryption algorithm
 An algorithm to be used for bulk encryption. This specification
 includes the key size of this algorithm, how much of that key is
 secret, whether it is a block, stream, or AEAD cipher, and the block size
-of the cipher (if appropriate).
+and fixed initialization vector size of the cipher (if appropriate).
 
 .ti 3
 MAC algorithm
@@ -757,11 +764,13 @@ These parameters are defined in the presentation language as:
 .nf
 enum { server, client } ConnectionEnd;
 
-enum { null, rc4, rc2, des, 3des, des40, idea, aes } BulkCipherAlgorithm;
+enum { null, rc4, rc2, des, 3des, idea, aes } 
+  BulkCipherAlgorithm;
 
 enum { stream, block, aead } CipherType;
 
-enum { null, md5, sha, sha256, sha384, sha512} MACAlgorithm;
+enum { null, hmac_md5, hmac_sha, hmac_sha256, hmac_sha384, 
+     hmac_sha512} MACAlgorithm;
 
 /* The use of "sha" above is historical and denotes SHA-1 */
 
@@ -791,7 +800,7 @@ struct {
 .fi
 .in 3
 The record layer will use the security parameters to generate the
-following four items:
+following six items:
 
 .in 7
 .nf
@@ -799,6 +808,8 @@ client write MAC secret
 server write MAC secret
 client write key
 server write key
+client write IV
+server write IV
 
 .in 3
 .fi
@@ -1044,9 +1055,9 @@ seq_num
 The sequence number for this record.
 
 .ti 3
-hash
+MAC
 .fi
-The hashing algorithm specified by SecurityParameters.mac_algorithm.
+The MAC algorithm specified by SecurityParameters.mac_algorithm.
 
 .in 3
 Note that the MAC is computed before encryption. The stream cipher
@@ -1120,8 +1131,7 @@ the padding_length field itself.
 
 .in 3
 The encrypted data length (TLSCiphertext.length) is one more than
-the sum of 
-one more than the sum of SecurityParameters.block_length,
+the sum of SecurityParameters.block_length,
 TLSCompressed.length, SecurityParameters.mac_length, and
 padding_length.
 
@@ -1182,13 +1192,10 @@ TLSCiphertext.fragment structures.
    } GenericAEADCipher;
 .fi
 
-AEAD ciphers take as input a single key, a nonce, a plaintext,
-and "additional data" to be included in the authentication check,
-as described in Section 2.1 of [AEAD].  These inputs are as
-follows.
-
-The key is either the client_write_key or the server_write_key.
-No MAC key is used.
+AEAD ciphers take as input a single key, a nonce, a plaintext, and
+"additional data" to be included in the authentication check, as
+described in Section 2.1 of [AEAD]. The key is either the
+client_write_key or the server_write_key.  No MAC key is used.
 
 Each AEAD cipher suite has to specify how the nonce supplied to
 the AEAD operation is constructed, and what is the length of the
@@ -1494,7 +1501,7 @@ with a fatal alert MUST NOT be resumed.
 Whenever an implementation encounters a condition which is defined
 as a fatal alert, it MUST send the appropriate alert prior to
 closing the connection. In cases where an implementation chooses
-to send an alert which MAY be a warning alert but intends to close
+to send an alert which may be a warning alert but intends to close
 the connection immediately afterwards, it MUST send that alert
 at the fatal alert level. 
 
@@ -1588,7 +1595,7 @@ certificate, rendering it unacceptable.
 illegal_parameter
 .br
 A field in the handshake was out of range or inconsistent with
-other fields. This is always fatal.
+other fields. This message is always fatal.
 
 .ti 3
 unknown_ca
@@ -1905,7 +1912,7 @@ Certificate message is used twice in the handshake (from server to
 client, then from client to server), but described only in its first
 position. The one message that is not bound by these ordering rules
 is the Hello Request message, which can be sent at any time, but
-which should be ignored by the client if it arrives in the middle of
+which SHOULD be ignored by the client if it arrives in the middle of
 a handshake.
 
 New Handshake message types are assigned by IANA as
@@ -2094,7 +2101,7 @@ A client-generated random structure.
 session_id
 .in 7
 The ID of a session the client wishes to use for this
-connection. This field should be empty if no session_id is
+connection. This field is empty if no session_id is
 available, or it the client wishes to generate new security
 parameters.
 
@@ -2131,7 +2138,7 @@ extensions.  The actual "Extension" format is defined in Section 7.4.1.4.
 In the event that a client requests additional functionality using
 extensions, and this functionality is not supplied by
 the server, the client MAY abort the handshake. 
-A server that supports the extensions mechanism MUST accept only
+A server that supports the extensions mechanism MUST accept 
 client hello messages in either the original (TLS 1.0/TLS 1.1)
 ClientHello or the extended ClientHello 
 format defined in this document, and (as for all other messages) MUST check that the amount of
@@ -2252,7 +2259,7 @@ The extension format is:
       } Extension;
 
       enum {
-          signature_hash_types(TBD-BY-IANA), (65535)
+          signature_hash_algorithms(TBD-BY-IANA), (65535)
       } ExtensionType;
 
 .fi
@@ -2279,9 +2286,9 @@ considerations should be taken into account when designing new
 extensions:
 
 .ti 5
--  Some cases where a server does not agree to an extension are error
+-  Some cases where a server does not agree to an extension are 
 .in 7
-conditions, and some simply a refusal to support a particular
+error conditions, and some simply a refusal to support a particular
 feature.  In general error alerts should be used for the former,
 and a field in the server extension response for the latter.
 
@@ -2314,27 +2321,30 @@ possibility of version rollback should be a significant
 consideration in any major design change.
 
 .ti 0
-7.4.1.4.1 Cert Hash Types
+7.4.1.4.1 Signature Hash Algorithms
 
-The client MAY use the "signature_algorithms" to indicate
-to the server which hash functions may be used in 
-digital signatures. The "extension_data"
+.in 3
+The client MAY use the "signature_hash_algorithms" to indicate
+to the server which signature/hash algorithm pairs may be used
+in digital signatures. The "extension_data"
 field of this extension contains a "supported_signature_algorithms"
 value.
 
 .nf
-      enum{
-          none(0), md5(1), sha1(2), sha256(3), sha384(4), sha512(5), (255)
-      } HashType;
+    enum{
+        none(0), md5(1), sha1(2), sha256(3), sha384(4), 
+        sha512(5), (255)
+    } HashAlgorithm;
 
-      enum { anonymous(0), rsa(1), dsa(2), (255) } SignatureAlgorithm;
+    enum { anonymous(0), rsa(1), dsa(2), (255) } SignatureAlgorithm;
 
-      struct {
-            HashType hash;
-	    SignatureAlgorithm signature;
-      } SignatureAndHashAlgorithm;
+    struct {
+          HashAlgorithm hash;
+	  SignatureAlgorithm signature;
+    } SignatureAndHashAlgorithm;
 
-      SignatureAndHashAlgorithm supported_signature_algorithms<2..2^16-1>;
+    SignatureAndHashAlgorithm
+      supported_signature_algorithms<2..2^16-1>;
 .fi
 
 .in 3
@@ -2362,7 +2372,8 @@ signature
 This field indicates the signature algorithm which may be used.
 The values indicate anonymous signatures, RSA [PKCS1] and 
 DSA [DSS] respectively. The "anonymous" value is meaningless
-in this context but used later in the specification.
+in this context but used later in the specification. It MUST
+NOT appear in this extension.
 
 .in 3
 The semantics of this extension are somewhat complicated because
@@ -2376,7 +2387,8 @@ algorithm other than SHA-1. If this extension is not used, servers
 SHOULD assume that the client supports only SHA-1. Note: this is a
 change from TLS 1.1 where there are no explicit rules but as a
 practical matter one can assume that the peer supports MD5 and SHA-1.
-Servers MUST not send this extension.
+
+Servers MUST NOTsend this extension.
 
 .ti 0
 7.4.2. Server Certificate
@@ -2399,13 +2411,18 @@ suite's key exchange algorithm, and is generally an X.509v3
 certificate.
 
 If the client provided a "signature_algorithms" extension,
-then all certificates provide by the server MUST be signed
-by a digest/signature pair that appears in that extension.
+then all certificates provided by the server MUST be signed
+by a digest/signature algorithm pair that appears in that extension.
 Note that this implies that a certificate containing
 a key for one signature algorithm MAY be signed using
 a different signature algorithm (for instance,
 an RSA key signed with a DSA key.) This is a departure from
 TLS 1.1, which required that the algorithms be the same.
+Note that this also implies that the DH_DSS and DH_RSA key
+exchange algorithms also do not restrict the algorithm used
+to sign the certificate. Fixed DH certificates MAY be signed
+with any digest/signature algorithm pair appearing in the
+extension.
 
 If no "signature_algorithms" extension is present, the
 signature algorithm used to sign the certificate MUST be the same
@@ -2431,14 +2448,17 @@ DHE_RSA                 RSA public key that can be used for
                         signing.
 
 DH_DSS                  Diffie-Hellman key. The algorithm used
-                        to sign the certificate MUST be DSS.
+                        to sign the certificate MUST be DSS if
+			no "signature_algorithms" extension
+			is present.
 
 DH_RSA                  Diffie-Hellman key. The algorithm used
-                        to sign the certificate MUST be RSA.
-
+                        to sign the certificate MUST be RSA if
+			no "signature_algorithms" extension
+			is present.
+.fi
 
 .in 3
-.fi
 All certificate profiles and key and cryptographic formats are defined
 by the IETF PKIX working group [PKIX]. When a key usage extension is
 present, the digitalSignature bit MUST be set for the key to be
@@ -2545,8 +2565,9 @@ RSA keys MAY be used with any permitted digest algorithm.
 
 Because DSA signatures do not contain any secure indication of digest
 algorithm, it must be unambiguous which digest algorithm is to be used
-with any key.  DSA keys specified with Object Identifier 1 2 840 10040
-4 1 MUST only be used with SHA-1.  Future revisions of [PKIX] MAY
+with any key.  DSA keys specified with Object Identifier
+.br
+1 2 840 10040 4 1 MUST only be used with SHA-1.  Future revisions of [PKIX] MAY
 define new object identifiers for DSA with other digest algorithms.
 
 If no "signature_algorithms" extension is present, the server MUST
@@ -2603,16 +2624,17 @@ Structure of this message:
 
     struct {
         select (SignatureAlgorithm) {   
-            case anonymous: struct { };
+          case anonymous: struct { };
             case rsa:
-                SignatureAndHashAlgorithm signature_algorithm;       // NEW
-                digitally-signed struct {
-                    opaque hash[Hash.length];
-                };
+              SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
+              digitally-signed struct {
+                  opaque hash[Hash.length];
+              };
             case dsa:
-                digitally-signed struct {
-                    opaque hash[Hash.length];
-                };
+              SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
+              digitally-signed struct {
+                  opaque hash[Hash.length];
+              };
             };
         };
     } Signature;
@@ -2645,7 +2667,8 @@ Structure of this message:
 
     struct {
         ClientCertificateType certificate_types<1..2^8-1>;
-        SignatureAndHashAlgorithm supported_signature_algorithms<2^16-1>;
+        SignatureAndHashAlgorithm
+          supported_signature_algorithms<2^16-1>;
         DistinguishedName certificate_authorities<0..2^16-1>;
     } CertificateRequest;
 
@@ -2695,26 +2718,26 @@ by supported_signature_algorithms. The following rules apply:
 a digest/signature algorithm pair found in supported_signature_types.
 
 .ti 5
-- The end-entity certificate provided by the client MUST contain a key
+- The end-entity certificate provided by the client MUST contain a
 .in 7
-which is compatible with certificate_types. If the key is
+key which is compatible with certificate_types. If the key is
 a signature key, it MUST be usable with some digest/signature algorithm
 pair in supported_signature_types.
 
 .ti 5
 - For historical reasons, the names of some client certificate 
 .in 7
-  types include the algorithm used to sign the certificate.
-  For example, in earlier versions of TLS, rsa_fixed_dh meant a 
-  certificate signed with RSA and containing a static DH key.
+types include the algorithm used to sign the certificate.
+For example, in earlier versions of TLS, rsa_fixed_dh meant a 
+certificate signed with RSA and containing a static DH key.
 
-  In TLS 1.2, this functionality has been obsoleted by the
-  signature_types field, and the certificate type no longer 
-  restricts the algorithm used to sign the certificate.
-  For example, if the server sends dss_fixed_dh certificate type
-  and {dss_sha1, rsa_sha1} signature types, the client is allowed
-  to reply with a certificate containing a static DH key, signed
-  with RSA-SHA1.
+In TLS 1.2, this functionality has been obsoleted by the
+signature_types field, and the certificate type no longer 
+restricts the algorithm used to sign the certificate.
+For example, if the server sends dss_fixed_dh certificate type
+and {dss_sha1, rsa_sha1} signature types, the client MAY
+to reply with a certificate containing a static DH key, signed
+with RSA-SHA1.
 
 .in
 .ti 1
@@ -2865,9 +2888,9 @@ pre_master_secret
 This random value is generated by the client and is used to
 generate the master secret, as specified in Section 8.1.
 
-.fi
 .ti 1
 Note: The version number in the PreMasterSecret is the version
+.in 7
 offered by the client in the ClientHello.client_version, not the
 version negotiated for the connection.  This feature is designed
 to prevent rollback attacks.  Unfortunately, some old
@@ -3016,6 +3039,7 @@ Structure of this message:
 struct {
      Signature signature;
 } CertificateVerify;
+.fi
 
 The Signature type is defined in 7.4.3.
 
@@ -3090,12 +3114,11 @@ PRF is defined, then this hash MUST be specified.
 In previous versions of TLS, the verify_data was always 12 octets
 long. In the current version of TLS, it depends on the cipher
 suite. Any cipher suite which does not explicitly specify
-SecurityParameters.verify_data_length has a SecurityParameters.verify_data_length equal to 12. This includes all existing cipher suites.
-Note that this representation has the same encoding as with
-previous versions.
-
-Future cipher suites MAY specify other lengths but such length
-MUST be at least 12 bytes.
+SecurityParameters.verify_data_length has a
+SecurityParameters.verify_data_length equal to 12. This includes all
+existing cipher suites.  Note that this representation has the same
+encoding as with previous versions. Future cipher suites MAY specify
+other lengths but such length MUST be at least 12 bytes.
 
 .ti 7
 handshake_messages
@@ -3215,7 +3238,7 @@ especially in Appendices D, E, and F.
 12. IANA Considerations
 
 This document uses several registries that were originally
-created in [RFC4346]. IANA is requested to update (has updated)
+created in [TLS1.1]. IANA is requested to update (has updated)
 these to reference this document. The registries and their
 allocation policies (unchanged from [TLS1.1]) are listed
 below.
@@ -3254,8 +3277,16 @@ o  TLS ExtensionType Registry: Future values are allocated
 In addition, this document defines one new registry to
 be maintained by IANA:
 
-o  TLS HashType Registry: The registry will be initially
-   populated with the values described in Section 7.4.1.4.7.
+o  TLS SignatureAlgorithm Registry: The registry will be initially
+   populated with the values described in Section 7.4.1.4.1.
+   Future values in the range 0-63 (decimal) inclusive are
+   assigned via Standards Action [RFC2434].  Values in the
+   range 64-223 (decimal) inclusive are assigned via
+   Specification Required [RFC2434].  Values from 224-255
+   (decimal) inclusive are reserved for Private Use [RFC2434].
+
+o  TLS HashAlgorithm Registry: The registry will be initially
+   populated with the values described in Section 7.4.1.4.1.
    Future values in the range 0-63 (decimal) inclusive are
    assigned via Standards Action [RFC2434].  Values in the
    range 64-223 (decimal) inclusive are assigned via
@@ -3332,7 +3363,7 @@ A.1. Record Layer
     } GenericBlockCipher;
     
     aead-ciphered struct {
-        opaque IV[SecurityParameters.iv_length];
+        opaque IV[SecurityParameters.record_iv_length];
         opaque aead_output[AEADEncrypted.length];
     } GenericAEADCipher;
 
@@ -3462,8 +3493,24 @@ A.4.1. Hello Messages
     } Extension;
 
     enum {
-        signature_hash_types(TBD-BY-IANA), (65535)
+        signature_hash_algorithms(TBD-BY-IANA), (65535)
     } ExtensionType;
+
+    enum{
+        none(0), md5(1), sha1(2), sha256(3), sha384(4), 
+        sha512(5), (255)
+    } HashAlgorithm;
+
+    enum { anonymous(0), rsa(1), dsa(2), (255) } SignatureAlgorithm;
+
+    struct {
+          HashAlgorithm hash;
+	  SignatureAlgorithm signature;
+    } SignatureAndHashAlgorithm;
+
+    SignatureAndHashAlgorithm
+      supported_signature_algorithms<2..2^16-1>;
+
 
 .ti 0
 A.4.2. Server Authentication and Key Exchange Messages
@@ -3474,7 +3521,7 @@ A.4.2. Server Authentication and Key Exchange Messages
         ASN.1Cert certificate_list<0..2^24-1>;
     } Certificate;
 
-    enum { diffie_hellman } KeyExchangeAlgorithm;
+    enum { rsa, diffie_hellman } KeyExchangeAlgorithm;
     
     struct {
         opaque dh_p<1..2^16-1>;
@@ -3499,15 +3546,16 @@ A.4.2. Server Authentication and Key Exchange Messages
     
     struct {
         select (SignatureAlgorithm) {   
-            case anonymous: struct { };
+          case anonymous: struct { };
             case rsa:
-                HashType digest_algorithm;       // NEW
+                SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
                 digitally-signed struct {
                     opaque hash[Hash.length];
                 };
             case dsa:
+                SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
                 digitally-signed struct {
-                    opaque sha_hash[20];
+                    opaque hash[Hash.length];
                 };
             };
         };
@@ -3515,8 +3563,8 @@ A.4.2. Server Authentication and Key Exchange Messages
     
     enum {
         rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
-	rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
-	fortezza_dms_RESERVED(20),
+        rsa_ephemeral_dh_RESERVED(5), dss_ephemeral_dh_RESERVED(6),
+        fortezza_dms_RESERVED(20),
 	(255)
     } ClientCertificateType;
     
@@ -3650,11 +3698,11 @@ place, or when TLS is used as part of more complex security protocols
 that have other means to ensure authentication.)
 
 .nf
-  CipherSuite TLS_DH_anon_WITH_RC4_128_MD5           = { 0x00, 0x18 };
-  CipherSuite TLS_DH_anon_WITH_DES_CBC_SHA           = { 0x00, 0x1A };
-  CipherSuite TLS_DH_anon_WITH_3DES_EDE_CBC_SHA      = { 0x00, 0x1B };
-  CipherSuite TLS_DH_anon_WITH_AES_128_CBC_SHA       = { 0x00, 0x34 };
-  CipherSuite TLS_DH_anon_WITH_AES_256_CBC_SHA       = { 0x00, 0x3A };
+ CipherSuite TLS_DH_anon_WITH_RC4_128_MD5           = { 0x00, 0x18 };
+ CipherSuite TLS_DH_anon_WITH_DES_CBC_SHA           = { 0x00, 0x1A };
+ CipherSuite TLS_DH_anon_WITH_3DES_EDE_CBC_SHA      = { 0x00, 0x1B };
+ CipherSuite TLS_DH_anon_WITH_AES_128_CBC_SHA       = { 0x00, 0x34 };
+ CipherSuite TLS_DH_anon_WITH_AES_256_CBC_SHA       = { 0x00, 0x3A };
 .fi
 
 Note that using non-anonymous key exchange without actually verifying
@@ -3720,7 +3768,9 @@ to initialize a connection state. SecurityParameters includes:
 
     enum { stream, block, aead } CipherType;
 
-    enum { null, md5, sha } MACAlgorithm;
+    enum { null, hmac_md5, hmac_sha, hmac_sha256, hmac_sha384, 
+      hmac_sha512} MACAlgorithm;
+
 
 .fi
 /* The algorithms specified in CompressionMethod,
@@ -4086,7 +4136,8 @@ TLS_DH_anon_WITH_AES_256_CBC_SHA        DH_anon        AES_256_CBC  SHA
    IV Size
        The amount of data needed to be generated for the initialization
        vector. Zero for stream ciphers; equal to the block size for
-       block ciphers (this is equal to SecurityParameters.record_iv_length).
+       block ciphers (this is equal to 
+       SecurityParameters.record_iv_length).
 
    Block Size
        The amount of data a block cipher enciphers in one chunk; a
@@ -4485,19 +4536,13 @@ know the correct pre_master_secret.
 .ti 0
 F.1.1.1. Anonymous Key Exchange
 
-Completely anonymous sessions can be established using RSA or
-Diffie-Hellman for key exchange. With anonymous RSA, the client
-encrypts a pre_master_secret with the server's uncertified public
-key extracted from the server key exchange message. The result is
-sent in a client key exchange message. Since eavesdroppers do not
-know the server's private key, it will be infeasible for them to
-decode the pre_master_secret. 
+Completely anonymous sessions can be established using Diffie-Hellman
+for key exchange. The server's public parameters are contained in the
+server key exchange message and the client's are sent in the client
+key exchange message. Eavesdroppers who do not know the private values
+should not be able to find the Diffie-Hellman result (i.e. the
+pre_master_secret).
 
-With Diffie-Hellman, the server's public parameters are contained in
-the server key exchange message and the client's are sent in the
-client key exchange message. Eavesdroppers who do not know the
-private values should not be able to find the Diffie-Hellman result
-(i.e. the pre_master_secret).
 
 .ti 1
 Warning: Completely anonymous connections only provide protection
@@ -4520,7 +4565,7 @@ loss of confidentiality for all sessions protected under that
 static key. TLS users desiring Perfect Forward Secrecy should
 use DHE cipher suites. The damage done by exposure of a private
 key can be limited by changing one's private key (and certificate)
-frequently.
+frequently. 
 
 .in 3
 After verifying the server's certificate, the client encrypts a
@@ -4530,8 +4575,8 @@ message, the server demonstrates that it knows the private key
 corresponding to the server certificate.
 
 When RSA is used for key exchange, clients are authenticated using
-the certificate verify message (see Section 7.4.9). The client signs
-a value derived from the master_secret and all preceding handshake
+the certificate verify message (see Section 7.4.8). The client signs
+a value derived from all preceding handshake
 messages. These handshake messages include the server certificate,
 which binds the signature to the server, and ServerHello.random,
 which binds the signature to the current handshake process.
@@ -4579,10 +4624,11 @@ Perfect Forward Secrecy. Implementations SHOULD generate a new
 X for each handshake when using DHE ciphersuites.
 
 Because TLS allows the server to provide arbitrary DH groups, the
-client SHOULD verify the correctness of the DH group. [TODO: provide a
-reference to some document describing how] and that it is of suitable
+client should verify that the DH group is of suitable
 size as defined by local policy. The client SHOULD also verify that
-the DH public exponent appears to be of adequate size. The server MAY choose to
+the DH public exponent appears to be of adequate size. [KEYSIZ]
+provides a useful guide to the strength of various group sizes.
+The server MAY choose to
 assist the client by providing a known group, such as those defined in
 [IKEALG] or [MODP]. These can be verified by simple comparison.
 
@@ -4681,6 +4727,7 @@ remain tamper resistant even if encryption keys are broken.
 .ne 5
 F.3. Explicit IVs
 
+.in 3
 [CBCATT] describes a chosen plaintext attack on TLS that depends
 on knowing the IV for a record. Previous versions of TLS [TLS1.0] 
 used the CBC residue of the previous record as the IV and therefore enabled
@@ -4693,7 +4740,7 @@ F.4. Security of Composite Cipher Modes
 
 TLS secures transmitted application data via the use of symmetric 
 encryption and authentication functions defined in the negotiated 
-ciphersuite.  The objective is to protect both the integrity  and 
+ciphersuite.  The objective is to protect both the integrity and 
 confidentiality of the transmitted data from malicious actions by 
 active attackers in the network.  It turns out that the order in 
 which encryption and authentication functions are applied to the 
@@ -4726,7 +4773,7 @@ The other is the case of CBC mode using a secure block cipher.
 In this case, security can be shown if one applies one CBC encryption pass to 
 the concatenation of plaintext and MAC and uses a new, independent, and
 unpredictable IV for each new pair of plaintext and MAC.
-In previous versions of SSL, CBC mode was used properly 
+In versions of TLS prior to 1.1, CBC mode was used properly 
 EXCEPT that it used a predictable IV in the form of the last block
 of the previous ciphertext.  This made TLS open to chosen plaintext attacks.
 This version of the protocol is immune to those attacks.
@@ -4753,25 +4800,42 @@ These attacks cannot in general be defended against by a
 TCP-using protocol.  Implementors or users who are concerned
 with this class of attack should use IPsec AH [AH] or ESP [ESP].
 
-.bp
 .ti 0
-.ti 0
-Security Considerations
+.ne 5
+F.6 Final Notes
 
-Security issues are discussed throughout this memo, especially
-in Appendices D, E, and F.
+.in 3
+For TLS to be able to provide a secure connection, both the client
+and server systems, keys, and applications must be secure. In
+addition, the implementation must be free of security errors.
 
+The system is only as strong as the weakest key exchange and
+authentication algorithm supported, and only trustworthy
+cryptographic functions should be used. Short public keys and
+anonymous servers should be used with great caution. Implementations
+and users must be careful when deciding which certificates and
+certificate authorities are acceptable; a dishonest certificate
+authority can do tremendous damage.
 
 .ti 0
 Changes in This Version 
 
 .in 3
 [RFC Editor: Please delete this]
+
+.nf
 - Redid the hash function advertisements for CertificateRequest
   and the client-side extension. They are now pairs of 
   hash/signature and the semantics are clearly defined for
   all uses of signatures (hopefully). [Issue 41]
 
+- Clarified the DH group checking per list discussion [Issue 35]
+
+- Added a note about DSS vs. DSA [Issue 58]
+
+- Editorial issues [Issue 59]
+
+.fi
 .ti 0
 Normative References
 .ti 3
@@ -4793,7 +4857,7 @@ Block Cipher", NIST Special Publication 800-67, May 2004.
 [DSS]    NIST FIPS PUB 186-2, "Digital Signature Standard," National
 Institute of Standards and Technology, U.S. Department of Commerce,
 2000.
-PKI
+
 .ti 3
 [HMAC]   Krawczyk, H., Bellare, M., and R. Canetti, "HMAC:
 Keyed-Hashing for Message Authentication", RFC 2104, February 1997.
@@ -4867,7 +4931,8 @@ Cryptology -- CRYPTO 2003, LNCS vol. 2729, 2003.
 .ti 3
 [CCM]     "NIST Special Publication 800-38C: The CCM Mode for
 Authentication and Confidentiality",
-http://csrc.nist.gov/publications/nistpubs/800-38C/SP800-38C.pdf
+http://csrc.nist.gov/publications/nistpubs/800-38C/
+SP800-38C.pdf
 
 .ti 3
 [ENCAUTH] Krawczyk, H., "The Order of Encryption and Authentication for 
@@ -4892,6 +4957,11 @@ Galois/Counter Mode (GCM) and GMAC"
 [IKEALG] Schiller, J., "Cryptographic Algorithms for Use in the
 Internet Key Exchange Version 2 (IKEv2)", RFC 4307, December
 2005.
+
+.ti 3
+[KEYSIZ] Orman, H., and Hoffman, P., "Determining Strengths For
+Public Keys Used For Exchanging Symmetric Keys" RFC 3766, 
+April 2004.
 
 .ti 3
 [KPR03]  Klima, V., Pokorny, O., Rosa, T., "Attacking RSA-based Sessions 
@@ -4975,8 +5045,8 @@ RFC 4346, April, 2006.
 Systems Interconnection - The Directory: Models, 1993.
 
 .ti 3
-[XDR]    Srinivansan, R., Sun Microsystems, "XDR: External Data
-Representation Standard", RFC 1832, August 1995.
+[XDR]   Eisler, M., "External Data Representation Standard",
+RFC 4506, May 2006.
 
 
 .ti 0
@@ -5095,6 +5165,7 @@ Archives of the list can be found at:
 <http://www.ietf.org/mail-archive/web/tls/current/index.html>
 
 .bp
+.in 0
 .nf
 Full Copyright Statement
 
@@ -5142,9 +5213,3 @@ Acknowledgment
 
    Funding for the RFC Editor function is provided by the IETF
    Administrative Support Activity (IASA).
-
-
-
-
-
-

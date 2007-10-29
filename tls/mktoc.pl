@@ -16,7 +16,7 @@ while(<STDIN>){
       $line.=" ";
     }
     $line.=$entry;
-    $pad=70-length($line);
+    $pad=67-length($line);
     for($i=0;$i<$pad;$i++){
       $line.=" ";
     }
