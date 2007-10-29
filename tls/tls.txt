@@ -2504,14 +2504,14 @@ Dierks & Rescorla            Standards Track                    [Page 46]draft-
            opaque dh_Ys<1..2^16-1>;
        } ServerDHParams;     /* Ephemeral DH parameters */
 
-   dh_p
-       The prime modulus used for the Diffie-Hellman operation.
+       dh_p
+           The prime modulus used for the Diffie-Hellman operation.
 
-   dh_g
-       The generator used for the Diffie-Hellman operation.
+       dh_g
+           The generator used for the Diffie-Hellman operation.
 
-   dh_Ys
-       The server's Diffie-Hellman public value (g^X mod p).
+       dh_Ys
+           The server's Diffie-Hellman public value (g^X mod p).
 
        struct {
            select (KeyExchangeAlgorithm) {
@@ -2529,21 +2529,21 @@ Dierks & Rescorla            Standards Track                    [Page 46]draft-
         } ServerParams;
 
 
-   params
-       The server's key exchange parameters.
+       params
+           The server's key exchange parameters.
 
-   signed_params
-       For non-anonymous key exchanges, a hash of the corresponding
-       params value, with the signature appropriate to that hash
-       applied.
+       signed_params
+           For non-anonymous key exchanges, a hash of the corresponding
+           params value, with the signature appropriate to that hash
+           applied.
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 47]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-   hash
-       Hash(ClientHello.random + ServerHello.random + ServerParams)
+       hash
+           Hash(ClientHello.random + ServerHello.random + ServerParams)
 
 
        struct {
@@ -2562,6 +2562,7 @@ Dierks & Rescorla            Standards Track                    [Page 47]draft-
                };
            };
        } Signature;
+
    If the client has offered the "signature_algorithms" extension, the
    signature algorithm and digest algorithm MUST be a pair listed in
    that extension. Note that there is a possibility for inconsistencies
@@ -2571,6 +2572,9 @@ Dierks & Rescorla            Standards Track                    [Page 47]draft-
    cipher suites against the "signature_algorithms" extension before
    selecting them. This is somewhat inelegant but is a compromise
    designed to minimize changes to the original cipher suite design.
+
+   If no "signature_algorithms" extension is present, the server MUST
+   use SHA-1 as the hash algorithm.
 
    In addition, the digest and signature algorithms MUST be compatible
    with the key in the client's end-entity certificate.  RSA keys MAY be
@@ -2583,19 +2587,16 @@ Dierks & Rescorla            Standards Track                    [Page 47]draft-
    [PKIX] MAY define new object identifiers for DSA with other digest
    algorithms.
 
-   If no "signature_algorithms" extension is present, the server MUST
-   use SHA-1 as the hash algorithm.
-
    The hash algorithm is denoted Hash below. Hash.length is the length
    of the output of that algorithm.
 
-   As additional CipherSuites are defined for TLS that include new key
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 48]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
+   As additional CipherSuites are defined for TLS that include new key
    exchange algorithms, the server key exchange message will be sent if
    and only if the certificate type associated with the key exchange
    algorithm does not provide enough information for the client to
@@ -2629,31 +2630,32 @@ Dierks & Rescorla            Standards Track                    [Page 48]draft-
 
 
    certificate_types
-    A list of the types of certificate types which the client may offer.
-       rsa_sign        a certificate containing an RSA key
-       dss_sign        a certificate containing a DSS key
-       rsa_fixed_dh    a certificate containing a static DH key.
-       dss_fixed_dh    a certificate containing a static DH key
+       A list of the types of certificate types which the client may
+       offer.
+          rsa_sign        a certificate containing an RSA key
+          dss_sign        a certificate containing a DSS key
+          rsa_fixed_dh    a certificate containing a static DH key.
+          dss_fixed_dh    a certificate containing a static DH key
 
    supported_signature_algorithms
-    A list of the digest/signature algorithm pairs that the server is
-    able to verify, listed in descending order of preference.
+       A list of the digest/signature algorithm pairs that the server is
+       able to verify, listed in descending order of preference.
 
    certificate_authorities
-    A list of the distinguished names [X501] of acceptable
-    certificate_authorities, represented in DER-encoded format. These
-    distinguished names may specify a desired distinguished name for a
-    root CA or for a subordinate CA; thus, this message can be used both
+       A list of the distinguished names [X501] of acceptable
+       certificate_authorities, represented in DER-encoded format. These
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 49]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
-    to describe known roots and a desired authorization space. If the
-    certificate_authorities list is empty then the client MAY send any
-    certificate of the appropriate ClientCertificateType, unless there
-    is some external arrangement to the contrary.
+       distinguished names may specify a desired distinguished name for
+       a root CA or for a subordinate CA; thus, this message can be used
+       both to describe known roots and a desired authorization space.
+       If the certificate_authorities list is empty then the client MAY
+       send any certificate of the appropriate ClientCertificateType,
+       unless there is some external arrangement to the contrary.
 
    The interaction of the certificate_types and
    supported_signature_algorithms fields is somewhat complicated.
@@ -2673,9 +2675,8 @@ Dierks & Rescorla            Standards Track                    [Page 49]draft-
      - For historical reasons, the names of some client certificate
        types include the algorithm used to sign the certificate.  For
        example, in earlier versions of TLS, rsa_fixed_dh meant a
-       certificate signed with RSA and containing a static DH key.
-
-       In TLS 1.2, this functionality has been obsoleted by the
+       certificate signed with RSA and containing a static DH key.  In
+       TLS 1.2, this functionality has been obsoleted by the
        signature_types field, and the certificate type no longer
        restricts the algorithm used to sign the certificate.  For
        example, if the server sends dss_fixed_dh certificate type and
@@ -2683,11 +2684,11 @@ Dierks & Rescorla            Standards Track                    [Page 49]draft-
        with a certificate containing a static DH key, signed with RSA-
        SHA1.
 
-       New ClientCertificateType values are assigned by IANA as
-       described in Section 12.
+   New ClientCertificateType values are assigned by IANA as described in
+   Section 12.
 
  Note: Values listed as RESERVED may not be used. They were used in
-       SSLv3.
+   SSLv3.
 
  Note: It is a fatal handshake_failure alert for an anonymous server to
        request client authentication.
@@ -2697,13 +2698,13 @@ Dierks & Rescorla            Standards Track                    [Page 49]draft-
 
    When this message will be sent:
        The server hello done message is sent by the server to indicate
-       the end of the server hello and associated messages. After
 
 
 
 Dierks & Rescorla            Standards Track                    [Page 50]draft-ietf-tls-rfc4346-bis-06.txt  TLS                      October 2007
 
 
+       the end of the server hello and associated messages. After
        sending this message, the server will wait for a client response.
 
    Meaning of this message:
@@ -2751,7 +2752,6 @@ Dierks & Rescorla            Standards Track                    [Page 50]draft-
           CertificateRequest:
 
           Client Cert. Type   Certificate Key Type
-
 
 
 

@@ -2603,14 +2603,14 @@ Structure of this message:
         opaque dh_Ys<1..2^16-1>;
     } ServerDHParams;     /* Ephemeral DH parameters */
 
-dh_p
-    The prime modulus used for the Diffie-Hellman operation.
-
-dh_g
-    The generator used for the Diffie-Hellman operation.
-
-dh_Ys
-    The server's Diffie-Hellman public value (g^X mod p).
+    dh_p
+        The prime modulus used for the Diffie-Hellman operation.
+    
+    dh_g
+        The generator used for the Diffie-Hellman operation.
+    
+    dh_Ys
+        The server's Diffie-Hellman public value (g^X mod p).
 
     struct {
         select (KeyExchangeAlgorithm) {
@@ -2628,17 +2628,17 @@ dh_Ys
      } ServerParams;
 
 
-params
-    The server's key exchange parameters.
-
-signed_params
-    For non-anonymous key exchanges, a hash of the corresponding
-    params value, with the signature appropriate to that hash
-    applied.
-
-hash 
-    Hash(ClientHello.random + ServerHello.random + ServerParams)
-
+    params
+        The server's key exchange parameters.
+    
+    signed_params
+        For non-anonymous key exchanges, a hash of the corresponding
+        params value, with the signature appropriate to that hash
+        applied.
+    
+    hash 
+        Hash(ClientHello.random + ServerHello.random + ServerParams)
+    
 
     struct {
         select (SignatureAlgorithm) {   
@@ -2657,6 +2657,7 @@ hash
         };
     } Signature;
 .fi
+
 .in 3 
 If the client has offered the "signature_algorithms" extension, the
 signature algorithm and digest algorithm MUST be a pair listed
@@ -2668,6 +2669,9 @@ cipher suites against the "signature_algorithms" extension before
 selecting them. This is somewhat inelegant but is a compromise
 designed to minimize changes to the original cipher suite design.
 
+If no "signature_algorithms" extension is present, the server MUST
+use SHA-1 as the hash algorithm. 
+
 In addition, the digest and signature algorithms MUST
 be compatible with the key in the client's end-entity certificate.
 RSA keys MAY be used with any permitted digest algorithm.
@@ -2678,9 +2682,6 @@ with any key.  DSA keys specified with Object Identifier
 .br
 1 2 840 10040 4 1 MUST only be used with SHA-1.  Future revisions of [PKIX] MAY
 define new object identifiers for DSA with other digest algorithms.
-
-If no "signature_algorithms" extension is present, the server MUST
-use SHA-1 as the hash algorithm. 
 
 The hash algorithm is denoted Hash below. Hash.length is the
 length of the output of that algorithm.
@@ -2726,7 +2727,7 @@ Structure of this message:
 
 .ti 3
 certificate_types
-.in 4
+.in 7
 .fi
 A list of the types of certificate types which the client may offer.
 .nf
@@ -2738,13 +2739,13 @@ A list of the types of certificate types which the client may offer.
 
 .ti 3
 supported_signature_algorithms
-.in 4
+.in 7
 A list of the digest/signature algorithm pairs that the server
 is able to verify, listed in descending order of preference.
 
 .ti 3
 certificate_authorities
-.in 4
+.in 7
 .fi
 A list of the distinguished names [X501] of acceptable
 certificate_authorities, represented in DER-encoded 
@@ -2781,7 +2782,6 @@ pair in supported_signature_types.
 types include the algorithm used to sign the certificate.
 For example, in earlier versions of TLS, rsa_fixed_dh meant a 
 certificate signed with RSA and containing a static DH key.
-
 In TLS 1.2, this functionality has been obsoleted by the
 signature_types field, and the certificate type no longer 
 restricts the algorithm used to sign the certificate.
@@ -2790,6 +2790,7 @@ and {dss_sha1, rsa_sha1} signature types, the client MAY
 to reply with a certificate containing a static DH key, signed
 with RSA-SHA1.
 
+.in 3
 New ClientCertificateType values are assigned by IANA 
 as described in Section 12.
 
