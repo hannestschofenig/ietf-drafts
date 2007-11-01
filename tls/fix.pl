@@ -1,12 +1,12 @@
 #!/usr/local/bin/perl
-while(<STDIN>){
-  if(/(.*)FORMFEED\[Page ([^\]]*)\](.*)/){
-    print STDOUT "$1         [Page $2]$3\f";
-    $x=5;
-    while($x--&&<STDIN>){;}
-  }
-  else{
-    print STDOUT;
-  }
-}
+$* = 1;                                 # Enable multiline patterns.
+undef $/;                               # Read whole files in a single
+                                        # gulp.
 
+while (<>) {                            # Read the entire input file.
+    s/FORMFEED(\[Page\s+\d+\])\s+/        \1\n\f\n/g;
+                                        # Rewrite the end-of-pages.
+#    s/\f\n$/\f/;                       # Want bare formfeed at end?
+#    s/\f\n$//;                         # Want no formfeed at end?
+    print;                              # Print the resultant file.
+}
