@@ -358,6 +358,7 @@ int output_select_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
 int output_public_decl_bits(p_decl *decl)
   {
     output_ctx ctx;
+ 
 
     ctx.byte_ct=0;
     ctx.suppress_ct=0;
