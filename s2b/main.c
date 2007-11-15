@@ -48,6 +48,7 @@ static char *RCSSTRING="$Id: main.c,v 1.2 2000/10/17 16:10:01 ekr Exp $";
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <ctype.h>
 #include "parser.h"
 #include "r_log.h"
 
@@ -64,6 +65,7 @@ typedef struct output_ctx_ {
   char *name;
   int (*output)(struct output_ctx_ *ctx, p_decl *decl, char *name, int bits);
   int (*output_select)(struct output_ctx_ *ctx, p_decl *decl, char *name, int bits);
+  int (*output_varray)(struct output_ctx_ *ctx, p_decl *decl, char *name, int bits);
 } output_ctx;
 
 int verr_exit(char *fmt,...)
@@ -108,7 +110,7 @@ int print_decl(output_ctx *ctx,p_decl *decl)
         ctx->output(ctx, decl, ctx->name, decl->u.primitive_.bits);
         break;
       case TYPE_VARRAY:
-        ctx->output(ctx,decl,ctx->name,decl->u.varray_.length);
+        ctx->output_varray(ctx,decl,ctx->name,decl->u.varray_.length);
         break;
       case TYPE_REF:
         ctx->indent+=2;
@@ -182,7 +184,8 @@ int output_bits_footer(output_ctx *ctx)
 int output_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
   {
     char buf[4096];
-    int i;
+    int i,j;
+    int leading=1;
     int start_offset;
     int remainder;
     int variable=0;
@@ -191,7 +194,7 @@ int output_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
       /* Output a synthetic length field and then 
        make this two words + the rest of this word
        long with a pad */
-      char buf[16];
+      char buf[32];
 
       int maxlen=-1 * bits;
       int lenlen=0;
@@ -201,7 +204,7 @@ int output_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
         maxlen>>=8;
       }
       
-      snprintf(buf,sizeof(buf),"%s_l",name);
+      snprintf(buf,sizeof(buf),"%s_len",name);
 
       output_bits(ctx, decl, buf,lenlen);
 
@@ -228,9 +231,41 @@ int output_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
 
     memset(buf,' ',4096);
 
-    i = (bits*2 - strlen(name))/2;
+    /* figure out where to write the name */
+    if((bits + ctx->offset) <= 32){
+      /* This fits on one line */
+      i = (bits*2 - strlen(name))/2;
+    }
+    else {
+      int thisl=32 - ctx->offset;
+      int nextl=bits - thisl;
+      
+      if(nextl > 32)
+        nextl=32;
+      
+      if(thisl > nextl){
+        i = (thisl*2 - strlen(name))/2;
+      }
+      else{
+        i = thisl*2 + (nextl*2 - strlen(name))/2;
+      }
+    }
 
-    memcpy(buf + i, name, strlen(name));
+
+    for(j=0;j<strlen(name);j++){
+      if(leading){
+        buf[i+j]=toupper(name[j]);
+        leading=0;
+      }
+      else{
+        if(name[j]=='_'){
+          buf[i+j]=' ';
+          leading=1;
+        }
+        else
+          buf[i+j]=name[j];
+      }
+    }
 
     if(variable){
       buf[bits*2-1]='/';
@@ -331,8 +366,6 @@ int output_select_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
       ctx2.name=p->name;
       ctx2.indent=0;
       ctx2.offset=0;
-      ctx2.output=output_bits;
-      ctx2.output_select=output_select_bits;
 
       printf("\n");
 
@@ -355,6 +388,37 @@ int output_select_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
     return(0);
   }
 
+int output_varray_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
+  {
+    /* Output a synthetic length field and then 
+       make this two words + the rest of this word
+       long with a pad */
+    char buf[16];
+    int maxlen=-1 * bits;
+    int lenlen=0;
+
+    /* For now, always call the simple encoder. */
+    if(decl->u.varray_.ref->type!=-1){
+      return(ctx->output(ctx,decl,name,bits));
+    }
+
+    while(maxlen){
+      lenlen+=8;
+      maxlen>>=8;
+    }
+    
+    snprintf(buf,sizeof(buf),"%s_l",name);
+    
+    output_bits(ctx, decl, buf,lenlen);
+    
+    /* Now output one instance of this element */
+    print_decl(ctx, decl->u.varray_.ref);
+    
+    printf(".........\n");
+    
+    return(0);
+  }
+
 int output_public_decl_bits(p_decl *decl)
   {
     output_ctx ctx;
@@ -367,6 +431,7 @@ int output_public_decl_bits(p_decl *decl)
     ctx.offset=0;
     ctx.output=output_bits;
     ctx.output_select=output_select_bits;
+    ctx.output_varray=output_varray_bits;
 
     output_bits_header(&ctx,decl->name);
     print_decl(&ctx,decl);
