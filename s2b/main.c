@@ -101,6 +101,8 @@ int print_indent(int indent)
 int print_decl(output_ctx *ctx,p_decl *decl)
   {
     p_decl *p;
+    void *v;
+    int r;
 
     print_indent(ctx->indent);
     r_log(LOG_GENERIC,LOG_DEBUG,"DECL %s\n",decl->name);
@@ -117,6 +119,15 @@ int print_decl(output_ctx *ctx,p_decl *decl)
         print_decl(ctx,decl->u.ref_.ref);
         ctx->indent-=2;
         break;
+      case TYPE_FWDREF:
+        if(r=r_assoc_fetch(types,decl->u.fwd_ref_.type,
+             strlen(decl->u.fwd_ref_.type),&v)){
+          nr_verr_exit("Couldn't resolve forward reference for %s",decl->u.fwd_ref_.type);
+        }
+        ctx->indent+=2;
+        print_decl(ctx,v);
+        ctx->indent-=2;
+
       case TYPE_STRUCT:
         p=STAILQ_FIRST(&decl->u.struct_.members);
         while(p){

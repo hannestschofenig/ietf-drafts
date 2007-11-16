@@ -30,6 +30,18 @@ void pop_decl()
     current_decl_depth--;
   }
 
+p_decl *make_fwd_ref (char *type)
+  {
+    p_decl *decl;
+
+    decl=RCALLOC(sizeof(p_decl));
+
+    decl->type=TYPE_FWDREF;
+    decl->u.fwd_ref_.type=r_strdup(type);
+
+    return(decl);
+  }
+
 #define CURRENT_DECL current_decl[current_decl_depth]
 %}
 %union {
@@ -156,12 +168,15 @@ declaration : NAME_ NAME_ ';'
     void *v;
     int r;
 
-    if(r=r_assoc_fetch(types,$1, strlen($1), &v)){
-      nr_verr_exit("Unknown type %s\n",$1);
-      exit(1);
-    }
 
+    if(r=r_assoc_fetch(types,$1, strlen($1), &v)){
+      r_log(LOG_GENERIC,LOG_DEBUG,"Unknown type %s\n",$1);
+
+      v=make_fwd_ref($1);
+
+    }
     decl=RCALLOC(sizeof(p_decl));
+
     decl->name=r_strdup($2);
     decl->type = TYPE_REF;
     decl->u.ref_.ref = v;
@@ -175,8 +190,9 @@ declaration : NAME_ NAME_ ';'
     void *v;
 
     if(r=r_assoc_fetch(types,$1, strlen($1), &v)){
-      nr_verr_exit("Unknown type %s\n",$1);
-      exit(1);
+      r_log(LOG_GENERIC,LOG_DEBUG,"Unknown type %s\n",$1);
+
+      v=make_fwd_ref($1);
     }
 
     decl=RCALLOC(sizeof(p_decl));

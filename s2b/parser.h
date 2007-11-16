@@ -28,6 +28,7 @@ typedef struct p_decl_ {
 #define TYPE_ENUM      5
 #define TYPE_SELECT    6
 #define TYPE_SELECT_ARM 7
+#define TYPE_FWDREF     8
   union {
     struct {
       int bits;
@@ -52,6 +53,9 @@ typedef struct p_decl_ {
       int value;
       struct p_decl_ *ref;
     } select_arm_;
+    struct {
+      char *type;
+    } fwd_ref_;
   } u;
   
   STAILQ_ENTRY(p_decl_) entry;
