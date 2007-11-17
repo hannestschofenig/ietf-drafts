@@ -27,4 +27,7 @@ public struct {
 } foo;
 
 
-	
+public struct {
+
+  undef_type undefs<500>;
+} undef;	

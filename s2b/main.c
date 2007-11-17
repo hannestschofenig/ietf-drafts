@@ -103,6 +103,7 @@ int print_decl(output_ctx *ctx,p_decl *decl)
     p_decl *p;
     void *v;
     int r;
+    p_decl blob_decl;
 
     print_indent(ctx->indent);
     r_log(LOG_GENERIC,LOG_DEBUG,"DECL %s\n",decl->name);
@@ -122,11 +123,18 @@ int print_decl(output_ctx *ctx,p_decl *decl)
       case TYPE_FWDREF:
         if(r=r_assoc_fetch(types,decl->u.fwd_ref_.type,
              strlen(decl->u.fwd_ref_.type),&v)){
-          nr_verr_exit("Couldn't resolve forward reference for %s",decl->u.fwd_ref_.type);
+          r_log(LOG_GENERIC,LOG_ERR,"Couldn't resolve forward reference for %s",decl->u.fwd_ref_.type);
+          
+          /* May remove this later */
+          blob_decl.type=TYPE_PRIMITIVE;
+          blob_decl.u.primitive_.bits=0;
+          blob_decl.name="Blob";
+          v=&blob_decl;
         }
         ctx->indent+=2;
         print_decl(ctx,v);
         ctx->indent-=2;
+        break;
 
       case TYPE_STRUCT:
         p=STAILQ_FIRST(&decl->u.struct_.members);
@@ -151,7 +159,7 @@ int print_decl(output_ctx *ctx,p_decl *decl)
   }
 
 
-int print_bit_line(output_ctx *ctx, int bits)
+int print_bit_line(output_ctx *ctx, int bits,int sep)
   {
     int i;
     char lead[5]="    ";
@@ -161,7 +169,7 @@ int print_bit_line(output_ctx *ctx, int bits)
 
     printf(lead);
 
-    putchar('+');
+    putchar(sep);
     for(i=0;i<bits;i++){
       putchar('-');
       putchar('+');
@@ -174,7 +182,7 @@ int output_bits_header(output_ctx *ctx,char *name)
 
     printf("    0                   1                   2                   3\n");
     printf("    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2\n");
-    print_bit_line(ctx,32);
+    print_bit_line(ctx,32,'+');
     putchar('\n');
 
     return(0);
@@ -185,7 +193,7 @@ int output_bits_footer(output_ctx *ctx)
     printf("\n");
 
     if(ctx->offset){
-      print_bit_line(ctx,ctx->offset);
+      print_bit_line(ctx,ctx->offset,'+');
       putchar('\n');
     }
 
@@ -278,21 +286,11 @@ int output_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
       }
     }
 
-    if(variable){
-      buf[bits*2-1]='/';
-    }
-    else{
-      buf[bits*2-1]='|';
-    }
+    buf[bits*2-1]='|';
 
     for(i=0;i<bits;i++){
       if(!ctx->offset){
-        if(variable){
-          printf("    /");
-        }
-        else{
-          printf("    |");
-        }
+        printf("    |");
       }
       
       putchar(buf[i*2]);
@@ -305,23 +303,27 @@ int output_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
 
       if(ctx->offset==32){
         int j;
-
-        if(variable)
-          putchar('/');
-        else
-          putchar('|');
+        
+        putchar('|');
 
         putchar('\n');
         
         /* OK, print the separator. This is tricky because 
            fields sometimes flow */
         if(i==(bits-1) || (remainder < start_offset)){
-          print_bit_line(ctx,32);
+          print_bit_line(ctx,32,'+');
         }
         else{
           int final_bits=0;
+          int vsep=0;
+
+          if(variable){
+            int l=(ctx->offset-start_offset)/32;
+            
+            if(l==1) vsep=1;
+          }
           
-          print_bit_line(ctx,start_offset);
+          print_bit_line(ctx,start_offset,vsep?'/':'+');
           
           if(remainder < 32)
             final_bits=32-remainder;
@@ -335,7 +337,7 @@ int output_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
               putchar('-');
             }
           }
-          putchar('+');
+          putchar(vsep?'/':'+');
           start_offset=0;
         }
         putchar('\n');
@@ -362,7 +364,7 @@ int output_select_bits(output_ctx *ctx, p_decl *decl, char *name, int bits)
 
     printf("\n");
     if(ctx->offset){
-      print_bit_line(ctx,ctx->offset);
+      print_bit_line(ctx,ctx->offset,'+');
       putchar('\n');
     }
 
