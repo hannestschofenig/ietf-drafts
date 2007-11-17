@@ -17,9 +17,15 @@ while(<IN>){
     print OUT;
 
     if(/<!--\s*begin-prologue\s*-->/){
+	while(!/artwork/){
+	    print OUT;
+	    $_=<IN>;
+	}
+
+	print OUT;
+
 	while(<IN>){
 	    last if /artwork/;
-
 	    $PROLOGUE .= $_;
 	}
 
@@ -31,6 +37,12 @@ while(<IN>){
 
 	print $fh $PROLOGUE;
 	$PDU="";
+
+	while(!/artwork/){
+	    print OUT;
+	    $_=<IN>;
+	}
+	print OUT;
 
 	while(<IN>){
 	    if(/<\/artwork>/){
