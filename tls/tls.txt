@@ -287,7 +287,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     November 2007
    -  TLS_RSA_WITH_AES_128_CBC_SHA is now the mandatory to implement
       cipher suite.
 
-   -  IDEE and DES are now depreceated.
+   -  IDEE and DES are now deprecated.
 
    -  Support for the SSLv2 backward-compatible hello is now a MAY, not
       a SHOULD. This will probably become a SHOULD NOT in the future.
