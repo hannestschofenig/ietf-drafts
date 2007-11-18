@@ -6,7 +6,7 @@
 <!ENTITY RFC4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
 <!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 
-<!ENTITY I-D.mcgrew-tls-srtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.mcgrew-tls-srtp">
+<!ENTITY I-D.ietf-avt-dtls-srtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avt-dtls-srtp">
 
 o]>
 <!-- $Id -->
@@ -18,7 +18,7 @@ o]>
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-rescorla-tls-extractor-00.txt" ipr="full3978">
+<rfc category="std" docName="draft-rescorla-tls-extractor-01.txt" ipr="full3978">
   <front>
     <title abbrev="TLS Extractors">Keying Material Extractors for Transport Layer Security (TLS)</title>
 
@@ -27,7 +27,7 @@ o]>
 
       <address>
         <postal>
-          <street>2483 E. Bayshore #212</street>
+          <street>2064 Edgewood Drive</street>
 
           <city>Palo Alto</city>
 
@@ -42,7 +42,7 @@ o]>
       </address>
     </author>
 
-    <date day="14" month="January" year="2007" />
+    <date day="17" month="November" year="2007" />
 
     <abstract>
       <t>A number of protocols wish to leverage Transport Layer Security (TLS)
@@ -57,7 +57,7 @@ o]>
     <section title="Introduction">
     <t>A number of protocols wish to leverage Transport Layer Security (TLS) <xref target="RFC4346"/> or Datagram TLS (DTLS) <xref target="RFC4347"/>
       to perform key establishment but then use some of the keying material
-      for their own purposes. A typical example is DTLS-SRTP <xref target="I-D.mcgrew-tls-srtp"/>, which uses DTLS to perform a key exchange and 
+      for their own purposes. A typical example is DTLS-SRTP <xref target="I-D.ietf-avt-dtls-srtp"/>, which uses DTLS to perform a key exchange and 
       negotiate the SRTP <xref target="RFC3711"/> protection suite and
       then uses the DTLS master_secret to generate the SRTP keys.
     </t>
@@ -88,6 +88,13 @@ o]>
       document are to be interpreted as described in <xref
       target="RFC2119"></xref>.</t>
     </section>
+    <section title="Signalling Extractors">
+    <t>
+    Other protocols which wish to use extractors SHOULD have some
+    way for the peers to signal that an extractor will be used.
+    An example is a TLS extension, as used in DTLS-SRTP.
+    </t>
+    </section>
     <section title="Extractor Definition" anchor="extractor.def">
     <t>
     An extractor takes as input two values:
@@ -104,7 +111,7 @@ o]>
     <t>
         <figure>
           <artwork><![CDATA[	
-       PRF(master_secret, "EXTRACTOR" + label, 
+       PRF(master_secret, label, 
            SecurityParameters.client_random +
            SecurityParameters.server_random)[length]
 ]]></artwork>
@@ -117,6 +124,11 @@ o]>
     <t>
     Label values MUST be registered via Specification Required as
     described by RFC 2434 <xref target="RFC2434"/>.
+    Note that extractor labels have the potential to collide with 
+    existing PRF labels. In order to prevent this, labels SHOULD
+    begin with "EXTRACTOR". This is not a MUST because there are
+    existing uses which have labels which do not begin with
+    this prefix.
     </t>
     </section>
     <section anchor="section.sec" title="Security Considerations">
@@ -133,18 +145,33 @@ o]>
     </section>
     <section anchor="section.iana" title="IANA Considerations">
     <t>
-    Section <xref target="extractor.def"/> requires that all extractor
-    labels be registered via 2434 Specification Required. IANA has
-    created a TLSExtractor registry for this purpose. Future values MUST be
-    allocated via Specification Required as described in [RFC2434].
+   IANA is requested to create (has created) a TLS Extractor Label 
+   registry for this purpose. The initial contents of the registry 
+   are given below:
     </t>
+<figure><artwork>
+   Value                          Reference
+   -----                          ------------
+   client finished                [RFC4346]
+   server finished                [RFC4346]
+   master secret                  [RFC4346]
+   key expansion                  [RFC4346]
+   client EAP encryption          [RFC2716]
+   ttls keying material           [draft-funk-eap-ttls-v0-01]
+</artwork></figure>
+<t>
+Future values are allocated via RFC2434 Specification Required
+policy. The label is a string consisting of printable ASCII
+characters.  IANA MUST also verify that one label is not a prefix
+of any other label. For example, labels "key" or "master secretary"
+are forbidden.
+</t>
     </section>
-<!--    <section title="Acknowledgments">
+    <section title="Acknowledgments">
     <t>
-    Some people probably helped me.
+    Thanks to Pasi Eronen for valuable comments and the contents of the IANA section.
     </t>
     </section>
--->
   </middle>
 
   <back>
@@ -156,7 +183,7 @@ o]>
       &RFC4347;
     </references>
     <references title="Informational References">
-      &I-D.mcgrew-tls-srtp;
+      &I-D.ietf-avt-dtls-srtp;
     </references> 
   </back>
 </rfc>

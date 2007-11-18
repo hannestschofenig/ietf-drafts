@@ -3,12 +3,12 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                         Network Resonance
-Intended status:  Standards Track                       January 14, 2007
-Expires:  July 18, 2007
+Intended status:  Standards Track                      November 17, 2007
+Expires:  May 20, 2008
 
 
      Keying Material Extractors for Transport Layer Security (TLS)
-                  draft-rescorla-tls-extractor-00.txt
+                  draft-rescorla-tls-extractor-01.txt
 
 Status of this Memo
 
@@ -33,11 +33,11 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on July 18, 2007.
+   This Internet-Draft will expire on May 20, 2008.
 
 Copyright Notice
 
-   Copyright (C) The Internet Society (2007).
+   Copyright (C) The IETF Trust (2007).
 
 Abstract
 
@@ -52,21 +52,23 @@ Abstract
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 1]
+Rescorla                  Expires May 20, 2008                  [Page 1]
 
-Internet-Draft               TLS Extractors                 January 2007
+Internet-Draft               TLS Extractors                November 2007
 
 
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 3
    2.  Conventions Used In This Document . . . . . . . . . . . . . . . 3
-   3.  Extractor Definition  . . . . . . . . . . . . . . . . . . . . . 3
-   4.  Security Considerations . . . . . . . . . . . . . . . . . . . . 4
-   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 4
-   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 4
-     6.1.  Normative References  . . . . . . . . . . . . . . . . . . . 4
-     6.2.  Informational References  . . . . . . . . . . . . . . . . . 5
+   3.  Signalling Extractors . . . . . . . . . . . . . . . . . . . . . 3
+   4.  Extractor Definition  . . . . . . . . . . . . . . . . . . . . . 3
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 4
+   6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 4
+   7.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . . 5
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . . . 5
+     8.2.  Informational References  . . . . . . . . . . . . . . . . . 5
    Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 5
    Intellectual Property and Copyright Statements  . . . . . . . . . . 6
 
@@ -106,11 +108,9 @@ Table of Contents
 
 
 
-
-
-Rescorla                  Expires July 18, 2007                 [Page 2]
+Rescorla                  Expires May 20, 2008                  [Page 2]
 
-Internet-Draft               TLS Extractors                 January 2007
+Internet-Draft               TLS Extractors                November 2007
 
 
 1.  Introduction
@@ -146,7 +146,14 @@ Internet-Draft               TLS Extractors                 January 2007
    document are to be interpreted as described in [1].
 
 
-3.  Extractor Definition
+3.  Signalling Extractors
+
+   Other protocols which wish to use extractors SHOULD have some way for
+   the peers to signal that an extractor will be used.  An example is a
+   TLS extension, as used in DTLS-SRTP.
+
+
+4.  Extractor Definition
 
    An extractor takes as input two values:
 
@@ -156,26 +163,28 @@ Internet-Draft               TLS Extractors                 January 2007
    It then computes:
 
 
-          PRF(master_secret, "EXTRACTOR" + label,
+
+Rescorla                  Expires May 20, 2008                  [Page 3]
+
+Internet-Draft               TLS Extractors                November 2007
+
+
+          PRF(master_secret, label,
               SecurityParameters.client_random +
               SecurityParameters.server_random)[length]
 
    The output is a pseudorandom bit string of length bytes generated
-
-
-
-Rescorla                  Expires July 18, 2007                 [Page 3]
-
-Internet-Draft               TLS Extractors                 January 2007
-
-
    from the master_secret.
 
    Label values MUST be registered via Specification Required as
-   described by RFC 2434 [2].
+   described by RFC 2434 [2].  Note that extractor labels have the
+   potential to collide with existing PRF labels.  In order to prevent
+   this, labels SHOULD begin with "EXTRACTOR".  This is not a MUST
+   because there are existing uses which have labels which do not begin
+   with this prefix.
 
 
-4.  Security Considerations
+5.  Security Considerations
 
    Because an extractor produces the same value if applied twice with
    the same label to the same master_secret, it is critical that two EKM
@@ -186,17 +195,45 @@ Internet-Draft               TLS Extractors                 January 2007
    generated from another label.
 
 
-5.  IANA Considerations
+6.  IANA Considerations
 
-   Section Section 3 requires that all extractor labels be registered
-   via 2434 Specification Required.  IANA has created a TLSExtractor
-   registry for this purpose.  Future values MUST be allocated via
-   Specification Required as described in [RFC2434].
+   IANA is requested to create (has created) a TLS Extractor Label
+   registry for this purpose.  The initial contents of the registry are
+   given below:
+
+      Value                          Reference
+      -----                          ------------
+      client finished                [RFC4346]
+      server finished                [RFC4346]
+      master secret                  [RFC4346]
+      key expansion                  [RFC4346]
+      client EAP encryption          [RFC2716]
+      ttls keying material           [draft-funk-eap-ttls-v0-01]
+
+   Future values are allocated via RFC2434 Specification Required
+   policy.  The label is a string consisting of printable ASCII
+   characters.  IANA MUST also verify that one label is not a prefix of
+   any other label.  For example, labels "key" or "master secretary" are
+   forbidden.
 
 
-6.  References
 
-6.1.  Normative References
+
+
+Rescorla                  Expires May 20, 2008                  [Page 4]
+
+Internet-Draft               TLS Extractors                November 2007
+
+
+7.  Acknowledgments
+
+   Thanks to Pasi Eronen for valuable comments and the contents of the
+   IANA section.
+
+
+8.  References
+
+8.1.  Normative References
 
    [1]  Bradner, S., "Key words for use in RFCs to Indicate Requirement
         Levels", BCP 14, RFC 2119, March 1997.
@@ -214,30 +251,19 @@ Internet-Draft               TLS Extractors                 January 2007
    [5]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
         Security", RFC 4347, April 2006.
 
+8.2.  Informational References
 
-
-
-
-
-
-Rescorla                  Expires July 18, 2007                 [Page 4]
-
-Internet-Draft               TLS Extractors                 January 2007
-
-
-6.2.  Informational References
-
-   [6]  Rescorla, E. and D. McGrew, "Datagram Transport Layer Security
+   [6]  McGrew, D. and E. Rescorla, "Datagram Transport Layer Security
         (DTLS) Extension to Establish Keys for  Secure Real-time
-        Transport Protocol (SRTP)", draft-mcgrew-tls-srtp-00 (work in
-        progress), June 2006.
+        Transport Protocol (SRTP)", draft-ietf-avt-dtls-srtp-00 (work in
+        progress), July 2007.
 
 
 Author's Address
 
    Eric Rescorla
    Network Resonance
-   2483 E. Bayshore #212
+   2064 Edgewood Drive
    Palo Alto, CA  94303
    USA
 
@@ -250,40 +276,14 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla                  Expires July 18, 2007                 [Page 5]
+Rescorla                  Expires May 20, 2008                  [Page 5]
 
-Internet-Draft               TLS Extractors                 January 2007
+Internet-Draft               TLS Extractors                November 2007
 
 
 Full Copyright Statement
 
-   Copyright (C) The Internet Society (2007).
+   Copyright (C) The IETF Trust (2007).
 
    This document is subject to the rights, licenses and restrictions
    contained in BCP 78, and except as set forth therein, the authors
@@ -291,10 +291,10 @@ Full Copyright Statement
 
    This document and the information contained herein are provided on an
    "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
-   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE INTERNET
-   ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED,
-   INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE
-   INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
    WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
 
@@ -332,5 +332,5 @@ Acknowledgment
 
 
 
-Rescorla                  Expires July 18, 2007                 [Page 6]
+Rescorla                  Expires May 20, 2008                  [Page 6]
 

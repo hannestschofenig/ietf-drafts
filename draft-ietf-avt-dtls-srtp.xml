@@ -3,15 +3,15 @@
 <!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY rfc2434 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2434.xml">
 <!ENTITY rfc3550 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3550.xml">
+<!ENTITY rfc4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
+<!ENTITY rfc4366 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4366.xml">
 <!ENTITY rfc4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 <!ENTITY rfc3711 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
 <!ENTITY rfc4568 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4568.xml">
 <!ENTITY rfc4961 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4961.xml">
+<!ENTITY I-D.ietf-behave-rfc3489bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-behave-rfc3489bis.xml">
 <!ENTITY I-D.fischl-sipping-media-dtls SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.fischl-sipping-media-dtls.xml">
 <!ENTITY I-D.fischl-mmusic-sdp-dtls SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.fischl-mmusic-sdp-dtls.xml">
-<!ENTITY I-D.ietf-tls-rfc2246-bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc2246-bis.xml">
-<!ENTITY I-D.ietf-tls-rfc3546bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc3546bis.xml">
-<!ENTITY I-D.ietf-behave-rfc3489bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-behave-rfc3489bis.xml">
 <!ENTITY I-D.mcgrew-srtp-big-aes SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.mcgrew-srtp-big-aes.xml">
 <!ENTITY I-D.ietf-avt-rtp-and-rtcp-mux SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avt-rtp-and-rtcp-mux.xml">
 <!ENTITY I-D.rescorla-tls-extractor SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.rescorla-tls-extractor.xml">
@@ -883,7 +883,7 @@ to SRTPparameters?
    The first byte of a
    DTLS packet is "Type" which can currently have values of 20,21,22, and
    23 as defined in ContentType declaration in <xref
-   target="I-D.ietf-tls-rfc2246-bis"></xref>. It is reasonable to expect
+   target="RFC4346"></xref>. It is reasonable to expect
    the first byte to remain under 64 and greater than 1. For RTP the
    first byte has a value that is 196 or above. 
    Thus, in general, the type check specified in step (2) is sufficient
@@ -1063,7 +1063,7 @@ to SRTPparameters?
         <t>As an additional defense against injection into the DTLS handshake
         channel, the DTLS record type is included in the MAC. Therefore, an
         SRTP record would be treated as an unknown type and ignored. (See
-        Section 6 of <xref target="I-D.ietf-tls-rfc2246-bis"></xref>).</t>
+        Section 6 of <xref target="RFC4346"></xref>).</t>
       </section>
 
       <section title="Sequence Number Interactions">
@@ -1109,7 +1109,7 @@ to SRTPparameters?
 
     <section anchor="section.iana" title="IANA Considerations">
       <t>This document a new extension for DTLS, in accordance with <xref
-      target="I-D.ietf-tls-rfc3546bis"></xref>:</t>
+      target="RFC4366"></xref>:</t>
 
       <figure>
         <artwork><![CDATA[     enum { use_srtp (??) } ExtensionType;
@@ -1146,7 +1146,11 @@ to SRTPparameters?
 
       &rfc3550;
 
+      &rfc4346;
+
       &rfc4347;
+
+      &rfc4366;
 
       &rfc3711;
 
@@ -1162,10 +1166,6 @@ to SRTPparameters?
       &I-D.fischl-sipping-media-dtls;
 
       &I-D.fischl-mmusic-sdp-dtls;
-
-      &I-D.ietf-tls-rfc2246-bis;
-
-      &I-D.ietf-tls-rfc3546bis;
 
       &I-D.ietf-behave-rfc3489bis;
 
