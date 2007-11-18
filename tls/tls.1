@@ -7,7 +7,7 @@
 .ds LF Dierks & Rescorla
 .ds RF FORMFEED[Page %]
 .ds CF Standards Track
-.ds LH draft-ietf-tls-rfc4346-bis-07.txt
+.ds LH draft-ietf-tls-rfc4346-bis-08.txt
 .ds RH November 2007
 .ds CH TLS
 .hy 0
@@ -17,7 +17,7 @@ INTERNET-DRAFT                                                Tim Dierks
 Obsoletes (if approved): RFC 3268, 4346, 4366                Independent
 Intended status:  Proposed Standard                        Eric Rescorla
                                                  Network Resonance, Inc.
-<draft-ietf-tls-rfc4346-bis-07.txt>     November 2007 (Expires May 2008)
+<draft-ietf-tls-rfc4346-bis-08.txt>     November 2007 (Expires May 2008)
 
 
 .ce 2
@@ -159,16 +159,13 @@ of cryptographic algorithms. The major changes are:
 
 .in 6
 .ti 3
--  Merged in TLS Extensions definition and AES Cipher Suites from
-external documents [TLSEXT] and [TLSAES].
+-  The MD5/SHA-1 combination in the PRF has been replaced
+with cipher suite specified PRFs. All cipher suites in
+this document use P_SHA256.
 
 .ti 3
--  Replacement of MD5/SHA-1 combination in the PRF. Addition
-of cipher-suite specified PRFs.
-
-.ti 3
--  Replacement of MD5/SHA-1 combination in the digitally-signed 
-element.
+-  The MD5/SHA-1 combination in the digitally-signed 
+element has been replaced with a single hash.
 
 .ti 3
 -  Substantial cleanup to the clients and servers ability to
@@ -182,41 +179,46 @@ TLS.
 data modes.
 
 .ti 3
--  Tightened up a number of requirements.
-
-.ti 3
--  Added some guidance that DH groups should be checked for size.
-
-.ti 3
--  Cleaned up description of Bleichenbacher/Klima attack defenses.
+-  TLS Extensions definition and AES Cipher Suites were 
+merged in from external [TLSEXT] and [TLSAES].
 
 .ti 3
 -  Tighter checking of EncryptedPreMasterSecret version numbers.
 
 .ti 3
--  Stronger language about when alerts MUST be sent.
+-  Tightened up a number of requirements.
 
 .ti 3
--  Added an Implementation Pitfalls sections
+-  Verify_data length now depends on the cipher suite (default
+is still 12).	   
 
+.ti 3
+-  Cleaned up description of Bleichenbacher/Klima attack defenses.
+
+.ti 3
+-  Alerts MUST now be sent in many cases.
 .ne 2
 .ti 3
--  Harmonized the requirement to send an empty certificate list
-after certificate_request even when no certs are available.
-
-.ti 3
--  Made the verify_data length depend on the cipher suite.
+-  After a certificate_request, if no certificates are available,
+clients now MUST send an empty certificate list.
 
 .ti 3
 -  TLS_RSA_WITH_AES_128_CBC_SHA is now the mandatory to implement
 cipher suite.
 
 .ti 3
--  The usual clarifications and editorial work.
+-  IDEE and DES are now depreceated.
 
 .ti 3
--  Deprecated IDEA and DES
+-  Support for the SSLv2 backward-compatible hello is now 
+a MAY, not a SHOULD. This will probably become a SHOULD NOT
+in the future.
 
+.ti 3
+-  Added an Implementation Pitfalls sections
+
+.ti 3
+-  The usual clarifications and editorial work.
 .ti 0
 2. Goals
 
@@ -743,6 +745,7 @@ in this connection.
 .ne 5
 .ti 3
 PRF algorithm
+.br
 An algorithm used to generate keys from the master secret (see 
 Sections 5 and 6.3).
 
@@ -820,7 +823,6 @@ struct {
     MACAlgorithm           mac_algorithm;
     uint8                  mac_length;
     uint8                  mac_key_length;
-    uint8                  verify_data_length;
     CompressionMethod      compression_algorithm;
     opaque                 master_secret[48];
     opaque                 client_random[32];
@@ -2362,10 +2364,10 @@ possibility of version rollback should be a significant
 consideration in any major design change.
 
 .ti 0
-7.4.1.4.1 Signature Hash Algorithms
+7.4.1.4.1 Signature Algorithms
 
 .in 3
-The client MAY use the "signature_algorithms" to indicate
+The client MAY use the "signature_algorithms" extension to indicate
 to the server which signature/hash algorithm pairs may be used
 in digital signatures. The "extension_data"
 field of this extension contains a "supported_signature_algorithms"
@@ -2378,7 +2380,8 @@ enum {
     sha512(5), (255)
 } HashAlgorithm;
 
-enum { anonymous(0), rsa(1), dsa(2), (255) } SignatureAlgorithm;
+enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) } 
+  SignatureAlgorithm;
 
 struct {
       HashAlgorithm hash;
@@ -2424,8 +2427,27 @@ but not hash algorithm. Sections 7.4.2 and 7.4.3 describe
 the appropriate rules.
 
 Clients SHOULD send this extension if they support any hash
-algorithm other than SHA-1. If this extension is not used, servers
-SHOULD assume that the client supports only SHA-1. Note: this is a
+algorithm other than SHA-1. 
+
+If the client does not send the signature_algorithms 
+extension, the server SHOULD assume the following:
+
+.ti 3
+-  If the negotiated key exchange algorithm is one
+of (RSA, DHE_RSA, DH_RSA, RSA_PSK, ECDH_RSA, ECDHE_RSA), 
+behave as if client had sent the value (sha1,rsa).
+    
+.ti 3
+-  If the negotiated key exchange algorithm is one of 
+(DHE_DSS, DH_DSS), behave as if the client had sent the
+value (sha1,dsa).
+
+.ti 3
+-  If the negotiated key exchnage algorithm is one of 
+(ECDH_ECDSA, ECDHE_ECDSA), behave as if the client had
+sent value (sha1,ecdsa).
+
+Note: this is a
 change from TLS 1.1 where there are no explicit rules but as a
 practical matter one can assume that the peer supports MD5 and SHA-1.
 
@@ -2546,8 +2568,8 @@ ECDHE_ECDSA        ECDSA-capable public key; the certificate
 .in 3
 If the client provided a "signature_algorithms" extension, then all
 certificates provided by the server MUST be signed by a
-hash/signature algorithm pair that appears in that extension.  Note
-that this implies that a certificate containing a key for one
+hash/signature algorithm pair that appears in that extension. 
+Note that this implies that a certificate containing a key for one
 signature algorithm MAY be signed using a different signature
 algorithm (for instance, an RSA key signed with a DSA key.) This is a
 departure from TLS 1.1, which required that the algorithms be the
@@ -2556,27 +2578,6 @@ and ECDH_RSA key exchange algorithms do not restrict the algorithm
 used to sign the certificate. Fixed DH certificates MAY be signed with
 any hash/signature algorithm pair appearing in the extension.
 The naming is historical. 
-
-If no "signature_algorithms" extension is present, the end-entity
-certificate MUST be signed as follows:
-
-.in 6
-.nf
-Key Exchange Alg.  Signature Algorithm Used by Issuer
-
-RSA                RSA (RSASSA-PKCS1-v1_5)
-DHE_RSA 
-DH_RSA 
-RSA_PSK 
-ECDH_RSA 
-ECDHE_RSA
-
-DHE_DSS            DSA
-DH_DSS
-
-ECDH_ECDSA         ECDSA               
-ECDHE_ECDSA
-.fi
 
 .in 3
 If the server has multiple certificates, it chooses one of them
@@ -2687,6 +2688,8 @@ signed_params
 
 hash 
    Hash(ClientHello.random + ServerHello.random + ServerParams)
+   where Hash is the chosen hash value and Hash.length is
+   its output.
 
 .ne 5
 struct {
@@ -2727,14 +2730,13 @@ RSA keys MAY be used with any permitted hash algorithm, subject
 to restrictions in the certificate, if any.
 
 Because DSA signatures do not contain any secure indication of hash
-algorithm, it must be unambiguous which hash algorithm is to be used
-with any key.  DSA keys specified with Object Identifier
-.br
-1 2 840 10040 4 1 MUST only be used with SHA-1.  Future revisions of [PKIX] MAY
-define new object identifiers for DSA with other hash algorithms.
-
-The hash algorithm is denoted Hash below. Hash.length is the
-length of the output of that algorithm.
+algorithm, there is a risk of hash substitution if multiple hashes
+may be used with any key. Currently, DSS [DSS] may only be used
+with SHA-1. Future revisions of DSS [DSS-3] are expected to allow other
+digest algorithms, as well as guidance as to which digest algorithms
+should be used with each key size. In addition, future 
+revisions of [PKIX] may specify mechanisms for certificates
+to indicate which digest algorithms are to be used with DSA.
 
 As additional CipherSuites are defined for TLS that include new key
 exchange algorithms, the server key exchange message will be sent if
@@ -3235,14 +3237,14 @@ be compatible with the key in the client's end-entity certificate.
 RSA keys MAY be used with any permitted hash algorith, subject
 to restrictions in the certificate, if any.
 
-Because DSA signatures
-do not contain any secure indication of hash algorithm,
-it must be unambiguous which hash algorithm is to be used
-with any key.
-DSA keys specified with Object Identifier 1 2 840 10040 4 1
-MUST only be used with SHA-1.
-Future revisions of [PKIX] MAY define new object identifiers
-for DSA with other hash algorithms. 
+Because DSA signatures do not contain any secure indication of hash
+algorithm, there is a risk of hash substitution if multiple hashes
+may be used with any key. Currently, DSS [DSS] may only be used
+with SHA-1. Future revisions of DSS [DSS-3] are expected to allow other
+digest algorithms, as well as guidance as to which digest algorithms
+should be used with each key size. In addition, future 
+revisions of [PKIX] may specify mechanisms for certificates
+to indicate which digest algorithms are to be used with DSA.
 
 Here handshake_messages refers to all handshake messages sent or
 received starting at client hello up to but not including this
@@ -3278,12 +3280,12 @@ Structure of this message:
 
 .nf
 struct {
-    opaque verify_data[SecurityParameters.verify_data_length];
+    opaque verify_data[verify_data_length];
 } Finished;
 
 verify_data
    PRF(master_secret, finished_label, Hash(handshake_messages))
-      [0..SecurityParameters.verify_data_length-1];
+      [0..verify_data_length-1];
 .fi
 
 finished_label
@@ -3302,8 +3304,8 @@ computation.
 In previous versions of TLS, the verify_data was always 12 octets
 long. In the current version of TLS, it depends on the cipher
 suite. Any cipher suite which does not explicitly specify
-SecurityParameters.verify_data_length has a
-SecurityParameters.verify_data_length equal to 12. This includes all
+verify_data_length has a
+verify_data_length equal to 12. This includes all
 existing cipher suites.  Note that this representation has the same
 encoding as with previous versions. Future cipher suites MAY specify
 other lengths but such length MUST be at least 12 bytes.
@@ -3811,7 +3813,7 @@ struct {
 A.4.4. Handshake Finalization Message
 
 struct {
-    opaque verify_data[SecurityParameters.verify_data_length];
+    opaque verify_data[verify_data_length];
 } Finished;
 
 .ti 0
@@ -3838,7 +3840,7 @@ CipherSuite TLS_NULL_WITH_NULL_NULL               = { 0x00,0x00 };
 
 The following CipherSuite definitions require that the server
 provide an RSA certificate that can be used for key exchange. The
-server may request either an RSA or a DSS signature-capable
+server may request either any signature-capable
 certificate in the certificate request message.
 
 .in 6
@@ -3858,10 +3860,10 @@ server-authenticated (and optionally client-authenticated)
 Diffie-Hellman. DH denotes cipher suites in which the server's
 certificate contains the Diffie-Hellman parameters signed by the
 certificate authority (CA). DHE denotes ephemeral Diffie-Hellman,
-where the Diffie-Hellman parameters are signed by a DSS or RSA
+where the Diffie-Hellman parameters are signed by a a signature-capable
 certificate, which has been signed by the CA. The signing algorithm
 used is specified after the DH or DHE parameter. The server can
-request an RSA or DSS signature-capable certificate from the client
+request any signature-capable certificate from the client
 for client authentication or it may request a Diffie-Hellman
 certificate. Any Diffie-Hellman certificate provided by the client
 must use the parameters (group and generator) described by the
@@ -4007,7 +4009,6 @@ struct {
     MACAlgorithm           mac_algorithm;
     uint8                  mac_length;
     uint8                  mac_key_length;
-    uint8                  verify_data_length;
     CompressionMethod      compression_algorithm;
     opaque                 master_secret[48];
     opaque                 client_random[32];
@@ -4291,21 +4292,14 @@ TLS_RSA_WITH_NULL_MD5                   RSA            NULL         MD5
 TLS_RSA_WITH_NULL_SHA                   RSA            NULL         SHA
 TLS_RSA_WITH_RC4_128_MD5                RSA            RC4_128      MD5
 TLS_RSA_WITH_RC4_128_SHA                RSA            RC4_128      SHA
-TLS_RSA_WITH_IDEA_CBC_SHA               RSA            IDEA_CBC     SHA
-TLS_RSA_WITH_DES_CBC_SHA                RSA            DES_CBC      SHA
 TLS_RSA_WITH_3DES_EDE_CBC_SHA           RSA            3DES_EDE_CBC SHA
 TLS_RSA_WITH_AES_128_CBC_SHA            RSA            AES_128_CBC  SHA
 TLS_RSA_WITH_AES_256_CBC_SHA            RSA            AES_256_CBC  SHA
-TLS_DH_DSS_WITH_DES_CBC_SHA             DH_DSS         DES_CBC      SHA
 TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA        DH_DSS         3DES_EDE_CBC SHA
-TLS_DH_RSA_WITH_DES_CBC_SHA             DH_RSA         DES_CBC      SHA
 TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA        DH_RSA         3DES_EDE_CBC SHA
-TLS_DHE_DSS_WITH_DES_CBC_SHA            DHE_DSS        DES_CBC      SHA
 TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA       DHE_DSS        3DES_EDE_CBC SHA
-TLS_DHE_RSA_WITH_DES_CBC_SHA            DHE_RSA        DES_CBC      SHA
 TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA       DHE_RSA        3DES_EDE_CBC SHA
 TLS_DH_anon_WITH_RC4_128_MD5            DH_anon        RC4_128      MD5
-TLS_DH_anon_WITH_DES_CBC_SHA            DH_anon        DES_CBC      SHA
 TLS_DH_anon_WITH_3DES_EDE_CBC_SHA       DH_anon        3DES_EDE_CBC SHA
 TLS_DH_DSS_WITH_AES_128_CBC_SHA         DH_DSS         AES_128_CBC  SHA
 TLS_DH_RSA_WITH_AES_128_CBC_SHA         DH_RSA         AES_128_CBC  SHA
@@ -4323,9 +4317,7 @@ TLS_DH_anon_WITH_AES_256_CBC_SHA        DH_anon        AES_256_CBC  SHA
 Cipher       Type  Material Key Material   Size   Size
 
 NULL         Stream   0          0         0     N/A
-IDEA_CBC     Block   16         16         8      8
 RC4_128      Stream  16         16         0     N/A
-DES_CBC      Block    8          8         8      8
 3DES_EDE_CBC Block   24         24         8      8
 .fi
 
@@ -4579,7 +4571,7 @@ ClientHello format provides better mechanisms for moving to
 newer versions and negotiating extensions.  TLS 1.2 clients
 SHOULD NOT support SSL 2.0.
 
-However, even TLS servers that do not support SSL 2.0 SHOULD
+However, even TLS servers that do not support SSL 2.0 MAY
 accept version 2.0 CLIENT-HELLO messages. The message is
 presented below in sufficient detail for TLS server
 implementors; the true definition is still assumed to be
@@ -5026,13 +5018,25 @@ authority can do tremendous damage.
 .ti 0
 Changes in This Version 
 
-.ti 3
-- Deprecated IDEA and DES [Issue 64]
-
-
 .in 3
 [RFC Editor: Please delete this]
 
+.ti 3
+- SSLv2 backward compatibility downgraded to MAY
+
+.ti 3
+- Altered DSA hash rules to more closely match FIPS186-3 and
+  PKIX, plus remove OID restriction.
+
+.ti 3
+- verify_length no longer in SecurityParameters
+
+.ti 3
+- Moved/cleaned up cert selection text for server cert
+  when signature_algorithms is not specified.
+
+.ti 3
+- Other editorial changes.
 
 .fi
 .ti 0
@@ -5133,6 +5137,11 @@ Cryptology -- CRYPTO 2003, LNCS vol. 2729, 2003.
 Authentication and Confidentiality",
 http://csrc.nist.gov/publications/nistpubs/800-38C/
 SP800-38C.pdf
+
+.ti 3
+[DSS-3]  NIST FIPS PUB 186-3 Draft, "Digital Signature Standard,"
+National Institute of Standards and Technology, U.S. Department of
+Commerce, 2006.
 
 .ti 3
 [ENCAUTH] Krawczyk, H., "The Order of Encryption and Authentication for 
