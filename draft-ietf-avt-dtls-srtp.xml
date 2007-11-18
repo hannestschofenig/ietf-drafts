@@ -72,7 +72,7 @@
       </address>
     </author>
 
-    <date day="15" month="October" year="2007" />
+    <date day="17" month="November" year="2007" />
 
     <abstract>
     <t>
@@ -176,19 +176,11 @@
         <t>
      RTP and RTCP traffic is usually sent on two separate UDP ports.
      When symmetric RTP <xref target="RFC4961"/> is used, two bidirectional DTLS-SRTP
-     sessions are needed, one for the RTP port, one for the RTC"P port.
+     sessions are needed, one for the RTP port, one for the RTCP port.
      When RTP flows are not symmetric, four unidirectional DTLS-SRTP
      sessions are needed (for inbound and outbound RTP, and inbound
      and outbound RTCP).
      </t>
-     <t>
-     RTP and RTCP traffic MAY be multiplexed on a single UDP port [7].
-     In this case, both RTP and RTCP packets may be sent over the same
-     DTLS-SRTP session, halving the number of DTLS-SRTP sessions needed.
-     It is RECOMMENDED that symmetric RTP is used, with RTP and RTCP
-     multiplexed on a single UDP port; this requires only a single
-     DTLS-SRTP session.
-        </t>
         <t>
           Symmetric RTP <xref target="RFC4961"/> is the case in which there are two RTP
           sessions that have their source and destination ports
@@ -198,12 +190,20 @@
           When symmetric RTP is used, a single DTLS-SRTP session
           can protect both of the RTP sessions.  
          </t>
+     <t>
+     RTP and RTCP traffic MAY be multiplexed on a single UDP port [7].
+     In this case, both RTP and RTCP packets may be sent over the same
+     DTLS-SRTP session, halving the number of DTLS-SRTP sessions needed.
+     It is RECOMMENDED that symmetric RTP is used, with RTP and RTCP
+     multiplexed on a single UDP port; this requires only a single
+     DTLS-SRTP session.
+        </t>
           <t> Between a single pair of participants, there may be
           multiple media sessions.  There MUST be a separate DTLS-SRTP
           session for each distinct pair of source and destination
           ports used by a media session (though the sessions can
 	  share a single DTLS session and hence amortize the initial
-	  public key handshake!).  ]      </t>
+	  public key handshake!).</t>
 
 
 
@@ -247,8 +247,8 @@
         3711).</t>
       </section>
       
-      <section title="DTLS Extensions for SRTP Key Establishment">
-      <section anchor="sec-extension" title="The use_srtp Extension">
+      <section anchor="sec-extension" title="DTLS Extensions for SRTP Key Establishment">
+      <section title="The use_srtp Extension">
 
         <t>In order to negotiate the use of SRTP data protection, clients 
         include an extension of type "use_srtp" in the DTLS extended client hello. 
@@ -333,7 +333,7 @@
           order of preference. The srtp_mki value contains the SRTP
           MasterKeyIdentifier (MKI) value (if any) which the client will use
           for his SRTP messages. If this field is of zero length,
-	  then no MKI is used.</t>
+	  then no MKI will be used.</t>
 
           <t>If the server is willing to accept the use_srtp extension, it
           MUST respond with its own "use_srtp" extension in the
@@ -341,9 +341,9 @@
           UseSRTPData value with a single SRTPProtectionProfile value which
           the server has chosen for use with this connection. The server MUST
           NOT select a value which the client has not offered. If there is no
-          shared profile, the server should not return the use_srtp extension
+          shared profile, the server SHOULD not return the use_srtp extension
           at which point the connection falls back to the negotiated DTLS
-          cipher suite. If that is not acceptable the server should return an
+          cipher suite. If that is not acceptable the server SHOULD return an
           appropriate DTLS alert.</t>
         </section>
 
@@ -627,10 +627,10 @@
 
         <figure>
           <artwork><![CDATA[
-client_write_SRTP_master_key[SRTPSecurityParams.master_key_len]    
-server_write_SRTP_master_key[SRTPSecurityParams.master_key_len]    
-client_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len]
-server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len]
+client_write_SRTP_master_key[SRTPSecurityParams.master_key_len];    
+server_write_SRTP_master_key[SRTPSecurityParams.master_key_len];   
+client_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len];
+server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len];
 ]]></artwork>
 
           <!--
@@ -799,8 +799,8 @@ to SRTPparameters?
       </section>
       </section>
 
-      <section title="Use of RTP and RTCP over a DTLS-SRTP Channel">
-      <section anchor="sec-data-prot" title="Data Protection">
+      <section anchor="sec-data-prot" title="Use of RTP and RTCP over a DTLS-SRTP Channel">
+      <section  title="Data Protection">
         <t>Once the DTLS handshake has completed the peers can send RTP or
         RTCP over the newly created channel. We describe the transmission
         process first followed by the reception process.</t>
@@ -899,7 +899,6 @@ to SRTPparameters?
    an "invalid_MAC" alert, as specified in Section 4.1.2.1 of
    <xref target="I-D.rescorla-dtls"/>.
    </t>
-   -->
    <section title="Opportunistic Probing">
    <t>[[Open Issue
    In discussions of media-level security, some have suggested
@@ -918,6 +917,8 @@ to SRTPparameters?
    the offeror should be the server and the answerer the client.]]
    </t>   
    </section>   
+   -->
+
         </section>
       </section>
 
