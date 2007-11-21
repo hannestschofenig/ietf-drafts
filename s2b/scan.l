@@ -16,7 +16,7 @@ long strtol();
 IDCHAR		[a-zA-Z0-9_\-\.]
 NUMCHAR		[0-9]
 S		[ \t\n\r\f]+
-NAME		[a-zA-Z]{IDCHAR}+
+NAME		[a-zA-Z]{IDCHAR}*
 NUM		{NUMCHAR}+
 HEXNUM          "0x"[0-9A-Za-z]+
 COMMENT		"/*"("*"?[^/]+)*("*/")
