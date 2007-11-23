@@ -11,12 +11,14 @@ getopts("vVpncd:P:",\%opts);
 
 # Untaint env (this is perl fodder)
 $env=$ENV{"PATH"};
+$env="" unless $env;
 $env=~/^(.*)$/;
 $ENV{"PATH"}=$1;
+$env="" unless $env;
 $env=$ENV{"CDPATH"};
+$env="" unless $env;
 $env=~/^(.*)$/;
 $ENV{"CDPATH"}=$1;
-
 
 $VERBOSE=0;
 $VERBOSE=1 if $opts{"v"};
@@ -105,7 +107,7 @@ sub get_drafts_for_wg {
   
 sub list_drafts_for_wg {
   local($wg)=@_;
-  local(@filetypes)=(".html",".txt");
+  local(@filetypes)=(".html",".htm",".txt");
 
   my %drafts=();
   my @drafts=();
@@ -211,7 +213,10 @@ sub print_drafts_for_wg {
 
   my @files=();
 
-  opendir(DIR,"$wg")||die("Couldn't open directory $wg");
+  if(!opendir(DIR,"$wg")){
+      print STDERR "Couldn't open directory $wg";
+      return;
+  }
   open(HEADER,">$wg/HEADER")||die("Couldn't open header");
 
   print HEADER "************** WG $wg *****************\n\n";
