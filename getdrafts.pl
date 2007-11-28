@@ -7,7 +7,7 @@
 use Getopt::Std;
 use File::Path;
 
-getopts("vVpncd:P:",\%opts);
+getopts("vVpncd:P:s",\%opts);
 
 # Untaint env (this is perl fodder)
 $env=$ENV{"PATH"};
@@ -27,6 +27,7 @@ $NODOWNLOAD=1 if $opts{"n"};
 $PRINTDRAFTS=1 if $opts{"p"};
 $PRINT_COMMAND=$opts{P} if $opts{"P"};
 $CLEAN=1 if $opts{"c"};
+$SEARCH=1 if $opts{"s"};
 
 $stat_found=0;
 $stat_total=0;
@@ -61,7 +62,6 @@ use LWP::UserAgent;
 $ua=LWP::UserAgent->new;
 $ua->agent("DraftScraper");
 
-
 while ($wg_tmp=shift @ARGV){
 
   die("Bad wg name") unless $wg_tmp=~/^(\w+)$/;  # untaint wg
@@ -72,9 +72,23 @@ while ($wg_tmp=shift @ARGV){
   &print_drafts_for_wg($wg) if $PRINTDRAFTS;
 }
 
-while($nf=shift @NOTFOUND){
-  print STDERR "NOT FOUND: $nf\n";
+if($#NOTFOUNDWGS!=-1){
+    print STDERR "WGs without agendas:\n";
+
+    while($nf=shift @NOTFOUNDWGS){
+	print STDERR "  $nf\n";
+    }
+    print STDERR "\n";
 }
+
+if($#NOTFOUNDDRAFTS!=-1){
+    print STDERR "Missing drafts\n";
+
+    while($nf=shift @NOTFOUNDDRAFTS){
+	print STDERR "  $nf\n";
+    }
+}
+
 print STDERR "Found $stat_found out of $stat_total drafts\n";
 
 
@@ -86,11 +100,10 @@ sub get_drafts_for_wg {
 
   my @drafts=&list_drafts_for_wg($wg);
 
+  mkdir($wg);
 
   return if $#drafts==-1;
   $stat_total+=$#drafts+1;
-
-  mkdir($wg);
 
   while($draft=shift @drafts){
     if (-f "$wg/$draft") {
@@ -99,8 +112,17 @@ sub get_drafts_for_wg {
       next;
     };
     
-    my $ret=&get_draft($draft,"$wg/$draft") unless $NODOWNLOAD;
-    $stat_found++ unless $ret;
+    if(!$NODOWNLOAD){
+	my $ret;
+
+	if($SEARCH){
+	    $ret=&search_for_draft($draft, $wg);
+	}
+	else{
+	    $ret=&get_draft($draft,"$wg/$draft",$wg,1);
+	}
+	$stat_found++ unless $ret;
+    }
   }
 }
 
@@ -134,7 +156,7 @@ sub list_drafts_for_wg {
 
   if(!$success){
     print STDERR "Couldn't get agenda for $wg\n" if $VERBOSE;
-    push(@NOTFOUND,"WG: $wg");
+    push(@NOTFOUNDWGS,"$wg");
     return ();
   }
 
@@ -186,9 +208,49 @@ sub get_drafts_from_agenda {
   @drafts;
 }
 
-sub get_draft {
-  local($draft,$filename)=@_;
 
+sub search_for_draft {
+    local($draft, $wg)=@_;
+    local($draft_base,$num);
+    local($to_try);
+
+    die("Draft doesn't match pattern") unless $draft=~/^(draft-[a-z0-9\.-]+)-(\d\d).txt$/;
+    
+    $draft_base=$1;
+    $num=$2;
+    
+    # Try the base draft
+    if(!&get_draft($draft,"$wg/$draft",$wg,0)){
+	return 0;
+    }
+
+    print STDERR "Draft: $wg doesn't seem to exist. Looking for alternates\n" if $VERBOSE;
+    
+    # Try the immediately following number
+    $to_try=sprintf("%s-%.2d.txt",$draft_base,$num+1);
+    if(!&get_draft($to_try,"$wg/$to_try",$wg,0)){
+	print STDERR "Draft: $to_try exists and appears to supersede version $num\n" if $VERBOSE;
+	return 0;
+    }
+
+    # Now try the immediately preceding number
+    if($num > 0){
+	$to_try=sprintf("%s-%.2d.txt",$draft_base,$num-1);
+	if(!&get_draft($to_try,"$wg/$to_try",$wg,0)){
+	    print STDERR "Draft: $draft doesn't seem to exist yet. Substituting previous version\n" if $VERBOSE;
+	    return 0;
+	}
+    }
+    
+    print STDERR "Couldn't get draft $draft\n" if $VERBOSE;
+    push(@NOTFOUNDDRAFTS,"$draft (wg=$wg)");
+    
+    return -1;
+}
+
+sub get_draft {
+  local($draft,$filename, $wg_name,$report)=@_;
+  
   $url=$DRAFT_URL . $draft;
 
   print STDERR "draft URL: $url\n" if $VERBOSE;
@@ -197,8 +259,10 @@ sub get_draft {
   my $res=$ua->request($req);
 
   if(!$res->is_success){
-    print STDERR "Couldn't get draft $draft\n" if $VERBOSE;
-    push(@NOTFOUND,"DRAFT: $draft");
+      if($report){
+	  print STDERR "Couldn't get draft $draft\n" if $VERBOSE;
+	  push(@NOTFOUNDDRAFTS,"$draft (wg=$wg_name)");
+      }
     return -1;
   }
 
@@ -261,7 +325,7 @@ sub touch {
 
 sub usage {
   print <<FOO;
-usage: [-vVpnt] getdrafts.pl <meeting-name> <wg1> <wg2>
+usage: [-vVpnts] getdrafts.pl <meeting-name> <wg1> <wg2>
 
  Get a copy of every relevant draft for a given meeting for
  some set of wgs and stuff them in <meeting-name>/<wgname>
@@ -273,7 +337,8 @@ usage: [-vVpnt] getdrafts.pl <meeting-name> <wg1> <wg2>
  -c = clean up
  -d = print to another printer
  -P = override the printing command entirely
-
+ -s = search for alternate draft versions if the main version isn't
+      found 
 FOO
 
 exit(0);

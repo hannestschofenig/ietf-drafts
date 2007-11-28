@@ -1,5 +1,9 @@
+# nrappkit is Network Resonance's application development kit.
+# See http://nrappkit.sourceforge.net
+
 NRAPPKIT_SRC = /users/ekr/c/nrappkit/src/
 NRAPPKIT_MAKE=$(NRAPPKIT_SRC)make/freebsd
+
 
 YFLAGS	= -dv
 CFLAGS	= -g -DYYDEBUG=0 -I$(NRAPPKIT_MAKE) -I$(NRAPPKIT_SRC)util/libekr
