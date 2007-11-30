@@ -1,0 +1,224 @@
+\documentclass[helvetica]{seminar} 
+\centerslidesfalse 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 70} 
+\fancyfoot[C]{\tiny Secure Peer-ID Assignment in P2PSIP } 
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% don't center vertically
+\centerslidesfalse 
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+\begin{document}
+
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}Secure Peer-ID Assignment in P2PSIP}\\
+
+\vspace{.6 in}
+\large{Eric Rescorla}\\
+\large{Network Resonance}\\
+\large{\url{ekr@networkresonance.com}}
+
+\end{center}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Background}
+
+\begin{itemize}
+\item Need to be able to authenticate that a peer has a given ID
+\begin{itemize}
+\item Otherwise a variety of routing attacks are possible
+\end{itemize}
+\item In practice, this means cryptography
+\begin{itemize}
+\item Need to bind peer-id $X$ to its public key
+\item But how?
+\end{itemize}
+
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Cryptographically Generated Peer-Ids}
+
+\begin{itemize}
+\item Peer generates a random key pair $K_{pub}, K_{priv}$
+\begin{itemize}
+\item $I = SHA1(K_{pub})$
+\item This gives you a ``random'' peer-id
+\begin{itemize}
+\item Because of the SHA-1
+\end{itemize}
+\end{itemize}
+\item How does authentication work?
+\begin{itemize}
+\item Peer signs something with $K_{priv}$ and sends $signature, K_{pub}, I$
+\item Relying party verifies signature and that  $I = SHA1(K_{pub})$
+\end{itemize}
+\item This is the technique used in HIP
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Chosen Location Attacks}
+
+\begin{itemize}
+\item Attacker wants to get between $X$ and $predecessor(X)$
+\begin{itemize}
+\item A random node-id has a $1/N$ chance of being in $(pred(X),X)$
+\begin{itemize}
+\item Where $N$ is the number of nodes in the overlay
+\item The size of the hashspace is irrelevant
+\end{itemize}
+\end{itemize}
+\item An attacker can succeed in average $N/2$ trials
+\begin{itemize}
+\item This is an offline attack
+\end{itemize}
+\item Two basic countermeasures
+\begin{itemize}
+\item Slow down the search (but keep it offline)
+\item Make it an online attack
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Proof of Work}
+
+\vspace{-.3 in}
+\begin{itemize}
+\item Idea: make generating candidates expensive
+\begin{itemize}
+\item Example: partial preimage
+\begin{itemize}
+\item Joining peer generates random $X$ 
+\item $PeerId = SHA1(X)$
+\item Bottom $n$ bits of $PeerId$ must be random
+\begin{itemize}
+\item Need to try average $2^{n-1}$ $X$ values to get a valid $PeerId$
+\end{itemize}
+\item This increases search cost by $2^{n-1}$
+\end{itemize}
+\end{itemize}
+\item The puzzle must be tied to the peer-id
+\begin{itemize}
+\item Otherwise the attacker can solve the puzzle once and then generate many peer-ids
+\item This is why CAPTCHAs are hard to deploy here
+\end{itemize}
+\item This only works well when the attacker isn't powerful
+\begin{itemize}
+\item Not true with botnets
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Invitations}
+
+\begin{itemize}
+\item What if an existing peer asks you to join [MI07]
+\begin{itemize}
+\item You start as a client with peer-id X
+\begin{itemize}
+\item But you can't attack anyone since you're not a peer
+\end{itemize}
+\item The responsible peer invites you to become a peer
+\begin{itemize}
+\item Splits his zone of responsibility with you
+\end{itemize}
+\end{itemize}
+\item Not clear how this helps
+\begin{itemize}
+\item Attacker chooses his peer-id
+\begin{itemize}
+\item Joins the overlay
+\item Waits to be invited as a client
+\end{itemize}
+\item Also, how do you cryptographically bind key to peer-id
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Central Enrollment Server}
+
+\begin{itemize}
+\item We have a central server
+\begin{itemize}
+\item Joining peer contacts the server with his public key
+\item Server validates peer somehow
+\item Server issues a certificate with a random peer-id
+\end{itemize}
+\item This makes the attack online
+\begin{itemize}
+\item Even if no authentication is performed, you need a lot of queries to the server
+\item If you have user authentication, then you only get one query
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\end{document}

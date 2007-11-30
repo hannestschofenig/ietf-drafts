@@ -1,0 +1,193 @@
+\documentclass[helvetica]{seminar} 
+\centerslidesfalse 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 70} 
+\fancyfoot[C]{\tiny Secure Peer-ID Assignment in P2PSIP } 
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% don't center vertically
+\centerslidesfalse 
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+\begin{document}
+
+
+
+\begin{slide}
+\heading{Document Status}
+
+{\tiny
+\begin{tabular}{|p{1.5 in}|p{1.4 in}|p{.7 in}|}
+\hline
+TLS 1.1 & RFC 4346 (PS) & Published \\
+Extensions (revised) & RFC 4346 (PS) & Published \\
+Datagram Transport Layer Security & RFC 4347 (PS) & Published \\
+ECC Cipher Suites & RFC 4492 (PS) & Published \\
+Transport Layer Security (TLS) Session Resumption without
+Server-Side State & RFC 4505 (PS) & Published \\
+TLS User Mapping Extension & RFC 4681 & Published \\
+TLS Handshake Message for Supplemental Data & RFC 4680 & Published \\
+Transport Layer Security (TLS) Authorization Extensions & draft-housley-tls-authz-extns-07 & With IESG \\
+Using OpenPGP keys for TLS authentication & RFC 5081 & \textbf{Published} \\
+Using SRP for TLS Authentication & RFC 5054 (Exp) & \textbf{Auth 48} \\
+Pre-Shared Key Cipher Suites with NULL Encryption for Transport Layer Security (TLS) & RFC 4785  (PS) & \textbf{Published} \\
+AES Counter Mode Cipher Suites for TLS and DTLS & draft-ietf-tls-ctr-01.txt & Working... \\
+The TLS Protocol Version 1.2 & draft-ietf-tls-rfc4346-bis-07.txt & \textbf{WGLC} \\
+\hline
+\end{tabular}
+}
+\end{slide}
+
+        
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}TLS 1.2 Update}\\
+
+\vspace{.3 in}
+\large{Eric Rescorla}\\
+\large{Network Resonance}\\
+\large{\texttt{ekr@networkresonance.com}}
+
+\end{center}
+\end{slide}
+
+
+\begin{slide}
+\heading{Status}
+
+\begin{itemize}
+\item All open issues now closed
+\item Summary of major changes on following slides
+\item Document is in WGLC
+\item Please read it
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Hash Agility}
+
+\begin{itemize}
+\item Digest and signature algorithms now specified in
+      pairs
+\end{itemize}
+
+
+{\tiny
+\begin{verbatim}
+      enum {
+          none(0), md5(1), sha1(2), sha256(3), sha384(4),
+          sha512(5), (255)
+      } HashAlgorithm;
+
+      enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) }
+        SignatureAlgorithm;
+
+      struct {
+            HashAlgorithm hash;
+            SignatureAlgorithm signature;
+      } SignatureAndHashAlgorithm;
+
+      SignatureAndHashAlgorithm
+        supported_signature_algorithms<2..2^16-1>;
+\end{verbatim}
+}
+
+\begin{itemize}
+\item This provides clearer semantics
+\item Some previous selection rules relaxed
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Signature Algorithms: Server Side}
+\begin{itemize}
+\item All certs MUST be signed with algorithms in \verb^signature_algorithms^
+\item EE Cert MUST contain a key that matches the cipher suite
+\item \verb^ServerKeyExchange^ MUST be signed with an algorithm in
+\verb^signature_algorithms^.
+\item Fixed DH certificates may be signed with any permissible algorithm (relaxation of rule from 4346)
+\item Sensible defaults if \verb^signature_algorithms^ not provided
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Signature Algorithms: Client Side}
+\begin{itemize}
+\item All certs MUST be signed with algorithms in \verb^CertificateRequest.supported_signature_algorithms^
+\item EE Cert MUST contain a key that matches \verb^CertificateRequest.certificate_types^
+\verb^CertificateVerify^ MUST be signed with an algorithm in
+\verb^CertificateRequest.supported_signature_algorithms^
+\item Fixed DH certificates may be signed with any permissible algorithm (relaxation of rule from 4346)
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Other changes}
+
+\begin{itemize}
+\item Added implementation pitfalls (thanks Pasi)
+\item \verb^verify_data^ is now variable length (cipher suite defined)
+\item \verb^TLS_RSA_WITH_AES_128_CBC_SHA^ is new mandatory to implement
+\item Removed RC2, DES, and IDEA
+\item SSLv2 backward compatibility client hello is a MAY
+\end{itemize}
+
+\end{slide}
+
+
+
+\end{document}
