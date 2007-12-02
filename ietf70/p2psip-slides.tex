@@ -149,9 +149,8 @@
 \begin{itemize}
 \item Example: partial preimage
 \begin{itemize}
-\item Joining peer generates random $X$ 
 \item $PeerId = SHA1(X)$
-\item Bottom $n$ bits of $PeerId$ must be random
+\item Bottom $n$ bits of $PeerId$ must be zero
 \begin{itemize}
 \item Need to try average $2^{n-1}$ $X$ values to get a valid $PeerId$
 \end{itemize}
@@ -165,6 +164,7 @@
 \end{itemize}
 \item This only works well when the attacker isn't powerful
 \begin{itemize}
+\item ... by comparison to the average user
 \item Not true with botnets
 \end{itemize}
 \end{itemize}
