@@ -1,0 +1,151 @@
+\documentclass[helvetica]{seminar} 
+\centerslidesfalse 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 70} 
+\fancyfoot[C]{\tiny TLS 1.2 Update} 
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% don't center vertically
+\centerslidesfalse 
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+\begin{document}
+
+
+        
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}TLS Extractors}\\
+
+\vspace{.3 in}
+\large{Eric Rescorla}\\
+\large{Network Resonance}\\
+\large{\texttt{ekr@networkresonance.com}}
+
+\end{center}
+\end{slide}
+
+
+\begin{slide}
+\heading{General Idea}
+
+\begin{itemize}
+\item Other protocols want to use TLS negotiation
+\begin{itemize}
+\item But for some reason access keying material
+\end{itemize}
+\item Examples
+\begin{itemize}
+\item SCTP Auth
+\item DTLS-SRTP
+\item TCP Auth
+\item EAP
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Example: DTLS-SRTP}
+
+\vspace{-.4 in}
+\includegraphics{dtls-srtp1}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Simple Idea}
+
+\begin{itemize}
+\item General technique for generating keys from TLS handshake (\emph{Extractor})
+\item Requirements
+\begin{itemize}
+\item Each \emph{exported keying material} (EKM) is unique
+\item Infeasible to go from $EKM_1$ to $EKM_2$
+\item Infeasible to go from $EKM$ to $MS$
+\end{itemize}
+\item Algorithm is: $EKM = PRF(master\_secret, label,
+              SecurityParameters.client\_random +
+              SecurityParameters.server\_random)[length])$
+\item labels MUST be registered
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Changes From Last Version}
+
+\begin{itemize}
+\item Labels no longer MUST have a fixed prefix
+\item Text that you should somehow indicate you're doing this
+\begin{itemize}
+\item Like with an extension
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Where to from here?}
+
+\begin{itemize}
+\item Comments?
+\item Should we accept this as a WG item?
+\item draft-rescorla-tls-extractor-01.txt
+\end{itemize}
+
+\end{slide}
+
+\end{document}
