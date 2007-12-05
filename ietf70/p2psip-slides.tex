@@ -79,6 +79,7 @@
 \heading{Background}
 
 \begin{itemize}
+\item This talk is only about peer-id-based security methods
 \item Need to be able to authenticate that a peer has a given ID
 \begin{itemize}
 \item Otherwise a variety of routing attacks are possible
@@ -88,7 +89,6 @@
 \item Need to bind peer-id $X$ to its public key
 \item But how?
 \end{itemize}
-
 \end{itemize}
 \end{slide}
 
@@ -174,24 +174,27 @@
 \begin{slide}
 \heading{Invitations}
 
+\vspace{-.2 in}
 \begin{itemize}
 \item What if an existing peer asks you to join [MI07]
 \begin{itemize}
-\item You start as a client with peer-id X
+\item You start as a client with
 \begin{itemize}
 \item But you can't attack anyone since you're not a peer
 \end{itemize}
 \item The responsible peer invites you to become a peer
 \begin{itemize}
+\item Chooses your peer-id
 \item Splits his zone of responsibility with you
 \end{itemize}
 \end{itemize}
 \item Not clear how this helps
 \begin{itemize}
-\item Attacker chooses his peer-id
+\item Attacker chooses his victim peer
 \begin{itemize}
 \item Joins the overlay
 \item Waits to be invited as a client
+\item This gives partial control of location
 \end{itemize}
 \item Also, how do you cryptographically bind key to peer-id
 \end{itemize}
@@ -218,6 +221,16 @@
 \end{itemize}
 \end{itemize}
 
+\end{slide}
+
+
+\begin{slide}
+\heading{A quote from our charter}
+
+\quote{The initial work will assume the existence of some enrollment process
+that provides a unique user name, credentials, and an initial set of
+bootstrap nodes if that is required by the protocols. Developing a
+non-centralized enrollment process is not in scope.}
 \end{slide}
 
 
