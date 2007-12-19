@@ -21,7 +21,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-01.txt"> 
+<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-02.txt"> 
 
 <front>
      <title abbrev="TLS ECC New MAC">TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode</title>
@@ -43,7 +43,7 @@
 
            </author>
 
-           <date month="June" year="2007" />
+           <date month="December" year="2007" />
 
            <abstract>
                <t>RFC 4492 describes elliptic curve cipher suites for
