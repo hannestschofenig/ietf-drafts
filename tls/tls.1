@@ -7,17 +7,17 @@
 .ds LF Dierks & Rescorla
 .ds RF FORMFEED[Page %]
 .ds CF Standards Track
-.ds LH draft-ietf-tls-rfc4346-bis-07.txt
-.ds RH November 2007
+.ds LH draft-ietf-tls-rfc4346-bis-08.txt
+.ds RH January, 2008
 .ds CH TLS
 .hy 0
 .ad l
 .nf
 INTERNET-DRAFT                                                Tim Dierks
 Obsoletes (if approved): RFC 3268, 4346, 4366                Independent
-Intended status:  Proposed Standard                        Eric Rescorla
-                                                 Network Resonance, Inc.
-<draft-ietf-tls-rfc4346-bis-07.txt>     November 2007 (Expires May 2008)
+Updates (if approved): RFC 4492                            Eric Rescorla
+Intended status:  Proposed Standard              Network Resonance, Inc.
+<draft-ietf-tls-rfc4346-bis-08.txt>     January 2008 (Expires July 2008)
 
 
 .ce 2
@@ -207,7 +207,7 @@ clients now MUST send an empty certificate list.
 cipher suite.
 
 .ti 3
--  IDEE and DES are now deprecated.
+-  IDEA and DES are now deprecated.
 
 .ti 3
 -  Support for the SSLv2 backward-compatible hello is now 
@@ -909,7 +909,8 @@ fragmented across several records).
 .in 6
 .nf
 struct {
-    uint8 major, minor;
+    uint8 major;
+    uint8 minor;
 } ProtocolVersion;
 
 enum {
@@ -1084,7 +1085,7 @@ stream-ciphered struct {
 .ti 3
 The MAC is generated as:
 
-MAC(MAC_write_secret, seq_num + 
+MAC(MAC_write_key, seq_num + 
                       TLSCompressed.type +
                       TLSCompressed.version + 
                       TLSCompressed.length +
@@ -1108,7 +1109,7 @@ Note that the MAC is computed before encryption. The stream cipher
 encrypts the entire block, including the MAC. For stream ciphers
 that do not use a synchronization vector (such as RC4), the stream
 cipher state from the end of one record is simply used on the
-subsequent packet. If the CipherSuite is TLS_NULL_WITH_NULL_NULL,
+subsequent packet. If the cipher suite is TLS_NULL_WITH_NULL_NULL,
 encryption consists of the identity operation (i.e., the data is not
 encrypted, and the MAC size is zero, implying that no MAC is used).
 TLSCiphertext.length is TLSCompressed.length plus
@@ -1271,17 +1272,17 @@ AEAD cipher MUST NOT produce an expansion of greater than 1024 bytes.
 Symbolically,
 
 .nf
-   AEADEncrypted = AEAD-Encrypt(key, IV, plaintext, 
+   AEADEncrypted = AEAD-Encrypt(key, nonce, plaintext, 
                                 additional_data)
 .fi
 
-In order to decrypt and verify, the cipher takes as input the key, IV,
+In order to decrypt and verify, the cipher takes as input the key, nonce,
 the "additional_data", and the AEADEncrypted value. The output is
 either the plaintext or an error indicating that the decryption
 failed. There is no separate integrity check.  I.e.,
 
 .nf
-   TLSCompressed.fragment = AEAD-Decrypt(write_key, IV, 
+   TLSCompressed.fragment = AEAD-Decrypt(write_key, nonce, 
                                          AEADEncrypted,
                                          additional_data)
 .fi
@@ -1569,11 +1570,13 @@ proper implementations.
 bad_record_mac
 .br
 This alert is returned if a record is received with an incorrect
-MAC. This alert also MUST be returned if an alert is
-sent because a TLSCiphertext
-decrypted in an invalid way: either it wasn't an even multiple
-of the block length, or its padding values, when checked,
-weren't correct. This message is always fatal.
+MAC. This alert also MUST be returned if an alert is sent because a
+TLSCiphertext decrypted in an invalid way: either it wasn't an even
+multiple of the block length, or its padding values, when checked,
+weren't correct. This message is always fatal and should never be
+observed in communication between proper implementations (except when
+messages were corrupted in the network).
+
 
 .ti 3
 decryption_failed_RESERVED
@@ -1587,14 +1590,17 @@ record_overflow
 .br
 A TLSCiphertext record was received that had a length more than
 2^14+2048 bytes, or a record decrypted to a TLSCompressed record
-with more than 2^14+1024 bytes. This message is always fatal.
+with more than 2^14+1024 bytes. This message is always fatal 
+and should never be observed in communication between proper
+implementations (except when messages were corrupted in the network).
 
 .ti 3
 decompression_failure
 .br
 The decompression function received improper input (e.g., data
 that would expand to excessive length). This message is always
-fatal.
+fatal and should never be observed in communication between proper
+implementations.
 
 .ti 3
 handshake_failure
@@ -1662,14 +1668,17 @@ decode_error
 .br
 A message could not be decoded because some field was out of the
 specified range or the length of the message was incorrect. This
-message is always fatal.
+message is always fatal and should never be observed in communication
+between proper implementations (except when messages were corrupted in
+the network).
+
 
 .ti 3
 decrypt_error
 .br
 A handshake cryptographic operation failed, including being
-unable to correctly verify a signature, decrypt a key exchange,
-or validate a finished message.
+unable to correctly verify a signature or validate a finished
+message. This message is always fatal.
 
 .ti 3
 .ne 5
@@ -2087,10 +2096,10 @@ content of the handshake as a whole, including the SessionID, is
 protected by the Finished messages exchanged at the end of the
 handshake.)
 
-The CipherSuite list, passed from the client to the server in the
+The cipher suite list, passed from the client to the server in the
 client hello message, contains the combinations of cryptographic
 algorithms supported by the client in order of the client's
-preference (favorite choice first). Each CipherSuite defines a key
+preference (favorite choice first). Each cipher suite defines a key
 exchange algorithm, a bulk encryption algorithm (including secret
 key length), a MAC algorithm, and a PRF.  The server will select a cipher
 suite or, if no acceptable choices are presented, return a handshake
@@ -2175,23 +2184,21 @@ able to agree on a compression method.
 
 .ne 2
 .ti 3
-client_hello_extension_list
+extensions
 .br
 Clients MAY request extended functionality from servers by sending
-data in the client_hello_extension_list.
-Here the new "client_hello_extension_list" field contains a list of
+data in the extensions
+Here the new "extensions" field contains a list of
 extensions.  The actual "Extension" format is defined in Section 7.4.1.4.
 
 .in 3
 In the event that a client requests additional functionality using
 extensions, and this functionality is not supplied by
 the server, the client MAY abort the handshake. 
-A server that supports the extensions mechanism MUST accept 
-client hello messages in either the original (TLS 1.0/TLS 1.1)
-ClientHello or the extended ClientHello 
-format defined in this document, and (as for all other messages) MUST check that the amount of
-data in the message precisely matches one of these formats; if not
-then it MUST send a fatal "decode_error" alert. 
+A server MUST accept client hello messages both with and without the
+extensions field, and (as for all other messages) MUST check that the
+amount of data in the message precisely matches one of these formats;
+if not, then it MUST send a fatal "decode_error" alert.
 
 After sending the client hello message, the client waits for a
 server hello message. Any other handshake message returned by the
@@ -2285,7 +2292,7 @@ list in ClientHello.compression_methods. For resumed sessions
 this field is the value from the resumed session state.
 
 .ti 3
-server_hello_extension_list
+extensions
 .br
 A list of extensions. Note that only extensions offered by the
 client can appear in the server's list.
@@ -2367,7 +2374,7 @@ consideration in any major design change.
 7.4.1.4.1 Signature Algorithms
 
 .in 3
-The client MAY use the "signature_algorithms" extension to indicate
+The client uses the "signature_algorithms" extension to indicate
 to the server which signature/hash algorithm pairs may be used
 in digital signatures. The "extension_data"
 field of this extension contains a "supported_signature_algorithms"
@@ -2378,7 +2385,7 @@ value.
 enum {
     none(0), md5(1), sha1(2), sha256(3), sha384(4), 
     sha512(5), (255)
-} HashAlgorithm;
+} HashAl[gorithm;
 
 enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) } 
   SignatureAlgorithm;
@@ -2389,7 +2396,7 @@ struct {
 } SignatureAndHashAlgorithm;
 
 SignatureAndHashAlgorithm
-  supported_signature_algorithms<2..2^16-1>;
+  supported_signature_algorithms<2..2^16-2>;
 .fi
 
 .in 3
@@ -2415,9 +2422,9 @@ which does not require hashing before signing.
 signature
 .br
 This field indicates the signature algorithm which may be used.
-The values indicate anonymous signatures, RSA [PKCS1] and 
+The values indicate anonymous signatures, RSASSA-PKCS1-v1_5 [PKCS1] and 
 DSA [DSS] respectively. The "anonymous" value is meaningless
-in this context but used later in the specification. It MUST
+in this context but used in Section 7.4.3. It MUST
 NOT appear in this extension.
 
 .in 3
@@ -2426,11 +2433,16 @@ the cipher suite indicates permissible signature algorithms
 but not hash algorithm. Sections 7.4.2 and 7.4.3 describe
 the appropriate rules.
 
-Clients SHOULD send this extension if they support any hash
-algorithm other than SHA-1. 
+If the client supports only the default hash and signature algorithms
+(listed in this section), it MAY omit the signature_algorithms
+extension. If the client does not support the default algorithms, or
+supports other hash and signature algorithms (and it is willing to use
+them for verifying messages sent by server; server certificates and
+server key exchange), it MUST send the signature_algorithms extension
+listing the algorithms it is willing to accept.
 
 If the client does not send the signature_algorithms 
-extension, the server SHOULD assume the following:
+extension, the server MUST assume the following:
 
 .ti 3
 -  If the negotiated key exchange algorithm is one
@@ -2451,7 +2463,15 @@ Note: this is a
 change from TLS 1.1 where there are no explicit rules but as a
 practical matter one can assume that the peer supports MD5 and SHA-1.
 
-Servers MUST NOT send this extension.
+Note: this extension is not meaningless for TLS versions prior
+to 1.2. Clients MUST NOT offer it if they are offering prior
+versions. However, even if clients do offer it, the rules
+specified in [TLSEXT] require servers to ignore extensions
+they do not understand.
+
+Servers MUST NOT send this extension. TLS servers MUST support
+receiving this extension. 
+
 
 .ti 0
 7.4.2. Server Certificate
@@ -2469,7 +2489,7 @@ will always immediately follow the server hello message.
 .ti 3
 Meaning of this message:
 
-This message conveys the server's certificate to the
+This message conveys the server's certificate chain to the
 client. The certificate MUST be appropriate for the
 negotiated cipher suite's key exchange algorithm, and any
 negotiated extensions.
@@ -2518,7 +2538,7 @@ The following rules apply to the certificates sent by the server:
 negotiated otherwise (e.g., [TLSPGP]).
 
 .ti 3
--  The certificate's public key (and associated restrictions) 
+-  The end entity certificate's public key (and associated restrictions) 
 MUST be compatible with the selected key exchange 
 algorithm.
 
@@ -2591,7 +2611,7 @@ For example, a certificate with RSASSA-PSS signature key
 (id-RSASSA-PSS OID in SubjectPublicKeyInfo) cannot be used
 because TLS defines no corresponding signature algorithm.
 
-As CipherSuites that specify new key exchange methods are specified
+As cipher suites that specify new key exchange methods are specified
 for the TLS Protocol, they will imply certificate format and the
 required encoded keying information.
 
@@ -2721,9 +2741,6 @@ cipher suites against the "signature_algorithms" extension before
 selecting them. This is somewhat inelegant but is a compromise
 designed to minimize changes to the original cipher suite design.
 
-If no "signature_algorithms" extension is present, the server MUST
-use SHA-1 as the hash algorithm. 
-
 In addition, the hash and signature algorithms MUST
 be compatible with the key in the server's end-entity certificate.
 RSA keys MAY be used with any permitted hash algorithm, subject
@@ -2738,7 +2755,7 @@ should be used with each key size. In addition, future
 revisions of [PKIX] may specify mechanisms for certificates
 to indicate which digest algorithms are to be used with DSA.
 
-As additional CipherSuites are defined for TLS that include new key
+As additional cipher suites are defined for TLS that include new key
 exchange algorithms, the server key exchange message will be sent if
 and only if the certificate type associated with the key exchange
 algorithm does not provide enough information for the client to
@@ -2822,13 +2839,13 @@ by supported_signature_algorithms. The following rules apply:
 .in 6
 .ti 3
 -  Any certificates provided by the client MUST be signed using
-a hash/signature algorithm pair found in supported_signature_types.
+a hash/signature algorithm pair found in supported_signature_algorithms.
 
 .ti 3
 -  The end-entity certificate provided by the client MUST contain a
 key which is compatible with certificate_types. If the key is
 a signature key, it MUST be usable with some hash/signature algorithm
-pair in supported_signature_types.
+pair in supported_signature_algorithms.
 
 .ti 3
 -  For historical reasons, the names of some client certificate 
@@ -2839,8 +2856,8 @@ In TLS 1.2, this functionality has been obsoleted by the
 signature_types field, and the certificate type no longer 
 restricts the algorithm used to sign the certificate.
 For example, if the server sends dss_fixed_dh certificate type
-and {dss_sha1, rsa_sha1} signature types, the client MAY
-to reply with a certificate containing a static DH key, signed
+and {{sha1, dsa}, {sha1, rsa}} signature types, the client MAY
+reply with a certificate containing a static DH key, signed
 with RSA-SHA1.
 
 .in 3
@@ -2903,7 +2920,8 @@ in Section 7.4.2.
 .ti 3
 Meaning of this message:
 
-This message conveys the client's certificate to the server;
+This message conveys the client's certificate chain
+to the server;
 the server will use it when verifying the certificate verify
 message (when the client authentication is based on signing),
 or calculate the premaster secret (for non-ephemeral
@@ -2920,7 +2938,7 @@ In particular:
 negotiated otherwise (e.g. [TLSPGP]).
 
 .ti 3
--  The certificate's public key (and associated restrictions) 
+-  The end-entity certificate's public key (and associated restrictions) 
 has to be compatible with the certificate types listed in 
 CertificateRequest:
 
@@ -2953,11 +2971,13 @@ dss_fixed_dh        the same parameters as server's key.
 rsa_fixed_ecdh      ECDH-capable public key; MUST use 
 ecdsa_fixed_ecdh    the same curve as server's key, and
                     MUST use a point format supported by
+		    the server.
 .fi
 
 .ti 3
 -  If the certificate_authorities list in the certificate
-request message was non-empty, the certificate SHOULD be
+request message was non-empty, one of the certificates
+in the certificate chain SHOULD be
 issued by one of the listed CAs.
 
 .ti 3
@@ -3077,7 +3097,7 @@ Client implementations MUST always send the correct version
 number in PreMasterSecret. If ClientHello.client_version is TLS
 1.1 or higher, server implementations MUST check the version
 number as described in the note below. If the version number is
-earlier than 1.0, server implementations SHOULD check the
+1.0 pr earlier, server implementations SHOULD check the
 version number, but MAY have a configuration option to disable
 the check. Note that if the check fails, the PreMasterSecret
 SHOULD be randomized as described below.
@@ -3116,7 +3136,7 @@ the version number is not as expected. Instead, it MUST continue
 the handshake with a randomly generated premaster secret. 
 It may be useful to log the real cause of failure for
 troubleshooting purposes; however, care must be taken to 
-avoid leaking the information to an attacker (though, e.g.,
+avoid leaking the information to an attacker (through, e.g.,
 timing, log files, or other channels.)
 
 The RSAES-OAEP encryption scheme defined in [PKCS1] is more
@@ -3219,23 +3239,31 @@ Structure of this message:
 
 .nf
 struct {
-     Signature signature;
+     SignatureAndHashAlgorithm signature_algorithm;
+     digitally-signed struct {
+         opaque handshake_messages[handshake_messages_length];
+     }
 } CertificateVerify;
 .fi
 
-The Signature type is defined in 7.4.3.
+Here handshake_messages refers to all handshake messages sent or
+received starting at client hello up to but not including this
+message, including the type and length fields of the handshake
+messages. This is the concatenation of all the Handshake structures
+as defined in 7.4 exchanged thus far. Note that this requires both
+sides to either buffer the messages or compute running hashes for all
+potential hash algorithms up to the time of the CertificateVerify
+computation. Servers can minimize this computation cost by
+offering a restricted set of digest algorithms in the CertificateRequest
+message.
 
-The hash algorithm is denoted Hash below.
-
-CertificateVerify.signature.hash = Hash(handshake_messages);
-
-.in 3
-The hash and signature algorithms MUST be one of those present
-in the supported_signature_algorithms field of the CertificateRequest
-message. In addition, the hash and signature algorithms MUST
-be compatible with the key in the client's end-entity certificate.
-RSA keys MAY be used with any permitted hash algorith, subject
-to restrictions in the certificate, if any.
+The hash and signature algorithms used in
+the signature.  MUST be one of those present in the
+supported_signature_algorithms field of the CertificateRequest
+message. In addition, the hash and signature algorithms MUST be
+compatible with the key in the client's end-entity certificate.  RSA
+keys MAY be used with any permitted hash algorith, subject to
+restrictions in the certificate, if any.
 
 Because DSA signatures do not contain any secure indication of hash
 algorithm, there is a risk of hash substitution if multiple hashes
@@ -3246,11 +3274,6 @@ should be used with each key size. In addition, future
 revisions of [PKIX] may specify mechanisms for certificates
 to indicate which digest algorithms are to be used with DSA.
 
-Here handshake_messages refers to all handshake messages sent or
-received starting at client hello up to but not including this
-message, including the type and length fields of the handshake
-messages. This is the concatenation of all the Handshake structures
-as defined in 7.4 exchanged thus far.
 
 .ti 0
 7.4.9. Finished
@@ -3513,7 +3536,8 @@ A.1. Record Layer
 .nf
 .in 3
 struct {
-    uint8 major, minor;
+    uint8 major;
+    uint8 minor;
 } ProtocolVersion;
 
 ProtocolVersion version = { 3, 3 };     /* TLS v1.2*/
@@ -3817,14 +3841,14 @@ struct {
 } Finished;
 
 .ti 0
-A.5. The CipherSuite
+A.5. The Cipher Suite
 
 .in 3
 .fi
-The following values define the CipherSuite codes used in the client
+The following values define the cipher suite codes used in the client
 hello and server hello messages.
 
-A CipherSuite defines a cipher specification supported in TLS
+A cipher suite defines a cipher specification supported in TLS
 Version 1.2.
 
 TLS_NULL_WITH_NULL_NULL is specified and is the initial state of a
@@ -3855,7 +3879,7 @@ CipherSuite TLS_RSA_WITH_AES_256_CBC_SHA          = { 0x00,0x35 };
 .fi
 .in 3
 
-The following CipherSuite definitions are used for
+The following cipher suite definitions are used for
 server-authenticated (and optionally client-authenticated)
 Diffie-Hellman. DH denotes cipher suites in which the server's
 certificate contains the Diffie-Hellman parameters signed by the
@@ -3890,7 +3914,7 @@ CipherSuite TLS_DHE_RSA_WITH_AES_256_CBC_SHA      = { 0x00,0x39 };
 The following cipher suites are used for completely anonymous Diffie-
 Hellman communications in which neither party is authenticated. Note
 that this mode is vulnerable to man-in-the-middle attacks.  Using
-this mode therefore is of limited use: These ciphersuites MUST NOT be
+this mode therefore is of limited use: These cipher suites MUST NOT be
 used by TLS 1.2 implementations unless the application layer has
 specifically requested to allow anonymous key exchange.  (Anonymous
 key exchange may sometimes be acceptable, for example, to support
@@ -3924,7 +3948,7 @@ negotiate these cipher suites in TLS 1.2 mode. However, for backward
 compatibility they may be offered in the ClientHello for use with TLS
 1.0 or SSLv3 only servers. TLS 1.2 clients MUST check that the server
 did not choose one of these cipher suites during the handshake. These
-ciphersuites are listed below for informational purposes and to
+cipher suites are listed below for informational purposes and to
 reserve the numbers.
 
 CipherSuite TLS_RSA_WITH_IDEA_CBC_SHA             = { 0x00,0x07 };
@@ -4254,6 +4278,12 @@ produces a 20-byte output. Note that all references to SHA
 actually use the modified SHA-1 algorithm. [SHA]
 
 .ti 3
+SHA-256
+.br
+The 256-bit Secure Hash Algorithm is defined in FIPS PUB 180-2. It
+produces a 32-byte output.
+
+.ti 3
 SSL
 .br
 Netscape's Secure Socket Layer protocol [SSL3]. TLS is based on
@@ -4280,11 +4310,11 @@ the end of this document.
 
 .ti 0
 .bp
-Appendix C. CipherSuite Definitions
+Appendix C. Cipher Suite Definitions
 
 .in 0
 .nf
-CipherSuite                             Key          Cipher      Hash
+Cipher Suite                            Key          Cipher        Mac
                                         Exchange
 
 TLS_NULL_WITH_NULL_NULL                 NULL           NULL        NULL
@@ -4319,6 +4349,16 @@ Cipher       Type  Material Key Material   Size   Size
 NULL         Stream   0          0         0     N/A
 RC4_128      Stream  16         16         0     N/A
 3DES_EDE_CBC Block   24         24         8      8
+AES_128_CBC  Block   16         16         16    16
+AES_256_CBC  Block   32         32         16    16
+
+
+MAC       Algorithm    mac_length  mac_key_length
+
+NULL      N/A          0           0
+MD5       HMAC-MD5     16          16
+SHA       HMAC-SHA1    20          20
+SHA256    HMAC-SHA256  32          32
 .fi
 
 .in 6
@@ -4394,7 +4434,7 @@ addition of trusted CAs should be done very carefully. Users should
 be able to view information about the certificate and root CA.
 
 .ti 0
-D.3 CipherSuites
+D.3 Cipher Suites
 
 TLS supports a range of key sizes and security levels, including
 some that provide no or minimal security. A proper implementation
@@ -4421,7 +4461,10 @@ TLS protocol issues:
 -  Do you correctly handle handshake messages that are fragmented
    to multiple TLS records (see Section 6.2.1)? Including corner
    cases like a ClientHello that is split to several small
-   fragments?
+   fragments? Do you fragment handshake messages that exceed the 
+   maximum fragment size? In particular, the certificate and 
+   certificate request handshake messages can be large enough to
+   require fragmentation.
 
 -  Do you ignore the TLS record layer version number in all TLS
    records before ServerHello (see Appendix E.1)?
@@ -4461,6 +4504,9 @@ Cryptographic details:
 
 -  How do you generate unpredictable IVs for CBC mode ciphers
    (see Section 6.2.3.2)? 
+
+-  Do you accept long CBC mode padding (up to 255 bytes; see 
+   Section 6.2.3.2)?
 
 -  How do you address CBC mode timing attacks (Section 6.2.3.2)?
 
@@ -4562,7 +4608,7 @@ TLS 1.2 clients that wish to support SSL 2.0 servers MUST
 send version 2.0 CLIENT-HELLO messages defined in
 [SSL2]. The message MUST contain the same version number as
 would be used for ordinary ClientHello, and MUST encode the
-supported TLS ciphersuites in the CIPHER-SPECS-DATA field as
+supported TLS cipher suites in the CIPHER-SPECS-DATA field as
 described below.
 
 Warning: The ability to send version 2.0 CLIENT-HELLO messages
@@ -4647,7 +4693,7 @@ This is a list of all CipherSpecs the client is willing and
 able to use. In addition to the 2.0 cipher specs defined in
 [SSL2], this includes the TLS cipher suites normally sent in
 ClientHello.cipher_suites, each cipher suite prefixed by a 
-zero byte. For example, TLS ciphersuite {0x00,0x0A} would be 
+zero byte. For example, TLS cipher suite {0x00,0x0A} would be 
 sent as {0x00,0x00,0x0A}.
 
 .ti 3
@@ -4816,12 +4862,12 @@ to prevent small subgroup attacks. Implementations SHOULD follow the
 guidelines found in [SUBGROUP].
 
 Small subgroup attacks are most easily avoided by using one of the
-DHE ciphersuites and generating a fresh DH private key (X) for each
+DHE cipher suites and generating a fresh DH private key (X) for each
 handshake. If a suitable base (such as 2) is chosen, g^X mod p can
 be computed very quickly, therefore the performance cost is minimized. 
 Additionally, using a fresh key for each handshake provides
 Perfect Forward Secrecy. Implementations SHOULD generate a new
-X for each handshake when using DHE ciphersuites.
+X for each handshake when using DHE cipher suites.
 
 Because TLS allows the server to provide arbitrary DH groups, the
 client should verify that the DH group is of suitable
@@ -4938,7 +4984,7 @@ F.4. Security of Composite Cipher Modes
 
 TLS secures transmitted application data via the use of symmetric 
 encryption and authentication functions defined in the negotiated 
-ciphersuite.  The objective is to protect both the integrity and 
+cipher suite.  The objective is to protect both the integrity and 
 confidentiality of the transmitted data from malicious actions by 
 active attackers in the network.  It turns out that the order in 
 which encryption and authentication functions are applied to the 
@@ -4957,7 +5003,7 @@ of encryption functions and MAC functions, but it is not guaranteed
 to be secure in general. In particular, it has been shown that there 
 exist perfectly secure encryption functions (secure even in the information-theoretic sense) that combined with any secure MAC function, fail 
 to provide the confidentiality goal against an active attack.  
-Therefore, new ciphersuites and operation modes adopted into TLS need 
+Therefore, new cipher suites and operation modes adopted into TLS need 
 to be analyzed under the authenticate-then-encrypt method to verify 
 that they achieve the stated integrity and confidentiality goals.
 
@@ -5017,26 +5063,43 @@ authority can do tremendous damage.
 
 .ti 0
 Changes in This Version 
-
 .in 3
 [RFC Editor: Please delete this]
 
 .ti 3
-- SSLv2 backward compatibility downgraded to MAY
+- Added a new pitfall about fragmenting messages when necessary
+  [Issue #71]
 
 .ti 3
-- Altered DSA hash rules to more closely match FIPS186-3 and
-  PKIX, plus remove OID restriction.
+- Added Updates: RFC 4492 [Issue #83]
 
 .ti 3
-- verify_length no longer in SecurityParameters
+- Long CBC padding pitfall [Issue #73]
 
 .ti 3
-- Moved/cleaned up cert selection text for server cert
-  when signature_algorithms is not specified.
+- Fixed ProtocolVersion structure [Issue #79]
 
 .ti 3
-- Other editorial changes.
+- Cleaned up extensions text [Issue #78]
+
+.ti 3
+- Clarified alerts some [Issue #85]
+
+.ti 3
+- Added AES to the table in Appendix C [Issue #72]
+
+.ti 3
+- Tightened up when signature_algorithms is used
+  (it is now a MUST if you support other than SHA-1) 
+  and the interpretation when it is absent is also a MUST
+  [Issue #67]
+
+.ti 3
+- Cleaned up "cipher suite" so it's always two words outside
+  of when it refers to the syntactic type [Issue #68]
+
+.ti 3
+- Misc editorial.
 
 .fi
 .ti 0
@@ -5067,11 +5130,6 @@ Institute of Standards and Technology, U.S. Department of Commerce,
 Keyed-Hashing for Message Authentication", RFC 2104, February 1997.
 
 .ti 3
-[IDEA]   X. Lai, "On the Design and Security of Block Ciphers," ETH
-Series in Information Processing, v. 1, Konstanz: Hartung-Gorre
-Verlag, 1992.
-
-.ti 3
 [MD5]    Rivest, R., "The MD5 Message Digest Algorithm", RFC 1321,
 April 1992.
 
@@ -5085,9 +5143,6 @@ February 2003.
 X.509 Public Key Infrastructure Certificate and Certificate
 Revocation List (CRL) Profile", RFC 3280, April 2002.
 
-.ti 3
-[RC2]    Rivest, R., "A Description of the RC2(r) Encryption Algorithm",
-RFC 2268, March 1998. 
 
 .ti 3 
 [SCH]    B. Schneier. "Applied Cryptography: Protocols, Algorithms, and Source
@@ -5163,6 +5218,11 @@ Recommendation for Block Cipher Modes of Operation:
 Galois/Counter Mode (GCM) and GMAC"
 
 .ti 3
+[IDEA]   X. Lai, "On the Design and Security of Block Ciphers," ETH
+Series in Information Processing, v. 1, Konstanz: Hartung-Gorre
+Verlag, 1992.
+
+.ti 3
 [IKEALG] Schiller, J., "Cryptographic Algorithms for Use in the
 Internet Key Exchange Version 2 (IKEv2)", RFC 4307, December
 2005.
@@ -5193,6 +5253,10 @@ Standard," version 1.5, November 1993.
 [RANDOM] Eastlake, D., 3rd, Schiller, J., and S. Crocker,
 "Randomness Requirements for Security", BCP 106, RFC 4086,
 June 2005.
+
+.ti 3
+[RC2]    Rivest, R., "A Description of the RC2(r) Encryption Algorithm",
+RFC 2268, March 1998. 
 
 .ti 3
 [RFC3749] Hollenbeck, S., "Transport Layer Security Protocol
@@ -5248,7 +5312,7 @@ Extension Definitions", July 2007, draft-ietf-tls-rfc4366-bis-00.txt.
 
 .ti 3
 [TLSPGP] Mavrogiannopoulos, N., "Using OpenPGP keys for TLS
-authentication", draft-ietf-tls-openpgp-keys-11, July 2006.
+authentication", RFC 5081, November 2007.
 
 .ti 3
 [TLSPSK] Eronen, P., Tschofenig, H., "Pre-Shared Key Ciphersuites 
@@ -5434,3 +5498,4 @@ Acknowledgment
 
    Funding for the RFC Editor function is provided by the IETF
    Administrative Support Activity (IASA).
+	
