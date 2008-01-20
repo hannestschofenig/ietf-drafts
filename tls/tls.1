@@ -207,6 +207,9 @@ clients now MUST send an empty certificate list.
 cipher suite.
 
 .ti 3
+-  Added HMAC-SHA256 cipher suites
+
+.ti 3
 -  IDEA and DES are now deprecated.
 
 .ti 3
@@ -664,10 +667,10 @@ A() is defined as:
 
 .fi
 P_hash can be iterated as many times as is necessary to produce the
-required quantity of data. For example, if P_SHA-1 is being used to
-create 64 bytes of data, it will have to be iterated 4 times
-(through A(4)), creating 80 bytes of output data; the last 16 bytes
-of the final iteration will then be discarded, leaving 64 bytes of
+required quantity of data. For example, if P_SHA256 is being used to
+create 80 bytes of data, it will have to be iterated three times
+(through A(3)), creating 96 bytes of output data; the last 16 bytes
+of the final iteration will then be discarded, leaving 80 bytes of
 output data.
 
 TLS's PRF is created by applying P_hash to the secret as:
@@ -2385,7 +2388,7 @@ value.
 enum {
     none(0), md5(1), sha1(2), sha256(3), sha384(4), 
     sha512(5), (255)
-} HashAl[gorithm;
+} HashAlgorithm;
 
 enum { anonymous(0), rsa(1), dsa(2), ecdsa(3), (255) } 
   SignatureAlgorithm;
@@ -2463,7 +2466,7 @@ Note: this is a
 change from TLS 1.1 where there are no explicit rules but as a
 practical matter one can assume that the peer supports MD5 and SHA-1.
 
-Note: this extension is not meaningless for TLS versions prior
+Note: this extension is not meaningful for TLS versions prior
 to 1.2. Clients MUST NOT offer it if they are offering prior
 versions. However, even if clients do offer it, the rules
 specified in [TLSEXT] require servers to ignore extensions
@@ -2603,7 +2606,8 @@ The naming is historical.
 If the server has multiple certificates, it chooses one of them
 based on the above-mentioned criteria (in addition to other
 criteria, such as transport layer endpoint, local configuration
-and preferences, etc.).
+and preferences, etc.). If the server has a single certificate
+it SHOULD attempt to validate that it meets these criteria.
 
 Note that there are certificates that use algorithms and/or
 algorithm combinations that cannot be currently used with TLS.
@@ -2853,7 +2857,7 @@ types include the algorithm used to sign the certificate.
 For example, in earlier versions of TLS, rsa_fixed_dh meant a 
 certificate signed with RSA and containing a static DH key.
 In TLS 1.2, this functionality has been obsoleted by the
-signature_types field, and the certificate type no longer 
+supported_signature_algorithms, and the certificate type no longer 
 restricts the algorithm used to sign the certificate.
 For example, if the server sends dss_fixed_dh certificate type
 and {{sha1, dsa}, {sha1, rsa}} signature types, the client MAY
@@ -3097,7 +3101,7 @@ Client implementations MUST always send the correct version
 number in PreMasterSecret. If ClientHello.client_version is TLS
 1.1 or higher, server implementations MUST check the version
 number as described in the note below. If the version number is
-1.0 pr earlier, server implementations SHOULD check the
+1.0 or earlier, server implementations SHOULD check the
 version number, but MAY have a configuration option to disable
 the check. Note that if the check fails, the PreMasterSecret
 SHOULD be randomized as described below.
@@ -3258,7 +3262,7 @@ offering a restricted set of digest algorithms in the CertificateRequest
 message.
 
 The hash and signature algorithms used in
-the signature.  MUST be one of those present in the
+the signature MUST be one of those present in the
 supported_signature_algorithms field of the CertificateRequest
 message. In addition, the hash and signature algorithms MUST be
 compatible with the key in the client's end-entity certificate.  RSA
@@ -3864,18 +3868,22 @@ CipherSuite TLS_NULL_WITH_NULL_NULL               = { 0x00,0x00 };
 
 The following CipherSuite definitions require that the server
 provide an RSA certificate that can be used for key exchange. The
-server may request either any signature-capable
+server may request any signature-capable
 certificate in the certificate request message.
 
 .in 6
 .nf
 CipherSuite TLS_RSA_WITH_NULL_MD5                 = { 0x00,0x01 };
 CipherSuite TLS_RSA_WITH_NULL_SHA                 = { 0x00,0x02 };
+CipherSuite TLS_RSA_WITH_NULL_SHA256              = { 0x00,0x40 };
 CipherSuite TLS_RSA_WITH_RC4_128_MD5              = { 0x00,0x04 };
 CipherSuite TLS_RSA_WITH_RC4_128_SHA              = { 0x00,0x05 };
 CipherSuite TLS_RSA_WITH_3DES_EDE_CBC_SHA         = { 0x00,0x0A };
 CipherSuite TLS_RSA_WITH_AES_128_CBC_SHA          = { 0x00,0x2F };
 CipherSuite TLS_RSA_WITH_AES_256_CBC_SHA          = { 0x00,0x35 };
+CipherSuite TLS_RSA_WITH_AES_128_CBC_SHA256       = { 0x00,0x41 };
+CipherSuite TLS_RSA_WITH_AES_256_CBC_SHA256       = { 0x00,0x42 };
+
 .fi
 .in 3
 
@@ -3886,7 +3894,7 @@ certificate contains the Diffie-Hellman parameters signed by the
 certificate authority (CA). DHE denotes ephemeral Diffie-Hellman,
 where the Diffie-Hellman parameters are signed by a a signature-capable
 certificate, which has been signed by the CA. The signing algorithm
-used is specified after the DH or DHE parameter. The server can
+used by the server is specified after the DHE parameter. The server can
 request any signature-capable certificate from the client
 for client authentication or it may request a Diffie-Hellman
 certificate. Any Diffie-Hellman certificate provided by the client
@@ -3908,6 +3916,14 @@ CipherSuite TLS_DH_DSS_WITH_AES_256_CBC_SHA       = { 0x00,0x36 };
 CipherSuite TLS_DH_RSA_WITH_AES_256_CBC_SHA       = { 0x00,0x37 };
 CipherSuite TLS_DHE_DSS_WITH_AES_256_CBC_SHA      = { 0x00,0x38 };
 CipherSuite TLS_DHE_RSA_WITH_AES_256_CBC_SHA      = { 0x00,0x39 };
+CipherSuite TLS_DH_DSS_WITH_AES_128_CBC_SHA256    = { 0x00,0x43 };
+CipherSuite TLS_DH_RSA_WITH_AES_128_CBC_SHA256    = { 0x00,0x44 };
+CipherSuite TLS_DHE_DSS_WITH_AES_128_CBC_SHA256   = { 0x00,0x45 };
+CipherSuite TLS_DHE_RSA_WITH_AES_128_CBC_SHA256   = { 0x00,0x46 };
+CipherSuite TLS_DH_DSS_WITH_AES_256_CBC_SHA256    = { 0x00,0x47 };
+CipherSuite TLS_DH_RSA_WITH_AES_256_CBC_SHA256    = { 0x00,0x48 };
+CipherSuite TLS_DHE_DSS_WITH_AES_256_CBC_SHA256   = { 0x00,0x49 };
+CipherSuite TLS_DHE_RSA_WITH_AES_256_CBC_SHA256   = { 0x00,0x4A };
 .fi
 .in 3
 
@@ -3928,6 +3944,8 @@ CipherSuite TLS_DH_anon_WITH_RC4_128_MD5          = { 0x00,0x18 };
 CipherSuite TLS_DH_anon_WITH_3DES_EDE_CBC_SHA     = { 0x00,0x1B };
 CipherSuite TLS_DH_anon_WITH_AES_128_CBC_SHA      = { 0x00,0x34 };
 CipherSuite TLS_DH_anon_WITH_AES_256_CBC_SHA      = { 0x00,0x3A };
+CipherSuite TLS_DH_anon_WITH_AES_128_CBC_SHA256   = { 0x00,0x4B };
+CipherSuite TLS_DH_anon_WITH_AES_256_CBC_SHA256   = { 0x00,0x4C };
 .fi
 .in 3
 
@@ -4320,11 +4338,14 @@ Cipher Suite                            Key          Cipher        Mac
 TLS_NULL_WITH_NULL_NULL                 NULL           NULL        NULL
 TLS_RSA_WITH_NULL_MD5                   RSA            NULL         MD5
 TLS_RSA_WITH_NULL_SHA                   RSA            NULL         SHA
+TLS_RSA_WITH_NULL_SHA256                RSA            NULL         SHA256
 TLS_RSA_WITH_RC4_128_MD5                RSA            RC4_128      MD5
 TLS_RSA_WITH_RC4_128_SHA                RSA            RC4_128      SHA
 TLS_RSA_WITH_3DES_EDE_CBC_SHA           RSA            3DES_EDE_CBC SHA
 TLS_RSA_WITH_AES_128_CBC_SHA            RSA            AES_128_CBC  SHA
 TLS_RSA_WITH_AES_256_CBC_SHA            RSA            AES_256_CBC  SHA
+TLS_RSA_WITH_AES_128_CBC_SHA256         RSA            AES_128_CBC  SHA256
+TLS_RSA_WITH_AES_256_CBC_SHA256         RSA            AES_256_CBC  SHA256
 TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA        DH_DSS         3DES_EDE_CBC SHA
 TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA        DH_RSA         3DES_EDE_CBC SHA
 TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA       DHE_DSS        3DES_EDE_CBC SHA
@@ -4341,6 +4362,16 @@ TLS_DH_RSA_WITH_AES_256_CBC_SHA         DH_RSA         AES_256_CBC  SHA
 TLS_DHE_DSS_WITH_AES_256_CBC_SHA        DHE_DSS        AES_256_CBC  SHA
 TLS_DHE_RSA_WITH_AES_256_CBC_SHA        DHE_RSA        AES_256_CBC  SHA
 TLS_DH_anon_WITH_AES_256_CBC_SHA        DH_anon        AES_256_CBC  SHA
+TLS_DH_DSS_WITH_AES_128_CBC_SHA256      DH_DSS         AES_128_CBC  SHA256
+TLS_DH_RSA_WITH_AES_128_CBC_SHA256      DH_RSA         AES_128_CBC  SHA256
+TLS_DHE_DSS_WITH_AES_128_CBC_SHA256     DHE_DSS        AES_128_CBC  SHA256
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256     DHE_RSA        AES_128_CBC  SHA256
+TLS_DH_anon_WITH_AES_128_CBC_SHA256     DH_anon        AES_128_CBC  SHA256
+TLS_DH_DSS_WITH_AES_256_CBC_SHA256      DH_DSS         AES_256_CBC  SHA256
+TLS_DH_RSA_WITH_AES_256_CBC_SHA256      DH_RSA         AES_256_CBC  SHA256
+TLS_DHE_DSS_WITH_AES_256_CBC_SHA256     DHE_DSS        AES_256_CBC  SHA256
+TLS_DHE_RSA_WITH_AES_256_CBC_SHA256     DHE_RSA        AES_256_CBC  SHA256
+TLS_DH_anon_WITH_AES_256_CBC_SHA256     DH_anon        AES_256_CBC  SHA256
 
 
                      Key      Expanded     IV    Block
@@ -5100,6 +5131,9 @@ Changes in This Version
 
 .ti 3
 - Misc editorial.
+
+.ti 3
+- Added support for SHA256 cipher suites
 
 .fi
 .ti 0
