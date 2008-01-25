@@ -39,7 +39,7 @@ Status of this Memo
 
 Copyright Notice
 
-   Copyright (C) The IETF Trust (2007).
+   Copyright (C) The IETF Trust (2008).
 
 Abstract
 
@@ -5606,7 +5606,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Full Copyright Statement
 
-   Copyright (C) The IETF Trust (2007).
+   Copyright (C) The IETF Trust (2008).
 
    This document is subject to the rights, licenses and restrictions
    contained in BCP 78, and except as set forth therein, the authors
