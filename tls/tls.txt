@@ -137,33 +137,33 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
    A.4.3.    Client Authentication and Key Exchange Messages          69
    A.4.4.    Handshake Finalization Message                           70
    A.5.      The Cipher Suite                                         70
-   A.6.      The Security Parameters                                  73
-   B.        Glossary                                                 75
-   C.        Cipher Suite Definitions                                 79
-   D.        Implementation Notes                                     81
-   D.1       Random Number Generation and Seeding                     81
-   D.2       Certificates and Authentication                          81
-   D.3       Cipher Suites                                            81
-   D.4       Implementation Pitfalls                                  81
-   E.        Backward Compatibility                                   84
-   E.1       Compatibility with TLS 1.0/1.1 and SSL 3.0               84
-   E.2       Compatibility with SSL 2.0                               85
-   E.3.      Avoiding Man-in-the-Middle Version Rollback              87
-   F.        Security Analysis                                        88
-   F.1.      Handshake Protocol                                       88
-   F.1.1.    Authentication and Key Exchange                          88
-   F.1.1.1.  Anonymous Key Exchange                                   88
-   F.1.1.2.  RSA Key Exchange and Authentication                      89
-   F.1.1.3.  Diffie-Hellman Key Exchange with Authentication          89
-   F.1.2.    Version Rollback Attacks                                 90
-   F.1.3.    Detecting Attacks Against the Handshake Protocol         91
-   F.1.4.    Resuming Sessions                                        91
-   F.2.      Protecting Application Data                              91
-   F.3.      Explicit IVs                                             92
-   F.4.      Security of Composite Cipher Modes                       92
-   F.5       Denial of Service                                        93
-   F.6       Final Notes                                              93
-
+   A.6.      The Security Parameters                                  72
+   A.7.      Changes to RFC 4492                                      73
+   B.        Glossary                                                 74
+   C.        Cipher Suite Definitions                                 78
+   D.        Implementation Notes                                     80
+   D.1       Random Number Generation and Seeding                     80
+   D.2       Certificates and Authentication                          80
+   D.3       Cipher Suites                                            80
+   D.4       Implementation Pitfalls                                  80
+   E.        Backward Compatibility                                   83
+   E.1       Compatibility with TLS 1.0/1.1 and SSL 3.0               83
+   E.2       Compatibility with SSL 2.0                               84
+   E.3.      Avoiding Man-in-the-Middle Version Rollback              86
+   F.        Security Analysis                                        87
+   F.1.      Handshake Protocol                                       87
+   F.1.1.    Authentication and Key Exchange                          87
+   F.1.1.1.  Anonymous Key Exchange                                   87
+   F.1.1.2.  RSA Key Exchange and Authentication                      88
+   F.1.1.3.  Diffie-Hellman Key Exchange with Authentication          88
+   F.1.2.    Version Rollback Attacks                                 89
+   F.1.3.    Detecting Attacks Against the Handshake Protocol         90
+   F.1.4.    Resuming Sessions                                        90
+   F.2.      Protecting Application Data                              90
+   F.3.      Explicit IVs                                             91
+   F.4.      Security of Composite Cipher Modes                       91
+   F.5       Denial of Service                                        92
+   F.6       Final Notes                                              92
 
 
 
@@ -289,7 +289,8 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
    -  Added HMAC-SHA256 cipher suites
 
-   -  IDEA and DES are now deprecated.
+   -  Removed IDEA and DES cipher suites. They are now deprecated and
+      will be documented in a separate document.
 
    -  Support for the SSLv2 backward-compatible hello is now a MAY, not
       a SHOULD. This will probably become a SHOULD NOT in the future.
@@ -331,7 +332,6 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
    between this protocol and SSL 3.0 are not dramatic, but they are
    significant enough that the various versions of TLS and SSL 3.0 do
    not interoperate (although each protocol incorporates a mechanism by
-   which an implementation can back down to prior versions). This
 
 
 
@@ -340,6 +340,7 @@ Dierks & Rescorla            Standards Track                    [Page 6]
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
+   which an implementation can back down to prior versions). This
    document is intended primarily for readers who will be implementing
    the protocol and for those doing cryptographic analysis of it. The
    specification has been written with this in mind, and it is intended
@@ -387,7 +388,6 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
    brackets.
 
    Single-byte entities containing uninterpreted data are of type
-   opaque.
 
 
 
@@ -395,6 +395,8 @@ Dierks & Rescorla            Standards Track                    [Page 7]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
+
+   opaque.
 
 4.3. Vectors
 
@@ -442,8 +444,6 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
             /* length field is 2 bytes, cannot be empty */
       uint16 longer<0..800>;
             /* zero to 400 16-bit unsigned integers */
-
-
 
 
 
@@ -2650,7 +2650,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
    Structure of this message:
 
-      enum { diffie_hellman, rsa } KeyExchangeAlgorithm;
+      enum { diffie_hellman } KeyExchangeAlgorithm;
 
       struct {
           opaque dh_p<1..2^16-1>;
@@ -3774,7 +3774,7 @@ A.4.2. Server Authentication and Key Exchange Messages
        ASN.1Cert certificate_list<0..2^24-1>;
    } Certificate;
 
-   enum { rsa, diffie_hellman } KeyExchangeAlgorithm;
+   enum { diffie_hellman } KeyExchangeAlgorithm;
 
    struct {
        opaque dh_p<1..2^16-1>;
@@ -3992,59 +3992,6 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
    interoperability not to disable non-anonymous key exchange when the
    application layer is allowing anonymous key exchange.
 
-   SSLv3, TLS 1.0, and TLS 1.1 supported DES and IDEA. DES had a 56-bit
-   key which is too weak for modern use. Triple-DES (3DES) has an
-   effective key strength of 112 bits and is still acceptable.  IDEA and
-   is no longer in wide use. Cipher suites using RC2, DES, and IDEA are
-   hereby deprecated for TLS 1.2. TLS 1.2 implementations MUST NOT
-   negotiate these cipher suites in TLS 1.2 mode. However, for backward
-   compatibility they may be offered in the ClientHello for use with TLS
-   1.0 or SSLv3 only servers. TLS 1.2 clients MUST check that the server
-   did not choose one of these cipher suites during the handshake. These
-   cipher suites are listed below for informational purposes and to
-   reserve the numbers.
-
-   CipherSuite TLS_RSA_WITH_IDEA_CBC_SHA             = { 0x00,0x07 };
-   CipherSuite TLS_RSA_WITH_DES_CBC_SHA              = { 0x00,0x09 };
-   CipherSuite TLS_DH_DSS_WITH_DES_CBC_SHA           = { 0x00,0x0C };
-   CipherSuite TLS_DH_RSA_WITH_DES_CBC_SHA           = { 0x00,0x0F };
-   CipherSuite TLS_DHE_RSA_WITH_DES_CBC_SHA          = { 0x00,0x15 };
-   CipherSuite TLS_DHE_DSS_WITH_DES_CBC_SHA          = { 0x00,0x12 };
-   CipherSuite TLS_DH_anon_WITH_DES_CBC_SHA          = { 0x00,0x1A };
-
-
-   When SSLv3 and TLS 1.0 were designed, the United States restricted
-   the export of cryptographic software containing certain strong
-   encryption algorithms. A series of cipher suites were designed to
-   operate at reduced key lengths in order to comply with those
-   regulations. Due to advances in computer performance, these
-   algorithms are now unacceptably weak and export restrictions have
-   since been loosened. TLS 1.2 implementations MUST NOT negotiate these
-   cipher suites in TLS 1.2 mode. However, for backward compatibility
-   they may be offered in the ClientHello for use with TLS 1.0 or SSLv3
-   only servers. TLS 1.2 clients MUST check that the server did not
-   choose one of these cipher suites during the handshake. These
-   ciphersuites are listed below for informational purposes and to
-   reserve the numbers.
-
-      CipherSuite TLS_RSA_EXPORT_WITH_RC4_40_MD5        = { 0x00,0x03 };
-
-
-
-Dierks & Rescorla            Standards Track                   [Page 72]
-
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
-
-
-      CipherSuite TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5    = { 0x00,0x06 };
-      CipherSuite TLS_RSA_EXPORT_WITH_DES40_CBC_SHA     = { 0x00,0x08 };
-      CipherSuite TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA  = { 0x00,0x0B };
-      CipherSuite TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA  = { 0x00,0x0E };
-      CipherSuite TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA = { 0x00,0x11 };
-      CipherSuite TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA = { 0x00,0x14 };
-      CipherSuite TLS_DH_anon_EXPORT_WITH_RC4_40_MD5    = { 0x00,0x17 };
-      CipherSuite TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA = { 0x00,0x19 };
-
    New cipher suite values are assigned by IANA as described in Section
    12.
 
@@ -4081,17 +4028,17 @@ A.6. The Security Parameters
        BulkCipherAlgorithm    bulk_cipher_algorithm;
        CipherType             cipher_type;
        uint8                  enc_key_length;
-       uint8                  block_length;
-       uint8                  fixed_iv_length;
-       uint8                  record_iv_length;
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 73]
+Dierks & Rescorla            Standards Track                   [Page 72]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
+       uint8                  block_length;
+       uint8                  fixed_iv_length;
+       uint8                  record_iv_length;
        MACAlgorithm           mac_algorithm;
        uint8                  mac_length;
        uint8                  mac_key_length;
@@ -4101,51 +4048,52 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
        opaque                 server_random[32];
    } SecurityParameters;
 
+A.7. Changes to RFC 4492
+
+   RFC 4492 [TLSECC] adds Elliptic Curve cipher suites to TLS.  This
+   document changes some of the structures used in that document. This
+   section details the required changes for implementors of both RFC 4492
+   and TLS 1.2. Implementors of TLS 1.2 who are not implementing RFC 4492
+   do not need to read this section.
+
+   This document adds a "signature_algorithm" field to RSA and DSA
+   signatures in order to identify the signature and digest algorithms
+   used to create a signature. Section 5.4 of RFC 4492 updates the
+   Signature type to include a new signature algorithm, "ecdsa".  When
+   used with TLS 1.2, this type becomes:
+
+
+                select (SignatureAlgorithm) {
+                    case ecdsa:
+                     SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
+                        digitally-signed struct {
+                            opaque sha_hash[sha_size];
+                        };
+                } Signature;
+
+      This change applies to the ServerKeyExchange and the
+      CertificateVerify messages. This allows these messages to be used
+      with ECDSA signatures and digest algorithms other than SHA-1,
+      provided such use is compatible with the certificate and any
+      restrictions imposed by future revisions of [PKIX].
+
+      As described in Sections 7.4.2 and 7.4.6, the restrictions on the
+      signature algorithms used to sign certificates are no longer tied
+      to the cipher suite (when used by the server) or the
+      ClientCertificateType (when used by the client). Thus, the
+      restrictions on the algorithm used ot sign certificates specified
+      in Sections 2 and 3 of RFC 4492 are also relaxed. As in this
+      document the restrictions on the keys in the end-entity
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Dierks & Rescorla            Standards Track                   [Page 74]
+Dierks & Rescorla            Standards Track                   [Page 73]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+
+
+      certificate remain.
+
 
 
 Appendix B. Glossary
@@ -4193,17 +4141,16 @@ Appendix B. Glossary
       Authority and provide a strong binding between a party's identity
       or some other attributes and its public key.
 
-   client
-      The application entity that initiates a TLS connection to a
-      server. This may or may not imply that the client initiated the
 
 
-
-Dierks & Rescorla            Standards Track                   [Page 75]
+Dierks & Rescorla            Standards Track                   [Page 74]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
+   client
+      The application entity that initiates a TLS connection to a
+      server. This may or may not imply that the client initiated the
       underlying transport connection. The primary operational
       difference between the server and client is that the server is
       generally authenticated, while the client is only optionally
@@ -4249,17 +4196,17 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
       An initial negotiation between client and server that establishes
       the parameters of their transactions.
 
-   Initialization Vector (IV)
-      When a block cipher is used in CBC mode, the initialization vector
-      is exclusive-ORed with the first plaintext block prior to
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 76]
+Dierks & Rescorla            Standards Track                   [Page 75]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
+   Initialization Vector (IV)
+      When a block cipher is used in CBC mode, the initialization vector
+      is exclusive-ORed with the first plaintext block prior to
       encryption.
 
    IDEA
@@ -4292,9 +4239,6 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
       the transformation or to find collisions. MD5 and SHA are examples
       of one-way hash functions.
 
-   RC2
-      A block cipher developed by Ron Rivest, described in [RC2].
-
    RC4
       A stream cipher invented by Ron Rivest. A compatible cipher is
       described in [SCH].
@@ -4311,7 +4255,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 77]
+Dierks & Rescorla            Standards Track                   [Page 76]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4367,7 +4311,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 78]
+Dierks & Rescorla            Standards Track                   [Page 77]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4423,7 +4367,7 @@ NULL         Stream   0          0         0     N/A
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 79]
+Dierks & Rescorla            Standards Track                   [Page 78]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4479,7 +4423,7 @@ SHA256    HMAC-SHA256  32          32
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 80]
+Dierks & Rescorla            Standards Track                   [Page 79]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4535,7 +4479,7 @@ D.4 Implementation Pitfalls
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 81]
+Dierks & Rescorla            Standards Track                   [Page 80]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4591,7 +4535,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 82]
+Dierks & Rescorla            Standards Track                   [Page 81]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4647,7 +4591,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 83]
+Dierks & Rescorla            Standards Track                   [Page 82]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4703,7 +4647,7 @@ E.1 Compatibility with TLS 1.0/1.1 and SSL 3.0
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 84]
+Dierks & Rescorla            Standards Track                   [Page 83]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4759,7 +4703,7 @@ E.2 Compatibility with SSL 2.0
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 85]
+Dierks & Rescorla            Standards Track                   [Page 84]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4815,7 +4759,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 86]
+Dierks & Rescorla            Standards Track                   [Page 85]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4871,7 +4815,7 @@ E.3. Avoiding Man-in-the-Middle Version Rollback
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 87]
+Dierks & Rescorla            Standards Track                   [Page 86]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4927,7 +4871,7 @@ F.1.1.1. Anonymous Key Exchange
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 88]
+Dierks & Rescorla            Standards Track                   [Page 87]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -4983,7 +4927,7 @@ F.1.1.3. Diffie-Hellman Key Exchange with Authentication
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 89]
+Dierks & Rescorla            Standards Track                   [Page 88]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -5039,7 +4983,7 @@ F.1.2. Version Rollback Attacks
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 90]
+Dierks & Rescorla            Standards Track                   [Page 89]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -5095,7 +5039,7 @@ F.2. Protecting Application Data
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 91]
+Dierks & Rescorla            Standards Track                   [Page 90]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -5151,7 +5095,7 @@ F.4. Security of Composite Cipher Modes
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 92]
+Dierks & Rescorla            Standards Track                   [Page 91]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -5207,7 +5151,7 @@ F.6 Final Notes
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 93]
+Dierks & Rescorla            Standards Track                   [Page 92]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -5251,23 +5195,26 @@ Changes in This Version
    - Clarified warning alert behavior and client certificate omission
    behavior [Issue #84]
 
+   - Removed IDEA and DES entirely for documentation in a separate doc
+   [Issue #64]
+
 Normative References
 
    [AES]    National Institute of Standards and Technology,
             "Specification for the Advanced Encryption Standard (AES)"
             FIPS 197.  November 26, 2001.
 
-   [3DES]   National Institute of Standards and Technology,
-            "Recommendation for the Triple Data Encryption Algorithm
-            (TDEA) Block Cipher", NIST Special Publication 800-67, May
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 94]
+Dierks & Rescorla            Standards Track                   [Page 93]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
+   [3DES]   National Institute of Standards and Technology,
+            "Recommendation for the Triple Data Encryption Algorithm
+            (TDEA) Block Cipher", NIST Special Publication 800-67, May
             2004.
 
    [DES]    National Institute of Standards and Technology, "Data
@@ -5313,16 +5260,16 @@ Informative References
    [AEAD]   Mcgrew, D., "Authenticated Encryption", February 2007,
             draft-mcgrew-auth-enc-02.txt.
 
-   [AH]     Kent, S., and Atkinson, R., "IP Authentication Header", RFC
-            4302, December 2005.
 
 
 
-
-Dierks & Rescorla            Standards Track                   [Page 95]
+Dierks & Rescorla            Standards Track                   [Page 94]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
+
+   [AH]     Kent, S., and Atkinson, R., "IP Authentication Header", RFC
+            4302, December 2005.
 
    [BLEI]   Bleichenbacher D., "Chosen Ciphertext Attacks against
             Protocols Based on RSA Encryption Standard PKCS #1" in
@@ -5370,16 +5317,15 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
             Internet Key Exchange Version 2 (IKEv2)", RFC 4307, December
             2005.
 
-   [KEYSIZ] Orman, H., and Hoffman, P., "Determining Strengths For
-            Public Keys Used For Exchanging Symmetric Keys" RFC 3766,
 
 
-
-Dierks & Rescorla            Standards Track                   [Page 96]
+Dierks & Rescorla            Standards Track                   [Page 95]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
+   [KEYSIZ] Orman, H., and Hoffman, P., "Determining Strengths For
+            Public Keys Used For Exchanging Symmetric Keys" RFC 3766,
             April 2004.
 
    [KPR03]  Klima, V., Pokorny, O., Rosa, T., "Attacking RSA-based
@@ -5398,9 +5344,6 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
    [RANDOM] Eastlake, D., 3rd, Schiller, J., and S. Crocker, "Randomness
             Requirements for Security", BCP 106, RFC 4086, June 2005.
-
-   [RC2]    Rivest, R., "A Description of the RC2(r) Encryption
-            Algorithm", RFC 2268, March 1998.
 
    [RFC3749] Hollenbeck, S., "Transport Layer Security Protocol
             Compression Methods", RFC 3749, May 2004.
@@ -5428,15 +5371,14 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
             S/MIME", RFC 2785, March 2000.
 
    [TCP]    Postel, J., "Transmission Control Protocol," STD 7, RFC 793,
+            September 1981.
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 97]
+Dierks & Rescorla            Standards Track                   [Page 96]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
-
-            September 1981.
 
    [TIMING] Boneh, D., Brumley, D., "Remote timing attacks are
             practical", USENIX Security Symposium 2003.
@@ -5485,14 +5427,15 @@ Credits
 
    Editors
 
+   Tim Dierks                    Eric Rescorla
 
 
-Dierks & Rescorla            Standards Track                   [Page 98]
+
+Dierks & Rescorla            Standards Track                   [Page 97]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
-   Tim Dierks                    Eric Rescorla
    Independent                   Network Resonance, Inc.
    EMail: tim@dierks.org         EMail: ekr@networkresonance.com
 
@@ -5540,15 +5483,15 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
    Phil Karlton (co-author of SSLv3)
 
+   Paul Kocher (co-author of SSLv3)
 
 
 
-Dierks & Rescorla            Standards Track                   [Page 99]
+Dierks & Rescorla            Standards Track                   [Page 98]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 
-   Paul Kocher (co-author of SSLv3)
    Cryptography Research
    paul@cryptography.com
 
@@ -5599,7 +5542,8 @@ Comments
 
 
 
-Dierks & Rescorla            Standards Track                  [Page 100]
+
+Dierks & Rescorla            Standards Track                   [Page 99]
 
 draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
@@ -5655,5 +5599,5 @@ Acknowledgment
 
 
 
-Dierks & Rescorla            Standards Track                  [Page 101]
+Dierks & Rescorla            Standards Track                  [Page 100]
 

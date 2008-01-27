@@ -210,7 +210,8 @@ cipher suite.
 -  Added HMAC-SHA256 cipher suites
 
 .ti 3
--  IDEA and DES are now deprecated.
+-  Removed IDEA and DES cipher suites. They are now deprecated
+and will be documented in a separate document.
 
 .ti 3
 -  Support for the SSLv2 backward-compatible hello is now 
@@ -2677,7 +2678,7 @@ Structure of this message:
 
 .in 6
 .nf
-enum { diffie_hellman, rsa } KeyExchangeAlgorithm;
+enum { diffie_hellman } KeyExchangeAlgorithm;
 
 struct {
     opaque dh_p<1..2^16-1>;
@@ -3765,7 +3766,7 @@ struct {
     ASN.1Cert certificate_list<0..2^24-1>;
 } Certificate;
 
-enum { rsa, diffie_hellman } KeyExchangeAlgorithm;
+enum { diffie_hellman } KeyExchangeAlgorithm;
 
 struct {
     opaque dh_p<1..2^16-1>;
@@ -3973,55 +3974,6 @@ cost than anonymous key exchange, it may be in the interest of
 interoperability not to disable non-anonymous key exchange when the
 application layer is allowing anonymous key exchange.
 
-SSLv3, TLS 1.0, and TLS 1.1 supported DES and IDEA. DES had a
-56-bit key which is too weak for modern use. Triple-DES (3DES) has an
-effective key strength of 112 bits and is still acceptable.  IDEA and
-is no longer in wide use. Cipher suites using RC2, DES, and IDEA
-are hereby deprecated for TLS 1.2. TLS 1.2 implementations MUST NOT
-negotiate these cipher suites in TLS 1.2 mode. However, for backward
-compatibility they may be offered in the ClientHello for use with TLS
-1.0 or SSLv3 only servers. TLS 1.2 clients MUST check that the server
-did not choose one of these cipher suites during the handshake. These
-cipher suites are listed below for informational purposes and to
-reserve the numbers.
-
-CipherSuite TLS_RSA_WITH_IDEA_CBC_SHA             = { 0x00,0x07 };
-CipherSuite TLS_RSA_WITH_DES_CBC_SHA              = { 0x00,0x09 };
-CipherSuite TLS_DH_DSS_WITH_DES_CBC_SHA           = { 0x00,0x0C };
-CipherSuite TLS_DH_RSA_WITH_DES_CBC_SHA           = { 0x00,0x0F };
-CipherSuite TLS_DHE_RSA_WITH_DES_CBC_SHA          = { 0x00,0x15 };
-CipherSuite TLS_DHE_DSS_WITH_DES_CBC_SHA          = { 0x00,0x12 };
-CipherSuite TLS_DH_anon_WITH_DES_CBC_SHA          = { 0x00,0x1A };
-
-
-When SSLv3 and TLS 1.0 were designed, the United States 
-restricted the export of cryptographic software containing certain
-strong encryption algorithms. A series of cipher suites were
-designed to operate at reduced key lengths in order to comply with
-those regulations. Due to advances in computer performance, these
-algorithms are now unacceptably weak and export restrictions have
-since been loosened. TLS 1.2 implementations MUST NOT negotiate
-these cipher suites in TLS 1.2 mode. However, for backward
-compatibility they may be offered in the ClientHello for use
-with TLS 1.0 or SSLv3 only servers. TLS 1.2 clients MUST check
-that the server did not choose one of these cipher suites during
-the handshake. These ciphersuites are listed below for informational
-purposes and to reserve the numbers.
-
-.nf
-.in 6
-CipherSuite TLS_RSA_EXPORT_WITH_RC4_40_MD5        = { 0x00,0x03 };
-CipherSuite TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5    = { 0x00,0x06 };
-CipherSuite TLS_RSA_EXPORT_WITH_DES40_CBC_SHA     = { 0x00,0x08 };
-CipherSuite TLS_DH_DSS_EXPORT_WITH_DES40_CBC_SHA  = { 0x00,0x0B };
-CipherSuite TLS_DH_RSA_EXPORT_WITH_DES40_CBC_SHA  = { 0x00,0x0E };
-CipherSuite TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA = { 0x00,0x11 };
-CipherSuite TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA = { 0x00,0x14 };
-CipherSuite TLS_DH_anon_EXPORT_WITH_RC4_40_MD5    = { 0x00,0x17 };
-CipherSuite TLS_DH_anon_EXPORT_WITH_DES40_CBC_SHA = { 0x00,0x19 };
-.fi
-.in 3
-
 New cipher suite values are assigned by IANA as described
 in Section 12.
 
@@ -4073,7 +4025,49 @@ struct {
     opaque                 server_random[32];
 } SecurityParameters;
 
-.bp
+.ti 0
+A.7. Changes to RFC 4492
+
+RFC 4492 [TLSECC] adds Elliptic Curve cipher suites to TLS.  This
+document changes some of the structures used in that document. This
+section details the required changes for implementors of both RFC 4492
+and TLS 1.2. Implementors of TLS 1.2 who are not implementing RFC 4492
+do not need to read this section.
+
+This document adds a "signature_algorithm" field to RSA and DSA
+signatures in order to identify the signature and digest algorithms
+used to create a signature. Section 5.4 of RFC 4492 updates the
+Signature type to include a new signature algorithm, "ecdsa".  When
+used with TLS 1.2, this type becomes:
+
+
+.in 6
+.nf
+          select (SignatureAlgorithm) {
+              case ecdsa:
+	          SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
+                  digitally-signed struct {
+                      opaque sha_hash[sha_size];
+                  };
+          } Signature;
+.fi
+
+This change applies to the ServerKeyExchange and the CertificateVerify
+messages. This allows these messages to be used with ECDSA signatures
+and digest algorithms other than SHA-1, provided such use is compatible
+with the certificate and any restrictions imposed by future revisions
+of [PKIX].
+
+As described in Sections 7.4.2 and 7.4.6, the restrictions on the
+signature algorithms used to sign certificates are no longer tied to
+the cipher suite (when used by the server) or the
+ClientCertificateType (when used by the client). Thus, the restrictions
+on the algorithm used ot sign certificates specified in
+Sections 2 and 3 of RFC 4492 are also relaxed. As in this document
+the restrictions on the keys in the end-entity certificate remain.
+
+
+
 .ti 0
 Appendix B. Glossary
 
@@ -4253,11 +4247,6 @@ A one-way transformation that converts an arbitrary amount of
 data into a fixed-length hash. It is computationally hard to
 reverse the transformation or to find collisions. MD5 and SHA
 are examples of one-way hash functions.
-
-.ti 3
-RC2
-.br
-A block cipher developed by Ron Rivest, described in [RC2].
 
 .ti 3
 RC4
@@ -5155,6 +5144,10 @@ Changes in This Version
 - Clarified warning alert behavior and client certificate
 omission behavior [Issue #84]
 
+.ti 3
+- Removed IDEA and DES entirely for documentation in a separate
+doc [Issue #64]
+
 .fi
 .ti 0
 Normative References
@@ -5307,10 +5300,6 @@ Standard," version 1.5, November 1993.
 [RANDOM] Eastlake, D., 3rd, Schiller, J., and S. Crocker,
 "Randomness Requirements for Security", BCP 106, RFC 4086,
 June 2005.
-
-.ti 3
-[RC2]    Rivest, R., "A Description of the RC2(r) Encryption Algorithm",
-RFC 2268, March 1998. 
 
 .ti 3
 [RFC3749] Hollenbeck, S., "Transport Layer Security Protocol
