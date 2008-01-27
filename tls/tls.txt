@@ -8,7 +8,7 @@ INTERNET-DRAFT                                                Tim Dierks
 Obsoletes (if approved): RFC 3268, 4346, 4366                Independent
 Updates (if approved): RFC 4492                            Eric Rescorla
 Intended status:  Proposed Standard              Network Resonance, Inc.
-<draft-ietf-tls-rfc4346-bis-08.txt>     January 2008 (Expires July 2008)
+<draft-ietf-tls-rfc4346-bis-09.txt>     January 2008 (Expires July 2008)
 
 
               The Transport Layer Security (TLS) Protocol
@@ -57,7 +57,7 @@ Abstract
 
 Dierks & Rescorla            Standards Track                    [Page 1]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 Table of Contents
@@ -113,7 +113,7 @@ Table of Contents
 
 Dierks & Rescorla            Standards Track                    [Page 2]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    7.4.7.2.  Client Diffie-Hellman Public Value                       57
@@ -169,7 +169,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                    [Page 3]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 1. Introduction
@@ -225,7 +225,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                    [Page 4]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    transparently. The TLS standard, however, does not specify how
@@ -281,7 +281,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                    [Page 5]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    -  TLS_RSA_WITH_AES_128_CBC_SHA is now the mandatory to implement
@@ -337,7 +337,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                    [Page 6]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    which an implementation can back down to prior versions). This
@@ -393,7 +393,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                    [Page 7]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    opaque.
@@ -449,7 +449,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                    [Page 8]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 4.4. Numbers
@@ -505,7 +505,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                    [Page 9]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    the second element of the enumeration would be Color.blue. Such
@@ -561,7 +561,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 10]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
               ....
@@ -617,7 +617,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 11]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    In RSA signing, the opaque vector contains the signature generated
@@ -673,7 +673,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 12]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    In the following example
@@ -729,7 +729,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 13]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    SHA-256 hash function is used for all cipher suites defined in this
@@ -785,7 +785,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 14]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    higher-level clients.
@@ -841,7 +841,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 15]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    PRF algorithm
@@ -897,7 +897,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 16]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       /* The algorithms specified in CompressionMethod,
@@ -953,7 +953,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 17]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       will also contain whatever state information is necessary to allow
@@ -1009,7 +1009,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 18]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    type
@@ -1065,7 +1065,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 19]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    Compression must be lossless and may not increase the content length
@@ -1121,7 +1121,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 20]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    length
@@ -1177,7 +1177,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 21]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    For block ciphers (such as 3DES, or AES), the encryption and MAC
@@ -1233,7 +1233,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 22]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    Example: If the block length is 8 bytes, the content length
@@ -1289,7 +1289,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 23]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    AEAD operation is constructed, and what is the length of the
@@ -1345,7 +1345,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 24]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    The master secret is expanded into a sequence of secure bytes, which
@@ -1401,7 +1401,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 25]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    peer certificate
@@ -1457,7 +1457,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 26]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    Note: If a rehandshake occurs while data is flowing on a connection,
@@ -1513,7 +1513,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 27]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
           no_renegotiation(100),
@@ -1569,7 +1569,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 28]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 7.2.2. Error Alerts
@@ -1625,7 +1625,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 29]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    decryption_failed_RESERVED
@@ -1681,7 +1681,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 30]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    unknown_ca
@@ -1737,7 +1737,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 31]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       handshake is complete, just closing the connection by sending a
@@ -1793,7 +1793,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 32]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    -  Exchange certificates and cryptographic information to allow the
@@ -1849,7 +1849,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 33]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    if it is to be authenticated. Additionally, a server key exchange
@@ -1905,7 +1905,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 34]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    always sent.
@@ -1961,7 +1961,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 35]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
           certificate(11), server_key_exchange (12),
@@ -2017,7 +2017,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 36]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       The hello request message MAY be sent by the server at any time.
@@ -2073,7 +2073,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 37]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
          struct {
@@ -2129,7 +2129,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 38]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    suite or, if no acceptable choices are presented, return a handshake
@@ -2185,7 +2185,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 39]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       This is a list of the cryptographic options supported by the
@@ -2241,7 +2241,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 40]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
           CipherSuite cipher_suite;
@@ -2297,7 +2297,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 41]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       The single compression algorithm selected by the server from the
@@ -2353,7 +2353,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 42]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       Often the fact that the extension fields are included in the
@@ -2409,7 +2409,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 43]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    hash
@@ -2465,7 +2465,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 44]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    Servers MUST NOT send this extension. TLS servers MUST support
@@ -2521,7 +2521,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 45]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    The following rules apply to the certificates sent by the server:
@@ -2577,7 +2577,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 46]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    If the client provided a "signature_algorithms" extension, then all
@@ -2633,7 +2633,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 47]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
          RSA
@@ -2689,7 +2689,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 48]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
          The server's key exchange parameters.
@@ -2745,7 +2745,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 49]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    digest algorithms, as well as guidance as to which digest algorithms
@@ -2801,7 +2801,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 50]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       A list of the hash/signature algorithm pairs that the server is
@@ -2857,7 +2857,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 51]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 7.4.5 Server hello done
@@ -2913,7 +2913,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 52]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       The certificate MUST be appropriate for the negotiated cipher
@@ -2969,7 +2969,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 53]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       found in prior versions of TLS.
@@ -3025,7 +3025,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 54]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       public key from the server's certificate and sends the result in
@@ -3081,7 +3081,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 55]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    The best way to avoid these vulnerabilities is to treat incorrectly
@@ -3137,7 +3137,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 56]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    behavior dependent on the protocol version.
@@ -3193,7 +3193,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 57]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       certificate. This message is only sent following a client
@@ -3249,7 +3249,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 58]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       cipher spec message to verify that the key exchange and
@@ -3305,7 +3305,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 59]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
          concatenation of all the Handshake structures as defined in
@@ -3361,7 +3361,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 60]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 8.1.1. RSA
@@ -3417,7 +3417,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 61]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       are assigned Specification Required [RFC2434]. Values from 224-255
@@ -3473,7 +3473,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 62]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    This document defines one new TLS extension, signature_algorithms,
@@ -3529,7 +3529,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 63]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 Appendix A. Protocol Constant Values
@@ -3585,7 +3585,7 @@ A.1. Record Layer
 
 Dierks & Rescorla            Standards Track                   [Page 64]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    struct {
@@ -3641,7 +3641,7 @@ A.3. Alert Messages
 
 Dierks & Rescorla            Standards Track                   [Page 65]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
        user_canceled(90),
@@ -3697,7 +3697,7 @@ A.4.1. Hello Messages
 
 Dierks & Rescorla            Standards Track                   [Page 66]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    opaque SessionID<0..32>;
@@ -3753,7 +3753,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 67]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    enum { anonymous(0), rsa(1), dsa(2), (255) } SignatureAlgorithm;
@@ -3809,7 +3809,7 @@ A.4.2. Server Authentication and Key Exchange Messages
 
 Dierks & Rescorla            Standards Track                   [Page 68]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
                };
@@ -3865,7 +3865,7 @@ A.4.3. Client Authentication and Key Exchange Messages
 
 Dierks & Rescorla            Standards Track                   [Page 69]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
            case implicit: struct {};
@@ -3921,7 +3921,7 @@ A.5. The Cipher Suite
 
 Dierks & Rescorla            Standards Track                   [Page 70]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    authenticated (and optionally client-authenticated) Diffie-Hellman.
@@ -3977,7 +3977,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 71]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       CipherSuite TLS_DH_anon_WITH_AES_256_CBC_SHA      = { 0x00,0x3A };
@@ -4033,7 +4033,7 @@ A.6. The Security Parameters
 
 Dierks & Rescorla            Standards Track                   [Page 72]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
        uint8                  block_length;
@@ -4089,7 +4089,7 @@ A.7. Changes to RFC 4492
 
 Dierks & Rescorla            Standards Track                   [Page 73]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       certificate remain.
@@ -4145,7 +4145,7 @@ Appendix B. Glossary
 
 Dierks & Rescorla            Standards Track                   [Page 74]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    client
@@ -4201,7 +4201,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 75]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    Initialization Vector (IV)
@@ -4257,7 +4257,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 76]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    session
@@ -4313,7 +4313,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 77]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 Appendix C. Cipher Suite Definitions
@@ -4369,7 +4369,7 @@ NULL         Stream   0          0         0     N/A
 
 Dierks & Rescorla            Standards Track                   [Page 78]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 RC4_128      Stream  16         16         0     N/A
@@ -4425,7 +4425,7 @@ SHA256    HMAC-SHA256  32          32
 
 Dierks & Rescorla            Standards Track                   [Page 79]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 Appendix D. Implementation Notes
@@ -4481,7 +4481,7 @@ D.4 Implementation Pitfalls
 
 Dierks & Rescorla            Standards Track                   [Page 80]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    of the most important things that require special attention from
@@ -4537,7 +4537,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 81]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    -  How do you generate unpredictable IVs for CBC mode ciphers
@@ -4593,7 +4593,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 82]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 Appendix E. Backward Compatibility
@@ -4649,7 +4649,7 @@ E.1 Compatibility with TLS 1.0/1.1 and SSL 3.0
 
 Dierks & Rescorla            Standards Track                   [Page 83]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    that simply close the connection when the client offers a version
@@ -4705,7 +4705,7 @@ E.2 Compatibility with SSL 2.0
 
 Dierks & Rescorla            Standards Track                   [Page 84]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
       struct {
@@ -4761,7 +4761,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 85]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    challenge
@@ -4817,7 +4817,7 @@ E.3. Avoiding Man-in-the-Middle Version Rollback
 
 Dierks & Rescorla            Standards Track                   [Page 86]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 Appendix F. Security Analysis
@@ -4873,7 +4873,7 @@ F.1.1.1. Anonymous Key Exchange
 
 Dierks & Rescorla            Standards Track                   [Page 87]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    values should not be able to find the Diffie-Hellman result (i.e. the
@@ -4929,7 +4929,7 @@ F.1.1.3. Diffie-Hellman Key Exchange with Authentication
 
 Dierks & Rescorla            Standards Track                   [Page 88]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    pre_master_secret from staying in memory any longer than necessary,
@@ -4985,7 +4985,7 @@ F.1.2. Version Rollback Attacks
 
 Dierks & Rescorla            Standards Track                   [Page 89]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    lengths used in the protocol, since this is essentially equivalent to
@@ -5041,7 +5041,7 @@ F.2. Protecting Application Data
 
 Dierks & Rescorla            Standards Track                   [Page 90]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    necessary to ensure that messages intended for one TLS Record Layer
@@ -5097,7 +5097,7 @@ F.4. Security of Composite Cipher Modes
 
 Dierks & Rescorla            Standards Track                   [Page 91]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    encryption functions (secure even in the information-theoretic sense)
@@ -5153,7 +5153,7 @@ F.6 Final Notes
 
 Dierks & Rescorla            Standards Track                   [Page 92]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    cryptographic functions should be used. Short public keys and
@@ -5209,7 +5209,7 @@ Normative References
 
 Dierks & Rescorla            Standards Track                   [Page 93]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    [3DES]   National Institute of Standards and Technology,
@@ -5265,7 +5265,7 @@ Informative References
 
 Dierks & Rescorla            Standards Track                   [Page 94]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    [AH]     Kent, S., and Atkinson, R., "IP Authentication Header", RFC
@@ -5321,7 +5321,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 95]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    [KEYSIZ] Orman, H., and Hoffman, P., "Determining Strengths For
@@ -5377,7 +5377,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 96]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    [TIMING] Boneh, D., Brumley, D., "Remote timing attacks are
@@ -5433,7 +5433,7 @@ Credits
 
 Dierks & Rescorla            Standards Track                   [Page 97]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    Independent                   Network Resonance, Inc.
@@ -5489,7 +5489,7 @@ draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
 
 Dierks & Rescorla            Standards Track                   [Page 98]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
    Cryptography Research
@@ -5545,7 +5545,7 @@ Comments
 
 Dierks & Rescorla            Standards Track                   [Page 99]
 
-draft-ietf-tls-rfc4346-bis-08.txt  TLS                     January, 2008
+draft-ietf-tls-rfc4346-bis-09.txt  TLS                     January, 2008
 
 
 Full Copyright Statement
