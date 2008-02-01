@@ -165,7 +165,9 @@ this document use P_SHA256.
 
 .ti 3
 -  The MD5/SHA-1 combination in the digitally-signed 
-element has been replaced with a single hash.
+element has been replaced with a single hash. Signed
+elements now include a field that explicitly specifies
+the hash algorithm used.
 
 .ti 3
 -  Substantial cleanup to the clients and servers ability to
@@ -197,7 +199,7 @@ is still 12).
 
 .ti 3
 -  Alerts MUST now be sent in many cases.
-.ne 2
+
 .ti 3
 -  After a certificate_request, if no certificates are available,
 clients now MUST send an empty certificate list.
@@ -215,14 +217,19 @@ and will be documented in a separate document.
 
 .ti 3
 -  Support for the SSLv2 backward-compatible hello is now 
-a MAY, not a SHOULD. This will probably become a SHOULD NOT
-in the future.
+a MAY, not a SHOULD, with sending it a SHOULD not.
+Support will probably become a SHOULD NOT in the future.
+
+.ti 3
+- Added limited "fall-through" to the presentation language
+to allow multiple case arms to have the same encoding.
 
 .ti 3
 -  Added an Implementation Pitfalls sections
 
 .ti 3
 -  The usual clarifications and editorial work.
+
 .ti 0
 2. Goals
 
@@ -474,7 +481,13 @@ Defined structures may have variants based on some knowledge that is
 available within the environment. The selector must be an enumerated
 type that defines the possible variants the structure defines. There
 must be a case arm for every element of the enumeration declared in
-the select. The body of the variant structure may be given a label
+the select. Case arms have limited fall-through: if two case
+arms follow in immediate succession with no fields
+in between, then they both contain the same fields.
+Thus, in the example below, "orange" and "banana" both
+contain V2. Note that this is a new piece of syntax in TLS 1.2.
+
+The body of the variant structure may be given a label
 for reference. The mechanism by which the variant is selected at
 runtime is not prescribed by the presentation language.
 
@@ -484,41 +497,39 @@ runtime is not prescribed by the presentation language.
        T2 f2;
        ....
        Tn fn;
-       select (E) {
-           case e1: Te1;
-           case e2: Te2;
-           ....
-           case en: Ten;
-       } [[fv]];
+        select (E) {
+            case e1: Te1;
+            case e2: Te2;
+            case e3: case e4: Te3;
+            ....
+            case en: Ten;
+        } [[fv]];
    } [[Tv]];
 
 For example:
 
-   enum { apple, orange } VariantTag;
+   enum { apple, orange, banana } VariantTag;
+
    struct {
        uint16 number;
        opaque string<0..10>; /* variable length */
    } V1;
+
    struct {
        uint32 number;
        opaque string[10];    /* fixed length */
    } V2;
+
    struct {
        select (VariantTag) { /* value of selector is implicit */
            case apple: V1;   /* VariantBody, tag = apple */
-           case orange: V2;  /* VariantBody, tag = orange */
+           case orange: 
+	   case banana:
+		V2;	     /* VariantBody, tag = orange or banana */
        } variant_body;       /* optional label on variant */
    } VariantRecord;
-
 .fi
-.ne 2
-Variant structures may be qualified (narrowed) by specifying a value
-for the selector prior to the type. For example, an
 
-   orange VariantRecord
-
-is a narrowed type of a VariantRecord containing a variant_body of
-type V2.
 
 .ti 0
 4.7. Cryptographic Attributes
@@ -532,10 +543,22 @@ processing is specified by prepending an appropriate key word
 designation before the field's type specification. Cryptographic
 keys are implied by the current session state (see Section 6.1).
 
-In digital signing, one-way hash functions are used as input for a
-signing algorithm. A digitally-signed element is encoded as an
-opaque vector <0..2^16-1>, where the length is specified by the
-signing algorithm and key.
+A digitally-signed element is encoded as a struct DigitallySigned:
+   
+.nf
+    struct {
+       SignatureAndHashAlgorithm algorithm;
+       opaque signature<0..2^16-1>;
+    } DigitallySigned;
+.fi
+     
+The algorithm field specifies the algorithm used (see Section
+7.4.1.4.1 for the definition of this field.)  Note that the
+introduction of the algorithm field is a change from previous versions.
+The signature is a digital signature using those algorithms over the
+contents of the element. The contents themselves do not appear on the
+wire but are simply calculated.  The length of the signature is
+specified by the signing algorithm and key.  
 
 In RSA signing, the opaque vector contains the signature generated
 using the RSASSA-PKCS1-v1_5 signature scheme defined in [PKCS1]. 
@@ -600,8 +623,9 @@ In the following example
 the contents of hash are used as input for the signing algorithm,
 and then the entire structure is encrypted with a stream cipher. The
 length of this structure, in bytes, would be equal to two bytes for
-field1 and field2, plus two bytes for the length of the signature,
-plus the length of the output of the signing algorithm. This is
+field1 and field2, pplus two bytes for the signature and hash algorithm,  
+plus two bytes for the length of the signature, plus the
+length of the output of the signing algorithm. This is
 known because the algorithm and key used for the
 signing are known prior to encoding or decoding this structure.
 
@@ -946,7 +970,7 @@ version value 3.3 is historical, deriving from the use of
 3.1 for TLS 1.0. (See Appendix A.1).
 Note that a client that supports multiple versions of TLS
 may not know what version will be employed before it
-receives ServerHello.  See Appendix E for discussion about
+receives the ServerHello.  See Appendix E for discussion about
 what record layer version number should be employed for
 ClientHello.
 
@@ -1336,13 +1360,13 @@ partitioned as follows:
    server_write_IV[SecurityParameters.fixed_iv_length]
 .fi
 
-The client_write_IV and server_write_IV are only generated for
+Currently, the client_write_IV and server_write_IV are only generated for
 implicit nonce techniques as described in Section 3.2.1 of [AEAD].
 
 Implementation note:
 The currently defined cipher suite which requires
-the most material is AES_256_CBC_SHA. It requires 2 x 32 byte
-keys and 2 x 20 byte MAC keys, for a total 104 bytes of key material.
+the most material is AES_256_CBC_SHA256. It requires 2 x 32 byte
+keys and 2 x 32 byte MAC keys, for a total 128 bytes of key material.
 
 .in 3
 .ti 0
@@ -1589,7 +1613,6 @@ weren't correct. This message is always fatal and should never be
 observed in communication between proper implementations (except when
 messages were corrupted in the network).
 
-
 .ti 3
 decryption_failed_RESERVED
 .br
@@ -1752,14 +1775,6 @@ unsupported_extension
 sent by clients that
 receive an extended server hello containing an extension that they
 did not put in the corresponding client hello. This message is always fatal.
-
-.in 3
-For all errors where an alert level is not explicitly specified, the
-sending party MAY determine at its discretion whether this is a
-fatal error or not; if an alert with a level of warning is received,
-the receiving party MAY decide at its discretion whether to treat
-this as a fatal error or not.  However, all messages that are
-transmitted with a level of fatal MUST be treated as fatal messages.
 
 .in 3
 New Alert values are assigned by IANA as described 
@@ -2116,6 +2131,9 @@ exchange algorithm, a bulk encryption algorithm (including secret
 key length), a MAC algorithm, and a PRF.  The server will select a cipher
 suite or, if no acceptable choices are presented, return a handshake
 failure alert and close the connection.
+If the list contains cipher suites the server does not recognize,
+support, or wish to use, the server MUST ignore those cipher
+suites, and process the remaining ones as usual.
 
    uint8 CipherSuite[2];    /* Cryptographic suite selector */
 
@@ -2467,7 +2485,7 @@ behave as if client had sent the value (sha1,rsa).
 value (sha1,dsa).
 
 .ti 3
--  If the negotiated key exchnage algorithm is one of 
+-  If the negotiated key exchange algorithm is one of 
 (ECDH_ECDSA, ECDHE_ECDSA), behave as if the client had
 sent value (sha1,ecdsa).
 
@@ -2595,7 +2613,7 @@ ECDHE_ECDSA        ECDSA-capable public key; the certificate
 
 .ti 3
 -  The "server_name" and "trusted_ca_keys" extensions 
-[4366bis] are used to guide certificate selection.
+[TLSEXT] are used to guide certificate selection.
 
 .in 3
 If the client provided a "signature_algorithms" extension, then all
@@ -2678,7 +2696,8 @@ Structure of this message:
 
 .in 6
 .nf
-enum { diffie_hellman } KeyExchangeAlgorithm;
+enum { dhe_dss, dhe_rsa, dh_anon, rsa, dh_dss, dh_rsa, dh_anon }
+     KeyExchangeAlgorithm;
 
 struct {
     opaque dh_p<1..2^16-1>;
@@ -2695,52 +2714,34 @@ dh_g
 dh_Ys
    The server's Diffie-Hellman public value (g^X mod p).
 
+
 struct {
     select (KeyExchangeAlgorithm) {
-        case diffie_hellman:
+        case dh_anon: 
             ServerDHParams params;
-            Signature signed_params;
+        case dhe_dss: 
+        case dhe_rsa:
+            ServerDHParams params;
+            digitally-signed struct {
+                opaque client_random[32];
+                opaque server_random[32];
+                ServerDHParams params;
+            } signed_params;
+        case rsa:
+        case dhe_dss:
+        case dh_rsa:
+            struct {} ;
+           /* message is omitted for rsa, dh_dss, and dh_rsa */
     };
+
 } ServerKeyExchange;
-
-struct {
-    select (KeyExchangeAlgorithm) {
-        case diffie_hellman:
-            ServerDHParams params;
-    };
-} ServerParams;
-
 
 params
    The server's key exchange parameters.
 
 signed_params
-   For non-anonymous key exchanges, a hash of the corresponding
-   params value, with the signature appropriate to that hash
-   applied.
-
-hash 
-   Hash(ClientHello.random + ServerHello.random + ServerParams)
-   where Hash is the chosen hash value and Hash.length is
-   its output.
-
-.ne 5
-struct {
-    select (SignatureAlgorithm) {   
-      case anonymous: struct { };
-        case rsa:
-          SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
-          digitally-signed struct {
-              opaque hash[Hash.length];
-          };
-        case dsa:
-          SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
-          digitally-signed struct {
-              opaque hash[Hash.length];
-          };
-        };
-    };
-} Signature;
+   For non-anonymous key exchanges, a signature over the 
+   server's key exchange parameters.
 .fi
 
 .in 3 
@@ -2990,7 +2991,7 @@ dss_fixed_dh        the same parameters as server's key.
 rsa_fixed_ecdh      ECDH-capable public key; MUST use 
 ecdsa_fixed_ecdh    the same curve as server's key, and
                     MUST use a point format supported by
-		    the server.
+                    the server.
 .fi
 
 .ti 3
@@ -3048,8 +3049,15 @@ definition.
 .nf
 struct {
     select (KeyExchangeAlgorithm) {
-        case rsa: EncryptedPreMasterSecret;
-        case diffie_hellman: ClientDiffieHellmanPublic;
+        case rsa: 
+		EncryptedPreMasterSecret;
+
+        case dhe_dss:
+	case dhe_rsa:
+	case dh_dss:
+	case dh_rsa:
+	case dh_anon:
+		ClientDiffieHellmanPublic;
     } exchange_keys;
 } ClientKeyExchange;
 .fi
@@ -3146,9 +3154,14 @@ from correctly formatted RSA blocks. In other words:
       premaster secret = M
    else:
       premaster secret = ClientHello.client_version || M[2..47]
-.fi
 
+.fi
 .in 3
+Note that explicitly constructing the premaster_secert with
+the ClientHello.client_version produces an invalid 
+master_secret if the client has sent the wrong version
+in the original premaster_secret.
+
 In any case, a TLS server MUST NOT generate an alert if
 processing an RSA-encrypted premaster secret message fails, or
 the version number is not as expected. Instead, it MUST continue
@@ -3258,7 +3271,6 @@ Structure of this message:
 
 .nf
 struct {
-     SignatureAndHashAlgorithm signature_algorithm;
      digitally-signed struct {
          opaque handshake_messages[handshake_messages_length];
      }
@@ -3482,12 +3494,14 @@ Standards Action [RFC2434]. Values in the range 64-223
 reserved for Private Use [RFC2434].
 
 .ti 3   
-- TLS Cipher Suite Registry: Future values with the first byte in the
+-  TLS Cipher Suite Registry: Future values with the first byte in the
 range 0-191 (decimal) inclusive are assigned via Standards Action
 [RFC2434].  Values with the first byte in the range 192-254 (decimal)
 are assigned via Specification Required [RFC2434]. Values with the
-first byte 255 (decimal) are reserved for Private Use [RFC2434]. This
-document defines several new HMAC-SHA256 based cipher suites, whose
+first byte 255 (decimal) are reserved for Private Use [RFC2434]. 
+
+.ti 3 
+-  This document defines several new HMAC-SHA256 based cipher suites, whose
 values (in Appendix A.5) are to be (have been) allocated from the TLS
 Cipher Suite registry.
 
@@ -3766,45 +3780,46 @@ struct {
     ASN.1Cert certificate_list<0..2^24-1>;
 } Certificate;
 
-enum { diffie_hellman } KeyExchangeAlgorithm;
+enum { dhe_dss, dhe_rsa, dh_anon, rsa,dh_dss, dh_rsa, dh_anon } 
+     KeyExchangeAlgorithm;
 
 struct {
     opaque dh_p<1..2^16-1>;
     opaque dh_g<1..2^16-1>;
     opaque dh_Ys<1..2^16-1>;
-} ServerDHParams;
+} ServerDHParams;     /* Ephemeral DH parameters */
+
+dh_p
+   The prime modulus used for the Diffie-Hellman operation.
+
+dh_g
+   The generator used for the Diffie-Hellman operation.
+
+dh_Ys
+   The server's Diffie-Hellman public value (g^X mod p).
+
 
 struct {
     select (KeyExchangeAlgorithm) {
-        case diffie_hellman:
+        case dh_anon: 
             ServerDHParams params;
-            Signature signed_params;
-    }
+        case dhe_dss: 
+        case dhe_rsa:
+            ServerDHParams params;
+            digitally-signed struct {
+                opaque client_random[32];
+                opaque server_random[32];
+                ServerDHParams params;
+            } signed_params;
+        case rsa:
+        case dhe_dss:
+        case dh_rsa:
+            struct {} ;
+           /* message is omitted for rsa, dh_dss, and dh_rsa */
+    };
+
 } ServerKeyExchange;
 
-struct {
-    select (KeyExchangeAlgorithm) {
-        case diffie_hellman:
-            ServerDHParams params;
-    };
-} ServerParams;
-
-struct {
-    select (SignatureAlgorithm) {   
-      case anonymous: struct { };
-        case rsa:
-            SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
-            digitally-signed struct {
-                opaque hash[Hash.length];
-            };
-        case dsa:
-            SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
-            digitally-signed struct {
-                opaque hash[Hash.length];
-            };
-        };
-    };
-} Signature;
 
 enum {
     rsa_sign(1), dss_sign(2), rsa_fixed_dh(3), dss_fixed_dh(4),
@@ -3827,8 +3842,15 @@ A.4.3. Client Authentication and Key Exchange Messages
 
 struct {
     select (KeyExchangeAlgorithm) {
-        case rsa: EncryptedPreMasterSecret;
-        case diffie_hellman: ClientDiffieHellmanPublic;
+        case rsa: 
+		EncryptedPreMasterSecret;
+
+        case dhe_dss:
+	case dhe_rsa:
+	case dh_dss:
+	case dh_rsa:
+        case dh_anon:
+		ClientDiffieHellmanPublic;
     } exchange_keys;
 } ClientKeyExchange;
 
@@ -3851,7 +3873,9 @@ struct {
 } ClientDiffieHellmanPublic;
 
 struct {
-    Signature signature;
+     digitally-signed struct {
+         opaque handshake_messages[handshake_messages_length];
+     }
 } CertificateVerify;
 
 .ti 0
@@ -3874,7 +3898,7 @@ Version 1.2.
 
 TLS_NULL_WITH_NULL_NULL is specified and is the initial state of a
 TLS connection during the first handshake on that channel, but MUST
-not be negotiated, as it provides no more protection than an
+NOT be negotiated, as it provides no more protection than an
 unsecured connection. 
 
 .in 6
@@ -3933,14 +3957,14 @@ CipherSuite TLS_DH_DSS_WITH_AES_256_CBC_SHA       = { 0x00,0x36 };
 CipherSuite TLS_DH_RSA_WITH_AES_256_CBC_SHA       = { 0x00,0x37 };
 CipherSuite TLS_DHE_DSS_WITH_AES_256_CBC_SHA      = { 0x00,0x38 };
 CipherSuite TLS_DHE_RSA_WITH_AES_256_CBC_SHA      = { 0x00,0x39 };
-CipherSuite TLS_DH_DSS_WITH_AES_128_CBC_SHA256    = { 0x00, TBD4 };
-CipherSuite TLS_DH_RSA_WITH_AES_128_CBC_SHA256    = { 0x00, TBD5 };
-CipherSuite TLS_DHE_DSS_WITH_AES_128_CBC_SHA256   = { 0x00, TBD6 };
-CipherSuite TLS_DHE_RSA_WITH_AES_128_CBC_SHA256   = { 0x00, TBD7 };
-CipherSuite TLS_DH_DSS_WITH_AES_256_CBC_SHA256    = { 0x00, TBD8 };
-CipherSuite TLS_DH_RSA_WITH_AES_256_CBC_SHA256    = { 0x00, TBD9 };
-CipherSuite TLS_DHE_DSS_WITH_AES_256_CBC_SHA256   = { 0x00, TBD10 };
-CipherSuite TLS_DHE_RSA_WITH_AES_256_CBC_SHA256   = { 0x00, TBD11 };
+CipherSuite TLS_DH_DSS_WITH_AES_128_CBC_SHA256    = { 0x00, TBD4};
+CipherSuite TLS_DH_RSA_WITH_AES_128_CBC_SHA256    = { 0x00, TBD5};
+CipherSuite TLS_DHE_DSS_WITH_AES_128_CBC_SHA256   = { 0x00, TBD6};
+CipherSuite TLS_DHE_RSA_WITH_AES_128_CBC_SHA256   = { 0x00, TBD7};
+CipherSuite TLS_DH_DSS_WITH_AES_256_CBC_SHA256    = { 0x00, TBD8};
+CipherSuite TLS_DH_RSA_WITH_AES_256_CBC_SHA256    = { 0x00, TBD9};
+CipherSuite TLS_DHE_DSS_WITH_AES_256_CBC_SHA256   = { 0x00, TBDA};
+CipherSuite TLS_DHE_RSA_WITH_AES_256_CBC_SHA256   = { 0x00, TBDB};
 .fi
 .in 3
 
@@ -3961,8 +3985,8 @@ CipherSuite TLS_DH_anon_WITH_RC4_128_MD5          = { 0x00,0x18 };
 CipherSuite TLS_DH_anon_WITH_3DES_EDE_CBC_SHA     = { 0x00,0x1B };
 CipherSuite TLS_DH_anon_WITH_AES_128_CBC_SHA      = { 0x00,0x34 };
 CipherSuite TLS_DH_anon_WITH_AES_256_CBC_SHA      = { 0x00,0x3A };
-CipherSuite TLS_DH_anon_WITH_AES_128_CBC_SHA256   = { 0x00, TBD12 };
-CipherSuite TLS_DH_anon_WITH_AES_256_CBC_SHA256   = { 0x00, TBD13 };
+CipherSuite TLS_DH_anon_WITH_AES_128_CBC_SHA256   = { 0x00, TBDC};
+CipherSuite TLS_DH_anon_WITH_AES_256_CBC_SHA256   = { 0x00, TBDD};
 .fi
 .in 3
 
@@ -4024,6 +4048,7 @@ struct {
     opaque                 client_random[32];
     opaque                 server_random[32];
 } SecurityParameters;
+.fi
 
 .ti 0
 A.7. Changes to RFC 4492
@@ -4034,26 +4059,12 @@ section details the required changes for implementors of both RFC 4492
 and TLS 1.2. Implementors of TLS 1.2 who are not implementing RFC 4492
 do not need to read this section.
 
-This document adds a "signature_algorithm" field to RSA and DSA
-signatures in order to identify the signature and digest algorithms
-used to create a signature. Section 5.4 of RFC 4492 updates the
-Signature type to include a new signature algorithm, "ecdsa".  When
-used with TLS 1.2, this type becomes:
-
-
-.in 6
-.nf
-          select (SignatureAlgorithm) {
-              case ecdsa:
-	          SignatureAndHashAlgorithm signature_algorithm; /*NEW*/
-                  digitally-signed struct {
-                      opaque sha_hash[sha_size];
-                  };
-          } Signature;
-.fi
-
-This change applies to the ServerKeyExchange and the CertificateVerify
-messages. This allows these messages to be used with ECDSA signatures
+This document adds a "signature_algorithm" field to the
+digitally-signed element 
+in order to identify the signature and digest algorithms
+used to create a signature. This change applies to 
+digital signatures formed using ECDSA as well, thus
+allowing ECDSA signatures to be used 
 and digest algorithms other than SHA-1, provided such use is compatible
 with the certificate and any restrictions imposed by future revisions
 of [PKIX].
@@ -4062,11 +4073,9 @@ As described in Sections 7.4.2 and 7.4.6, the restrictions on the
 signature algorithms used to sign certificates are no longer tied to
 the cipher suite (when used by the server) or the
 ClientCertificateType (when used by the client). Thus, the restrictions
-on the algorithm used ot sign certificates specified in
+on the algorithm used to sign certificates specified in
 Sections 2 and 3 of RFC 4492 are also relaxed. As in this document
 the restrictions on the keys in the end-entity certificate remain.
-
-
 
 .ti 0
 Appendix B. Glossary
@@ -4207,12 +4216,6 @@ vector is exclusive-ORed with the first plaintext block prior to
 encryption.
 
 .ti 3
-IDEA
-.br
-A 64-bit block cipher designed by Xuejia Lai and James Massey.
-[IDEA]
-
-.ti 3
 Message Authentication Code (MAC)
 .br
 A Message Authentication Code is a one-way hash computed from a
@@ -4337,46 +4340,46 @@ Appendix C. Cipher Suite Definitions
 
 .in 0
 .nf
-Cipher Suite                            Key          Cipher        Mac
-                                        Exchange
-
-TLS_NULL_WITH_NULL_NULL                 NULL           NULL        NULL
-TLS_RSA_WITH_NULL_MD5                   RSA            NULL         MD5
-TLS_RSA_WITH_NULL_SHA                   RSA            NULL         SHA
-TLS_RSA_WITH_NULL_SHA256                RSA            NULL         SHA256
-TLS_RSA_WITH_RC4_128_MD5                RSA            RC4_128      MD5
-TLS_RSA_WITH_RC4_128_SHA                RSA            RC4_128      SHA
-TLS_RSA_WITH_3DES_EDE_CBC_SHA           RSA            3DES_EDE_CBC SHA
-TLS_RSA_WITH_AES_128_CBC_SHA            RSA            AES_128_CBC  SHA
-TLS_RSA_WITH_AES_256_CBC_SHA            RSA            AES_256_CBC  SHA
-TLS_RSA_WITH_AES_128_CBC_SHA256         RSA            AES_128_CBC  SHA256
-TLS_RSA_WITH_AES_256_CBC_SHA256         RSA            AES_256_CBC  SHA256
-TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA        DH_DSS         3DES_EDE_CBC SHA
-TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA        DH_RSA         3DES_EDE_CBC SHA
-TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA       DHE_DSS        3DES_EDE_CBC SHA
-TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA       DHE_RSA        3DES_EDE_CBC SHA
-TLS_DH_anon_WITH_RC4_128_MD5            DH_anon        RC4_128      MD5
-TLS_DH_anon_WITH_3DES_EDE_CBC_SHA       DH_anon        3DES_EDE_CBC SHA
-TLS_DH_DSS_WITH_AES_128_CBC_SHA         DH_DSS         AES_128_CBC  SHA
-TLS_DH_RSA_WITH_AES_128_CBC_SHA         DH_RSA         AES_128_CBC  SHA
-TLS_DHE_DSS_WITH_AES_128_CBC_SHA        DHE_DSS        AES_128_CBC  SHA
-TLS_DHE_RSA_WITH_AES_128_CBC_SHA        DHE_RSA        AES_128_CBC  SHA
-TLS_DH_anon_WITH_AES_128_CBC_SHA        DH_anon        AES_128_CBC  SHA
-TLS_DH_DSS_WITH_AES_256_CBC_SHA         DH_DSS         AES_256_CBC  SHA
-TLS_DH_RSA_WITH_AES_256_CBC_SHA         DH_RSA         AES_256_CBC  SHA
-TLS_DHE_DSS_WITH_AES_256_CBC_SHA        DHE_DSS        AES_256_CBC  SHA
-TLS_DHE_RSA_WITH_AES_256_CBC_SHA        DHE_RSA        AES_256_CBC  SHA
-TLS_DH_anon_WITH_AES_256_CBC_SHA        DH_anon        AES_256_CBC  SHA
-TLS_DH_DSS_WITH_AES_128_CBC_SHA256      DH_DSS         AES_128_CBC  SHA256
-TLS_DH_RSA_WITH_AES_128_CBC_SHA256      DH_RSA         AES_128_CBC  SHA256
-TLS_DHE_DSS_WITH_AES_128_CBC_SHA256     DHE_DSS        AES_128_CBC  SHA256
-TLS_DHE_RSA_WITH_AES_128_CBC_SHA256     DHE_RSA        AES_128_CBC  SHA256
-TLS_DH_anon_WITH_AES_128_CBC_SHA256     DH_anon        AES_128_CBC  SHA256
-TLS_DH_DSS_WITH_AES_256_CBC_SHA256      DH_DSS         AES_256_CBC  SHA256
-TLS_DH_RSA_WITH_AES_256_CBC_SHA256      DH_RSA         AES_256_CBC  SHA256
-TLS_DHE_DSS_WITH_AES_256_CBC_SHA256     DHE_DSS        AES_256_CBC  SHA256
-TLS_DHE_RSA_WITH_AES_256_CBC_SHA256     DHE_RSA        AES_256_CBC  SHA256
-TLS_DH_anon_WITH_AES_256_CBC_SHA256     DH_anon        AES_256_CBC  SHA256
+Cipher Suite                            Key        Cipher         Mac
+                                        Exchange 
+						 
+TLS_NULL_WITH_NULL_NULL                 NULL         NULL         NULL
+TLS_RSA_WITH_NULL_MD5                   RSA          NULL         MD5
+TLS_RSA_WITH_NULL_SHA                   RSA          NULL         SHA
+TLS_RSA_WITH_NULL_SHA256                RSA          NULL         SHA256
+TLS_RSA_WITH_RC4_128_MD5                RSA          RC4_128      MD5
+TLS_RSA_WITH_RC4_128_SHA                RSA          RC4_128      SHA
+TLS_RSA_WITH_3DES_EDE_CBC_SHA           RSA          3DES_EDE_CBC SHA
+TLS_RSA_WITH_AES_128_CBC_SHA            RSA          AES_128_CBC  SHA
+TLS_RSA_WITH_AES_256_CBC_SHA            RSA          AES_256_CBC  SHA
+TLS_RSA_WITH_AES_128_CBC_SHA256         RSA          AES_128_CBC  SHA256
+TLS_RSA_WITH_AES_256_CBC_SHA256         RSA          AES_256_CBC  SHA256
+TLS_DH_DSS_WITH_3DES_EDE_CBC_SHA        DH_DSS       3DES_EDE_CBC SHA
+TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA        DH_RSA       3DES_EDE_CBC SHA
+TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA       DHE_DSS      3DES_EDE_CBC SHA
+TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA       DHE_RSA      3DES_EDE_CBC SHA
+TLS_DH_anon_WITH_RC4_128_MD5            DH_anon      RC4_128      MD5
+TLS_DH_anon_WITH_3DES_EDE_CBC_SHA       DH_anon      3DES_EDE_CBC SHA
+TLS_DH_DSS_WITH_AES_128_CBC_SHA         DH_DSS       AES_128_CBC  SHA
+TLS_DH_RSA_WITH_AES_128_CBC_SHA         DH_RSA       AES_128_CBC  SHA
+TLS_DHE_DSS_WITH_AES_128_CBC_SHA        DHE_DSS      AES_128_CBC  SHA
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA        DHE_RSA      AES_128_CBC  SHA
+TLS_DH_anon_WITH_AES_128_CBC_SHA        DH_anon      AES_128_CBC  SHA
+TLS_DH_DSS_WITH_AES_256_CBC_SHA         DH_DSS       AES_256_CBC  SHA
+TLS_DH_RSA_WITH_AES_256_CBC_SHA         DH_RSA       AES_256_CBC  SHA
+TLS_DHE_DSS_WITH_AES_256_CBC_SHA        DHE_DSS      AES_256_CBC  SHA
+TLS_DHE_RSA_WITH_AES_256_CBC_SHA        DHE_RSA      AES_256_CBC  SHA
+TLS_DH_anon_WITH_AES_256_CBC_SHA        DH_anon      AES_256_CBC  SHA
+TLS_DH_DSS_WITH_AES_128_CBC_SHA256      DH_DSS       AES_128_CBC  SHA256
+TLS_DH_RSA_WITH_AES_128_CBC_SHA256      DH_RSA       AES_128_CBC  SHA256
+TLS_DHE_DSS_WITH_AES_128_CBC_SHA256     DHE_DSS      AES_128_CBC  SHA256
+TLS_DHE_RSA_WITH_AES_128_CBC_SHA256     DHE_RSA      AES_128_CBC  SHA256
+TLS_DH_anon_WITH_AES_128_CBC_SHA256     DH_anon      AES_128_CBC  SHA256
+TLS_DH_DSS_WITH_AES_256_CBC_SHA256      DH_DSS       AES_256_CBC  SHA256
+TLS_DH_RSA_WITH_AES_256_CBC_SHA256      DH_RSA       AES_256_CBC  SHA256
+TLS_DHE_DSS_WITH_AES_256_CBC_SHA256     DHE_DSS      AES_256_CBC  SHA256
+TLS_DHE_RSA_WITH_AES_256_CBC_SHA256     DHE_RSA      AES_256_CBC  SHA256
+TLS_DH_anon_WITH_AES_256_CBC_SHA256     DH_anon      AES_256_CBC  SHA256
 
 
                      Key      Expanded     IV    Block
@@ -5148,6 +5151,22 @@ omission behavior [Issue #84]
 - Removed IDEA and DES entirely for documentation in a separate
 doc [Issue #64]
 
+.ti 3
+- Changed the presentation language to allow fall-through to
+simplify some of the PDUs. 
+
+.ti 3
+- Cleaned up KeyExchangeAlgorithm ClientKeyExchange to use
+values that match Appendix C.
+
+.ti 3
+- Changed digitally-signed to include SignatureAndHashAlgorithm
+(another simplification)
+
+.ti 3
+- Considerations for RFC 4492
+
+.ti 3
 .fi
 .ti 0
 Normative References
@@ -5214,7 +5233,7 @@ Informative References
 
 .ti 3
 [AEAD]   Mcgrew, D., "Authenticated Encryption",
-February 2007, draft-mcgrew-auth-enc-02.txt.
+July 2007, draft-mcgrew-auth-enc-05.txt.
 
 .ti 3
 [AH]     Kent, S., and Atkinson, R., "IP Authentication Header", 
@@ -5351,7 +5370,7 @@ for Transport Layer Security (TLS)", RFC 4492, May 2006.
 
 .ti 3
 [TLSEXT] Eastlake, D.E.,  "Transport Layer Security (TLS) Extensions:
-Extension Definitions", July 2007, draft-ietf-tls-rfc4366-bis-00.txt.
+Extension Definitions", January 2008, draft-ietf-tls-rfc4366-bis-01.txt.
 
 .ti 3
 [TLSPGP] Mavrogiannopoulos, N., "Using OpenPGP keys for TLS
@@ -5429,6 +5448,10 @@ pc@skygate.co.uk
 Taher Elgamal
 taher@securify.com
 Securify
+
+Pasi Eronen
+pasi.eronen@nokia.com
+Nokia
 
 Anil Gangolli
 anil@busybuddha.org
