@@ -8,7 +8,7 @@
 .ds RF FORMFEED[Page %]
 .ds CF Standards Track
 .ds LH draft-ietf-tls-rfc4346-bis-09.txt
-.ds RH January, 2008
+.ds RH February, 2008
 .ds CH TLS
 .hy 0
 .ad l
@@ -17,7 +17,7 @@ INTERNET-DRAFT                                                Tim Dierks
 Obsoletes (if approved): RFC 3268, 4346, 4366                Independent
 Updates (if approved): RFC 4492                            Eric Rescorla
 Intended status:  Proposed Standard              Network Resonance, Inc.
-<draft-ietf-tls-rfc4346-bis-09.txt>     January 2008 (Expires July 2008)
+<draft-ietf-tls-rfc4346-bis-09.txt>  February 2008 (Expires August 2008)
 
 
 .ce 2
@@ -522,10 +522,11 @@ For example:
 
    struct {
        select (VariantTag) { /* value of selector is implicit */
-           case apple: V1;   /* VariantBody, tag = apple */
+           case apple: 
+             V1;   /* VariantBody, tag = apple */
            case orange: 
 	   case banana:
-		V2;	     /* VariantBody, tag = orange or banana */
+             V2;   /* VariantBody, tag = orange or banana */
        } variant_body;       /* optional label on variant */
    } VariantRecord;
 .fi
@@ -616,14 +617,19 @@ In the following example
    stream-ciphered struct {
        uint8 field1;
        uint8 field2;
-       digitally-signed opaque hash[20];
+       digitally-signed opaque {
+	 uint8 field3<0..255>;
+	 uint8 field4;
+       };
    } UserType;
 
 .fi
-the contents of hash are used as input for the signing algorithm,
-and then the entire structure is encrypted with a stream cipher. The
+
+The contents of the inner struct (field3 and field4) are used 
+as input for the signature/hash algorithm, and then the entire
+structure is encrypted with a stream cipher. The
 length of this structure, in bytes, would be equal to two bytes for
-field1 and field2, pplus two bytes for the signature and hash algorithm,  
+field1 and field2, plus two bytes for the signature and hash algorithm,  
 plus two bytes for the length of the signature, plus the
 length of the output of the signing algorithm. This is
 known because the algorithm and key used for the
@@ -2696,7 +2702,7 @@ Structure of this message:
 
 .in 6
 .nf
-enum { dhe_dss, dhe_rsa, dh_anon, rsa, dh_dss, dh_rsa, dh_anon }
+enum { dhe_dss, dhe_rsa, dh_anon, rsa, dh_dss, dh_rsa }
      KeyExchangeAlgorithm;
 
 struct {
@@ -2728,12 +2734,11 @@ struct {
                 ServerDHParams params;
             } signed_params;
         case rsa:
-        case dhe_dss:
+        case dh_dss:
         case dh_rsa:
             struct {} ;
            /* message is omitted for rsa, dh_dss, and dh_rsa */
     };
-
 } ServerKeyExchange;
 
 params
@@ -3050,14 +3055,13 @@ definition.
 struct {
     select (KeyExchangeAlgorithm) {
         case rsa: 
-		EncryptedPreMasterSecret;
-
+            EncryptedPreMasterSecret;
         case dhe_dss:
-	case dhe_rsa:
-	case dh_dss:
-	case dh_rsa:
-	case dh_anon:
-		ClientDiffieHellmanPublic;
+        case dhe_rsa:
+        case dh_dss:
+        case dh_rsa:
+        case dh_anon:
+            ClientDiffieHellmanPublic;
     } exchange_keys;
 } ClientKeyExchange;
 .fi
@@ -3157,7 +3161,7 @@ from correctly formatted RSA blocks. In other words:
 
 .fi
 .in 3
-Note that explicitly constructing the premaster_secert with
+Note that explicitly constructing the premaster_secret with
 the ClientHello.client_version produces an invalid 
 master_secret if the client has sent the wrong version
 in the original premaster_secret.
@@ -3780,7 +3784,7 @@ struct {
     ASN.1Cert certificate_list<0..2^24-1>;
 } Certificate;
 
-enum { dhe_dss, dhe_rsa, dh_anon, rsa,dh_dss, dh_rsa, dh_anon } 
+enum { dhe_dss, dhe_rsa, dh_anon, rsa,dh_dss, dh_rsa} 
      KeyExchangeAlgorithm;
 
 struct {
@@ -3788,16 +3792,6 @@ struct {
     opaque dh_g<1..2^16-1>;
     opaque dh_Ys<1..2^16-1>;
 } ServerDHParams;     /* Ephemeral DH parameters */
-
-dh_p
-   The prime modulus used for the Diffie-Hellman operation.
-
-dh_g
-   The generator used for the Diffie-Hellman operation.
-
-dh_Ys
-   The server's Diffie-Hellman public value (g^X mod p).
-
 
 struct {
     select (KeyExchangeAlgorithm) {
@@ -3812,12 +3806,11 @@ struct {
                 ServerDHParams params;
             } signed_params;
         case rsa:
-        case dhe_dss:
+        case dh_dss:
         case dh_rsa:
             struct {} ;
            /* message is omitted for rsa, dh_dss, and dh_rsa */
     };
-
 } ServerKeyExchange;
 
 
@@ -3843,14 +3836,13 @@ A.4.3. Client Authentication and Key Exchange Messages
 struct {
     select (KeyExchangeAlgorithm) {
         case rsa: 
-		EncryptedPreMasterSecret;
-
+            EncryptedPreMasterSecret;
         case dhe_dss:
-	case dhe_rsa:
-	case dh_dss:
-	case dh_rsa:
+        case dhe_rsa:
+        case dh_dss:
+        case dh_rsa:
         case dh_anon:
-		ClientDiffieHellmanPublic;
+            ClientDiffieHellmanPublic;
     } exchange_keys;
 } ClientKeyExchange;
 
@@ -5282,11 +5274,6 @@ http://www.imc.org/ietf-openpgp/mail-archive/msg14307.html.
 [GCM]    "NIST Special Publication 800-38D DRAFT (June, 2007):
 Recommendation for Block Cipher Modes of Operation:
 Galois/Counter Mode (GCM) and GMAC"
-
-.ti 3
-[IDEA]   X. Lai, "On the Design and Security of Block Ciphers," ETH
-Series in Information Processing, v. 1, Konstanz: Hartung-Gorre
-Verlag, 1992.
 
 .ti 3
 [IKEALG] Schiller, J., "Cryptographic Algorithms for Use in the
