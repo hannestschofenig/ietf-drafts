@@ -5,8 +5,8 @@
 
 
 INTERNET-DRAFT                                                Tim Dierks
-Obsoletes (if approved): RFC 3268, 4346, 4366                Independent
-Updates (if approved): RFC 4492                            Eric Rescorla
+Obsoletes [if approved]: RFC 3268, 4346, 4366                Independent
+Updates [if approved]: RFC 4492                            Eric Rescorla
 Intended status:  Proposed Standard              Network Resonance, Inc.
 <draft-ietf-tls-rfc4346-bis-09.txt>  February 2008 (Expires August 2008)
 
