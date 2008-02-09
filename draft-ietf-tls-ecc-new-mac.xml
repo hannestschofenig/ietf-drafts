@@ -21,29 +21,29 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-02.txt"> 
+<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-03.txt"> 
 
 <front>
      <title abbrev="TLS ECC New MAC">TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode</title>
            <author initials="E.K." surname="Rescorla"
                    fullname="Eric Rescorla">
-               <organization>Network Resonance</organization>
+               <organization>RTFM, Inc.</organization>
 
                <address>
                    <postal>
-                       <street>2483 E. Bayshore #212</street>
+                       <street>2064 Edgewood Drive</street>
                        <city>Palo Alto</city> 
                        <code>94303</code>
 		       <state>CA</state>
                        <country>USA</country>
                    </postal>
 
-                   <email>ekr@networkresonance.com</email>
+                   <email>ekr@rtfm.com</email>
                </address>
 
            </author>
 
-           <date month="December" year="2007" />
+           <date month="February" year="2008" />
 
            <abstract>
                <t>RFC 4492 describes elliptic curve cipher suites for
@@ -147,6 +147,8 @@ is static for the entire session and part is carried in each packet.
 The salt value is either the client_write_IV if the client is sending
 or the server_write_IV if the server is sending. These IVs SHALL be
 4 bytes long. 
+Therefore, for all the algorithms defined
+in this section, SecurityParameters.fixed_iv_length=4.
 </t>
 <t>
 The explicit_nonce_part is chosen by the sender and included in the
@@ -155,7 +157,7 @@ all other values, for any fixed key. Failure to meet this
 uniqueness requirement can significantly degrade security.
 The explicit_nonce_part is carried in the IV field of the 
 GenericAEADCipher structure. Therefore, for all the algorithms defined
-in this section, SecurityParameters.iv_length=8.
+in this section, SecurityParameters.record_iv_length=8.
 </t>
 <t>
 In the case of TLS the counter MAY be the 64-bit sequence number.   
@@ -173,8 +175,8 @@ TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be P_SHA-256.
 </t>
 <t>
 For
-TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 and
-TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be P_SHA-384.</t>
+TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA384 and
+TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA384 it SHALL be P_SHA-384.</t>
 </section>
 <section title="Acknowledgements">
 <t>
@@ -288,6 +290,7 @@ IANA has assigned the following values for these cipher suites:
                     value="180-2" />
 </reference>
 
+
 <reference anchor="CBC">
         <front>
           <title abbrev="GCM">Recommendation for Block Cipher Modes of Operation - Methods and Techniques</title>
@@ -309,12 +312,14 @@ IANA has assigned the following values for these cipher suites:
           <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology">
           </author>
 
-          <date month="April" year="2006" />
+          <date month="November" year="2007" />
         </front>
 
         <seriesInfo name="SP"
-                    value="800-38D (DRAFT)" />
+                    value="800-38D" />
 </reference>
+</references>
+<references title="Informative References">
 <reference anchor="Wang05">
         <front>
 	<title abbrev="Wang05">Finding Collisions in the Full SHA-1</title>
@@ -326,8 +331,7 @@ IANA has assigned the following values for these cipher suites:
 	<seriesInfo name="CRYPTO" value="2005"/>
 </reference>		
 
-</references>
-<references title="Informative References">
+
 &I-D.salowey-tls-rsa-aes-gcm;
 </references>
 </back>
