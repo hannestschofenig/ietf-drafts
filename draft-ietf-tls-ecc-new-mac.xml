@@ -21,7 +21,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-03.txt"> 
+<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-04.txt"> 
 
 <front>
      <title abbrev="TLS ECC New MAC">TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode</title>
@@ -161,8 +161,7 @@ in this section, SecurityParameters.record_iv_length=8.
 </t>
 <t>
 In the case of TLS the counter MAY be the 64-bit sequence number.   
-In the case of Datagram TLS <xref target="RFC4347"/> [NOTE: there
-needs to be a new DTLS draft for AEAD, this is a placeholder]
+In the case of Datagram TLS <xref target="RFC4347"/> 
 the counter MAY be formed from the concatenation of  
 the 16-bit epoch with the 48-bit sequence number. 
 </t>
@@ -178,14 +177,6 @@ For
 TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA384 and
 TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA384 it SHALL be P_SHA-384.</t>
 </section>
-<section title="Acknowledgements">
-<t>
-This work was supported by the US Department of Defense.
-</t>
-<t>
-David McGrew contributed substantual sections of the GCM nonce
-text as well as providing a review of this document.
-</t>
 </section>
 <section title="TLS Versions">
 <t>
@@ -251,14 +242,21 @@ IANA has assigned the following values for these cipher suites:
 </artwork>
 </t>
 </section>
+<section title="Acknowledgements">
+<t>
+This work was supported by the US Department of Defense.
+</t>
+<t>
+David McGrew contributed substantual sections of the GCM nonce
+text as well as providing a review of this document.</t>
 </section>
+
 </middle>
 <back>
 <references title="Normative References">
 
 &rfc2119;
 &rfc4492;
-&rfc4347;
 &I-D.mcgrew-auth-enc;
 &I-D.ietf-tls-rfc4346-bis;
 
@@ -331,7 +329,7 @@ IANA has assigned the following values for these cipher suites:
 	<seriesInfo name="CRYPTO" value="2005"/>
 </reference>		
 
-
+&rfc4347;
 &I-D.salowey-tls-rsa-aes-gcm;
 </references>
 </back>
