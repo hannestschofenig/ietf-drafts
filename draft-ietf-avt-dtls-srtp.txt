@@ -556,8 +556,6 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-
-
 McGrew & Rescorla        Expires August 21, 2007               [Page 10]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
@@ -987,8 +985,8 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 9.  Acknowledgments
 
    Special thanks to Flemming Andreasen, Francois Audet, Jason Fischl,
-   Cullen Jennings, Colin Perkins, Magnus Westerlund, and Dan Wing, 
-   for input, discussions, and guidance.
+   Cullen Jennings, Colin Perkins, and Dan Wing, for input, discussions,
+   and guidance.
 
 
 10.  References
