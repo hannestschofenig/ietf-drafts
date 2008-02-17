@@ -26,7 +26,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-avt-dtls-srtp-01.txt" ipr="full3978">
+<rfc category="std" docName="draft-ietf-avt-dtls-srtp-02.txt" ipr="full3978">
   <front>
     <title abbrev="SRTP Extension for DTLS">Datagram Transport Layer Security
     (DTLS) Extension to Establish Keys for Secure Real-time Transport Protocol
@@ -72,7 +72,7 @@
       </address>
     </author>
 
-    <date day="17" month="November" year="2007" />
+    <date day="17" month="February" year="2007" />
 
     <abstract>
     <t>
@@ -827,7 +827,7 @@ to SRTPparameters?
           these packets.</t>
         </section>
 
-        <section title="Reception">
+        <section title="Reception" anchor="section.reception">
           <t>When DTLS-SRTP is used to protect an RTP session, the RTP
           receiver needs to demultiplex packets that are arriving on the RTP
           port. Arriving packets may be of types RTP, DTLS, or STUN<xref
@@ -857,48 +857,102 @@ to SRTPparameters?
 ]]></artwork>
           </figure>
 
-          <!--
    <t>
-   In ordinary DTLS, the receiver can unambiguously determine
-   the type of the record from the DTLS record header. However
-   when SRTP and DTLS data is mixed over the same channel,
-   the recipient must first determine which decryption
-   mechanism to use. This can be done unambiguously using the
-   following procedure.
+   In some cases there will be
+   multiple DTLS-SRTP associations for a given SRTP endpoint.
+   For instance, if Alice makes a call which is SIP forked to
+   both Bob and Charlie, she will use the same local host/port
+   pair for both of them, as shown in <xref target="forkFig"/>.
+   (The SSRCs shown are the ones for data flowing to Alice).
+   </t>
+
+        <figure anchor="forkFig" title="RTP sessions with SIP forking">
+          <artwork><![CDATA[	
+                                       Bob (192.0.2.1:6666)
+                                      /
+                                     /
+                                    / SSRC=1
+                                   /  DTLS-SRTP=XXX
+                                  /
+                                 v
+            Alice (192.0.2.0:5555)
+                                 ^
+                                  \
+                                   \  SSRC=2
+                                    \ DTLS-SRTP=YYY
+                                     \ 
+                                      \
+                                       Charlie (192.0.2.1:6666)   	 
+]]></artwork>
+          </figure>
+   <t>
+   Because DTLS operates on the host/port
+   quartet, the DTLS association will still complete correctly,
+   with the foreign host/port pair being used to distinguish
+   the associations. However, in RTP the source host/port is
+   not used and sessions are identified by the destination	  
+   host/port and the SSRC. Thus, some mechanism is needed
+   to determine which SSRCs correspond to which DTLS associations.
+   The following method SHOULD be used.
+   </t>
+   <t>
+   For each local host/port pair, the DTLS-SRTP implementation
+   maintains a table listing all the SSRCs it knows about 
+   and the DTLS-SRTP associations they correspond to.
+   Initially, this table is empty. When an SRTP 
+   packet is received, the following procedure is used:
+   </t>
+   <t>
    <list style="numbers">
-   <t>Assume that the datagram is a DTLS record.</t>
-   <t>If the first byte does not match a known DTLS content type go to step 6.</t>
-   <t>If the version field does not match the current version go to step 6.</t>
-   <t>If the length does not match the rest of the record, go to step 6.</t>
-   <t>Attempt to decrypt and verify the DTLS record-omitting
-   the replay check. If this process succeeds, the record must
-   be DTLS. Deliver it to the rest of the DTLS implementation.</t>
-   <t>Assume that the datagram is an SRTP packet and follow
-   the procedure of Section 3 of RFC 3711. Note that the 
-   replay detection check specified in DTLS SHOULD NOT be done for these packets. 
-     If anti-replay is desired SRTP anti-replay mechanisms SHOULD be used.
-</t>
-   </list>
-   </t><t>
-   The first byte of a
-   DTLS packet is "Type" which can currently have values of 20,21,22, and
-   23 as defined in ContentType declaration in <xref
-   target="RFC4346"></xref>. It is reasonable to expect
-   the first byte to remain under 64 and greater than 1. For RTP the
-   first byte has a value that is 196 or above. 
-   Thus, in general, the type check specified in step (2) is sufficient
-   for unambigous interpretation, and checks (3), (4), and (5)
-   are merely fallbacks in case of the unlikely event that
-   the headers do change enough to make this first check less
-   than completely definitive.
+   <t>If the SSRC is already known, then the corresponding
+      DTLS-SRTP association and its keying material is used
+      to decrypt the packet.</t>
+   <t>If the SSRC is not known, then the receiver tries to
+      decrypt it with the keying material corresponding
+      to each DTLS-SRTP association.</t>
+   <t>If the decryption succeeds (the authentication tag
+      verifies) then an entry is placed in the table
+      mapping the SSRC to that association.</t>
+   <t>If the decryption fails, then the packet is silently 
+      discarded.</t>
+  </list>
    </t>
    <t>
-   If this procedure does not result in a successful verification
-   and reception, the datagram SHOULD be silently discarded. 
-   For testing and debugging purposes it MAY be desirable to generate
-   an "invalid_MAC" alert, as specified in Section 4.1.2.1 of
-   <xref target="I-D.rescorla-dtls"/>.
+   The average cost of this algorithm for a single SSRC is
+   the decryption time of a single packet times the number
+   valid DTLS-SRTP associations corresponding to a single
+   receiving port on the host. In practice, this means the
+   number of forks, so in the case shown in <xref target="forkFig"/>,
+   that would be two. This cost is only incurred once for any
+   given SSRC, since afterwards that SSRC is placed in the map
+   table and looked up immediately. As with normal RTP,
+   this algorithm allows new SSRCs to be introduced by the
+   source at any time. They will automatically be mapped
+   to the correct DTLS association.
    </t>
+   <t>
+   There are two error cases that should be considered. First,
+   if an SSRC collision occurs, then only the packets from
+   the first source will be processed. When the packets from
+   the second source arrive, the DTLS association with the
+   first source will be used for decryption, which will fail,
+   and the packet will be discarded. This is consistent
+   with <xref target="RFC3550"/>, which permits the
+   receiver to keep the packets from one source and discard
+   those from the other.
+   </t>
+   <t>
+   Second, there may be cases where a malfunctioning source
+   is sending corrupt packets which cannot be decrypted.
+   In this case, the SSRC will never be entered into the
+   mapping table, because the decryption always fails. 
+   Receivers MAY keep records of unmapped 
+   SSRCs which consistently fail decryption and abandon
+   attempts to decrypt them once they reach some limit.
+   That limit MUST be large enough to account for the
+   effects of transmission errors.
+   </t>
+<!--
    <section title="Opportunistic Probing">
    <t>[[Open Issue
    In discussions of media-level security, some have suggested
@@ -921,7 +975,7 @@ to SRTPparameters?
 
         </section>
       </section>
-
+      
       <section anchor="section.rehandshake" title="Rehandshake and Re-key">
         <t>Rekeying in DTLS is accomplished by performing a new handshake over
         the existing DTLS channel. This handshake can be performed in parallel
@@ -991,13 +1045,14 @@ to SRTPparameters?
     </section>
     <section anchor="sec-multiparty" title="Multi-party RTP Sessions">
       <t>Since DTLS is a point-to-point protocol, DTLS-SRTP is intended only
-      to protect RTP flow in which there are exactly two participants.
+      to protect unicast RTP sessions. 
       This does not preclude its use with RTP mixers. For example, a
       conference bridge may use DTLS-SRTP to secure the communication to and
       from each of the participants in a conference. However, because
       each flow between an endpoint and a mixer has its own key,
       the mixer has to decrypt and then reencrypt the traffic for each
       recipient.</t>
+
       <t>A future specification
       may describe methods for sharing a single key between multiple
       DTLS-SRTP associations which would allow conferencing systems
@@ -1006,27 +1061,6 @@ to SRTPparameters?
       transcoding) will generally need to be performed on the plaintext
       and will certainly break the authentication tag and therefore
       will require a decrypt/reencrypt stage.</t>
-      
-      <section title="SIP Forking">
-        <t>When SIP parallel forking occurs while establishing an RTP flow
-        a situation may arise in which two or more sources are sending RTP
-        packets to a single RTP destination transport address. When this
-        situation arises and DTLS-SRTP is in use, the receiver MUST use the
-        source transport IP address and port of each packet to distinguish
-        between the senders, and treat the flow of packets from each distinct
-        source transport address as a distinct DTLS-SRTP session for the
-        purposes of the DTLS association.</t>
-
-        <t>When SIP forking occurs, the following method can be used to 
-	correlate each answer to the corresponding DTLS-SRTP session. 
-	If the answers have different certificates then fingerprints
-	in the answers can be used to correlate the SIP dialogs
-	with the associated DTLS session. Note that two forks
-	with the same certificate cannot be distinguished at the
-	DTLS level, but this problem is a generic problem with 
-	SIP forking and should be solved at a higher level.
-	</t>
-      </section>
     </section>
 
     <section anchor="section.sec" title="Security Considerations">
@@ -1104,6 +1138,24 @@ to SRTPparameters?
           technique is already used for rollover counter management, so the
           authors do not consider this to be a serious flaw.</t>
         </section>
+      </section>
+      <section title="Decryption Cost">
+	<t>An attacker can impose computational costs on the receiver
+	by sending superficially valid SRTP packets which do not decrypt
+	correctly. In general, encryption algorithms are so fast that
+	this cost is extremely small compared to the bandwidth consumed.
+	The SSRC-DTLS mapping algorithm
+	described in <xref target="section.reception"/> gives the
+	attacker a slight advantage here because he can force the 
+	receiver to do more then one decryption per packet. However,
+	this advantage is modest because the number of decryptions
+	that the receiver does is limited by the number of associations
+	he has corresponding to a given destination host/port, which
+	is typically quite small. For comparison, a single 1024-bit 
+	RSA private key operation (the typical minimum cost to establish
+	a DTLS-SRTP association) is hundreds of times as expensive
+	as decrypting an SRTP packet.
+	</t>
       </section>
     </section>
 
