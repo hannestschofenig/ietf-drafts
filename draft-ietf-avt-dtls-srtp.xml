@@ -244,7 +244,8 @@
         SRTP keys, and similarly, all of the RTP sources originating on the
         server over the same channel use the same SRTP keys. The SRTP
         implementation MUST ensure that all of the SSRC values for all of the
-        RTP sources originating from the same device are distinct, in order to
+        RTP sources originating from the same device over the same channel
+	are distinct, in order to
         avoid the "two-time pad" problem (as described in Section 9.1 of RFC
         3711).</t>
       </section>
@@ -457,9 +458,9 @@
                 </list></t>
 
               <t hangText="SRTP_AES256_CM_HMAC_SHA1_80"><list>
-                  <t>cipher: AES_128_CM</t>
+                  <t>cipher: AES_256_CM</t>
 
-                  <t>cipher_key_length: 128</t>
+                  <t>cipher_key_length: 256</t>
 
                   <t>cipher_salt_length: 112</t>
 
@@ -474,9 +475,9 @@
 
               <t hangText="SRTP_AES256_CM_HMAC_SHA1_32">
 		<list>
-                  <t>cipher: AES_128_CM</t>
+                  <t>cipher: AES_256_CM</t>
 
-                  <t>cipher_key_length: 128</t>
+                  <t>cipher_key_length: 256</t>
 
                   <t>cipher_salt_length: 112</t>
 
@@ -641,7 +642,7 @@ to SRTPparameters?
 -->
         </figure>
 	
-	<t>The extractor label for this usage is "dtls_srtp".
+	<t>The extractor label for this usage is "EXTRACTOR-dtls_srtp".
 	</t>
         <t>The four keying material values
 	are provided as inputs to the SRTP key
@@ -937,7 +938,7 @@ to SRTPparameters?
    </t>
    <t>
    Note that this algorithm explicitly allows multiple SSRCs
-   to be sent from the same address/port pair. One case
+   to be sent from the same address/port pair. One way
    in which this can happen is an RTP translator. This
    algorithm will automatically assign the SSRCs to the
    correct associations. Note that because the SRTP packets

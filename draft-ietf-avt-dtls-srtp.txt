@@ -245,9 +245,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    same SRTP keys, and similarly, all of the RTP sources originating on
    the server over the same channel use the same SRTP keys.  The SRTP
    implementation MUST ensure that all of the SSRC values for all of the
-   RTP sources originating from the same device are distinct, in order
-   to avoid the "two-time pad" problem (as described in Section 9.1 of
-   RFC 3711).
+   RTP sources originating from the same device over the same channel
+   are distinct, in order to avoid the "two-time pad" problem (as
+   described in Section 9.1 of RFC 3711).
 
 
 4.  DTLS Extensions for SRTP Key Establishment
@@ -414,16 +414,16 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
          auth_tag_length:  32
          RTCP auth_tag_length:  80
    SRTP_AES256_CM_HMAC_SHA1_80
-         cipher:  AES_128_CM
-         cipher_key_length:  128
+         cipher:  AES_256_CM
+         cipher_key_length:  256
          cipher_salt_length:  112
          maximum_lifetime:  2^31
          auth_function:  HMAC-SHA1
          auth_key_length:  160
          auth_tag_length:  80
    SRTP_AES256_CM_HMAC_SHA1_32
-         cipher:  AES_128_CM
-         cipher_key_length:  128
+         cipher:  AES_256_CM
+         cipher_key_length:  256
          cipher_salt_length:  112
          maximum_lifetime:  2^31
          auth_function:  HMAC-SHA1
@@ -535,7 +535,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    client_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len];
    server_write_SRTP_master_salt[SRTPSecurityParams.master_salt_len];
 
-   The extractor label for this usage is "dtls_srtp".
+   The extractor label for this usage is "EXTRACTOR-dtls_srtp".
 
    The four keying material values are provided as inputs to the SRTP
    key derivation mechanism, as shown in Figure 5 and detailed below.
@@ -793,8 +793,8 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    automatically be mapped to the correct DTLS association.
 
    Note that this algorithm explicitly allows multiple SSRCs to be sent
-   from the same address/port pair.  One case in which this can happen
-   is an RTP translator.  This algorithm will automatically assign the
+   from the same address/port pair.  One way in which this can happen is
+   an RTP translator.  This algorithm will automatically assign the
    SSRCs to the correct associations.  Note that because the SRTP
    packets are cryptographically protected, such a translator must
    either share keying material with one endpoint in or refrain from
