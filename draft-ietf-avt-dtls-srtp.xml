@@ -915,6 +915,9 @@ to SRTPparameters?
       mapping the SSRC to that association.</t>
    <t>If the decryption fails, then the packet is silently 
       discarded.</t>
+   <t>When a DTLS-SRTP association
+      is closed (for instance because the fork is abandoned)
+      its entries MUST be removed from the mapping table.</t>
   </list>
    </t>
    <t>
@@ -928,7 +931,19 @@ to SRTPparameters?
    table and looked up immediately. As with normal RTP,
    this algorithm allows new SSRCs to be introduced by the
    source at any time. They will automatically be mapped
-   to the correct DTLS association.
+   to the correct DTLS association. 
+   </t>
+   <t>
+   Note that this algorithm explicitly allows multiple SSRCs
+   to be sent from the same address/port pair. One case
+   in which this can happen is an RTP translator. This
+   algorithm will automatically assign the SSRCs to the
+   correct associations. Note that because the SRTP packets
+   are cryptographically protected, such a translator must
+   either share keying material with one endpoint in or
+   refrain from modifying the packets in a way which would
+   cause the integrity check to fail. This is a general
+   property of SRTP and is not specific to DTLS-SRTP.
    </t>
    <t>
    There are two error cases that should be considered. First,
@@ -939,7 +954,8 @@ to SRTPparameters?
    and the packet will be discarded. This is consistent
    with <xref target="RFC3550"/>, which permits the
    receiver to keep the packets from one source and discard
-   those from the other.
+   those from the other. Of course the RFC 3550 SSRC collision
+   detection and handling procedures MUST also be followed.
    </t>
    <t>
    Second, there may be cases where a malfunctioning source
@@ -950,7 +966,7 @@ to SRTPparameters?
    SSRCs which consistently fail decryption and abandon
    attempts to decrypt them once they reach some limit.
    That limit MUST be large enough to account for the
-   effects of transmission errors.
+   effects of transmission errors. 
    </t>
 <!--
    <section title="Opportunistic Probing">
@@ -1077,14 +1093,6 @@ to SRTPparameters?
         can control the channel can always mount.</t>
       </section>
 
-      <!--
-   <section title="Security of Established Keys">
-   <t>
-    [TODO: David, can you say something about NIST, the PRF, etc...?]
-   </t>
-   </section>
-    -->
-
       <section title="Framing Confusion">
         <t>Because two different framing formats are used, there is concern
         that an attacker could convince the receiver to treat an SRTP-framed
@@ -1155,6 +1163,15 @@ to SRTPparameters?
 	RSA private key operation (the typical minimum cost to establish
 	a DTLS-SRTP association) is hundreds of times as expensive
 	as decrypting an SRTP packet.
+	</t>
+	<t>
+	Implementations can detect this form of attack by keeping
+	track of the number of SRTP packets observed with unknown
+	SSRCs which fail the authentication tag check. If under
+	such attack, implementations SHOULD prioritize decryption
+	and verification of packets which either have known
+	SSRCs or come from source addresses which match those 
+	of peers with which it has DTLS-SRTP associations.
 	</t>
       </section>
     </section>

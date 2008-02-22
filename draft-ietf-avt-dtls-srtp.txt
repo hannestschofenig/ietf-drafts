@@ -78,16 +78,16 @@ Table of Contents
    6.  Multi-party RTP Sessions . . . . . . . . . . . . . . . . . . . 16
    7.  Security Considerations  . . . . . . . . . . . . . . . . . . . 16
      7.1.  Security of Negotiation  . . . . . . . . . . . . . . . . . 16
-     7.2.  Framing Confusion  . . . . . . . . . . . . . . . . . . . . 16
+     7.2.  Framing Confusion  . . . . . . . . . . . . . . . . . . . . 17
      7.3.  Sequence Number Interactions . . . . . . . . . . . . . . . 17
        7.3.1.  Alerts . . . . . . . . . . . . . . . . . . . . . . . . 17
        7.3.2.  Renegotiation  . . . . . . . . . . . . . . . . . . . . 17
-     7.4.  Decryption Cost  . . . . . . . . . . . . . . . . . . . . . 17
+     7.4.  Decryption Cost  . . . . . . . . . . . . . . . . . . . . . 18
    8.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 18
-   9.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . 18
-   10. References . . . . . . . . . . . . . . . . . . . . . . . . . . 18
-     10.1. Normative References . . . . . . . . . . . . . . . . . . . 18
-     10.2. Informational References . . . . . . . . . . . . . . . . . 19
+   9.  Acknowledgments  . . . . . . . . . . . . . . . . . . . . . . . 19
+   10. References . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+     10.1. Normative References . . . . . . . . . . . . . . . . . . . 19
+     10.2. Informational References . . . . . . . . . . . . . . . . . 20
    Appendix A.  Performance of Multiple DTLS Handshakes . . . . . . . 20
    Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 22
    Intellectual Property and Copyright Statements . . . . . . . . . . 23
@@ -770,13 +770,13 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
        an entry is placed in the table mapping the SSRC to that
        association.
    4.  If the decryption fails, then the packet is silently discarded.
+   5.  When a DTLS-SRTP association is closed (for instance because the
+       fork is abandoned) its entries MUST be removed from the mapping
+       table.
 
    The average cost of this algorithm for a single SSRC is the
    decryption time of a single packet times the number valid DTLS-SRTP
    associations corresponding to a single receiving port on the host.
-   In practice, this means the number of forks, so in the case shown in
-   Figure 8, that would be two.  This cost is only incurred once for any
-   given SSRC, since afterwards that SSRC is placed in the map table and
 
 
 
@@ -785,9 +785,22 @@ McGrew & Rescorla        Expires August 21, 2007               [Page 14]
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
+   In practice, this means the number of forks, so in the case shown in
+   Figure 8, that would be two.  This cost is only incurred once for any
+   given SSRC, since afterwards that SSRC is placed in the map table and
    looked up immediately.  As with normal RTP, this algorithm allows new
    SSRCs to be introduced by the source at any time.  They will
    automatically be mapped to the correct DTLS association.
+
+   Note that this algorithm explicitly allows multiple SSRCs to be sent
+   from the same address/port pair.  One case in which this can happen
+   is an RTP translator.  This algorithm will automatically assign the
+   SSRCs to the correct associations.  Note that because the SRTP
+   packets are cryptographically protected, such a translator must
+   either share keying material with one endpoint in or refrain from
+   modifying the packets in a way which would cause the integrity check
+   to fail.  This is a general property of SRTP and is not specific to
+   DTLS-SRTP.
 
    There are two error cases that should be considered.  First, if an
    SSRC collision occurs, then only the packets from the first source
@@ -795,7 +808,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    the DTLS association with the first source will be used for
    decryption, which will fail, and the packet will be discarded.  This
    is consistent with [3], which permits the receiver to keep the
-   packets from one source and discard those from the other.
+   packets from one source and discard those from the other.  Of course
+   the RFC 3550 SSRC collision detection and handling procedures MUST
+   also be followed.
 
    Second, there may be cases where a malfunctioning source is sending
    corrupt packets which cannot be decrypted.  In this case, the SSRC
@@ -818,6 +833,14 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    compensate for this fact, receivers SHOULD maintain both sets of keys
    for some time in order to be able to decrypt and verify older
    packets.  The keys should be maintained for the duration of the
+
+
+
+McGrew & Rescorla        Expires August 21, 2007               [Page 15]
+
+Internet-Draft           SRTP Extension for DTLS           February 2007
+
+
    maximum segment lifetime (MSL).
 
    If an MKI is used, then the receiver should use the corresponding set
@@ -833,14 +856,6 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    the packet MUST be discarded and rejected.
 
    Receivers MAY use the SRTP packet sequence number to aid in the
-
-
-
-McGrew & Rescorla        Expires August 21, 2007               [Page 15]
-
-Internet-Draft           SRTP Extension for DTLS           February 2007
-
-
    selection of keys.  After a packet has been received and
    authenticated with the new key set, any packets with sequence numbers
    that are greater will also have been protected with the new key set.
@@ -874,6 +889,14 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
    One concern here is that attackers might be able to implement a bid-
    down attack forcing the peers to use ordinary DTLS rather than SRTP.
+
+
+
+McGrew & Rescorla        Expires August 21, 2007               [Page 16]
+
+Internet-Draft           SRTP Extension for DTLS           February 2007
+
+
    However, because the negotiation of this extension is performed in
    the DTLS handshake, it is protected by the Finished messages.
    Therefore, any bid-down attack is automatically detected, which
@@ -889,13 +912,6 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    for each type of data.  Therefore, this type of attack reduces to
    being able to forge a packet with a valid MAC, which violates a basic
    security invariant of both DTLS and SRTP.
-
-
-
-McGrew & Rescorla        Expires August 21, 2007               [Page 16]
-
-Internet-Draft           SRTP Extension for DTLS           February 2007
-
 
    As an additional defense against injection into the DTLS handshake
    channel, the DTLS record type is included in the MAC.  Therefore, an
@@ -929,6 +945,14 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    Section 5.2 requires trying multiple sets of keys if no MKI is used,
    it slightly weakens the authentication.  For instance, if an n-bit
    MAC is used and k different sets of keys are present, then the MAC is
+
+
+
+McGrew & Rescorla        Expires August 21, 2007               [Page 17]
+
+Internet-Draft           SRTP Extension for DTLS           February 2007
+
+
    weakened by log_2(k) bits to n - log_2(k).  In practice, since the
    number of keys used will be very small and the MACs in use are
    typically strong (the default for SRTP is 80 bits) the decrease in
@@ -945,14 +969,6 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
    An attacker can impose computational costs on the receiver by sending
    superficially valid SRTP packets which do not decrypt correctly.  In
-
-
-
-McGrew & Rescorla        Expires August 21, 2007               [Page 17]
-
-Internet-Draft           SRTP Extension for DTLS           February 2007
-
-
    general, encryption algorithms are so fast that this cost is
    extremely small compared to the bandwidth consumed.  The SSRC-DTLS
    mapping algorithm described in Section 5.1.2 gives the attacker a
@@ -964,6 +980,13 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    comparison, a single 1024-bit RSA private key operation (the typical
    minimum cost to establish a DTLS-SRTP association) is hundreds of
    times as expensive as decrypting an SRTP packet.
+
+   Implementations can detect this form of attack by keeping track of
+   the number of SRTP packets observed with unknown SSRCs which fail the
+   authentication tag check.  If under such attack, implementations
+   SHOULD prioritize decryption and verification of packets which either
+   have known SSRCs or come from source addresses which match those of
+   peers with which it has DTLS-SRTP associations.
 
 
 8.  IANA Considerations
@@ -978,6 +1001,14 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    Section 4.1.2 requires that all SRTPProtectionProfile values be
    defined by RFC 2434 Standards Action.  IANA SHOULD create a DTLS
    SRTPProtectionProfile registry initially populated with values from
+
+
+
+McGrew & Rescorla        Expires August 21, 2007               [Page 18]
+
+Internet-Draft           SRTP Extension for DTLS           February 2007
+
+
    Section 4.1.2 of this document.  Future values MUST be allocated via
    Standards Action as described in [2]
 
@@ -1001,14 +1032,6 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
          October 1998.
 
    [3]   Schulzrinne, H., Casner, S., Frederick, R., and V. Jacobson,
-
-
-
-McGrew & Rescorla        Expires August 21, 2007               [Page 18]
-
-Internet-Draft           SRTP Extension for DTLS           February 2007
-
-
          "RTP: A Transport Protocol for Real-Time Applications", STD 64,
          RFC 3550, July 2003.
 
@@ -1032,6 +1055,15 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
    [9]   Wing, D., "Symmetric RTP / RTP Control Protocol (RTCP)",
          BCP 131, RFC 4961, July 2007.
+
+
+
+
+
+McGrew & Rescorla        Expires August 21, 2007               [Page 19]
+
+Internet-Draft           SRTP Extension for DTLS           February 2007
+
 
 10.2.  Informational References
 
@@ -1058,13 +1090,6 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    [14]  McGrew, D., "The use of AES-192 and AES-256 in Secure RTP",
          draft-mcgrew-srtp-big-aes-00 (work in progress), April 2006.
 
-
-
-McGrew & Rescorla        Expires August 21, 2007               [Page 19]
-
-Internet-Draft           SRTP Extension for DTLS           February 2007
-
-
    [15]  Rescorla, E., "Keying Material Extractors for Transport Layer
          Security (TLS)", draft-rescorla-tls-extractor-01 (work in
          progress), November 2007.
@@ -1088,6 +1113,14 @@ Appendix A.  Performance of Multiple DTLS Handshakes
    peers.
 
    The second concern is network bandwidth overhead for the
+
+
+
+McGrew & Rescorla        Expires August 21, 2007               [Page 20]
+
+Internet-Draft           SRTP Extension for DTLS           February 2007
+
+
    establishment of subsequent connections and for rehandshake (for
    rekeying) for existing connections.  In particular, there is a
    concern that the channels will have very narrow capacity requirements
@@ -1104,22 +1137,6 @@ Appendix A.  Performance of Multiple DTLS Handshakes
    resumption they should be done after the first channel is
    established.  For two channels this provides a ladder diagram
    something like this (parenthetical #s are media channel #s)
-
-
-
-
-
-
-
-
-
-
-
-
-McGrew & Rescorla        Expires August 21, 2007               [Page 20]
-
-Internet-Draft           SRTP Extension for DTLS           February 2007
-
 
    Alice                                   Bob
    -------------------------------------------
@@ -1146,6 +1163,20 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    Channel 2 is ready.  If the peers are potentially willing to forego
    resumption they can interlace the handshakes, like so:
 
+
+
+
+
+
+
+
+
+
+McGrew & Rescorla        Expires August 21, 2007               [Page 21]
+
+Internet-Draft           SRTP Extension for DTLS           February 2007
+
+
    Alice                                   Bob
    -------------------------------------------
                       <-       ClientHello (1)
@@ -1169,14 +1200,6 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    In this case the channels are ready contemporaneously, but if a
    message in handshake (1) is lost then handshake (2) requires either a
    full rehandshake or that Alice be clever and queue the resumption
-
-
-
-McGrew & Rescorla        Expires August 21, 2007               [Page 21]
-
-Internet-Draft           SRTP Extension for DTLS           February 2007
-
-
    attempt until the first handshake completes.  Note that just dropping
    the packet works as well since Bob will retransmit.
 
@@ -1199,29 +1222,6 @@ Authors' Addresses
    USA
 
    Email:  ekr@networkresonance.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

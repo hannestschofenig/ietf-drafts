@@ -274,6 +274,21 @@ select_start: SELECT_
     STAILQ_INIT(&decl->u.select_.arms);    
     push_decl(decl);
 };
+        | PUBLIC_ SELECT_ 
+{
+    p_decl *decl=0;
+
+    r_log(LOG_GENERIC,LOG_DEBUG,"select start\n");
+
+    decl=RCALLOC(sizeof(p_decl));
+
+    decl->type=TYPE_SELECT;
+    STAILQ_INIT(&decl->u.select_.arms);    
+    push_decl(decl);
+    STAILQ_INSERT_TAIL(&public_decls,decl,entry);
+};
+
+
 
 select_arms : {};
              | select_arms select_arm

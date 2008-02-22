@@ -12,13 +12,13 @@ o]>
 <!-- $Id -->
 <?rfc inline="yes"?>
 <?rfc toc="yes" ?>
-<?rfc symrefs="no" ?>
+<?rfc symrefs="yes" ?>
 <?rfc iprnotified="no" ?>
 <!--<?rfc strict="yes" ?>-->
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-tls-extractor-00.txt" ipr="full3978">
+<rfc category="std" docName="draft-ietf-tls-extractor-01.txt" ipr="full3978">
   <front>
     <title abbrev="TLS Extractors">Keying Material Extractors for Transport Layer Security (TLS)</title>
 
@@ -42,7 +42,7 @@ o]>
       </address>
     </author>
 
-    <date day="19" month="December" year="2007" />
+    <date day="20" month="February" year="2008" />
 
     <abstract>
       <t>A number of protocols wish to leverage Transport Layer Security (TLS)
@@ -62,9 +62,11 @@ o]>
       then uses the DTLS master_secret to generate the SRTP keys.
     </t>
     <t>
-      These applications imply a need to be able to extract Exported
-      Keying Material (EKM) from TLS/DTLS. This mechanism has the
-      following requirements:
+      These applications imply a need to be
+      able to extract keying material (later called Exported Keying Material
+      or EKM) from TLS/DTLS, and securely agree on the upper-layer context
+      where the keying material will be used. The mechanism for extracting
+      the keying material has the following requirements:
       </t>
       <t>
       <list style="symbols">
@@ -88,20 +90,62 @@ o]>
       document are to be interpreted as described in <xref
       target="RFC2119"></xref>.</t>
     </section>
-    <section title="Signalling Extractors">
-    <t>
-    Other protocols which wish to use extractors SHOULD have some
-    way for the peers to signal that an extractor will be used.
-    An example is a TLS extension, as used in DTLS-SRTP.
+    <section title="Binding to Application Contexts" anchor="sec.binding">
+     <t>
+     In addition to extracting keying material, an application using the
+     keying material has to securely establish the upper-layer layer
+     context where the keying material will be used.  The details of this
+     context depend on the application, but it could include things such as
+     algorithms and parameters that will be used with the keys,
+     identifier(s) for the endpoint(s) who will use the keys, identifier(s)
+     for the session(s) where the keys will be used, and the lifetime(s)
+     for the context and/or keys. At minimum, there should be some
+     mechanism for signalling that an extractor will be used.
+     </t>
+     <t>
+     This specification does not mandate a single mechanism for agreeing
+     on such context; instead, there are several possibilities that
+     can be used (and can complement each other). For example:
+     </t>
+     <t>
+     <list style="symbols">
+     <t>One important part of the context -- which application will
+        use the extracted keys -- is given by the disambiguating label 
+	string (see Section 4).
+     </t>
+     <t>Information about the upper-layer context can be included in
+     the optional data after the extractor label (see Section 4).
+     </t>
+     <t>Information about the upper-layer context can be exchanged in TLS
+     extensions included in the ClientHello and ServerHello messages.  
+     This approach is used in [DTLS-SRTP].
+     The handshake messages are protected by the Finished messages, so
+     once the handshake completes, the peers will have the same view of the
+     information. Extensions also allow a limited form of negotiation:
+     for example, the TLS client could propose several alternatives for
+     some context parameters, and TLS server could select one of them.
+     </t>
+     <t>The upper-layer protocol can include its own handshake which can
+      be protected using the keys extracted from TLS.
+     </t>
+     </list>
+     </t>
+     <t>
+     It is important to note that just embedding TLS messages in the
+     upper-layer protocol may not automatically secure all the important
+     context information, since the upper-layer messages are not covered by
+     TLS Finished messages.
     </t>
     </section>
     <section title="Extractor Definition" anchor="extractor.def">
     <t>
-    An extractor takes as input two values:
+    An extractor takes as input three values:
     </t>
     <t>
     <list style="symbols">
     <t>A disambiguating label string</t>
+    <t>A per-association context value provided by the
+       extractor using application</t>
     <t>A length value</t>
     </list>
     </t>
@@ -113,7 +157,9 @@ o]>
           <artwork><![CDATA[	
        PRF(master_secret, label, 
            SecurityParameters.client_random +
-           SecurityParameters.server_random)[length]
+           SecurityParameters.server_random +
+           context_value_length + context_value
+           )[length]
 ]]></artwork>
     </figure>
      </t>
@@ -122,13 +168,22 @@ o]>
     generated from the master_secret. 
     </t>
     <t>
-    Label values MUST be registered via Specification Required as
+    Label values beginning with "EXPERIMENTAL" MAY be used
+    for private use without registration. All other
+    label values MUST be registered via Specification Required as
     described by RFC 2434 <xref target="RFC2434"/>.
     Note that extractor labels have the potential to collide with 
     existing PRF labels. In order to prevent this, labels SHOULD
     begin with "EXTRACTOR". This is not a MUST because there are
     existing uses which have labels which do not begin with
     this prefix.
+    </t>
+    <t>
+    The context value allows the application using the extractor
+    to mix its own data with the TLS PRF for the extractor
+    output. The context value length is encoded as an unsigned
+    16-bit quantity (uint16) representing the length of the
+    context value.
     </t>
     </section>
     <section anchor="section.sec" title="Security Considerations">
@@ -169,7 +224,8 @@ are forbidden.
     </section>
     <section title="Acknowledgments">
     <t>
-    Thanks to Pasi Eronen for valuable comments and the contents of the IANA section.
+    Thanks to Pasi Eronen for valuable comments and the contents of the IANA section
+    and <xref target="sec.binding"/>.
     </t>
     </section>
   </middle>
@@ -178,11 +234,11 @@ are forbidden.
     <references title="Normative References">
       &RFC2119;
       &RFC2434;
-      &RFC3711;
       &RFC4346;
-      &RFC4347;
     </references>
     <references title="Informational References">
+      &RFC4347;
+      &RFC3711;
       &I-D.ietf-avt-dtls-srtp;
     </references> 
   </back>
