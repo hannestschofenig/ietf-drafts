@@ -1068,10 +1068,10 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
            Type            SDP Name                     Reference
            ----            ------------------           ---------
            proto           TCP/TLS/RTP/SAVP             [RFC-XXXX]
-           UDP/TLS/RTP/SAVP             [RFC-XXXX]
-           DCCP/TLS/RTP/SAVP            [RFC-XXXX]
-           UDP/TLS                      [RFC-XXXX]
-           DCCP/TLS                     [RFC-XXXX]
+           proto           UDP/TLS/RTP/SAVP             [RFC-XXXX]
+           proto           DCCP/TLS/RTP/SAVP            [RFC-XXXX]
+           proto           UDP/TLS                      [RFC-XXXX]
+           proto           DCCP/TLS                     [RFC-XXXX]
 
    Note to RFC Editor:  Please replace RFC-XXXX with the RFC number of
    this specification.
