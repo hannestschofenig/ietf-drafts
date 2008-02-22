@@ -5,7 +5,7 @@
 
 use File::Temp qw/ :mktemp  /;
 
-$S2B = "/users/ekr/doc/ietf-drafts/ekr/s2b/s2b";
+$S2B = "/Users/ekr/doc/ietf-drafts/ekr/s2b/s2b";
 
 &usage() unless $#ARGV==1;
 
