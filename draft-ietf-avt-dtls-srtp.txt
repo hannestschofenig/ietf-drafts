@@ -1033,10 +1033,6 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    o  When media is transported over DTLS with DCCP, the token SHALL be
       DCCP/TLS.
 
-   For RTP profiles other than SAVP, a new token should be defined in
-   the form of DCCP/TLS/RTP/xyz, UDP/TLS/RTP/xyz and TCP/TLS/RTP/xyz
-   where xyz is replaced with an appropriate token for that profile.
-
 
 10.  IANA Considerations
 
@@ -1057,6 +1053,10 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
    Parameters" registry as defined in Appendix B of RFC 2327 [2].
    Specifically it adds the following values to the table for the
    "proto" field.
+
+
+
+
 
 
 
@@ -1159,7 +1159,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
    [17]  Rosenberg, J., Mahy, R., Matthews, P., and D. Wing, "Session
          Traversal Utilities for (NAT) (STUN)",
-         draft-ietf-behave-rfc3489bis-14 (work in progress),
+         draft-ietf-behave-rfc3489bis-15 (work in progress),
          February 2008.
 
    [18]  McGrew, D., "The use of AES-192 and AES-256 in Secure RTP",

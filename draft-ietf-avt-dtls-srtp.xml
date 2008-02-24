@@ -1199,33 +1199,25 @@ to SRTPparameters?
       target="RFC4572"></xref>.</t> 
     </section>
     <section title="Session Description for RTP/SAVP over DTLS">
+            <t> This specification defines new tokens to describe the protocol used
+                in SDP "m=" lines. The new values defined for the proto field are: 
+                <list style="symbols">
+                    <t> When a RTP/SAVP stream is transported over DTLS with DCCP, then
+                        the token SHALL be DCCP/TLS/RTP/SAVP.</t>
+                    
+                    <t> When a RTP/SAVP stream is transported over DTLS with UDP, the
+                        token SHALL be UDP/TLS/RTP/SAVP.</t>
 
-    <t>[[TODO: check this...: ordinary DTLS?]]</t>
-      <t> This specification defines new tokens to describe the protocol used
-      in SDP "m=" lines. The new values defined for the proto field are: 
-      <list style="symbols">
-	<t> When a RTP/SAVP stream is transported over DTLS with DCCP, then
-	the token SHALL be DCCP/TLS/RTP/SAVP.</t>
-	
-	<t> When a RTP/SAVP stream is transported over DTLS with UDP, the
-	token SHALL be UDP/TLS/RTP/SAVP.</t>
+                    <t> When a RTP/SAVP stream is transported over TLS with TCP, the token
+                        SHALL be TCP/TLS/RTP/SAVP.</t>
 
-	<t> When a RTP/SAVP stream is transported over DTLS with TCP, the token
-	SHALL be TCP/TLS/RTP/SAVP. Note that this means DTLS-SRTP over TCP,
-	not RTP over TLS.</t>
+                    <t> When media is transported over DTLS with UDP, the token SHALL be
+                        UDP/TLS.</t>
 
-	<t> When media is transported over DTLS with UDP, the token SHALL be
-	UDP/TLS.</t>
-
-	<t> When media is transported over DTLS with DCCP, the token SHALL be
-	DCCP/TLS.</t>
-      </list>
-      </t>
-
-      <t> For RTP profiles other than SAVP, a new token should be defined in the
-      form of DCCP/TLS/RTP/xyz, UDP/TLS/RTP/xyz and TCP/TLS/RTP/xyz
-      where xyz is replaced with an appropriate token for that
-      profile.</t> 
+                    <t> When media is transported over DTLS with DCCP, the token SHALL be
+                        DCCP/TLS.</t>
+                </list>
+	    </t>
     </section>
 
     <section anchor="section.iana" title="IANA Considerations">
