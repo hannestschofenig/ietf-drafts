@@ -4,8 +4,8 @@
 Network Working Group                                          D. McGrew
 Internet-Draft                                             Cisco Systems
 Intended status:  Standards Track                            E. Rescorla
-Expires:  August 27, 2007                              Network Resonance
-                                                       February 23, 2007
+Expires:  August 29, 2007                              Network Resonance
+                                                       February 25, 2007
 
 
 Datagram Transport Layer Security (DTLS) Extension to Establish Keys for
@@ -35,7 +35,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on August 27, 2007.
+   This Internet-Draft will expire on August 29, 2007.
 
 Copyright Notice
 
@@ -52,7 +52,7 @@ Abstract
 
 
 
-McGrew & Rescorla        Expires August 27, 2007                [Page 1]
+McGrew & Rescorla        Expires August 29, 2007                [Page 1]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -108,7 +108,7 @@ Table of Contents
 
 
 
-McGrew & Rescorla        Expires August 27, 2007                [Page 2]
+McGrew & Rescorla        Expires August 29, 2007                [Page 2]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -164,7 +164,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007                [Page 3]
+McGrew & Rescorla        Expires August 29, 2007                [Page 3]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -220,7 +220,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007                [Page 4]
+McGrew & Rescorla        Expires August 29, 2007                [Page 4]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -276,7 +276,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007                [Page 5]
+McGrew & Rescorla        Expires August 29, 2007                [Page 5]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -332,7 +332,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007                [Page 6]
+McGrew & Rescorla        Expires August 29, 2007                [Page 6]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -388,7 +388,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007                [Page 7]
+McGrew & Rescorla        Expires August 29, 2007                [Page 7]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -444,7 +444,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007                [Page 8]
+McGrew & Rescorla        Expires August 29, 2007                [Page 8]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -500,7 +500,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007                [Page 9]
+McGrew & Rescorla        Expires August 29, 2007                [Page 9]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -556,7 +556,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 10]
+McGrew & Rescorla        Expires August 29, 2007               [Page 10]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -612,7 +612,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 11]
+McGrew & Rescorla        Expires August 29, 2007               [Page 11]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -668,7 +668,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 12]
+McGrew & Rescorla        Expires August 29, 2007               [Page 12]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -724,7 +724,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 13]
+McGrew & Rescorla        Expires August 29, 2007               [Page 13]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -780,7 +780,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 14]
+McGrew & Rescorla        Expires August 29, 2007               [Page 14]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -836,7 +836,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 15]
+McGrew & Rescorla        Expires August 29, 2007               [Page 15]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -892,7 +892,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 16]
+McGrew & Rescorla        Expires August 29, 2007               [Page 16]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -948,7 +948,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 17]
+McGrew & Rescorla        Expires August 29, 2007               [Page 17]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -1004,7 +1004,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 18]
+McGrew & Rescorla        Expires August 29, 2007               [Page 18]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -1060,7 +1060,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 19]
+McGrew & Rescorla        Expires August 29, 2007               [Page 19]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -1116,7 +1116,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 20]
+McGrew & Rescorla        Expires August 29, 2007               [Page 20]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -1172,7 +1172,7 @@ Appendix A.  Performance of Multiple DTLS Handshakes
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 21]
+McGrew & Rescorla        Expires August 29, 2007               [Page 21]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -1228,7 +1228,7 @@ Internet-Draft           SRTP Extension for DTLS           February 2007
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 22]
+McGrew & Rescorla        Expires August 29, 2007               [Page 22]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -1284,7 +1284,7 @@ Authors' Addresses
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 23]
+McGrew & Rescorla        Expires August 29, 2007               [Page 23]
 
 Internet-Draft           SRTP Extension for DTLS           February 2007
 
@@ -1340,5 +1340,5 @@ Acknowledgment
 
 
 
-McGrew & Rescorla        Expires August 27, 2007               [Page 24]
+McGrew & Rescorla        Expires August 29, 2007               [Page 24]
 
