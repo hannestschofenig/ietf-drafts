@@ -8,10 +8,7 @@
 <!ENTITY rfc4366 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4366.xml">
 <!ENTITY rfc4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 <!ENTITY rfc3711 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
-<!ENTITY rfc4145 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4145.xml">
 <!ENTITY rfc4568 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4568.xml">
-<!ENTITY rfc4566 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4566.xml">
-<!ENTITY rfc4572 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4572.xml">
 <!ENTITY rfc4961 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4961.xml">
 <!ENTITY I-D.ietf-behave-rfc3489bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-behave-rfc3489bis.xml">
 <!ENTITY I-D.ietf-sip-dtls-srtp-framework SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-sip-dtls-srtp-framework.xml">
@@ -226,14 +223,13 @@
         a video stream, each of which would use a separate DTLS
         session establishment exchange, which would proceed in
         parallel. As an optimization, the DTLS-SRTP implementation
-        SHOULD use the following strategy: a single DTLS connection is
-        established, and all other DTLS sessions wait until that
-        connection is established before proceeding with their session
-        establishment exchanges. This strategy allows the later
-        sessions to use the DTLS session re-start, which allows the
+        SHOULD use the following strategy: a single DTLS association is
+        established, and all other DTLS associations wait until that
+        connection is established before proceeding with their 
+	handshakes establishment exchanges. This strategy allows the later
+        sessions to use DTLS session resumption, which allows the
         amortization of the expensive public key cryptography
-        operations over multiple DTLS session establishment
-        instances.</t>
+        operations over multiple DTLS handshakes.</t>
 
         <t><!--
     One issue that arises in this context is multiple RTP sender over
@@ -307,7 +303,8 @@
 	 </t>
 	 <t>
 	 When the "use_srtp" extension is in
-         effect, implementations MUST NOT place more than one "record"
+         effect, implementations MUST NOT place more than one 
+	 application data "record"
          per datagram. (This is only meaningful from the perspective of
          DTLS because SRTP is inherently oriented towards one payload
          per packet, but is stated purely for clarification.)</t>
@@ -1190,15 +1187,14 @@ to SRTPparameters?
                     <t> When a RTP/SAVP stream is transported over DTLS with UDP, the
                         token SHALL be UDP/TLS/RTP/SAVP.</t>
 
-                    <t> When a RTP/SAVP stream is transported over TLS with TCP, the token
-                        SHALL be TCP/TLS/RTP/SAVP.</t>
-
-                    <t> When media is transported over DTLS with UDP, the token SHALL be
-                        UDP/TLS.</t>
-
-                    <t> When media is transported over DTLS with DCCP, the token SHALL be
-                        DCCP/TLS.</t>
+                    <t> When a RTP/SAVP stream is transported over DTLS with TCP, the token
+                        SHALL be TCP/TLS/RTP/SAVP. Note that even though TCP is being
+			used, the PDUs carried over the TCP connection are the
+			same as would be carried over DCCP or UDP.</t>
                 </list>
+	    </t>
+	    <t>
+	    The "fmt" parameter SHALL be as defined for RTP/SAVP.
 	    </t>
     </section>
 
@@ -1232,8 +1228,6 @@ to SRTPparameters?
         proto           TCP/TLS/RTP/SAVP             [RFC-XXXX]
         proto           UDP/TLS/RTP/SAVP             [RFC-XXXX]
         proto           DCCP/TLS/RTP/SAVP            [RFC-XXXX]
-        proto           UDP/TLS                      [RFC-XXXX]
-        proto           DCCP/TLS                     [RFC-XXXX]
 	]]></artwork>
       </figure>
       <t> Note to RFC Editor: Please replace RFC-XXXX with the RFC number of this specification.</t>
@@ -1267,12 +1261,9 @@ to SRTPparameters?
       &rfc4366;
 
       &rfc3711;
-      &rfc4145;
       &rfc4568;
 
       &rfc4961;
-      &rfc4566;
-      &rfc4572;
       &I-D.ietf-tls-extractor;
 
     </references>
