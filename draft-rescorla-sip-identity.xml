@@ -2,6 +2,8 @@
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY RFC4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
 <!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
+<!ENTITY RFC4474 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4474.xml">
+
 <!ENTITY I-D.ietf-avt-dtls-srtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avt-dtls-srtp">
 ]>
 <!-- $Id -->
@@ -76,10 +78,211 @@
   <middle>
   <section title="Introduction">
   <t>
-    Text here
+    From the perspective of the communicating parties, the
+    "identity" service that they want is simple: to know 
+    that the person on the other end of the line is who
+    they think it is. Because of the asymmetric nature of
+    telephony, this actually represents two different
+    services, one from the perspective of the caller and
+    one from the perspective of the callee:
+    <list style="hanging">
+      <t hangText="Routing Integrity">The caller knows who he
+      is trying to call--indeed he entered their number into
+      his phone. The service the caller wants is ROUTING INTEGRITY:
+      namely that the person he is talking to actually is who
+      he intended to call. This service is complicated to
+      some extent by retargeting services such as call forwarding,
+      but in those cases the caller wants to know that the
+      retargeting was authorized by the intended recipient.</t>
+      <t hangText="Caller Identification">Unlike the caller, the
+      callee generally does not have a preconceived idea of
+      who he is trying to call. Rather, his phone rings and he
+      wants to know who is calling. The service he wants is
+      CALLER IDENTIFICATION.
+      </t>
+    </list>
+    It is important to note that regardless of the technological
+    means used to provide these services, they are extremely
+    different conceptually. ROUTING INTEGRITY is a verification
+    problem: the system needs to verify that you reached
+    the person you were trying to reach. By contrast, CALLER
+    IDENTIFICATION is an information provision problem. 
+  </t>
+  <t>
+    A variety of technical mechanisms have been proposed (and
+    are in use) to provide these services for SIP-based telephony.
+    Recently, questions have been raised about the suitability
+    of one such mechanism: SIP Identity <xref target="RFC4474"/>.
+    This draft is intended to provide a broader perspective
+    on the identity problem, the inherent technical limitations on potential 
+    solutions, and the capabilities of the existing approaches.
   </t>
   </section>
-
+  
+  <section title="Background: Identity in the PSTN">
+    <t>Before addressing identity in SIP systems, it is useful to
+    start with identity in the PSTN. The two most important facts
+    about identity in the PSTN are these:
+    <list>
+      <t>The only valid identifiers were phone numbers.</t>
+      <t>The PSTN is a fundamentally closed system with no 
+      security real security mechanisms to prevent insider
+      attack.</t>
+    </list>
+    As we shall see, these two properties allow for only a fairly
+limited set
+    of identity services.
+    </t>
+    <section title="PSTN Topology">
+      <t>
+	The PSTN is a hub-and-spoke topology, as shown below:
+      </t>
+      <figure>
+	<artwork>
+          Sub. 1 ----+                            +---- Sub. 4
+                      \           Trunk          /
+          Sub. 2 ------ CO-1 --------------- CO-2------ Sub. 5
+                      /                          \
+          Sub. 3 ----+                            +---- Sub. 6
+	  
+	</artwork>
+      </figure>
+      <t>
+      Each subscriber is connected by a physical circuit to
+      a switch in their local CENTRAL OFFICE (CO). Although there
+      may be multiple phones in a single house, they are all
+      electrically connected on the same local loop and are
+      indistinguishable from the perspective of the CO 
+      Therefore, all phones on the same local loop have the same 
+      phone number.
+      </t>
+      <t>
+      The CO is connected to other COs via trunk lines, which
+      are used to carry calls in between COs. Similarly,
+      providers can connect to each other at dedicated switches
+      which only serve to switch traffic and don't have any
+      subscribers directly attached to them. All of these
+      connections are digital and speak SS7. The CO switch
+      is the analog/digital boundary.
+      </t>
+      </section>
+    <section title="Routing Integrity">
+      <t>
+	From the very beginning, of telephony systems, it
+	has been assumed that they provide routing integrity.
+	This was historically viewed more as a correctness guarantee
+	as a security
+	guarantee--if your phone calls don't go the right place,
+	there's not much point in having a phone--but it is
+	of course also a security guarantee.
+      </t>
+      <t>
+	When a subscriber wants to call another subscriber,
+	they enter the phone number on the phone and it gets
+	transmitted over the analog voice channel in DTMF
+	(again, we're just talking about the basic analog
+	case). The DTMF decoder at the CO switch decodes the 
+	DTMF and determines which number the caller intends
+	to call. If the number is assigned to that CO (and if
+	the CO has an authoritative copy of which numbers have
+	been ported), it can
+	handle it locally. If the number is not assigned
+	to that switch, then the call needs to be routed
+	to another switch.
+      </t>
+      <t>
+	This routing information isn't kept locally, at least
+	in the US. Instead, the switch needs to consult a numbering
+	plan database [TODO: need the right name here] in
+	order to determine which provider/switch controls that
+	number. Once that is done, the switch routes the
+	call down the appropriate trunk towards the appropriate
+	destination.
+      </t>
+      <t>
+	This system provides a relatively high degree of routing
+	integrity provided that two invariants are preserved:
+	<list style="symbols">
+	<t>The inter-switch interconnects are kept secure.</t>
+	<t>The connection to the numbering database (and the
+	database itself) is secure.</t>
+	</list>
+	Both of these invariants are enforced through having
+	a closed system. The connections between the switches
+	are not virtual but rather are manually configured
+	physical circuits, so impersonating one switch to
+	another is a matter of actually interfering with
+	that cable. The connection to the database is similarly
+	manually configured [Note: I don't know if this is
+	physical or over the Internet, but this obviously
+	isn't an architectural issue.] 
+      </t>
+      <t>
+	Both of these invariants, however, are very brittle against
+	insider attack. An attacker who controls a switch can reroute
+	all calls that would pass through it <xref target="securityfocus-call-theft"/>.
+	An attacker who controls 
+	the numbering database can inject arbitrary routes.
+	The
+	basic assumption is that insiders will not attempt to attack
+	the system. 
+      </t>
+    </section>
+    <section title="Caller Identification">
+      <t>
+	Unlike routing integrity, caller identification is a 
+	relatively recent feature of common phone systems,
+	where it is typically referred to as CALLER ID (CID)
+	in residential systems or AUTOMATIC NUMBER IDENTIFICATION
+	(ANI) in call centers. Both systems work roughly the
+	same way.
+	The typical residential presentation is a one or two line display
+	that shows the phone number of the calling party as
+	well as their name.
+      </t>
+      <t>
+	In the PSTN CID is provided by having the
+	originating switch indicate (in the SS7 signaling) the
+	calling party's phone number. This is then modulated
+	over the analog carrier for display on the callee's
+	phone. If the caller's name is provided, it is determined
+	by the callee's local switch, which needs to do a 
+	database lookup against a third party database.
+      </t>
+      <t>
+	Somewhat surprisingly, there is no enforcement whatsoever
+	of the correctness of the provided number. The originator
+	simply asserts it and it is trusted by the receiver.
+	In principle, it might be possible to do some sort of
+	inbound route filtering using the numbering database
+	(although that would only provide hop-by-hop assurance
+	similar to that provided by uPRF) but in practice this is not done.
+      </t>
+      <t>
+	The ability to forge the calling number is not limited
+	to switches. Any subscriber with digital access (e.g., 
+	ISDN)
+	to the system can generate any calling number it
+	chooses. Because the local switch knows which numbers
+	are assigned to a given subscriber, it can in principle
+	filter these assertions but even this is often not
+	done. In other cases, subscribers can opt out of this
+	kind of filtering in order to be allowed to assert numbers
+	of their choice.
+      </t>
+      <t>
+	The phone number to name mapping provided with caller
+	id is even less trustworthy, since the databases are
+	simply populated via the phone company's records, and
+	they make no attempt to verify your real-world identity
+	provided that you pay your bill.
+      </t>
+      <t>
+      In summary, the caller identification service provided by the
+      PSTN is completely untrustworthy, except as an assertion
+      of the caller's intent.</t>
+    </section>
+  </section>
 
   </middle>
 
@@ -91,7 +294,22 @@
       &RFC3711;
       &RFC4346;
       &RFC4347;
+      &RFC4474;
       &I-D.ietf-avt-dtls-srtp;
+
+      <reference anchor="securityfocus-call-theft">
+      <front>
+	<author fullname="Kevin Poulsen" initials="K"
+		surname="Poulsen">
+	  <organization/>
+	</author>
+	<title>Commission Hearing Probes Vegas Vice Hacks</title>
+      </front>
+	<seriesInfo="Security Focuse" value="http://www.securityfocus.com/news/355"/>
+	<date day="18" month="March" year="2002"/>
+
+      </reference>
+
     </references> 
   </back>
 </rfc>
