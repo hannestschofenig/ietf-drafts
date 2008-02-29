@@ -3,9 +3,8 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                            C. Jennings
-Expires:  September 1, 2008                                        Cisco
-                                                       February 29, 2008
+Intended status:  Standards Track                      February 29, 2008
+Expires:  September 1, 2008
 
 
                    Untangling Identity in SIP Systems
@@ -52,7 +51,8 @@ Abstract
 
 
 
-Rescorla & Jennings     Expires September 1, 2008               [Page 1]
+
+Rescorla                Expires September 1, 2008               [Page 1]
 
 Internet-Draft                SIP Identity                 February 2008
 
@@ -64,10 +64,11 @@ Table of Contents
      2.1.  PSTN Topology . . . . . . . . . . . . . . . . . . . . . . . 4
      2.2.  Routing Integrity . . . . . . . . . . . . . . . . . . . . . 4
      2.3.  Caller Identification . . . . . . . . . . . . . . . . . . . 5
-   3.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 6
-     3.1.  Normative References  . . . . . . . . . . . . . . . . . . . 6
-     3.2.  Informational References  . . . . . . . . . . . . . . . . . 6
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . . 6
+   3.  Caller Identification in SIP Systems  . . . . . . . . . . . . . 6
+   4.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+     4.1.  Normative References  . . . . . . . . . . . . . . . . . . . 6
+     4.2.  Informational References  . . . . . . . . . . . . . . . . . 6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 6
    Intellectual Property and Copyright Statements  . . . . . . . . . . 8
 
 
@@ -107,8 +108,7 @@ Table of Contents
 
 
 
-
-Rescorla & Jennings     Expires September 1, 2008               [Page 2]
+Rescorla                Expires September 1, 2008               [Page 2]
 
 Internet-Draft                SIP Identity                 February 2008
 
@@ -164,7 +164,7 @@ Internet-Draft                SIP Identity                 February 2008
 
 
 
-Rescorla & Jennings     Expires September 1, 2008               [Page 3]
+Rescorla                Expires September 1, 2008               [Page 3]
 
 Internet-Draft                SIP Identity                 February 2008
 
@@ -220,7 +220,7 @@ Internet-Draft                SIP Identity                 February 2008
 
 
 
-Rescorla & Jennings     Expires September 1, 2008               [Page 4]
+Rescorla                Expires September 1, 2008               [Page 4]
 
 Internet-Draft                SIP Identity                 February 2008
 
@@ -248,12 +248,10 @@ Internet-Draft                SIP Identity                 February 2008
 2.3.  Caller Identification
 
    Unlike routing integrity, caller identification is a relatively
-   recent feature of common phone systems, where it is typically
-   referred to as CALLER ID (CID) in residential systems or AUTOMATIC
-   NUMBER IDENTIFICATION (ANI) in call centers.  Both systems work
-   roughly the same way.  The typical residential presentation is a one
-   or two line display that shows the phone number of the calling party
-   as well as their name.
+   recent feature of common phone systems, The typical residential
+   presentation is a one or two line display that shows the phone number
+   of the calling party as well as their name (call center presentation
+   is of course different.)
 
    In the PSTN CID is provided by having the originating switch indicate
    (in the SS7 signaling) the calling party's phone number.  This is
@@ -273,16 +271,16 @@ Internet-Draft                SIP Identity                 February 2008
    The ability to forge the calling number is not limited to switches.
    Any subscriber with digital access (e.g., ISDN) to the system can
    generate any calling number it chooses.  Because the local switch
+   knows which numbers are assigned to a given subscriber, it can in
+   principle filter these assertions but even this is often not done.
 
 
 
-Rescorla & Jennings     Expires September 1, 2008               [Page 5]
+Rescorla                Expires September 1, 2008               [Page 5]
 
 Internet-Draft                SIP Identity                 February 2008
 
 
-   knows which numbers are assigned to a given subscriber, it can in
-   principle filter these assertions but even this is often not done.
    In other cases, subscribers can opt out of this kind of filtering in
    order to be allowed to assert numbers of their choice.
 
@@ -296,11 +294,14 @@ Internet-Draft                SIP Identity                 February 2008
    intent.
 
 
-3.  References
+3.  Caller Identification in SIP Systems
 
-3.1.  Normative References
 
-3.2.  Informational References
+4.  References
+
+4.1.  Normative References
+
+4.2.  Informational References
 
    [RFC4346]  Dierks, T. and E. Rescorla, "The Transport Layer Security
               (TLS) Protocol Version 1.1", RFC 4346, April 2006.
@@ -331,13 +332,12 @@ Internet-Draft                SIP Identity                 February 2008
 
 
 
-
-Rescorla & Jennings     Expires September 1, 2008               [Page 6]
+Rescorla                Expires September 1, 2008               [Page 6]
 
 Internet-Draft                SIP Identity                 February 2008
 
 
-Authors' Addresses
+Author's Address
 
    Eric Rescorla
    RTFM, Inc.
@@ -348,15 +348,6 @@ Authors' Addresses
    Email:  ekr@rtfm.com
 
 
-   Cullen Jennings
-   Cisco
-   170 West Tasman Drive
-   MS: SJC-21/2
-   San Jose, CA  95134
-   USA
-
-   Phone:  +1 408 421-9990
-   Email:  fluffy@cisco.com
 
 
 
@@ -388,7 +379,16 @@ Authors' Addresses
 
 
 
-Rescorla & Jennings     Expires September 1, 2008               [Page 7]
+
+
+
+
+
+
+
+
+
+Rescorla                Expires September 1, 2008               [Page 7]
 
 Internet-Draft                SIP Identity                 February 2008
 
@@ -444,5 +444,5 @@ Acknowledgment
 
 
 
-Rescorla & Jennings     Expires September 1, 2008               [Page 8]
+Rescorla                Expires September 1, 2008               [Page 8]
 

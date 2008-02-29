@@ -39,30 +39,6 @@
       </address>
     </author>
 
-    <author fullname="Cullen Jennings" initials="C." surname="Jennings">
-      <organization>Cisco</organization>
-
-      <address>
-        <postal>
-          <street>170 West Tasman Drive</street>
-
-          <street>MS: SJC-21/2</street>
-
-          <city>San Jose</city>
-
-          <region>CA</region>
-
-          <code>95134</code>
-
-          <country>USA</country>
-        </postal>
-
-        <phone>+1 408 421-9990</phone>
-
-        <email>fluffy@cisco.com</email>
-      </address>
-    </author>
-
 
     <date month="February" year="2008" />
 
@@ -232,13 +208,10 @@ limited set
       <t>
 	Unlike routing integrity, caller identification is a 
 	relatively recent feature of common phone systems,
-	where it is typically referred to as CALLER ID (CID)
-	in residential systems or AUTOMATIC NUMBER IDENTIFICATION
-	(ANI) in call centers. Both systems work roughly the
-	same way.
 	The typical residential presentation is a one or two line display
 	that shows the phone number of the calling party as
-	well as their name.
+	well as their name (call center presentation is
+	of course different.)
       </t>
       <t>
 	In the PSTN CID is provided by having the
@@ -283,6 +256,16 @@ limited set
       of the caller's intent.</t>
     </section>
   </section>
+
+
+  <section title="Caller Identification in SIP Systems">
+    
+
+
+
+
+  </section>
+
 
   </middle>
 
