@@ -59,22 +59,22 @@ Internet-Draft                SIP Identity                 February 2008
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 3
-   2.  Background: Identity in the PSTN  . . . . . . . . . . . . . . . 3
-     2.1.  PSTN Topology . . . . . . . . . . . . . . . . . . . . . . . 4
-     2.2.  Routing Integrity . . . . . . . . . . . . . . . . . . . . . 4
-     2.3.  Caller Identification . . . . . . . . . . . . . . . . . . . 5
-   3.  Caller Identification in SIP Systems  . . . . . . . . . . . . . 6
-   4.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 6
-     4.1.  Normative References  . . . . . . . . . . . . . . . . . . . 6
-     4.2.  Informational References  . . . . . . . . . . . . . . . . . 6
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 6
-   Intellectual Property and Copyright Statements  . . . . . . . . . . 8
-
-
-
-
-
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
+   2.  Background: Identity in the PSTN . . . . . . . . . . . . . . .  3
+     2.1.  PSTN Topology  . . . . . . . . . . . . . . . . . . . . . .  4
+     2.2.  Routing Integrity  . . . . . . . . . . . . . . . . . . . .  4
+     2.3.  Caller Identification  . . . . . . . . . . . . . . . . . .  5
+   3.  Identity in SIP Systems  . . . . . . . . . . . . . . . . . . .  6
+     3.1.  SIP Topology . . . . . . . . . . . . . . . . . . . . . . .  6
+     3.2.  Channel Security Mechanisms  . . . . . . . . . . . . . . .  7
+       3.2.1.  Routing Integrity  . . . . . . . . . . . . . . . . . .  7
+       3.2.2.  Caller Identification  . . . . . . . . . . . . . . . .  8
+     3.3.  Message Security Mechanisms  . . . . . . . . . . . . . . .  8
+   4.  References . . . . . . . . . . . . . . . . . . . . . . . . . .  8
+     4.1.  Normative References . . . . . . . . . . . . . . . . . . .  8
+     4.2.  Informational References . . . . . . . . . . . . . . . . .  8
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . .  9
+   Intellectual Property and Copyright Statements . . . . . . . . . . 10
 
 
 
@@ -140,9 +140,9 @@ Internet-Draft                SIP Identity                 February 2008
    provision problem.
 
    A variety of technical mechanisms have been proposed (and are in use)
-   to provide these services for SIP-based telephony.  Recently,
-   questions have been raised about the suitability of one such
-   mechanism:  SIP Identity [RFC4474].  This draft is intended to
+   to provide these services for SIP-based telephony [RFC3261].
+   Recently, questions have been raised about the suitability of one
+   such mechanism:  SIP Identity [RFC4474].  This draft is intended to
    provide a broader perspective on the identity problem, the inherent
    technical limitations on potential solutions, and the capabilities of
    the existing approaches.
@@ -210,13 +210,13 @@ Internet-Draft                SIP Identity                 February 2008
    assigned to that CO (and if the CO has an authoritative copy of which
    numbers have been ported), it can handle it locally.  If the number
    is not assigned to that switch, then the call needs to be routed to
-   another switch.
+   another switch.  This may be the final switch, or the call may be
+   routed to another carrier and so on until it reaches the final
+   switch.
 
    This routing information isn't kept locally, at least in the US.
    Instead, the switch needs to consult a numbering plan database [TODO:
    need the right name here] in order to determine which provider/switch
-   controls that number.  Once that is done, the switch routes the call
-   down the appropriate trunk towards the appropriate destination.
 
 
 
@@ -224,6 +224,9 @@ Rescorla                Expires September 1, 2008               [Page 4]
 
 Internet-Draft                SIP Identity                 February 2008
 
+
+   controls that number.  Once that is done, the switch routes the call
+   down the appropriate trunk towards the appropriate destination.
 
    This system provides a relatively high degree of routing integrity
    provided that two invariants are preserved:
@@ -262,17 +265,14 @@ Internet-Draft                SIP Identity                 February 2008
 
    Somewhat surprisingly, there is no enforcement whatsoever of the
    correctness of the provided number.  The originator simply asserts it
-   and it is trusted by the receiver.  In principle, it might be
-   possible to do some sort of inbound route filtering using the
-   numbering database (although that would only provide hop-by-hop
-   assurance similar to that provided by uPRF) but in practice this is
-   not done.
+   and it is trusted by the receiver.  Moreover, if a call goes through
+   intermediate carriers, then the trust here is transitive; each
+   carrier trusts the previous carrier to provide correct information.
+   In principle, it might be possible to do some sort of inbound route
+   filtering using the numbering database (although that would only
+   provide hop-by-hop assurance similar to that provided by uPRF) but in
+   practice this is not done.
 
-   The ability to forge the calling number is not limited to switches.
-   Any subscriber with digital access (e.g., ISDN) to the system can
-   generate any calling number it chooses.  Because the local switch
-   knows which numbers are assigned to a given subscriber, it can in
-   principle filter these assertions but even this is often not done.
 
 
 
@@ -281,6 +281,11 @@ Rescorla                Expires September 1, 2008               [Page 5]
 Internet-Draft                SIP Identity                 February 2008
 
 
+   The ability to forge the calling number is not limited to switches.
+   Any subscriber with digital access (e.g., ISDN) to the system can
+   generate any calling number it chooses.  Because the local switch
+   knows which numbers are assigned to a given subscriber, it can in
+   principle filter these assertions but even this is often not done.
    In other cases, subscribers can opt out of this kind of filtering in
    order to be allowed to assert numbers of their choice.
 
@@ -294,7 +299,132 @@ Internet-Draft                SIP Identity                 February 2008
    intent.
 
 
-3.  Caller Identification in SIP Systems
+3.  Identity in SIP Systems
+
+   We now turn to the question of identity in SIP systems.  As before,
+   we start with topology.
+
+3.1.  SIP Topology
+
+   The figure below shows the classic "SIP trapezoid", the paradigmatic
+   configuration for SIP-based telephony.  To some extent, this is a
+   hub-and-spoke system:  each user agent is connected to a SIP proxy
+   and the signalling (mostly) goes between proxies.  However, for
+   performance reasons the media is routed directly between the UAs.
+   This is different from the PSTN, where the signalling and the media
+   go through the same switches.
+                   SIP
+                    PROXY     --------------    PROXY
+                 (atlanta.com)               (biloxi.com)
+                /                                         \
+           SIP /                                           \ SIP
+              /                                             \
+             UA                                             UA
+     (alice@atlanta.com)  <-------- RTP -------->  (bob@biloxi.com)
+
+
+   The most important difference between the PSTN and VoIP is that the
+   traffic between the various entities is not carried over dedicated
+   physical circuits but over the Internet.  As a consequence, an
+   element cannot trust that data it receives claiming to be from
+   another element in fact came from that element.  Cryptographic
+   mechanisms are required to restore this security.
+
+
+
+Rescorla                Expires September 1, 2008               [Page 6]
+
+Internet-Draft                SIP Identity                 February 2008
+
+
+3.2.  Channel Security Mechanisms
+
+   The simplest and most widely used SIP security mechanisms are
+   intended to provide same kind of link security that the PSTN provides
+   using dedicated circuits over an Internet transport.  In the SIP
+   signalling system, there are two kinds of connections (UA-proxy and
+   proxy-proxy) and this implies three kinds of security properties that
+   must be enforced:
+      A SIP UA knows that it is communicating with its proxy.
+      A proxy knows which UA(s) it is communicating with.
+      A proxy knows which proxy (proxies) it is communicating with.
+   In SIP, these security properties are provided with two mechanisms:
+   TLS and Digest Authentication.  Proxies authenticate to UAs and to
+   each other via TLS and UAs authenticate to proxies via digest
+   authentication. when Digest and TLS are used correctly, they are as
+   secure, if not more secure, than the physical connections they
+   replace.  For instance, it is possible to steal someone's phone
+   number by connecting to the box on the outside of their house.
+   However, if your SIP phone is authenticated via digest
+   authentication, then even an attacker connected to the Internet cable
+   outside your house cannot impersonate you to the proxy.
+
+   Digest and TLS alone are sufficient to allow the construction of a
+   SIP system with equivalent (arguably superior) signalling security
+   (ignore the media for the moment) as that of the PSTN.  The basic
+   principle is the same:  have a closed network where every proxy
+   trusts every other proxy.
+
+3.2.1.  Routing Integrity
+
+   In the PSTN model, routing is done courtesy of a giant database.
+   This is necessitated by the existence of a largely unstructured
+   identifier space.  Because the SIP identifier space is structured
+   along "user@domain" lines, less centralization is required.  Instead,
+   messages directed to "alice@example.com" need to be routed to the
+   proxy "example.com".  DNS [RFC3263] is used to identify the IP
+   address of the relevant proxy and TLS certificates are used to
+   authenticate it.
+
+   The routing integrity properties of this system are similar, and
+   perhaps somewhat superior to those of the PSTN.  As with the PSTN, if
+   a proxy is compromised, then all traffic that passes through that
+   proxy can be hijacked.  Similarly, while the DNS database need not be
+   trusted, if the certificate authority which is trusted to issue proxy
+   certificates is compromised, then an attacker can probably
+   impersonate other sites, but CAs can be operated more securely than
+   the number database server so this attack is probably more difficult.
+
+
+
+
+Rescorla                Expires September 1, 2008               [Page 7]
+
+Internet-Draft                SIP Identity                 February 2008
+
+
+   Note that the above only applies to SIP URIs that are in the
+   "user@domain" form.  SIP UAs can also accept URIs that represent
+   numbers in the PSTN (either as sip:  and tel:  URIs).  These calls
+   must be routed through a PSTN gateway, at which point the security
+   properties are those described in Section 2.2.
+
+3.2.2.  Caller Identification
+
+   If only channel security is in use, then caller identification in SIP
+   relies on transitive trust.  In the basic RFC3261 system, the caller
+   simply asserts their identity in the From header and the caller
+   either trusts it or does not.  This is comparable to the case in the
+   PSTN where an ISDN user or a PBX asserts caller identity and the
+   switch does not check it.
+
+   In addition, the originating proxy (or perhaps some proxy later in
+   the chain) verify the user's identity and inserts it into the PAI
+   header [RFC3325].  This header is explicitly intended to be trusted
+   and so proxies are intended to do more than simply trust the user's
+   From field.  However, PAI is not cryptographically protected in any
+   way (other than being carried over the TLS connection, of course),
+   and so any proxy in the network can generate any PAI value of its
+   choice.  Thus, a single compromised SIP proxy can impersonate any
+   user.
+
+   If a call enters a SIP network via a PSTN gateway, the caller
+   identification information (which, recall, is basically
+   untrustworthy), can be inserted into the From or PAI headers, at
+   which point it is as vulnerable as if it were a "user@domain"
+   identity.
+
+3.3.  Message Security Mechanisms
 
 
 4.  References
@@ -311,7 +441,29 @@ Internet-Draft                SIP Identity                 February 2008
 
    [RFC4474]  Peterson, J. and C. Jennings, "Enhancements for
               Authenticated Identity Management in the Session
+
+
+
+Rescorla                Expires September 1, 2008               [Page 8]
+
+Internet-Draft                SIP Identity                 February 2008
+
+
               Initiation Protocol (SIP)", RFC 4474, August 2006.
+
+   [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
+              A., Peterson, J., Sparks, R., Handley, M., and E.
+              Schooler, "SIP: Session Initiation Protocol", RFC 3261,
+              June 2002.
+
+   [RFC3263]  Rosenberg, J. and H. Schulzrinne, "Session Initiation
+              Protocol (SIP): Locating SIP Servers", RFC 3263,
+              June 2002.
+
+   [RFC3325]  Jennings, C., Peterson, J., and M. Watson, "Private
+              Extensions to the Session Initiation Protocol (SIP) for
+              Asserted Identity within Trusted Networks", RFC 3325,
+              November 2002.
 
    [I-D.ietf-avt-dtls-srtp]
               McGrew, D. and E. Rescorla, "Datagram Transport Layer
@@ -321,20 +473,8 @@ Internet-Draft                SIP Identity                 February 2008
               February 2008.
 
    [securityfocus-call-theft]
-              Poulsen, K., "Commission Hearing Probes Vegas Vice Hacks".
-
-
-
-
-
-
-
-
-
-
-Rescorla                Expires September 1, 2008               [Page 6]
-
-Internet-Draft                SIP Identity                 February 2008
+              Poulsen, K., "Commission Hearing Probes Vegas Vice Hacks",
+              Security Focuse http://www.securityfocus.com/news/355.
 
 
 Author's Address
@@ -360,35 +500,7 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla                Expires September 1, 2008               [Page 7]
+Rescorla                Expires September 1, 2008               [Page 9]
 
 Internet-Draft                SIP Identity                 February 2008
 
@@ -444,5 +556,5 @@ Acknowledgment
 
 
 
-Rescorla                Expires September 1, 2008               [Page 8]
+Rescorla                Expires September 1, 2008              [Page 10]
 
