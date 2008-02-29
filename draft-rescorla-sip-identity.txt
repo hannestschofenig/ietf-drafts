@@ -71,13 +71,13 @@ Table of Contents
        3.2.2.  Caller Identification  . . . . . . . . . . . . . . . .  8
      3.3.  Message Security Mechanisms  . . . . . . . . . . . . . . .  8
        3.3.1.  S/MIME . . . . . . . . . . . . . . . . . . . . . . . .  8
-   4.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 10
-     4.1.  Normative References . . . . . . . . . . . . . . . . . . . 10
-     4.2.  Informational References . . . . . . . . . . . . . . . . . 10
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 10
-   Intellectual Property and Copyright Statements . . . . . . . . . . 12
-
-
+       3.3.2.  Identity and Connected-Identity  . . . . . . . . . . . 10
+       3.3.3.  Media Security . . . . . . . . . . . . . . . . . . . . 11
+   4.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+     4.1.  Normative References . . . . . . . . . . . . . . . . . . . 11
+     4.2.  Informational References . . . . . . . . . . . . . . . . . 11
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 12
+   Intellectual Property and Copyright Statements . . . . . . . . . . 13
 
 
 
@@ -472,6 +472,18 @@ Internet-Draft                SIP Identity                 February 2008
    does not provide any mechanical way of determining whether that was
    the right person or not.  It leaves that decision to humans.
 
+   The S/MIME strategy does not work particularly well on calls to and
+   from the PSTN.  Clearly, POTS phones do not have S/MIME certificates
+   and will not be signing SIP messages.  The PSTN gateway can of course
+   obtain certificates of the form "+16505551212@example.com" for each
+   possible phone number (this only works for signatures, not for
+   encryption) but it's not clear why a callee should trust such a
+   certificate.  In order for this to work, there must be some way to
+   determine which proxies are authorized to assert which phone numbers.
+   This is NOT a problem with S/MIME per se.  It's a basic problem in
+   going from a system where every node is fully trusted to one in which
+   finer grained trust is desired.
+
 3.3.1.2.  Caller Identification
 
    S/MIME does a better job of providing caller identification.  The
@@ -486,18 +498,6 @@ Internet-Draft                SIP Identity                 February 2008
    media which is cryptographically tied to the signalling.  More on
    this in Section XXX.
 
-3.3.1.3.  PSTN Gatewaying
-
-   First, the S/MIME strategy does not work particularly well on calls
-   to and from the PSTN.  Clearly, POTS phones do not have S/MIME
-   certificates and will not be signing SIP messages.  The PSTN gateway
-   can of course obtain certificates of the form
-   "+16505551212@example.com" for each possible phone number (this only
-   works for signatures, not for encryption) but it's not clear why a
-   callee should trust such a certificate.  In order for this to work,
-   there must be some way to determine which proxies are authorized to
-   assert which phone numbers.  This is NOT a problem with S/MIME per
-
 
 
 Rescorla                Expires September 1, 2008               [Page 9]
@@ -505,8 +505,63 @@ Rescorla                Expires September 1, 2008               [Page 9]
 Internet-Draft                SIP Identity                 February 2008
 
 
-   se.  It's a basic problem in going from a system where every node is
-   fully trusted to one in which finer grained trust is desired.
+   All the same problems with S/MIME and PSTN gateway discussed in the
+   previous section apply here as well.
+
+3.3.2.  Identity and Connected-Identity
+
+   The non-acceptance of S/MIME was widely perceived as a result of the
+   difficulty in getting users to adopt UA-level certificates.  In
+   response, new system was created:  SIP Identity [RFC4474].  SIP
+   Identity is a compromise system was created which used certificates
+   associated not with end-entities but with an "authentication service"
+   associated with each SIP domain.  The authentication service verifies
+   the users identity and then signs the message using a single
+   certificate associated with the domain (this can be thought of as a
+   cryptographically secure version of RFC 3325).  One important
+   difference between SIP Identity and S/MIME is that SIP Identity can
+   only be applied in requests.
+
+   The reasoning for why this makes sense is as follows:  Namespaces in
+   SIP are hierarchical.  Thus, "alice@example.org", means "user Alice
+   in the domain example.org".  Thus, the operator of "example.org" is
+   in the best position to say who Alice is and if they wanted to give
+   someone else that address, they could do so.  Thus, it makes sense
+   for the domain operator to be vouching for Alice's identity, which
+   they do via the authentication service.  Thus, end-entity
+   certificates as used in S/MIME are not required.
+
+   One advantage of this mechanism over S/MIME is that the signature
+   covers the headers as well as the body and therefore it provides
+   slightly better anti-cut-and-paste properties than S/MIME.  Like
+   S/MIME, SIP Identity can only provide a minimal level of security for
+   identities from the PSTN.
+
+3.3.2.1.  Routing Integrity
+
+   SIP Identity provides the same routing integrity guarantees as the
+   signing version of S/MIME:  the caller can verify the identity of the
+   person they called but has no mechanical way of determining whether
+   it was the right person or not.  However, because RFC 4474 is only
+   usable with requests, this information is not provided in the INVITE.
+   Instead, the callee needs to do a mid-dialog update as described in
+   [RFC4916].
+
+3.3.2.2.  Caller Identification
+
+   SIP Identity provides the same caller identification guarantees as
+   the S/MIME signatures over the invite:  the callee can securely
+   identify the person calling them even in the face of malicious
+   proxies operated by third parties.
+
+
+
+Rescorla                Expires September 1, 2008              [Page 10]
+
+Internet-Draft                SIP Identity                 February 2008
+
+
+3.3.3.  Media Security
 
 
 4.  References
@@ -539,6 +594,9 @@ Internet-Draft                SIP Identity                 February 2008
               Asserted Identity within Trusted Networks", RFC 3325,
               November 2002.
 
+   [RFC4916]  Elwell, J., "Connected Identity in the Session Initiation
+              Protocol (SIP)", RFC 4916, June 2007.
+
    [I-D.ietf-avt-dtls-srtp]
               McGrew, D. and E. Rescorla, "Datagram Transport Layer
               Security (DTLS) Extension to Establish Keys for  Secure
@@ -554,9 +612,7 @@ Internet-Draft                SIP Identity                 February 2008
 
 
 
-
-
-Rescorla                Expires September 1, 2008              [Page 10]
+Rescorla                Expires September 1, 2008              [Page 11]
 
 Internet-Draft                SIP Identity                 February 2008
 
@@ -612,7 +668,7 @@ Author's Address
 
 
 
-Rescorla                Expires September 1, 2008              [Page 11]
+Rescorla                Expires September 1, 2008              [Page 12]
 
 Internet-Draft                SIP Identity                 February 2008
 
@@ -668,5 +724,5 @@ Acknowledgment
 
 
 
-Rescorla                Expires September 1, 2008              [Page 12]
+Rescorla                Expires September 1, 2008              [Page 13]
 
