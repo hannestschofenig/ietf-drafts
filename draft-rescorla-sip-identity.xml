@@ -7,8 +7,10 @@
 <!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 <!ENTITY RFC4474 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4474.xml">
 <!ENTITY RFC4916 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4916.xml">
-
+<!ENTITY RFC3711 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
+<!ENTITY RFC4568 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4568.xml">
 <!ENTITY I-D.ietf-avt-dtls-srtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avt-dtls-srtp">
+<!ENTITY I-D.ietf-sip-dtls-srtp-framework SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-sip-dtls-srtp-framework">
 ]>
 <!-- $Id -->
 <?rfc inline="yes"?>
@@ -568,9 +570,72 @@ limited set
 	  </t>
 	</section>
       </section>
-      <section title="Media Security">
+    </section>
+    <section title="Media Security">
+      <t>
+	The above discussion covers only signalling-level security.
+	However, a VoIP system doesn't provide useful security
+	if the signalling is secure but the media is not. 
+	There is common agreement on SRTP <xref target="RFC3711"/>
+	as the protocol for encrypting RTP, but a variety of
+	key management approaches have been designed.
+      </t>
+      <t>
+	Because the signalling is used to set up the call, having
+	a secure combined system requires cryptographically tying
+	the signalling to the media. For our purposes we can divide
+	mechanisms for doing this into two categories:
+	<list style="symbols">
+	  <t>Those which require confidentiality in the signalling (e.g., SDES <xref target="RFC4568"/>).</t>
+	  <t>Those which require integrity in the signalling (e.g., DTLS-SRTP <xref target="I-D.ietf-sip-dtls-srtp-framework"/>).</t>
+	</list>
+      </t>
+      <figure>
+	<artwork>
+            Note: ZRTP has a mode in which it operates 
+            independently of the signalling, but this has two 
+	    undesirable consequences. First, there are known 
+	    security problems with the voice-based short 
+	    authentication string mechanism it uses. Second,
+	    it means that all the information in the signalling
+            must be disregarded as untrusted, which is undesirable.
+	</artwork>
+      </figure>
+      <section title="Mechanisms Requiring Confidentiality">
 	<t>
+	  One way of binding the media to the signalling is to 
+	  carry a secret in the signalling which is then used
+	  to establish the keys for SRTP. SDES <xref target="RFC4568"/>
+	  is an example of such a mechanism. If such a mechanism
+	  is used with S/MIME encryption, it can provide end-to-end security
+	  for the media because only the recipient sees the keys.
+	  However, if S/MIME encryption is not used, any intermediate
+	  proxy can see the keys. In addition, unless TLS encryption
+	  is used on every link, a passive attacker may be able to
+	  recover the traffic keys. Either attack would allow the
+	  attacker to impersonate either side of the call to the
+	  other (whether on or off-path) and if he is on-path
+	  for the media, to decrypt all the media as well.
 	</t>
+	<t>
+	  In addition, unless one of the signature mechanisms
+	  is used, an attacker who is able to modify the signalling
+	  but is off-path for the media will be able to modify the
+	  media parameters to force media to flow through him,
+	  which allows snooping on the media as well as just
+	  impersonation. [Note: if ICE is in use, this may be 
+	  possible just from inspecting the signalling if you're
+	  fast enough.]
+	</t>
+      </section>
+      <section title="Mechanisms Required Integrity">
+	<t>
+	  A superior way of binding the media to the signalling is
+	  to carry a commitment to the media in the signalling.
+	  The commitment can be used to verify the other side of
+	  the signalling but not to impersonate it. For example,
+	  DTLS-SRTP <xref target="I-D.ietf-sip-dtls-srtp-framework"/>
+
       </section>
     </section> 
   </section>
@@ -591,7 +656,9 @@ limited set
       &RFC3263;
       &RFC3325;
       &RFC4916;
+      &RFC4568;
       &I-D.ietf-avt-dtls-srtp;
+      &I-D.ietf-sip-dtls-srtp-framework;
 
       <reference anchor="securityfocus-call-theft">
       <front>

@@ -87,7 +87,22 @@ if($#NOTFOUNDDRAFTS!=-1){
     while($nf=shift @NOTFOUNDDRAFTS){
 	print STDERR "  $nf\n";
     }
+
+    print STDERR "\n";
 }
+
+
+if($#CORRECTEDDRAFTS!=-1){
+    print STDERR "Corrected drafts\n";
+
+    while($nf=shift @CORRECTEDDRAFTS){
+	print STDERR "  $nf -> $CORRECTEDDRAFTS{$nf}\n";
+    }
+
+    print STDERR "\n";
+}
+
+
 
 print STDERR "Found $stat_found out of $stat_total drafts\n";
 
@@ -230,6 +245,8 @@ sub search_for_draft {
     $to_try=sprintf("%s-%.2d.txt",$draft_base,$num+1);
     if(!&get_draft($to_try,"$wg/$to_try",$wg,0)){
 	print STDERR "Draft: $to_try exists and appears to supersede version $num\n" if $VERBOSE;
+	$CORRECTEDDRAFTS{$draft}="$to_try (wg=$wg)";
+	push(@CORRECTEDDRAFTS,$draft);
 	return 0;
     }
 
@@ -238,6 +255,8 @@ sub search_for_draft {
 	$to_try=sprintf("%s-%.2d.txt",$draft_base,$num-1);
 	if(!&get_draft($to_try,"$wg/$to_try",$wg,0)){
 	    print STDERR "Draft: $draft doesn't seem to exist yet. Substituting previous version\n" if $VERBOSE;
+	    $CORRECTEDDRAFTS{$draft}="$to_try (wg=$wg)";
+	    push(@CORRECTEDDRAFTS,$draft);
 	    return 0;
 	}
     }
