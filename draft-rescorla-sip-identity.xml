@@ -606,8 +606,12 @@ limited set
 	  One way of binding the media to the signalling is to 
 	  carry a secret in the signalling which is then used
 	  to establish the keys for SRTP. SDES <xref target="RFC4568"/>
-	  is an example of such a mechanism. If such a mechanism
-	  is used with S/MIME encryption, it can provide end-to-end security
+	  is one such mechanism.
+	  </t>
+	  <t>
+	  If such a mechanism
+	  is used with S/MIME encryption, it can provide end-to-end
+security
 	  for the media because only the recipient sees the keys.
 	  However, if S/MIME encryption is not used, any intermediate
 	  proxy can see the keys. In addition, unless TLS encryption
@@ -617,25 +621,39 @@ limited set
 	  other (whether on or off-path) and if he is on-path
 	  for the media, to decrypt all the media as well.
 	</t>
-	<t>
-	  In addition, unless one of the signature mechanisms
-	  is used, an attacker who is able to modify the signalling
-	  but is off-path for the media will be able to modify the
-	  media parameters to force media to flow through him,
-	  which allows snooping on the media as well as just
-	  impersonation. [Note: if ICE is in use, this may be 
-	  possible just from inspecting the signalling if you're
-	  fast enough.]
-	</t>
       </section>
       <section title="Mechanisms Required Integrity">
 	<t>
-	  A superior way of binding the media to the signalling is
-	  to carry a commitment to the media in the signalling.
-	  The commitment can be used to verify the other side of
-	  the signalling but not to impersonate it. For example,
-	  DTLS-SRTP <xref target="I-D.ietf-sip-dtls-srtp-framework"/>
-
+	  Mechanisms also exist which depend only on the integrity
+	  of the signalling. For instance, DTLS-SRTP
+	  <xref target="I-D.ietf-sip-dtls-srtp-framework"/>
+	  carries a fingerprint of the UA's certificate in
+	  the SIP signalling. This cryptographically binds
+	  the signalling to the media plane key agreement
+	  protocol.
+	</t>
+	<t>
+	  In this system, the media is secure provided that the
+	  integrity of the signalling messages is preserved,
+	  which can be done either with S/MIME signatures or
+	  (more likely) with RFC 4474 Identity. If either
+	  mechanism is used, the media is secure from attack
+	  by any proxy in the middle of the signalling, even
+	  if TLS is not used for some proxy-proxy links.
+	</t>
+	<t>
+	  It's important to understand that this sort of cryptographic
+	  binding simple extends the security boundary of the 
+	  signalling to cover the media: once you have verified
+	  the caller/callee's identity using whatever security
+	  mechanism you are using, the binding then allows you
+	  to be sure that the media came from the same entity.
+	  However, if the signalling authenticates someone you 
+	  have never heard of, or--as in the PSTN gateway
+	  case--provides minimal information about the real
+	  caller, then media encryption does not help to 
+	  resolve that uncertainty.
+	</t>
       </section>
     </section> 
   </section>
