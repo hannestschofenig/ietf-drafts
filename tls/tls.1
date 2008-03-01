@@ -742,12 +742,16 @@ document unless negotiated by some extension.  If a TLS
 implementation receives an unexpected record type, it MUST send
 an unexpected_message alert.
 
-Any protocol designed for use over TLS MUST be carefully
-designed to deal with all possible attacks against it.  Note
-that because the type and length of a record are not protected
-by encryption. If this information is itself sensitive,
-application designers may wish to take steps (padding,
-cover traffic) to minimize information leakage.
+Any protocol designed for use over TLS must be carefully
+designed to deal with all possible attacks against it. As
+a practical matter, this means that the protocol designer
+must be aware of what security properties TLS does and
+does not provide and cannot safely rely on the latter.
+
+Note in particular that type and length of a record are not protected
+by encryption. If this information is itself sensitive, application
+designers may wish to take steps (padding, cover traffic) to minimize
+information leakage.
 
 .ti 0
 .ne 5
