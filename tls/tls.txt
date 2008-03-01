@@ -829,13 +829,13 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
    implementation receives an unexpected record type, it MUST send an
    unexpected_message alert.
 
-   Any protocol designed for use over TLS MUST be carefully designed to
-   deal with all possible attacks against it.  Note that because the
-   type and length of a record are not protected by encryption. If this
-   information is itself sensitive, application designers may wish to
-   take steps (padding, cover traffic) to minimize information leakage.
+   Any protocol designed for use over TLS must be carefully designed to
+   deal with all possible attacks against it. As a practical matter,
+   this means that the protocol designer must be aware of what security
+   properties TLS does and does not provide and cannot safely rely on
+   the latter.
 
-
+   Note in particular that type and length of a record are not protected
 
 
 
@@ -843,6 +843,10 @@ Dierks & Rescorla            Standards Track                   [Page 15]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
+
+   by encryption. If this information is itself sensitive, application
+   designers may wish to take steps (padding, cover traffic) to minimize
+   information leakage.
 
 6.1. Connection States
 
@@ -888,10 +892,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
    compression algorithm
       An algorithm to be used for data compression. This specification
-      must include all information the algorithm requires to do
-      compression.
-
-   master secret
 
 
 
@@ -900,6 +900,10 @@ Dierks & Rescorla            Standards Track                   [Page 16]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+      must include all information the algorithm requires to do
+      compression.
+
+   master secret
       A 48-byte secret shared between the two peers in the connection.
 
    client random
@@ -945,16 +949,16 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
           opaque                 server_random[32];
       } SecurityParameters;
 
-   The record layer will use the security parameters to generate the
-   following six items (some of which are not required by all ciphers,
-   and are thus empty):
-
 
 
 Dierks & Rescorla            Standards Track                   [Page 17]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
+
+   The record layer will use the security parameters to generate the
+   following six items (some of which are not required by all ciphers,
+   and are thus empty):
 
       client write MAC key
       server write MAC key
@@ -1001,10 +1005,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
    The TLS Record Layer receives uninterpreted data from higher layers
    in non-empty blocks of arbitrary size.
 
-6.2.1. Fragmentation
-
-   The record layer fragments information blocks into TLSPlaintext
-
 
 
 Dierks & Rescorla            Standards Track                   [Page 18]
@@ -1012,6 +1012,9 @@ Dierks & Rescorla            Standards Track                   [Page 18]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+6.2.1. Fragmentation
+
+   The record layer fragments information blocks into TLSPlaintext
    records carrying data in chunks of 2^14 bytes or less. Client message
    boundaries are not preserved in the record layer (i.e., multiple
    client messages of the same ContentType MAY be coalesced into a
@@ -1057,9 +1060,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
       independent block to be dealt with by the higher-level protocol
       specified by the type field.
 
-   Implementations MUST NOT send zero-length fragments of Handshake,
-   Alert, or ChangeCipherSpec content types. Zero-length fragments of
-   Application data MAY be sent as they are potentially useful as a
 
 
 
@@ -1068,6 +1068,9 @@ Dierks & Rescorla            Standards Track                   [Page 19]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+   Implementations MUST NOT send zero-length fragments of Handshake,
+   Alert, or ChangeCipherSpec content types. Zero-length fragments of
+   Application data MAY be sent as they are potentially useful as a
    traffic analysis countermeasure.
 
    Note: Data of different TLS Record layer content types MAY be
@@ -1113,9 +1116,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
    Implementation note: Decompression functions are responsible for
    ensuring that messages cannot cause internal buffer overflows.
 
-6.2.3. Record Payload Protection
-
-   The encryption and MAC functions translate a TLSCompressed structure
 
 
 
@@ -1124,6 +1124,9 @@ Dierks & Rescorla            Standards Track                   [Page 20]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+6.2.3. Record Payload Protection
+
+   The encryption and MAC functions translate a TLSCompressed structure
    into a TLSCiphertext. The decryption functions reverse the process.
    The MAC of the record also includes a sequence number so that
    missing, extra, or repeated messages are detectable.
@@ -1169,9 +1172,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
                             TLSCompressed.type +
                             TLSCompressed.version +
                             TLSCompressed.length +
-                            TLSCompressed.fragment);
-
-   where "+" denotes concatenation.
 
 
 
@@ -1179,6 +1179,10 @@ Dierks & Rescorla            Standards Track                   [Page 21]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
+
+                            TLSCompressed.fragment);
+
+   where "+" denotes concatenation.
 
    seq_num
       The sequence number for this record.
@@ -1224,10 +1228,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
       SecurityParameters.record_iv_length which is equal to the
       SecurityParameters.block_size.
 
-   padding
-      Padding that is added to force the length of the plaintext to be
-      an integral multiple of the block cipher's block length. The
-      padding MAY be any length up to 255 bytes, as long as it results
 
 
 
@@ -1236,6 +1236,10 @@ Dierks & Rescorla            Standards Track                   [Page 22]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+   padding
+      Padding that is added to force the length of the plaintext to be
+      an integral multiple of the block cipher's block length. The
+      padding MAY be any length up to 255 bytes, as long as it results
       in the TLSCiphertext.length being an integral multiple of the
       block length. Lengths longer than necessary might be desirable to
       frustrate attacks on a protocol that are based on analysis of the
@@ -1280,10 +1284,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
    reject the packet. For instance, if the pad appears to be incorrect,
    the implementation might assume a zero-length pad and then compute
    the MAC. This leaves a small timing channel, since MAC performance
-   depends to some extent on the size of the data fragment, but it is
-   not believed to be large enough to be exploitable, due to the large
-   block size of existing MACs and the small size of the timing signal.
-
 
 
 
@@ -1291,6 +1291,10 @@ Dierks & Rescorla            Standards Track                   [Page 23]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
+
+   depends to some extent on the size of the data fragment, but it is
+   not believed to be large enough to be exploitable, due to the large
+   block size of existing MACs and the small size of the timing signal.
 
 6.2.3.3. AEAD ciphers
 
@@ -1336,10 +1340,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
    cipher.  Since the ciphers might incorporate padding, the amount of
    overhead could vary with different TLSCompressed.length values.  Each
    AEAD cipher MUST NOT produce an expansion of greater than 1024 bytes.
-   Symbolically,
-
-      AEADEncrypted = AEAD-Encrypt(key, nonce, plaintext,
-                                   additional_data)
 
 
 
@@ -1347,6 +1347,11 @@ Dierks & Rescorla            Standards Track                   [Page 24]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
+
+   Symbolically,
+
+      AEADEncrypted = AEAD-Encrypt(key, nonce, plaintext,
+                                   additional_data)
 
    In order to decrypt and verify, the cipher takes as input the key,
    nonce, the "additional_data", and the AEADEncrypted value. The output
@@ -1391,11 +1396,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
       server_write_MAC_key[SecurityParameters.mac_key_length]
       client_write_key[SecurityParameters.enc_key_length]
       server_write_key[SecurityParameters.enc_key_length]
-      client_write_IV[SecurityParameters.fixed_iv_length]
-      server_write_IV[SecurityParameters.fixed_iv_length]
-
-   Currently, the client_write_IV and server_write_IV are only generated
-   for implicit nonce techniques as described in Section 3.2.1 of
 
 
 
@@ -1404,6 +1404,11 @@ Dierks & Rescorla            Standards Track                   [Page 25]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+      client_write_IV[SecurityParameters.fixed_iv_length]
+      server_write_IV[SecurityParameters.fixed_iv_length]
+
+   Currently, the client_write_IV and server_write_IV are only generated
+   for implicit nonce techniques as described in Section 3.2.1 of
    [AEAD].
 
    Implementation note: The currently defined cipher suite which
@@ -1447,11 +1452,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
    These items are then used to create security parameters for use by
    the Record Layer when protecting application data. Many connections
-   can be instantiated using the same session through the resumption
-   feature of the TLS Handshake Protocol.
-
-7.1. Change Cipher Spec Protocol
-
 
 
 
@@ -1459,6 +1459,11 @@ Dierks & Rescorla            Standards Track                   [Page 26]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
+
+   can be instantiated using the same session through the resumption
+   feature of the TLS Handshake Protocol.
+
+7.1. Change Cipher Spec Protocol
 
    The change cipher spec protocol exists to signal transitions in
    ciphering strategies. The protocol consists of a single message,
@@ -1504,11 +1509,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
       enum { warning(1), fatal(2), (255) } AlertLevel;
 
-      enum {
-          close_notify(0),
-          unexpected_message(10),
-          bad_record_mac(20),
-
 
 
 Dierks & Rescorla            Standards Track                   [Page 27]
@@ -1516,6 +1516,10 @@ Dierks & Rescorla            Standards Track                   [Page 27]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+      enum {
+          close_notify(0),
+          unexpected_message(10),
+          bad_record_mac(20),
           decryption_failed_RESERVED(21),
           record_overflow(22),
           decompression_failure(30),
@@ -1560,10 +1564,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
        with widespread implementation practice.
 
    Either party may initiate a close by sending a close_notify alert.
-   Any data received after a closure alert is ignored.
-
-   Unless some other fatal alert has been transmitted, each party is
-   required to send a close_notify alert before closing the write side
 
 
 
@@ -1572,6 +1572,10 @@ Dierks & Rescorla            Standards Track                   [Page 28]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+   Any data received after a closure alert is ignored.
+
+   Unless some other fatal alert has been transmitted, each party is
+   required to send a close_notify alert before closing the write side
    of the connection. The other party MUST respond with a close_notify
    alert of its own and close down the connection immediately,
    discarding any pending writes. It is not required for the initiator
@@ -1616,10 +1620,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
    not to proceed with the connection (e.g., after having received a
    no_renegotiation alert that it is not willing to accept), it SHOULD
    send a fatal alert to terminate the connection. Given this, the
-   sending party cannot, in general, know how the receiving party will
-   behave. Therefore, warning alerts are not very useful when the
-   sending party wants to continue the connection, and thus are
-   sometimes omitted. For example, if a peer decides to accept an
 
 
 
@@ -1628,6 +1628,10 @@ Dierks & Rescorla            Standards Track                   [Page 29]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+   sending party cannot, in general, know how the receiving party will
+   behave. Therefore, warning alerts are not very useful when the
+   sending party wants to continue the connection, and thus are
+   sometimes omitted. For example, if a peer decides to accept an
    expired certificate (perhaps after confirming this with the user) and
    wants to continue the connection, it would not generally send a
    certificate_expired alert.
@@ -1672,10 +1676,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
       sender was unable to negotiate an acceptable set of security
       parameters given the options available. This is a fatal error.
 
-   no_certificate_RESERVED
-      This alert was used in SSLv3 but not any version of TLS.  It MUST
-      NOT be sent by compliant implementations.
-
 
 
 
@@ -1683,6 +1683,10 @@ Dierks & Rescorla            Standards Track                   [Page 30]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
+
+   no_certificate_RESERVED
+      This alert was used in SSLv3 but not any version of TLS.  It MUST
+      NOT be sent by compliant implementations.
 
    bad_certificate
       A certificate was corrupt, contained signatures that did not
@@ -1728,10 +1732,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
       A handshake cryptographic operation failed, including being unable
       to correctly verify a signature or validate a finished message.
       This message is always fatal.
-
-
-
-
 
 
 
