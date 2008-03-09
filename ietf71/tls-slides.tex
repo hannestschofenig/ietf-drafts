@@ -1,0 +1,177 @@
+\documentclass[helvetica]{seminar} 
+\centerslidesfalse 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 70} 
+\fancyfoot[C]{\tiny TLS 1.2 Update} 
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% don't center vertically
+\centerslidesfalse 
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+\begin{document}
+
+
+        
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}DTLS 1.1}\\
+
+\vspace{.3 in}
+\large{Eric Rescorla}\\
+\large{Network Resonance}\\
+\large{\texttt{ekr@networkresonance.com}}
+
+\end{center}
+\end{slide}
+
+\begin{slide}
+\heading{Overview}
+
+\begin{itemize}
+\item Update to match TLS 1.2 
+\begin{itemize}
+\item Mostly \verb^s/TLS 1.1/TLS 1.2/^
+\end{itemize}
+\item Clarify confusing points in the spec
+\item No other changes
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{TLS 1.2 Upgrade}
+
+\begin{itemize}
+\item DTLS 1.0 is a delta off TLS 1.1
+\begin{itemize}
+\item This is intentional
+\item Not clear you can just pick a random version (cf. TLS 1.0)
+\end{itemize}
+\item But now TLS 1.2 is out
+\begin{itemize}
+\item Need to upgrade
+\end{itemize}
+\item Proposal: Rev DTLS version to 1.1 and have it matched to TLS 1.2
+\begin{itemize}
+\item Question: would it be better to go to 1.2 to match versions?
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Known Issue 1: HelloVerifyRequest and CertificateVerify}
+
+\begin{itemize}
+\item S 4.1.2. specifies that the first ClientHello and HelloVerifyRequest
+               are not included in Finished
+\item Nothing is said about CertificateVerify
+\item Proposal: it's not included there either        
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Handshake Headers and Hashes}
+
+\vspace{-.5 in}
+
+\begin{itemize}
+\item DTLS handshake messages are:
+\end{itemize}
+
+{\small
+\begin{verbatim}
+      struct {
+        HandshakeType msg_type;
+        uint24 length;
+        uint16 message_seq;                               // New field
+        uint24 fragment_offset;                           // New field
+        uint24 fragment_length;                           // New field
+        ...
+      }
+\end{verbatim}
+}
+
+\begin{itemize}
+\item How are handshake hashes computed with fragmentation
+\begin{itemize}
+\item Reassemble and then hash
+\item Include the headers? 
+\begin{itemize}
+\item This isn't clear in the spec (answer is ``yes'' in TLS)
+\end{itemize}
+\end{itemize}
+\item Proposal: change the text to make this clear
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Planned Timeline}
+
+\begin{itemize}
+\item Gather other issues
+\begin{itemize}
+\item Call on the mailing list
+\item Have them by 31-April-08
+\end{itemize}
+\item Discusss contentious issued on mailing list
+\item New draft by 31-May-08
+\item Resolve final contentious issues in Dublin
+\end{itemize}
+\end{slide}
+
+
+\end{document}
