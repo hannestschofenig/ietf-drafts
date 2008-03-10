@@ -8,7 +8,7 @@ Expires:  September 10, 2008
 
 
                Notes on TCP Authentication Architectures
-                    draft-rescorla-tcp-auth-arch.txt
+                  draft-rescorla-tcp-auth-arch-00.txt
 
 Status of this Memo
 
