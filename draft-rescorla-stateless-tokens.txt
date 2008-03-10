@@ -35,10 +35,6 @@ Status of this Memo
 
    This Internet-Draft will expire on September 2, 2007.
 
-Copyright Notice
-
-   Copyright (C) The IETF Trust (2007).
-
 Abstract
 
    A common protocol problem is to want to arrange to maintain client
@@ -48,6 +44,10 @@ Abstract
    privacy issues, such tokens should be cryptographically protected.
    This draft describes one workable mechanism for constructing such
    tokens.
+
+
+
+
 
 
 
@@ -674,8 +674,8 @@ Internet-Draft              Stateless Tokens                  March 2007
 
 
          Agent (UA) URIs (GRUU) in the  Session Initiation Protocol
-         (SIP)", draft-ietf-sip-gruu-11 (work in progress),
-         October 2006.
+         (SIP)", draft-ietf-sip-gruu-15 (work in progress),
+         October 2007.
 
    [6]   National Institute of Standards and Technology, "Specification
          for the Advanced Encryption Standard (AES)", FIPS 197,
@@ -771,10 +771,10 @@ Intellectual Property
    ietf-ipr@ietf.org.
 
 
-Acknowledgment
 
-   Funding for the RFC Editor function is provided by the IETF
-   Administrative Support Activity (IASA).
+
+
+
 
 
 

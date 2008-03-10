@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr//bin/perl
 $* = 1;                                 # Enable multiline patterns.
 undef $/;                               # Read whole files in a single
                                         # gulp.

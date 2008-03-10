@@ -6,7 +6,7 @@
 <!ENTITY RFC4507 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4507.xml">
 <!ENTITY I-D.ietf-sip-gruu SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-sip-gruu">
 
-o]>
+]>
 <!-- $Id -->
 <?rfc inline="yes"?>
 <?rfc toc="yes" ?>
