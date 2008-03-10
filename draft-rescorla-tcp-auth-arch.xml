@@ -325,7 +325,8 @@
 	  <t>Support for a strong MAC (e.g., HMAC-SHA1)</t>
 	  <t>Some description of how to do key rollover (this can
 	  either be done with explicit identifiers or a trial
-	  verification hack like that described in <xref target="RFC4808"/>.</t>
+	  verification hack like that described in <xref target="RFC4808"/>.
+	  </t>
 	</list>
 	</t>
 	<t>
@@ -338,6 +339,28 @@
 	  connections if they happen to have the same connection
 	  parameters (host/port quartet). 
 	</t>
+	<t>
+	  <list>
+	    <t>
+	      The trial verification technique involves trying to
+	      verify segments with both key/algorithm pairs. Once
+	      the newer key/algorithm pair verifies, that can be
+	      treated as the maximum sequence number at which the
+	      switchover occurred (it may have occurred earlier
+	      if packets were lost).
+	      Note that in principle with this technique
+	      you could even use the same TCP MD5 option
+	      code point and bits on the wire with a stronger
+	      MAC. Since TCP MD5 requires pairwise keys which 
+	      must be manually configured, all that would be 
+	      required would be to configure a pairwise algorithm.
+	      This is probably unwise because it reinterprets the
+	      meaning of the TCP MD5 option, but it shows how
+	      similar the two techniques are.
+	    </t>
+	  </list>
+	</t>
+
       </section>
       
       <section title="Implicit Diversification" anchor="sec.implicit_diverse">
