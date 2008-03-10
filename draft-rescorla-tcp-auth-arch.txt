@@ -3,7 +3,7 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                         March 09, 2008
+Intended status:  Informational                           March 09, 2008
 Expires:  September 10, 2008
 
 
@@ -60,26 +60,26 @@ Internet-Draft               TCP Auth. Arch                   March 2008
 Table of Contents
 
    1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
-   2.  Keys and Associations  . . . . . . . . . . . . . . . . . . . .  3
-     2.1.  Different Keying Material Per Connection . . . . . . . . .  4
-     2.2.  Rekeying for Key Compromise  . . . . . . . . . . . . . . .  5
-     2.3.  Limiting Plaintext/MAC Pairs . . . . . . . . . . . . . . .  5
-   3.  Credentials Interface  . . . . . . . . . . . . . . . . . . . .  6
-   4.  Handshake and Capabilities Discovery . . . . . . . . . . . . .  6
-   5.  Potential Architectures  . . . . . . . . . . . . . . . . . . .  7
-     5.1.  Architectures Without Handshakes . . . . . . . . . . . . .  7
-       5.1.1.  Single Static Key  . . . . . . . . . . . . . . . . . .  7
-       5.1.2.  Implicit Diversification . . . . . . . . . . . . . . .  8
-     5.2.  Architectures with Handshakes  . . . . . . . . . . . . . .  9
-       5.2.1.  Internal Key Management Protocol . . . . . . . . . . .  9
-       5.2.2.  External KMP . . . . . . . . . . . . . . . . . . . . . 10
-       5.2.3.  Layered KMP  . . . . . . . . . . . . . . . . . . . . . 11
-   6.  Informative References . . . . . . . . . . . . . . . . . . . . 12
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 13
-   Intellectual Property and Copyright Statements . . . . . . . . . . 14
-
-
-
+   2.  Conventions Used In This Document  . . . . . . . . . . . . . .  3
+   3.  Keys and Associations  . . . . . . . . . . . . . . . . . . . .  3
+     3.1.  Different Keying Material Per Connection . . . . . . . . .  4
+     3.2.  Rekeying for Key Compromise  . . . . . . . . . . . . . . .  5
+     3.3.  Limiting Plaintext/MAC Pairs . . . . . . . . . . . . . . .  5
+   4.  Credentials Interface  . . . . . . . . . . . . . . . . . . . .  6
+   5.  Handshake and Capabilities Discovery . . . . . . . . . . . . .  6
+   6.  Potential Architectures  . . . . . . . . . . . . . . . . . . .  7
+     6.1.  Architectures Without Handshakes . . . . . . . . . . . . .  7
+       6.1.1.  Single Static Key  . . . . . . . . . . . . . . . . . .  7
+       6.1.2.  Implicit Diversification . . . . . . . . . . . . . . .  8
+     6.2.  Architectures with Handshakes  . . . . . . . . . . . . . .  9
+       6.2.1.  Internal Key Management Protocol . . . . . . . . . . .  9
+       6.2.2.  External KMP . . . . . . . . . . . . . . . . . . . . . 10
+       6.2.3.  Layered KMP  . . . . . . . . . . . . . . . . . . . . . 11
+   7.  Security Considerations  . . . . . . . . . . . . . . . . . . . 12
+   8.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 13
+   9.  Informative References . . . . . . . . . . . . . . . . . . . . 13
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 14
+   Intellectual Property and Copyright Statements . . . . . . . . . . 15
 
 
 
@@ -120,7 +120,7 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    document does not use that term).  The MAC is keyed using a single
    static key shared between a pair of TCP endpoints.
 
-   Recent work by Wang et al.  [REF] has demonstrated significant
+   Recent work by Wang et al.  [WH05] has demonstrated significant
    weaknesses in MD5 which imply that TCP MD5 should be phased out in
    favor of a more modern MAC algorithm.  In addition, it seems worth
    addressing some of the more glaring protocol flaws in TCP MD5.  The
@@ -142,23 +142,23 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    different ways.
 
 
-2.  Keys and Associations
+2.  Conventions Used In This Document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [RFC2119].
+
+
+3.  Keys and Associations
 
    Probably the most important architectural question is the
    relationship of keys to associations.  As indicated above, TCP MD5
    uses a single static key for all associations.  This key is
    configured in a pairwise fashion.  By contrast, conventional channel
-   security protocols such as TLS or IPsec establish a fresh set of
-   keying material for each association.  The proposed TCP
-   Authentication Option [I-D.ietf-tcpm-tcp-auth-opt] also requires
+   security protocols such as TLS [RFC4346] or IPsec [RFC4301] establish
+   a fresh set of keying material for each association.  The proposed
+   TCP Authentication Option [I-D.ietf-tcpm-tcp-auth-opt] also requires
    (though does not arrange for) a fresh key for each association.
-
-
-             >> New TSAD entries MUST be checked against a table of previously
-             used TSAD entries, and key reuse MUST be prohibited.
-
-   There are two good (and one not so good) reasons why it's desirable
-   to have mechanisms for changing keys:
 
 
 
@@ -169,6 +169,12 @@ Rescorla               Expires September 10, 2008               [Page 3]
 Internet-Draft               TCP Auth. Arch                   March 2008
 
 
+      >> New TSAD entries MUST be checked against a table of previously
+      used TSAD entries, and key reuse MUST be prohibited.
+
+   There are two good (and one not so good) reasons why it's desirable
+   to have mechanisms for changing keys:
+
    o  To arrange for different cryptographic keying material to be used
       for each connection, thus preventing cut-and-paste attacks between
       connections.  (Good)
@@ -178,7 +184,7 @@ Internet-Draft               TCP Auth. Arch                   March 2008
 
    The following sections discuss each of these issues.
 
-2.1.  Different Keying Material Per Connection
+3.1.  Different Keying Material Per Connection
 
    It's standard cryptographic practice to try to use a cryptographic
    key for one purpose and by extension it's good key hygiene to use a
@@ -209,6 +215,16 @@ Internet-Draft               TCP Auth. Arch                   March 2008
       * K_conn = HMAC(K_fixed, conn_id); Packet_MAC = HMAC(K_conn,
       packet)
       or
+
+
+
+
+
+Rescorla               Expires September 10, 2008               [Page 4]
+
+Internet-Draft               TCP Auth. Arch                   March 2008
+
+
       * Packet_MAC = HMAC(K_fixed, conn_id || packet)
       This doesn't work for encryption as well because of accidental
       plaintext collisions and/or two-time pad issues, but it's not a
@@ -218,14 +234,7 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    due to sequence number rollover.  This can be fixed, however, by
    extending the sequence numbers virtually, as done with ESP/AH.
 
-
-
-Rescorla               Expires September 10, 2008               [Page 4]
-
-Internet-Draft               TCP Auth. Arch                   March 2008
-
-
-2.2.  Rekeying for Key Compromise
+3.2.  Rekeying for Key Compromise
 
    If the long-term key used to authenticate an endpoint becomes known
    to an attacker, then the attacker can impersonate that endpoint until
@@ -246,7 +255,7 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    simultaneously used the same keys, you might still want to rekey them
    all to recover from a compromise.
 
-2.3.  Limiting Plaintext/MAC Pairs
+3.3.  Limiting Plaintext/MAC Pairs
 
    A classical concern of COMSEC designers has been to limit the amount
    of plaintext/ciphertext material available to attackers for a single
@@ -265,6 +274,13 @@ Internet-Draft               TCP Auth. Arch                   March 2008
       doesn't pay off to capture six months work of traffic and break it
       at leisure.
 
+
+
+Rescorla               Expires September 10, 2008               [Page 5]
+
+Internet-Draft               TCP Auth. Arch                   March 2008
+
+
    The first concern is a lot less applicable with modern crypto
    algorithms such as AES or HMAC.  No known good analytic attacks are
    known on these systems no matter how many plaintext/ciphertext pairs
@@ -273,14 +289,6 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    of the authentication tag used.  This isn't to say that they're
    totally irrelevant, but regular rekeying simply is not necessary.
 
-
-
-
-Rescorla               Expires September 10, 2008               [Page 5]
-
-Internet-Draft               TCP Auth. Arch                   March 2008
-
-
    The second concern is rather less relevant for integrity checks,
    systems, since a successful attack on an integrity system doesn't
    compromise old traffic; you can just attack newer traffic.  This
@@ -288,7 +296,7 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    single association, which is much more limiting.
 
 
-3.  Credentials Interface
+4.  Credentials Interface
 
    As described at the beginning of this document, essentially all the
    currently deployed systems use a single pre-configured pairwise
@@ -315,20 +323,12 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    exhausted, which is unacceptable in a production system.
 
 
-4.  Handshake and Capabilities Discovery
+5.  Handshake and Capabilities Discovery
 
    The ability to automatically discover a peer's capabilitiies is a
    common feature of modern cryptographic protocols.  For instance, SSL/
-   TLS, IPsec (IKE), and SSH all offer some form of algorithm
+   TLS, IPsec (IKE [RFC4306]), and SSH all offer some form of algorithm
    negotiation, in which the sides mutually determine some common set of
-   acceptable algorithms.
-
-   This capability has obvious advantages in systems like SSL/TLS and
-   IKE where endpoints may be communicating with other endpoints with
-   which they share no preexisting state:  it allows the implementations
-   to discover each others capabilities without having them
-   preconfigured.  However, even in systems where the keying material is
-   statically and manually configured, an automatic discovery system
 
 
 
@@ -337,6 +337,14 @@ Rescorla               Expires September 10, 2008               [Page 6]
 Internet-Draft               TCP Auth. Arch                   March 2008
 
 
+   acceptable algorithms.
+
+   This capability has obvious advantages in systems like SSL/TLS and
+   IKE where endpoints may be communicating with other endpoints with
+   which they share no preexisting state:  it allows the implementations
+   to discover each others capabilities without having them
+   preconfigured.  However, even in systems where the keying material is
+   statically and manually configured, an automatic discovery system
    removes the need for a configuration knob (the algorithms for this
    remote system), which potentially reduces errors.  In addition, it
    allows for the possibility of automatic upgrade between algorithms
@@ -347,21 +355,21 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    without requiring manual discovery.
 
 
-5.  Potential Architectures
+6.  Potential Architectures
 
    This section describes a number of potential architectures for key
    management for TCP.  These descriptions are sketches and are
    certainly not complete, nor do we claim to describe all possible
    architectures.
 
-5.1.  Architectures Without Handshakes
+6.1.  Architectures Without Handshakes
 
    We first consider architectures which do not involve any explicit
    handshake.  These systems have the advantage of being simple to
    design and implement but lack the flexibility benefits of a handshake
-   scheme, as described in Section 4
+   scheme, as described in Section 5
 
-5.1.1.  Single Static Key
+6.1.1.  Single Static Key
 
    The simplest design is simply to use the same architecture as TCP
    MD5:  a single pairwise symmetric key used for all connections
@@ -377,14 +385,6 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    This mechanism would provide roughly similar architectural security
    properties to TCP MD5, except with stronger crypto, including an
    almost identical user interface and a very similar implementation.
-   As noted in Section 2, this still allows some measure of cut-and-
-   paste attacks in between connections if they happen to have the same
-   connection parameters (host/port quartet).
-
-      The trial verification technique involves trying to verify
-      segments with both key/algorithm pairs.  Once the newer key/
-      algorithm pair verifies, that can be treated as the maximum
-      sequence number at which the switchover occurred (it may have
 
 
 
@@ -393,6 +393,14 @@ Rescorla               Expires September 10, 2008               [Page 7]
 Internet-Draft               TCP Auth. Arch                   March 2008
 
 
+   As noted in Section 3, this still allows some measure of cut-and-
+   paste attacks in between connections if they happen to have the same
+   connection parameters (host/port quartet).
+
+      The trial verification technique involves trying to verify
+      segments with both key/algorithm pairs.  Once the newer key/
+      algorithm pair verifies, that can be treated as the maximum
+      sequence number at which the switchover occurred (it may have
       occurred earlier if packets were lost).  Note that in principle
       with this technique you could even use the same TCP MD5 option
       code point and bits on the wire with a stronger MAC.  Since TCP
@@ -401,7 +409,7 @@ Internet-Draft               TCP Auth. Arch                   March 2008
       This is probably unwise because it reinterprets the meaning of the
       TCP MD5 option, but it shows how similar the two techniques are.
 
-5.1.2.  Implicit Diversification
+6.1.2.  Implicit Diversification
 
    A substantial amount of resistance to inter-connection cut-and-paste
    attacks can be achieved by exploiting connection information other
@@ -428,19 +436,11 @@ Internet-Draft               TCP Auth. Arch                   March 2008
       the security of the system.  Only nonce uniqueness is required.
 
    This scheme has very similar security properties to the scheme
-   described in Section 5.1.1, including having a compatible key
+   described in Section 6.1.1, including having a compatible key
    management interface.  Unlike static keys, however, there is a
    significant amount of resistance to inter-connection cut-and-paste
    attacks because each connection with high probability uses a unique
    key.
-
-   As with any system that requires per-connection keys, this scheme
-   would require some amount of per-connection state to store that key.
-   This, and the hooks to feed the ISNs into the key computation, would
-   presumably require some changes to implementations.
-
-
-
 
 
 
@@ -449,17 +449,22 @@ Rescorla               Expires September 10, 2008               [Page 8]
 Internet-Draft               TCP Auth. Arch                   March 2008
 
 
-5.2.  Architectures with Handshakes
+   As with any system that requires per-connection keys, this scheme
+   would require some amount of per-connection state to store that key.
+   This, and the hooks to feed the ISNs into the key computation, would
+   presumably require some changes to implementations.
+
+6.2.  Architectures with Handshakes
 
    We now consider architectures which involve explicit protocol
-   handshakes between the two endpoints.  As noted in Section 4, this
+   handshakes between the two endpoints.  As noted in Section 5, this
    provides more flexibility and upgradeability but at significantly
    more protocol and implementation cost.  In addition, like all
    handshake methods, we would expect it to provide unique per-
    connection keys.  The difference between these architectures is in
    how the key management protocol messages are carried.
 
-5.2.1.  Internal Key Management Protocol
+6.2.1.  Internal Key Management Protocol
 
    The traditional approach to this problem would be to build a KMP into
    TCP.  This would presumably entail designing a new crypto protocol
@@ -492,11 +497,6 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    (one of the major value propositions of a handshake mechanism),
    because the public key operations are too slow to run in the kernel
    while stalling all other operations.  This either requires a
-   multithreaded kernel or a piecewise/asynchronous public key
-   computation (something that takes careful programming and that
-   current crypto implementations don't do).
-
-
 
 
 
@@ -505,7 +505,11 @@ Rescorla               Expires September 10, 2008               [Page 9]
 Internet-Draft               TCP Auth. Arch                   March 2008
 
 
-5.2.2.  External KMP
+   multithreaded kernel or a piecewise/asynchronous public key
+   computation (something that takes careful programming and that
+   current crypto implementations don't do).
+
+6.2.2.  External KMP
 
    The approach used by IPsec is to split the system into two pieces:
 
@@ -548,11 +552,7 @@ Internet-Draft               TCP Auth. Arch                   March 2008
 
    o  The need for an association database to map keying material to the
       traffic it protects.
-   o  The difficulty of configuring settings and giving applications
-      information about association properties.
-   o  The need for interfaces to allow the transport protocol to request
-      key establishment from the KMP and (potentially) to stall the
-      transport protocol while keys are established.
+
 
 
 
@@ -560,6 +560,12 @@ Rescorla               Expires September 10, 2008              [Page 10]
 
 Internet-Draft               TCP Auth. Arch                   March 2008
 
+
+   o  The difficulty of configuring settings and giving applications
+      information about association properties.
+   o  The need for interfaces to allow the transport protocol to request
+      key establishment from the KMP and (potentially) to stall the
+      transport protocol while keys are established.
 
    The last of these is probably more serious for TCP than for IPsec
    because an IPsec SA can be configured to connect a large number of
@@ -576,7 +582,7 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    protocol to fail (e.g., firewalls) but the transport protocol
    succeeds.
 
-5.2.3.  Layered KMP
+6.2.3.  Layered KMP
 
    Another way to provide a separate KMP is to bind it more tightly to
    the transport protocol by running it over (or next to, as in DTLS-
@@ -603,12 +609,6 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    protocol which will run over the transport and conceptually as the
    transport itself, they have a simple one-to-one relationship.
 
-      The application can control the cryptographic parameters directly.
-      The application gets visibility into what parameters were
-      established.
-      The KMP fate-shares with the transport and application layer
-      protocols.
-
 
 
 
@@ -616,6 +616,12 @@ Rescorla               Expires September 10, 2008              [Page 11]
 
 Internet-Draft               TCP Auth. Arch                   March 2008
 
+
+      The application can control the cryptographic parameters directly.
+      The application gets visibility into what parameters were
+      established.
+      The KMP fate-shares with the transport and application layer
+      protocols.
 
    This architecture has two major disadvantages.  First, unlike all the
    other architectures discussed, it requires the cooperation of the
@@ -631,7 +637,7 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    are possible during this initial period, which provides a window for
    attack which does not exist with these other modes.
 
-5.2.3.1.  TLS as a Layered KMP
+6.2.3.1.  TLS as a Layered KMP
 
    In the specific case of TLS, another advantage is that this can be
    treated by the application as if it were doing TLS over TCP.  The
@@ -652,7 +658,30 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    confidentiality if an appropriate cipher suite is used.
 
 
-6.  Informative References
+7.  Security Considerations
+
+   This entire document is about security.
+
+
+
+
+
+
+
+Rescorla               Expires September 10, 2008              [Page 12]
+
+Internet-Draft               TCP Auth. Arch                   March 2008
+
+
+8.  IANA Considerations
+
+   This document has no IANA considerations.
+
+
+9.  Informative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
 
    [RFC2385]  Heffernan, A., "Protection of BGP Sessions via the TCP MD5
               Signature Option", RFC 2385, August 1998.
@@ -663,16 +692,17 @@ Internet-Draft               TCP Auth. Arch                   March 2008
    [RFC4808]  Bellovin, S., "Key Change Strategies for TCP-MD5",
               RFC 4808, March 2007.
 
+   [RFC4346]  Dierks, T. and E. Rescorla, "The Transport Layer Security
+              (TLS) Protocol Version 1.1", RFC 4346, April 2006.
+
+   [RFC4301]  Kent, S. and K. Seo, "Security Architecture for the
+              Internet Protocol", RFC 4301, December 2005.
+
+   [RFC4306]  Kaufman, C., "Internet Key Exchange (IKEv2) Protocol",
+              RFC 4306, December 2005.
+
    [I-D.ietf-tcpm-tcp-auth-opt]
               Touch, J., Mankin, A., and R. Bonica, "The TCP
-
-
-
-Rescorla               Expires September 10, 2008              [Page 12]
-
-Internet-Draft               TCP Auth. Arch                   March 2008
-
-
               Authentication Option", draft-ietf-tcpm-tcp-auth-opt-00
               (work in progress), November 2007.
 
@@ -687,6 +717,16 @@ Internet-Draft               TCP Auth. Arch                   March 2008
               Edddy, W., Bellovin, S., and R. Bonica, "Problem Statement
               and Requirements for a TCP Authentication Option",
                draft-bellovin-tcpsec-01.
+
+   [WH05]     Wang, X. and H. Yu, "How to Break MD5 and Other Hash
+              Functions",  EUROCRYPT 2005.
+
+
+
+
+Rescorla               Expires September 10, 2008              [Page 13]
+
+Internet-Draft               TCP Auth. Arch                   March 2008
 
 
 Author's Address
@@ -724,7 +764,23 @@ Author's Address
 
 
 
-Rescorla               Expires September 10, 2008              [Page 13]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla               Expires September 10, 2008              [Page 14]
 
 Internet-Draft               TCP Auth. Arch                   March 2008
 
@@ -780,5 +836,5 @@ Intellectual Property
 
 
 
-Rescorla               Expires September 10, 2008              [Page 14]
+Rescorla               Expires September 10, 2008              [Page 15]
 
