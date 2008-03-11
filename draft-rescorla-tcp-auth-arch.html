@@ -1,0 +1,1094 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en"><head><title>Notes on TCP Authentication Architectures</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="description" content="Notes on TCP Authentication Architectures">
+<meta name="generator" content="xml2rfc v1.33 (http://xml.resource.org/)">
+<style type='text/css'><!--
+        body {
+                font-family: verdana, charcoal, helvetica, arial, sans-serif;
+                font-size: small; color: #000; background-color: #FFF;
+                margin: 2em;
+        }
+        h1, h2, h3, h4, h5, h6 {
+                font-family: helvetica, monaco, "MS Sans Serif", arial, sans-serif;
+                font-weight: bold; font-style: normal;
+        }
+        h1 { color: #900; background-color: transparent; text-align: right; }
+        h3 { color: #333; background-color: transparent; }
+
+        td.RFCbug {
+                font-size: x-small; text-decoration: none;
+                width: 30px; height: 30px; padding-top: 2px;
+                text-align: justify; vertical-align: middle;
+                background-color: #000;
+        }
+        td.RFCbug span.RFC {
+                font-family: monaco, charcoal, geneva, "MS Sans Serif", helvetica, verdana, sans-serif;
+                font-weight: bold; color: #666;
+        }
+        td.RFCbug span.hotText {
+                font-family: charcoal, monaco, geneva, "MS Sans Serif", helvetica, verdana, sans-serif;
+                font-weight: normal; text-align: center; color: #FFF;
+        }
+
+        table.TOCbug { width: 30px; height: 15px; }
+        td.TOCbug {
+                text-align: center; width: 30px; height: 15px;
+                color: #FFF; background-color: #900;
+        }
+        td.TOCbug a {
+                font-family: monaco, charcoal, geneva, "MS Sans Serif", helvetica, sans-serif;
+                font-weight: bold; font-size: x-small; text-decoration: none;
+                color: #FFF; background-color: transparent;
+        }
+
+        td.header {
+                font-family: arial, helvetica, sans-serif; font-size: x-small;
+                vertical-align: top; width: 33%;
+                color: #FFF; background-color: #666;
+        }
+        td.author { font-weight: bold; font-size: x-small; margin-left: 4em; }
+        td.author-text { font-size: x-small; }
+
+        /* info code from SantaKlauss at http://www.madaboutstyle.com/tooltip2.html */
+        a.info {
+                /* This is the key. */
+                position: relative;
+                z-index: 24;
+                text-decoration: none;
+        }
+        a.info:hover {
+                z-index: 25;
+                color: #FFF; background-color: #900;
+        }
+        a.info span { display: none; }
+        a.info:hover span.info {
+                /* The span will display just on :hover state. */
+                display: block;
+                position: absolute;
+                font-size: smaller;
+                top: 2em; left: -5em; width: 15em;
+                padding: 2px; border: 1px solid #333;
+                color: #900; background-color: #EEE;
+                text-align: left;
+        }
+
+        a { font-weight: bold; }
+        a:link    { color: #900; background-color: transparent; }
+        a:visited { color: #633; background-color: transparent; }
+        a:active  { color: #633; background-color: transparent; }
+
+        p { margin-left: 2em; margin-right: 2em; }
+        p.copyright { font-size: x-small; }
+        p.toc { font-size: small; font-weight: bold; margin-left: 3em; }
+        table.toc { margin: 0 0 0 3em; padding: 0; border: 0; vertical-align: text-top; }
+        td.toc { font-size: small; font-weight: bold; vertical-align: text-top; }
+
+        ol.text { margin-left: 2em; margin-right: 2em; }
+        ul.text { margin-left: 2em; margin-right: 2em; }
+        li      { margin-left: 3em; }
+
+        /* RFC-2629 <spanx>s and <artwork>s. */
+        em     { font-style: italic; }
+        strong { font-weight: bold; }
+        dfn    { font-weight: bold; font-style: normal; }
+        cite   { font-weight: normal; font-style: normal; }
+        tt     { color: #036; }
+        tt, pre, pre dfn, pre em, pre cite, pre span {
+                font-family: "Courier New", Courier, monospace; font-size: small;
+        }
+        pre {
+                text-align: left; padding: 4px;
+                color: #000; background-color: #CCC;
+        }
+        pre dfn  { color: #900; }
+        pre em   { color: #66F; background-color: #FFC; font-weight: normal; }
+        pre .key { color: #33C; font-weight: bold; }
+        pre .id  { color: #900; }
+        pre .str { color: #000; background-color: #CFF; }
+        pre .val { color: #066; }
+        pre .rep { color: #909; }
+        pre .oth { color: #000; background-color: #FCF; }
+        pre .err { background-color: #FCC; }
+
+        /* RFC-2629 <texttable>s. */
+        table.all, table.full, table.headers, table.none {
+                font-size: small; text-align: center; border-width: 2px;
+                vertical-align: top; border-collapse: collapse;
+        }
+        table.all, table.full { border-style: solid; border-color: black; }
+        table.headers, table.none { border-style: none; }
+        th {
+                font-weight: bold; border-color: black;
+                border-width: 2px 2px 3px 2px;
+        }
+        table.all th, table.full th { border-style: solid; }
+        table.headers th { border-style: none none solid none; }
+        table.none th { border-style: none; }
+        table.all td {
+                border-style: solid; border-color: #333;
+                border-width: 1px 2px;
+        }
+        table.full td, table.headers td, table.none td { border-style: none; }
+
+        hr { height: 1px; }
+        hr.insert {
+                width: 80%; border-style: none; border-width: 0;
+                color: #CCC; background-color: #CCC;
+        }
+--></style>
+</head>
+<body>
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<table summary="layout" width="66%" border="0" cellpadding="0" cellspacing="0"><tr><td><table summary="layout" width="100%" border="0" cellpadding="2" cellspacing="1">
+<tr><td class="header">Network Working Group</td><td class="header">E. Rescorla</td></tr>
+<tr><td class="header">Internet-Draft</td><td class="header">RTFM, Inc.</td></tr>
+<tr><td class="header">Intended status:  Informational</td><td class="header">March 09, 2008</td></tr>
+<tr><td class="header">Expires:  September 10, 2008</td><td class="header">&nbsp;</td></tr>
+</table></td></tr></table>
+<h1><br />Notes on TCP Authentication Architectures<br />draft-rescorla-tcp-auth-arch-00.txt</h1>
+
+<h3>Status of this Memo</h3>
+<p>
+By submitting this Internet-Draft,
+each author represents that any applicable patent or other IPR claims of which
+he or she is aware have been or will be disclosed,
+and any of which he or she becomes aware will be disclosed,
+in accordance with Section&nbsp;6 of BCP&nbsp;79.</p>
+<p>
+Internet-Drafts are working documents of the Internet Engineering
+Task Force (IETF), its areas, and its working groups.
+Note that other groups may also distribute working documents as
+Internet-Drafts.</p>
+<p>
+Internet-Drafts are draft documents valid for a maximum of six months
+and may be updated, replaced, or obsoleted by other documents at any time.
+It is inappropriate to use Internet-Drafts as reference material or to cite
+them other than as &ldquo;work in progress.&rdquo;</p>
+<p>
+The list of current Internet-Drafts can be accessed at
+<a href='http://www.ietf.org/ietf/1id-abstracts.txt'>http://www.ietf.org/ietf/1id-abstracts.txt</a>.</p>
+<p>
+The list of Internet-Draft Shadow Directories can be accessed at
+<a href='http://www.ietf.org/shadow.html'>http://www.ietf.org/shadow.html</a>.</p>
+<p>
+This Internet-Draft will expire on September 10, 2008.</p>
+
+<h3>Abstract</h3>
+
+<p>
+      This document provides an architectural survey of a variety of
+      approaches to key management for TCP-level authentication.
+</p><a name="toc"></a><br /><hr />
+<h3>Table of Contents</h3>
+<p class="toc">
+<a href="#sec.intro">1.</a>&nbsp;
+Introduction<br />
+<a href="#anchor1">2.</a>&nbsp;
+Conventions Used In This Document<br />
+<a href="#sec.key-assoc">3.</a>&nbsp;
+Keys and Associations<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor2">3.1.</a>&nbsp;
+Different Keying Material Per Connection<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor3">3.2.</a>&nbsp;
+Rekeying for Key Compromise<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor4">3.3.</a>&nbsp;
+Limiting Plaintext/MAC Pairs<br />
+<a href="#anchor5">4.</a>&nbsp;
+Credentials Interface<br />
+<a href="#sec.handshake">5.</a>&nbsp;
+Handshake and Capabilities Discovery<br />
+<a href="#anchor6">6.</a>&nbsp;
+Potential Architectures<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor7">6.1.</a>&nbsp;
+Architectures Without Handshakes<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#sec.static">6.1.1.</a>&nbsp;
+Single Static Key<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#sec.implicit_diverse">6.1.2.</a>&nbsp;
+Implicit Diversification<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor8">6.2.</a>&nbsp;
+Architectures with Handshakes<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor9">6.2.1.</a>&nbsp;
+Internal Key Management Protocol<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor10">6.2.2.</a>&nbsp;
+External KMP<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor11">6.2.3.</a>&nbsp;
+Layered KMP<br />
+<a href="#anchor13">7.</a>&nbsp;
+Security Considerations<br />
+<a href="#anchor14">8.</a>&nbsp;
+IANA Considerations<br />
+<a href="#rfc.references1">9.</a>&nbsp;
+Informative References<br />
+<a href="#rfc.authors">&#167;</a>&nbsp;
+Author's Address<br />
+<a href="#rfc.copyright">&#167;</a>&nbsp;
+Intellectual Property and Copyright Statements<br />
+</p>
+<br clear="all" />
+
+<a name="sec.intro"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.1"></a><h3>1.&nbsp;
+Introduction</h3>
+
+<p>
+	The TCP MD5 Authentication option <a class='info' href='#RFC2385'>[RFC2385]<span> (</span><span class='info'>Heffernan, A., &ldquo;Protection of BGP Sessions via the TCP MD5 Signature Option,&rdquo; August&nbsp;1998.</span><span>)</span></a>
+	describes an mechanism for authenticating TCP segments
+	using an MD5-based MAC (though the document does not
+	use that term). The MAC is keyed using a single
+	static key shared between a pair of TCP endpoints.
+      
+</p>
+<p>
+	Recent work by Wang et al. [WH05] has demonstrated significant 
+	weaknesses in MD5 which imply that TCP MD5 should be phased 
+	out in favor of a more modern MAC algorithm. In addition,
+	it seems worth addressing some of the more glaring protocol
+	flaws in TCP MD5. The consensus requirements are probably 
+	the following:
+      
+</p>
+<p>
+	</p>
+<blockquote class="text"><dl>
+<dt>Algorithm agility -</dt>
+<dd>The ability to support multiple 
+	  MAC algorithms.
+</dd>
+<dt>Strong MACs -</dt>
+<dd>Mandatory support for some strong
+	  MAC algorithm.
+</dd>
+<dt>Key rollover -</dt>
+<dd>Support for changing MAC keys 
+	  during the duration of a TCP connection without breaking
+	  the connection.
+</dd>
+</dl></blockquote><p>
+      
+</p>
+<p>
+	Note that there is currently two documents 
+	<a class='info' href='#I-D.ietf-tcpm-tcp-auth-opt'>[I&#8209;D.ietf&#8209;tcpm&#8209;tcp&#8209;auth&#8209;opt]<span> (</span><span class='info'>Touch, J., Mankin, A., and R. Bonica, &ldquo;The TCP Authentication Option,&rdquo; November&nbsp;2007.</span><span>)</span></a>
+	<a class='info' href='#I-D.bellovin-tcpsec'>[I&#8209;D.bellovin&#8209;tcpsec]<span> (</span><span class='info'>Edddy, W., Bellovin, S., and R. Bonica, &ldquo;Problem Statement and Requirements for a TCP Authentication Option,&rdquo; .</span><span>)</span></a>
+	that discuss additional requirements, but it's not
+	clear to me that these requirements have consensus
+	or in fact are correct.
+      
+</p>
+<p>
+	The remainder of this document discusses some additional architectural
+	issues and then describes a series of different design approaches
+	formed by answering these architectural issues in different ways.
+      
+</p>
+<a name="anchor1"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2"></a><h3>2.&nbsp;
+Conventions Used In This Document</h3>
+
+<p>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+      document are to be interpreted as described in <a class='info' href='#RFC2119'>[RFC2119]<span> (</span><span class='info'>Bradner, S., &ldquo;Key words for use in RFCs to Indicate Requirement Levels,&rdquo; March&nbsp;1997.</span><span>)</span></a>.
+</p>
+<a name="sec.key-assoc"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3"></a><h3>3.&nbsp;
+Keys and Associations</h3>
+
+<p>
+	Probably the most important architectural question is
+	the relationship of keys to associations. As indicated
+	above, TCP MD5 uses a single static key for all associations.
+	This key is configured in a pairwise fashion.
+	By contrast, conventional channel security protocols such
+	as TLS <a class='info' href='#RFC4346'>[RFC4346]<span> (</span><span class='info'>Dierks, T. and E. Rescorla, &ldquo;The Transport Layer Security (TLS) Protocol Version 1.1,&rdquo; April&nbsp;2006.</span><span>)</span></a> or IPsec 
+	<a class='info' href='#RFC4301'>[RFC4301]<span> (</span><span class='info'>Kent, S. and K. Seo, &ldquo;Security Architecture for the Internet Protocol,&rdquo; December&nbsp;2005.</span><span>)</span></a> establish a fresh set of keying material
+	for each association. The proposed TCP Authentication
+	Option 	<a class='info' href='#I-D.ietf-tcpm-tcp-auth-opt'>[I&#8209;D.ietf&#8209;tcpm&#8209;tcp&#8209;auth&#8209;opt]<span> (</span><span class='info'>Touch, J., Mankin, A., and R. Bonica, &ldquo;The TCP Authentication Option,&rdquo; November&nbsp;2007.</span><span>)</span></a> also requires
+	(though does not arrange for) a fresh key for each
+	association.
+      
+</p>
+<p>
+</p><div style='display: table; width: 0; margin-left: 3em; margin-right: auto'><pre>
+   &gt;&gt; New TSAD entries MUST be checked against a table of previously
+   used TSAD entries, and key reuse MUST be prohibited.
+</pre></div>
+<p>
+	There are two good (and one not so good) reasons why it's desirable
+	to have mechanisms for changing keys:
+	
+</p>
+<p>
+	</p>
+<ul class="text">
+<li>To arrange for different cryptographic keying material to be used
+	  for each connection, thus preventing cut-and-paste attacks between
+	  connections. (Good)
+</li>
+<li>To allow rekeying in case of key compromise. (Good)
+</li>
+<li>To limit the amount of plaintext/MAC pairs available to the
+	  attacker (Not-so-good)
+</li>
+</ul><p>
+      
+</p>
+<p>
+	The following sections discuss each of these issues.
+      
+</p>
+<a name="anchor2"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.1"></a><h3>3.1.&nbsp;
+Different Keying Material Per Connection</h3>
+
+<p>
+	  It's standard cryptographic practice to try to use a cryptographic key
+	  for one purpose and by extension it's good key hygiene to use a
+	  separate key for each association. The reason for per-association
+	  keying is to prevent cut-and-paste/replay attacks between associations
+	  To take a simple example, consider what would happen if TLS used the
+	  same key for any communication between two elements. An attacker could
+	  record your connection and replay it, thus potentially causing you to
+	  (for instance) issue multiple orders.  Using a separate key for each
+	  association provides automatic cryptographic protection against this
+	  kind of attack--the replayed PDUs simply fail verification.
+	
+</p>
+<p>
+	  Note that any TCP authentication solution where the authentication tag
+	  covers the TCP header has some built-in resistance to this sort of
+	  attack because each association has a different set of ports, so you
+	  can only substitute between pairs of connections with the same
+	  port. Obviously, ports do get reused, so this is isn't perfect.
+	  It's quite a bit better of client-side port randomization is used,
+	  and much worse if systems use deterministic port numbers
+	  (e.g., using the same sequence of client-side port numbers
+	  after each reboot.)
+	
+</p>
+<p>
+	  </p>
+<blockquote class="text">
+<p>
+	      There's actually a general observation here: when you're only
+	      providing integrity, there's a (mostly) isomorphism between
+	      incorporating diversifying information into the keying material 
+	      and incorporating it into the integrity check. I.e., if you
+	      have a per-connection identifier and a fixed key, you can do:
+	    
+</p>
+<p>* K_conn = HMAC(K_fixed, conn_id); Packet_MAC = HMAC(K_conn, packet)
+</p>
+<p>or
+</p>
+<p>* Packet_MAC = HMAC(K_fixed, conn_id || packet)
+</p>
+<p>
+	      This doesn't work for encryption as well because of accidental
+	      plaintext collisions and/or two-time pad issues, but it's not
+	    a problem for MACs.
+</p>
+</blockquote><p>
+	
+</p>
+<p>
+	  In TCP, cut-and-paste attacks are also possible 
+	  within a connection due to sequence number rollover. 
+	  This can be fixed, however, by extending
+	  the sequence numbers virtually, as done with ESP/AH.
+	
+</p>
+<a name="anchor3"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.2"></a><h3>3.2.&nbsp;
+Rekeying for Key Compromise</h3>
+
+<p>
+	  If the long-term key used to authenticate an endpoint becomes known to
+	  an attacker, then the attacker can impersonate that endpoint until the
+	  key is revoked (i.e., until the counterparties know that key is no
+	  longer valid). If the endpoint wishes to continue communicating, then
+	  a new key will need to be established as well. Note that this also
+	  applies to traffic keys: in fact, since they are generally used with
+	  symmetric rather than asymmetric modes, the attacker can typically
+	  impersonate both A to B and B to A.
+	
+</p>
+<p>
+	  In the BGP case that everyone is concerned about, this all needs
+	  to be done without breaking the connection, so this implies the
+	  need to impose entirely new cryptographic state on the connection
+	  without breaking it.
+	
+</p>
+<p>
+	  Note that this is an orthogonal issue to the question of whether
+	  connections use the same key: even if all your associations
+	  simultaneously used the same keys, you might still want to rekey
+	  them all to recover from a compromise.
+	
+</p>
+<a name="anchor4"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.3"></a><h3>3.3.&nbsp;
+Limiting Plaintext/MAC Pairs</h3>
+
+<p>
+	  A classical concern of COMSEC designers has been to limit the
+	  amount of plaintext/ciphertext material available to attackers
+	  for a single key:
+	
+</p>
+<p>
+	  There are two primary rationales for this practice:
+	
+</p>
+<p>
+	  </p>
+<ul class="text">
+<li>Many older algorithms are weak if large numbers of plaintext/ciphertext
+	    pairs are available. In some cases this means analytic attacks. 
+	    In others it means some form of table-driven dictionary attack
+	    such as CBC IV rollover. The latter form of attack typically
+	    isn't that powerful, with the exception of counter-mode ciphers
+	    which have hard limits on counter use.
+</li>
+<li>To increase the attacker's workload: if the attacker needs to break
+	    a new instance of the cipher for each association, then it
+	    doesn't pay off to capture six months work of traffic and 
+	    break it at leisure.
+	    
+</li>
+</ul><p>
+	
+</p>
+<p>
+	  The first concern is a lot less applicable with modern crypto
+	  algorithms such as AES or HMAC. No known good analytic attacks
+	  are known on these systems no matter how many plaintext/ciphertext
+	  pairs you have, and collision limits due to blocksize are fairly
+	  far out: 2^{64} blocks for AES, 2^{b/2} blocks for HMAC, where
+	  b is the size of the authentication tag used. This isn't to
+	  say that they're totally irrelevant, but regular rekeying simply
+	  is not necessary.
+	
+</p>
+<p>
+	  The second concern is rather less relevant for integrity checks,
+	  systems, since a successful attack on an integrity system doesn't
+	  compromise old traffic; you can just attack newer traffic. This
+	  means the attacker has to break the system during the life of
+	  a single association, which is much more limiting. 
+	
+</p>
+<a name="anchor5"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4"></a><h3>4.&nbsp;
+Credentials Interface</h3>
+
+<p>
+	As described at the beginning of this document, essentially all
+	the currently deployed systems use a single pre-configured pairwise
+	shared key. This key is directly configured on the router
+	interface. For instance, here's the example from Cisco's IOS
+	manuals [REF: http://www.cisco.com/en/US/docs/ios/12_0/np1/configuration/guide/1cbgp.html#wp5978]
+      
+</p><div style='display: table; width: 0; margin-left: 3em; margin-right: auto'><pre>
+	  router bgp 109 neighbor 145.2.2.2 password v61ne0qkel33&amp;
+</pre></div>
+<p>
+	It's extremely desirable to be able
+	to retain the existing interfaces. Any solution which requires
+	a significant change to those interfaces and especially to
+	the interaction model creates a substantial additional burden
+	on operators, which creates a major barrier to deployment.
+      
+</p>
+<p>
+	One important implication of this constraint is that a workable
+	system must either allow a single key (or perhaps set of keys)
+	to be used as traffic keys for multiple connections/association,
+	or it must allow for some method of automatic key establishment
+	based on a single small set of initial keys. A system which requires
+	a fresh key for each connection and does not provide any kind of
+	automatic key establishment will break once the set of preconfigured
+	keys is exhausted, which is unacceptable in a production system.
+      
+</p>
+<a name="sec.handshake"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5"></a><h3>5.&nbsp;
+Handshake and Capabilities Discovery</h3>
+
+<p>
+	The ability to automatically discover a peer's capabilitiies is
+	a common feature of modern cryptographic protocols. For instance,
+	SSL/TLS, IPsec (IKE <a class='info' href='#RFC4306'>[RFC4306]<span> (</span><span class='info'>Kaufman, C., &ldquo;Internet Key Exchange (IKEv2) Protocol,&rdquo; December&nbsp;2005.</span><span>)</span></a>), and SSH all offer some form of algorithm
+	negotiation, in which the sides mutually determine some common
+	set of acceptable algorithms.
+      
+</p>
+<p>
+	This capability has obvious advantages in systems like SSL/TLS and
+	IKE where endpoints may be communicating with other endpoints with
+	which they share no preexisting state: it allows the implementations
+	to discover each others capabilities without having them preconfigured.
+	However, even in systems where the keying material is statically
+	and manually configured, an automatic discovery system removes the
+	need for a configuration knob (the algorithms for this remote
+	system), which potentially reduces errors. In addition, it allows
+	for the possibility of automatic upgrade between algorithms (and other
+	functionality) without reconfiguring each peer. For instance, if
+	peer A shares keys with 10 other peers and wants to roll out new
+	algorithm X, it can simply upgrade its implementation and X will
+	be used with the other peers automatically as they upgrade
+	without requiring manual discovery.
+      
+</p>
+<a name="anchor6"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6"></a><h3>6.&nbsp;
+Potential Architectures</h3>
+
+<p>
+	This section describes a number of potential architectures
+	for key management for TCP. These descriptions are sketches
+	and are certainly not complete, nor do we claim to describe
+	all possible architectures.
+      
+</p>
+<a name="anchor7"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6.1"></a><h3>6.1.&nbsp;
+Architectures Without Handshakes</h3>
+
+<p>We first consider architectures which do not involve any
+	explicit handshake. These systems have the advantage of
+	being simple to design and implement but lack the
+	flexibility benefits of a handshake scheme, as described
+	in <a class='info' href='#sec.handshake'>Section&nbsp;5<span> (</span><span class='info'>Handshake and Capabilities Discovery</span><span>)</span></a>
+	
+</p>
+<a name="sec.static"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6.1.1"></a><h3>6.1.1.&nbsp;
+Single Static Key</h3>
+
+<p>
+	  The simplest design is simply to use the same architecture as 
+	  TCP MD5: a single pairwise symmetric key used for all connections
+	  between two endpoints, but updating it to meet the
+	  requirements of <a class='info' href='#sec.intro'>Section&nbsp;1<span> (</span><span class='info'>Introduction</span><span>)</span></a>. This would imply
+	  the following changes:
+	
+</p>
+<p>
+	</p>
+<ul class="text">
+<li>A description of how to add new MACs
+</li>
+<li>Support for a strong MAC (e.g., HMAC-SHA1)
+</li>
+<li>Some description of how to do key rollover (this can
+	  either be done with explicit identifiers or a trial
+	  verification hack like that described in <a class='info' href='#RFC4808'>[RFC4808]<span> (</span><span class='info'>Bellovin, S., &ldquo;Key Change Strategies for TCP-MD5,&rdquo; March&nbsp;2007.</span><span>)</span></a>.
+	  
+</li>
+</ul><p>
+	
+</p>
+<p>
+	  This mechanism would provide roughly similar architectural
+	  security properties to TCP MD5, except with stronger crypto,
+	  including an almost identical user interface and a
+	  very similar implementation.
+	  As noted in <a class='info' href='#sec.key-assoc'>Section&nbsp;3<span> (</span><span class='info'>Keys and Associations</span><span>)</span></a>, this still
+	  allows some measure of cut-and-paste attacks in between
+	  connections if they happen to have the same connection
+	  parameters (host/port quartet). 
+	
+</p>
+<p>
+	  </p>
+<blockquote class="text">
+<p>
+	      The trial verification technique involves trying to
+	      verify segments with both key/algorithm pairs. Once
+	      the newer key/algorithm pair verifies, that can be
+	      treated as the maximum sequence number at which the
+	      switchover occurred (it may have occurred earlier
+	      if packets were lost).
+	      Note that in principle with this technique
+	      you could even use the same TCP MD5 option
+	      code point and bits on the wire with a stronger
+	      MAC. Since TCP MD5 requires pairwise keys which 
+	      must be manually configured, all that would be 
+	      required would be to configure a pairwise algorithm.
+	      This is probably unwise because it reinterprets the
+	      meaning of the TCP MD5 option, but it shows how
+	      similar the two techniques are.
+	    
+</p>
+</blockquote><p>
+	
+</p>
+<a name="sec.implicit_diverse"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6.1.2"></a><h3>6.1.2.&nbsp;
+Implicit Diversification</h3>
+
+<p>A substantial amount of resistance to inter-connection
+	cut-and-paste attacks can be achieved by exploiting
+	connection information other than the host/port quartet.
+	For instance, one could start with a static key and use
+	the TCP ISNs to produce a unique per-connection key:
+	
+</p>
+<p>
+	  K_connection = HMAC(K_static, ISN_client || ISN_server)
+	
+</p>
+<p>
+	  If we treat ISNs as random variates (note: this does
+	  not require cryptographic randomness, just low probability
+	  of collisions) then there are 2^{64} equally probable
+	  ISN combinations between any pair of hosts, which implies
+	  2^{64} potential keys (even if we ignore the host/port
+	  quartet), so the chance of two connection keys colliding
+	  becomes acceptably low: on average there will be a
+	  collision after 2^{32} connections. If the host/port
+	  quartet is included, then collisions become even
+	  less probable.
+	
+</p>
+<p>
+	</p>
+<blockquote class="text">
+<p>Note: the ISNs are being used here serve the same
+	  role as nonces in standard cryptographic protocols
+	  (e.g., the ClientRandom and ServerRandom in TLS).
+	  Therefore, the security model explicitly assumes
+	  that they are public information. Thus, the
+	  sequence number predictability issues described
+	  on <a class='info' href='#RFC1948'>[RFC1948]<span> (</span><span class='info'>Bellovin, S., &ldquo;Defending Against Sequence Number Attacks,&rdquo; May&nbsp;1996.</span><span>)</span></a> do not impact the security of the
+	  system. Only nonce uniqueness is required.
+	  
+</p>
+</blockquote><p>
+	
+</p>
+<p>
+	  This scheme has very similar security properties to the
+	  scheme described in <a class='info' href='#sec.static'>Section&nbsp;6.1.1<span> (</span><span class='info'>Single Static Key</span><span>)</span></a>, including
+	  having a compatible key management interface. Unlike
+	  static keys, however, there is a significant amount of
+	  resistance to inter-connection cut-and-paste attacks because
+	  each connection with high probability uses a unique key.
+	
+</p>
+<p>
+	  As with any system that requires per-connection keys,
+	  this scheme would require some amount of per-connection
+	  state to store that key. This, and the hooks to feed
+	  the ISNs into the key computation, would presumably require
+	  some changes to implementations.
+	
+</p>
+<a name="anchor8"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6.2"></a><h3>6.2.&nbsp;
+Architectures with Handshakes</h3>
+
+<p>
+	We now consider architectures which involve explicit protocol
+	handshakes between the two endpoints. 
+	As noted in <a class='info' href='#sec.handshake'>Section&nbsp;5<span> (</span><span class='info'>Handshake and Capabilities Discovery</span><span>)</span></a>, this provides more
+	flexibility and upgradeability but at significantly
+	more protocol and implementation cost. In addition,
+	like all handshake methods, we would expect it to provide
+	unique per-connection keys. The difference between
+	these architectures is in how the key management 
+	protocol messages are carried.
+      
+</p>
+<a name="anchor9"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6.2.1"></a><h3>6.2.1.&nbsp;
+Internal Key Management Protocol</h3>
+
+<p>
+	  The traditional approach to this problem would be to 
+	  build a KMP into TCP. This would
+	  presumably entail designing a new crypto protocol 
+	  (no small job) which is then carried in a TCP option.
+	
+</p>
+<p>
+	  The primary advantage of this sort of design is that
+	  it allows for tight integration with TCP. In general,
+	  tighter protocol integration allows for the provision
+	  of security services which are better tuned to the
+	  target protocol (cf. SRTP versus RTP over TLS).
+	
+</p>
+<p>
+	  The primary disadvantage of this design is the large
+	  amount of effort involved, including:
+	
+</p>
+<p>
+	  </p>
+<blockquote class="text">
+<p>The cost of designing an entirely new protocol.
+</p>
+<p>The cost of integrating the crypto protocol into
+	    the TCP stack (which is more difficult than a normal
+	    crypto protocol because
+	    it is typically in the kernel.)
+</p>
+</blockquote><p>
+	
+</p>
+<p>
+	  In addition, this mechanism may be less flexible than other
+	  handshake-based systems. First, many handshakes involve
+	  multiple round-trips between the client and server.
+	  This is not a natural fit for the TCP handshake, which only
+	  involves three messages. Other messages can potentially
+	  be piggybacked on empty TCP segments (bare ACKs), but
+	  their delivery properties would need careful study.
+	  [Note: this also applies to the final handshake message,
+	  the ACK, so we may be reduced to a two message handshake.]
+	
+</p>
+<p>
+	  Second, if the implementation is in the kernel, then this
+	  reduces one's ability to deploy public key-based mechanisms
+	  in the future (one of the major value propositions of a
+	  handshake mechanism), because the public key operations
+	  are too slow to run in the kernel while stalling all
+	  other operations. This either requires a multithreaded
+	  kernel or a piecewise/asynchronous public
+	  key computation (something that takes careful programming
+	  and that current crypto
+	  implementations don't do).
+	
+</p>
+<a name="anchor10"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6.2.2"></a><h3>6.2.2.&nbsp;
+External KMP</h3>
+
+<p>
+	  The approach used by IPsec 
+	  is to split the system into two pieces:
+	
+</p>
+<p>
+	  </p>
+<blockquote class="text">
+<p>A KMP establishes cryptographic
+	    associations (e.g., IKE).
+</p>
+<p>A standalone cryptographic transport protocol which
+	    relies on the associations created by the KMP (e.g.,
+	    AH/ESP).
+</p>
+</blockquote><p>
+	
+</p>
+<p>
+	  This architecture has the advantage of decoupling (at least
+	  partly) the key management system from the protected
+	  transport protocol. At least in principle this allows
+	  the KMP to be developed independently
+	  of the transport protocol, encouraging modular design
+	  and (potentially) mix-and-match between key management
+	  protocols and transport protocols. The
+	  experience with IPsec suggests that both of these 
+	  benefits may exist more in principle than in practice.
+	  In particular, IKE has a fair amount of embedded knowledge
+	  about AH/ESP and as far as I know is not used to key
+	  any other transport protocol. That said, IKE is probably
+	  the only plausible candidate to be used in this fashion
+	  with TCP.
+	
+</p>
+<p>
+	  A second advantage is that because the KMP is
+	  In separate, it is not tied to the dataflow of the transport
+	  protocol. Thus, even though IP has no notion of reliable
+	  transport or even of associations, IKE is able to have reliable
+	  multi-message exchanges because it is transported separately.
+	  In the case of TCP, this would mean that it would be
+	  straightforward to have an arbitrary number of key
+	  management messages without having to worry about TCP
+	  handshake dynamics.
+	
+</p>
+<p>
+	  An additional advantage of having an external key management
+	  protocol is that it can be implemented separately from the
+	  transport protocol. For instance, conventional IPsec implementations
+	  have AH/ESP implemented in the kernel with IKE
+	  implemented in a userland daemon. This has obvious advantages
+	  in terms of the relative congeniality of the two environments,
+	  but also note that it allows the expensive PK operations to
+	  be done in the background without stalling the kernel.
+	
+</p>
+<p>
+	  The major disadvantage of this design is the extremely loose coupling
+	  between the KMP and the transport protocol. This
+	  manifests in at least three ways:
+	
+</p>
+<p>
+	  </p>
+<ul class="text">
+<li>The need for an association database to map keying material
+	    to the traffic it protects.
+</li>
+<li>The difficulty of configuring settings and giving
+	    applications information about association properties.
+</li>
+<li>The need for interfaces to allow the transport protocol to
+	    request key establishment from the KMP and
+	    (potentially) to stall the transport protocol while keys are established.
+</li>
+</ul><p>
+	
+</p>
+<p>
+	  The last of these is probably more serious for TCP than for
+	  IPsec because an IPsec SA can be configured to connect a large number
+	  of different transport-level associations. There may be a new key
+	  management protocol run for each TCP connection. This may make
+	  stalling the transport protocol impractical, but then this
+	  exacerbates the problem of application visibility--how does
+	  the application know if the security association was set up
+	  or what its properties are?
+	
+</p>
+<p>
+	  Another disadvantage is that if the transport of the key management
+	  protocol is decoupled from that of the transport protocol it is
+	  establishing keys for, then there may be ways for the key management
+	  protocol to fail (e.g., firewalls) but the transport protocol 
+	  succeeds.
+	
+</p>
+<a name="anchor11"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6.2.3"></a><h3>6.2.3.&nbsp;
+Layered KMP</h3>
+
+<p>
+	  Another way to provide a separate KMP is
+	  to bind it more tightly to the transport protocol by running it over
+	  (or next to, as in DTLS-SRTP <a class='info' href='#I-D.ietf-avt-dtls-srtp'>[I&#8209;D.ietf&#8209;avt&#8209;dtls&#8209;srtp]<span> (</span><span class='info'>McGrew, D. and E. Rescorla, &ldquo;Datagram Transport Layer Security (DTLS) Extension to Establish Keys for  Secure Real-time Transport Protocol (SRTP),&rdquo; February&nbsp;2008.</span><span>)</span></a>)
+	  the transport protocol. At the time that the association is
+	  created, the application initiating the association also
+	  initiates a KMP exchange over (next to) the transport
+	  protocol. When the KMP terminates, it outputs keying and
+	  parameter information and imposes them on the association.
+	  In the case of TLS over TCP, this would look something like:
+    	
+</p><div style='display: table; width: 0; margin-left: 3em; margin-right: auto'><pre>
+	    TCP Client                              TCP Server
+            ----------                              ----------
+            TCP SYN -------------------------------------&gt;
+               &lt;---------------------------------- TCP SYN/ACK
+            TCP ACK -------------------------------------&gt;
+               &lt;--------- TLS Handshake (over TCP) ------&gt;
+     Keys to TCP                                         Keys to TCP
+            App data (protected with TCP integrity) -----&gt;
+	    &lt;----- App data (protected with TCP integrity)
+</pre></div>
+<p>
+	  The primary advantage of this type of system is that
+	  it has a tight binding to both the transport and to the 
+	  application. Because the KMP has the same transport
+	  parameters as the application layer protocol which
+	  will run over the transport and conceptually as the 
+	  transport itself, they have a simple one-to-one relationship.
+	
+</p>
+<p>
+	  </p>
+<blockquote class="text">
+<p>The application can control the cryptographic parameters directly.
+</p>
+<p>The application gets visibility into what parameters were
+	    established.
+</p>
+<p>The KMP fate-shares with the transport and
+	    application layer protocols.
+</p>
+</blockquote><p>
+	
+</p>
+<p>
+	  This architecture has two major disadvantages. First,
+	  unlike all the other architectures discussed, 
+	  it requires the cooperation of the application layer 
+	  protocol and implementation. This is the price that
+	  you pay for the tight application coordination.
+	  Second, it creates a window of vulnerability during
+	  the period after the transport protocol connection
+	  has been established and before the KMP has run.
+	  This is not an issue for injection attacks, provided
+	  that the application layer protocol state machine keeps 
+	  track of which state it is in and reuses to accept
+	  un-integrity protected data (a standard issue in any
+	  application layer protocol when used with a channel
+	  security mechanism.) However, DoS attacks on the connection
+	  are possible during this initial period, which provides
+	  a window for attack which does not exist with these
+	  other modes.
+	
+</p>
+<a name="anchor12"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.6.2.3.1"></a><h3>6.2.3.1.&nbsp;
+TLS as a Layered KMP</h3>
+
+<p>
+	    In the specific case of TLS, another advantage is
+	    that this can be treated by the
+	    application as if it were doing TLS over TCP. The
+	    application can simply do TLS as it normally would
+	    provided that the API stack provides a mechanism
+	    for indicating that it wishes to also negotiate
+	    keys for TCP authentication. Two models are actually
+	    possible here:
+	  
+</p>
+<p>
+	    In the first, TLS is used purely
+	    as a KMP and then it gets out of the way and data
+	    is sent "in the clear" over TCP with an integrity
+	    check. This has the advantage of efficiency, at
+	    a slight cost to the cleanness of the TLS model.
+	  
+</p>
+<p>
+	    In the second, the data is protected with TLS before
+	    being passed to TCP, where it is integrity checked
+	    again. This is less efficient (because two MACs are
+	    performed) but slightly more
+	    compatible with a "just use TLS" model. It also 
+	    provides an opportunity for confidentiality if an 
+	    appropriate cipher suite is used.
+	  
+</p>
+<a name="anchor13"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.7"></a><h3>7.&nbsp;
+Security Considerations</h3>
+
+<p>This entire document is about security.
+</p>
+<a name="anchor14"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.8"></a><h3>8.&nbsp;
+IANA Considerations</h3>
+
+<p>This document has no IANA considerations.
+</p>
+<a name="rfc.references1"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<h3>9.&nbsp;Informative References</h3>
+<table width="99%" border="0">
+<tr><td class="author-text" valign="top"><a name="RFC2119">[RFC2119]</a></td>
+<td class="author-text"><a href="mailto:sob@harvard.edu">Bradner, S.</a>, &ldquo;<a href="http://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>,&rdquo; BCP&nbsp;14, RFC&nbsp;2119, March&nbsp;1997 (<a href="ftp://ftp.isi.edu/in-notes/rfc2119.txt">TXT</a>, <a href="http://xml.resource.org/public/rfc/html/rfc2119.html">HTML</a>, <a href="http://xml.resource.org/public/rfc/xml/rfc2119.xml">XML</a>).</td></tr>
+<tr><td class="author-text" valign="top"><a name="RFC2385">[RFC2385]</a></td>
+<td class="author-text"><a href="mailto:ahh@cisco.com">Heffernan, A.</a>, &ldquo;<a href="http://tools.ietf.org/html/rfc2385">Protection of BGP Sessions via the TCP MD5 Signature Option</a>,&rdquo; RFC&nbsp;2385, August&nbsp;1998 (<a href="ftp://ftp.isi.edu/in-notes/rfc2385.txt">TXT</a>, <a href="http://xml.resource.org/public/rfc/html/rfc2385.html">HTML</a>, <a href="http://xml.resource.org/public/rfc/xml/rfc2385.xml">XML</a>).</td></tr>
+<tr><td class="author-text" valign="top"><a name="RFC1948">[RFC1948]</a></td>
+<td class="author-text"><a href="mailto:smb@research.att.com">Bellovin, S.</a>, &ldquo;<a href="http://tools.ietf.org/html/rfc1948">Defending Against Sequence Number Attacks</a>,&rdquo; RFC&nbsp;1948, May&nbsp;1996 (<a href="ftp://ftp.isi.edu/in-notes/rfc1948.txt">TXT</a>).</td></tr>
+<tr><td class="author-text" valign="top"><a name="RFC4808">[RFC4808]</a></td>
+<td class="author-text">Bellovin, S., &ldquo;<a href="http://tools.ietf.org/html/rfc4808">Key Change Strategies for TCP-MD5</a>,&rdquo; RFC&nbsp;4808, March&nbsp;2007 (<a href="ftp://ftp.isi.edu/in-notes/rfc4808.txt">TXT</a>).</td></tr>
+<tr><td class="author-text" valign="top"><a name="RFC4346">[RFC4346]</a></td>
+<td class="author-text">Dierks, T. and E. Rescorla, &ldquo;<a href="http://tools.ietf.org/html/rfc4346">The Transport Layer Security (TLS) Protocol Version 1.1</a>,&rdquo; RFC&nbsp;4346, April&nbsp;2006 (<a href="ftp://ftp.isi.edu/in-notes/rfc4346.txt">TXT</a>).</td></tr>
+<tr><td class="author-text" valign="top"><a name="RFC4301">[RFC4301]</a></td>
+<td class="author-text">Kent, S. and K. Seo, &ldquo;<a href="http://tools.ietf.org/html/rfc4301">Security Architecture for the Internet Protocol</a>,&rdquo; RFC&nbsp;4301, December&nbsp;2005 (<a href="ftp://ftp.isi.edu/in-notes/rfc4301.txt">TXT</a>).</td></tr>
+<tr><td class="author-text" valign="top"><a name="RFC4306">[RFC4306]</a></td>
+<td class="author-text">Kaufman, C., &ldquo;<a href="http://tools.ietf.org/html/rfc4306">Internet Key Exchange (IKEv2) Protocol</a>,&rdquo; RFC&nbsp;4306, December&nbsp;2005 (<a href="ftp://ftp.isi.edu/in-notes/rfc4306.txt">TXT</a>).</td></tr>
+<tr><td class="author-text" valign="top"><a name="I-D.ietf-tcpm-tcp-auth-opt">[I-D.ietf-tcpm-tcp-auth-opt]</a></td>
+<td class="author-text">Touch, J., Mankin, A., and R. Bonica, &ldquo;<a href="http://www.ietf.org/internet-drafts/draft-ietf-tcpm-tcp-auth-opt-00.txt">The TCP Authentication Option</a>,&rdquo; draft-ietf-tcpm-tcp-auth-opt-00 (work in progress), November&nbsp;2007 (<a href="http://www.ietf.org/internet-drafts/draft-ietf-tcpm-tcp-auth-opt-00.txt">TXT</a>).</td></tr>
+<tr><td class="author-text" valign="top"><a name="I-D.ietf-avt-dtls-srtp">[I-D.ietf-avt-dtls-srtp]</a></td>
+<td class="author-text">McGrew, D. and E. Rescorla, &ldquo;<a href="http://www.ietf.org/internet-drafts/draft-ietf-avt-dtls-srtp-02.txt">Datagram Transport Layer Security (DTLS) Extension to Establish Keys for  Secure Real-time Transport Protocol (SRTP)</a>,&rdquo; draft-ietf-avt-dtls-srtp-02 (work in progress), February&nbsp;2008 (<a href="http://www.ietf.org/internet-drafts/draft-ietf-avt-dtls-srtp-02.txt">TXT</a>).</td></tr>
+<tr><td class="author-text" valign="top"><a name="I-D.bellovin-tcpsec">[I-D.bellovin-tcpsec]</a></td>
+<td class="author-text">Edddy, W., Bellovin, S., and R. Bonica, &ldquo;Problem Statement and Requirements for a TCP Authentication Option,&rdquo; &nbsp;draft-bellovin-tcpsec-01.</td></tr>
+<tr><td class="author-text" valign="top"><a name="WH05">[WH05]</a></td>
+<td class="author-text">Wang, X. and H. Yu, &ldquo;How to Break MD5 and Other Hash Functions,&rdquo; &nbsp;EUROCRYPT 2005.</td></tr>
+</table>
+
+<a name="rfc.authors"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<h3>Author's Address</h3>
+<table width="99%" border="0" cellpadding="0" cellspacing="0">
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Eric Rescorla</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">RTFM, Inc.</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">2064 Edgewood Drive</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Palo Alto, CA  94303</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">USA</td></tr>
+<tr><td class="author" align="right">Email:&nbsp;</td>
+<td class="author-text"><a href="mailto:ekr@rtfm.com">ekr@rtfm.com</a></td></tr>
+</table>
+<a name="rfc.copyright"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="TOCbug" align="right"><tr><td class="TOCbug"><a href="#toc">&nbsp;TOC&nbsp;</a></td></tr></table>
+<h3>Full Copyright Statement</h3>
+<p class='copyright'>
+Copyright &copy; The IETF Trust (2008).</p>
+<p class='copyright'>
+This document is subject to the rights,
+licenses and restrictions contained in BCP&nbsp;78,
+and except as set forth therein,
+the authors retain all their rights.</p>
+<p class='copyright'>
+This document and the information contained herein are provided
+on an &ldquo;AS IS&rdquo; basis and THE CONTRIBUTOR,
+THE ORGANIZATION HE/SHE REPRESENTS
+OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST
+AND THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT
+THE USE OF THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR
+PURPOSE.</p>
+<h3>Intellectual Property</h3>
+<p class='copyright'>
+The IETF takes no position regarding the validity or scope of any
+Intellectual Property Rights or other rights that might be claimed
+to pertain to the implementation or use of the technology
+described in this document or the extent to which any license
+under such rights might or might not be available; nor does it
+represent that it has made any independent effort to identify any
+such rights.
+Information on the procedures with respect to
+rights in RFC documents can be found in BCP&nbsp;78 and BCP&nbsp;79.</p>
+<p class='copyright'>
+Copies of IPR disclosures made to the IETF Secretariat and any
+assurances of licenses to be made available,
+or the result of an attempt made to obtain a general license or
+permission for the use of such proprietary rights by implementers or
+users of this specification can be obtained from the IETF on-line IPR
+repository at <a href='http://www.ietf.org/ipr'>http://www.ietf.org/ipr</a>.</p>
+<p class='copyright'>
+The IETF invites any interested party to bring to its attention
+any copyrights,
+patents or patent applications,
+or other
+proprietary rights that may cover technology that may be required
+to implement this standard.
+Please address the information to the IETF at <a href='mailto:ietf-ipr@ietf.org'>ietf-ipr@ietf.org</a>.</p>
+</body></html>
