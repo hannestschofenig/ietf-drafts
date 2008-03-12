@@ -1,0 +1,323 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 71} 
+\fancyfoot[C]{\tiny KMART BOF}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}Key management? Wait, what?}\\
+
+\large{{IETF 71}} \\
+\end{center}
+\end{slide}
+
+% don't center vertically
+\centerslidesfalse 
+
+
+\begin{slide}
+\heading{Current State of Routing Protocol Security\symbolfootnote[1]{We're just tallking about securing adjacencies here}}
+
+\begin{itemize}
+\item Routing protocols use manual key management
+\begin{itemize}
+\item Shared keys are configured at the router interface
+\item Traffic is protected with ad-hoc MACs based on those keys
+\end{itemize}
+\item Why is this bad?
+\begin{itemize}
+\item Replay and cut-and-paste attacks (see David Ward's presentation)
+\item The MACs are generally pretty weak---and hard to upgrade
+\end{itemize}
+\end{itemize}
+\vspace{.5 in}
+\end{slide}
+
+
+\begin{slide}
+\heading{What's a replay attack?}
+
+\vspace{-.25 in}
+
+\begin{itemize}
+\item Alice and Bob share a key ($K_{ab}$)
+\begin{itemize}
+\item But never change it
+\end{itemize}
+\end{itemize}
+
+\xymatrix@R=.4in@C=1.5in{
+Alice & Attacker & Bob\\
+\ar[rr]^{Message, MAC(K_{ab},Message)} & & \\
+& \ar[r]^{Message, MAC(K_{ab},Message)} & \\
+}
+
+\begin{itemize}
+\item Requires an on-path attacker
+\item Works whenever association parameters are repeated
+\begin{itemize}
+\item Keys
+\item Other message meta-data protected by the MAC (e.g., host/port)
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Defenses against replay attack}
+
+\vspace{-.25 in}
+
+\begin{itemize}
+\item Fresh association parameters
+\begin{itemize}
+\item Implicit
+\begin{itemize}
+\item Example: TCP
+\begin{itemize}
+\item Each connection has its own host/port quartet
+\item If in the MAC then you can't replay between connections
+\item ... unless you get a host/port collision
+\end{itemize}
+\end{itemize}
+\item Explicit
+\begin{itemize}
+\item Establish a fresh connection identifier
+\begin{itemize}
+\item Force it to be unique
+\end{itemize}
+\end{itemize}
+\begin{itemize}
+\item Fresh keys for the association
+\end{itemize}
+\item Using a key management protocol
+\item This is the standard COMSEC solution
+\begin{itemize}
+\item Provides generic security without trusting the main protocol
+\end{itemize}
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{What's a key management protocol?}
+
+\begin{itemize}
+\item We have a number of elements $\mathbf{E} = E_1, E_2, ...$ that want to communicate
+\begin{itemize}
+\item They have some long term credentials
+\begin{itemize}
+\item Shared symmetric key/password
+\item Asymmetric key pairs
+\item Keys + certificates
+\end{itemize}
+\item Generally can't use these keys directly for communication
+\end{itemize}
+\item A key management protocol establishes shared cryptographic state
+\begin{itemize}
+\item Traffic protection keys
+\item Algorithms and other parameters
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Why use a KMP?}
+
+\vspace{-.35 in}
+\begin{itemize}
+\item Security
+\begin{itemize}
+\item Establish fresh keys
+\begin{itemize}
+\item Prevents replay and cut-and-paste attacks
+\item Good ``cryptographic hygiene''
+\end{itemize}
+\item Explicit liveness and peer authentication
+\end{itemize}
+\item Performance
+\begin{itemize}
+\item Public key cryptography is very slow
+\item Faster to establish symmetric keys and then use them
+\end{itemize}
+\item Capability discovery
+\begin{itemize}
+\item Get peer's certificate
+\begin{itemize}
+\item Not an issue in systems with manual configuration
+\end{itemize}
+\item Discover/negotiate algorithms
+\item Allows uncoordinated capability upgrade
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Deployment Scenarios}
+
+\vspace{-.25 in} 
+
+\begin{itemize}
+\item Unicast
+\begin{itemize}
+\item This is a technically well understood problem (TLS, IPsec, ...)
+\begin{itemize}
+\item Issue is mapping it onto actual protocols with minimal disruption
+\end{itemize}
+\item BGP, LDP
+\begin{itemize}
+\item Run over TCP
+\item Not the topic of this meeting (TCP-AO, etc.)
+\end{itemize}
+\item IS-IS, OSPF, RIP
+\end{itemize}
+\item Multicast/broadcast
+\begin{itemize}
+\item Less technically well understood
+\begin{itemize}
+\item Some experience in MSEC WG (GDOI, GSAKMP)
+\end{itemize}
+\item IS-IS, OSPF, RIP only
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{A trivial unicast key management protocol}
+
+
+\vspace{-.25 in}
+
+\begin{itemize}
+\item Assume Alice, Bob share a key: $K_{ab}$
+\end{itemize}
+
+\xymatrix@R=.4in@C=3in{
+Alice & Bob \\
+\ar[r]_{Algorithms=HMAC-SHA1, HMAC-SHA256}^{Name=Alice, Random} & \\ 
+& \ar[l]_{Name=Bob, Random}^{Algorithm=HMAC-SHA1} \\
+}
+
+\begin{itemize}
+\item Two new keys:
+\item[] $K_{a \rightarrow b} = HMAC(K_{ab}, Random_{Alice} || Random_{Bob})$
+\item[] $K_{b \rightarrow a} = HMAC(K_{ba}, Random_{Bob} || Random_{Alice})$
+\end{itemize}
+\vspace{.05 in}
+Similar protocols can be used with asymmetric keys
+\end{slide}
+
+
+\begin{slide}
+\heading{Key Management for Multicast Groups}
+
+\begin{itemize}
+\item We have a set of elements $\mathbf{E} = E_1, E_2, ...$ 
+\begin{itemize}
+\item They have some long term credentials
+\item We want them to share a single symmetric key, parameters, etc.
+\end{itemize}
+\item Classic solution: Have a master element (group controller)
+\begin{itemize}
+\item Generates group key
+\item Forms unicast associations with each element
+\item Pushes group key to each group member
+\begin{itemize}
+\item Send $E(K_{E_i}, K_{group})$ to node $E_i$
+\end{itemize}
+\end{itemize} 
+\item Examples: GDOI, GSAKMP
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Key Management with a Group Master}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=2 in]{multicast1}
+\end{center}
+\end{figure}
+\end{slide}
+
+
+\begin{slide}
+\heading{Problems with Group Key Management}
+
+\begin{itemize}
+\item The current schemes need a master/group controller
+\begin{itemize}
+\item Who runs this?
+\item Why do you trust them?
+\end{itemize}
+\item 
+\end{itemize}
+
+\end{slide}
+
+
+\end{document}

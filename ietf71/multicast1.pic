@@ -1,0 +1,9 @@
+.PS
+MASTER: circle "Master"
+E1: circle "$E sub 1$" with .ne at MASTER.sw + (-1.5,-1.5)
+E2: circle "$E sub 2$" with .n at MASTER.s + (0,-1.5)
+E3: circle "$E sub 3$" with .nw at MASTER.se + (1.5,-1.5)
+arrow <- "$E(E sub 1, K sub session)$" "" aligned from E1.ne to MASTER.s
+arrow <- "$E(E sub 2, K sub session)$" from E2.n to MASTER.s
+arrow -> "$E(E sub 2, K sub session)$" "" aligned from MASTER.s to E3.nw
+.PE
