@@ -1,0 +1,36 @@
+$Id$
+
+TLS met Monday at 1520-1420 for an hour.
+
+Don Eastlake presented RFC 4366-bis, which is the separate draft
+for TLS extensions. This is mostly editorial but there are two
+technical issues about certificate URL hashing. The general
+consensus was (1) to mandate the hash and (2) deal with 
+hash agility by defining a new code point if we need to.
+
+Pasi Eronen presented the DES/IDEA cipher suite document, which
+breaks those cipher suites out of the main TLS draft. There
+was discussion about what kind of disclaimer to use and general
+consensus that in future we need to put clear applicability
+statements on cipher suites.
+
+Pascal Urien presented ECDHE_PSK, a new WG item. This hasn't had 
+enough review to advance yet. We commissioned two reviews.
+
+Eric Rescorla presented plans for DTLS 1.1. The intention
+is simply to rev the version to align with TLS 1.2 and fix
+ambiguities in the original spec. There was substantial
+support for adopting this as a WG item--needs to be
+confirmed on list.
+
+Kato Akihiro presented Camellia cipher suites with SHA-256.
+Camellia is already in TLS, but with SHA-1. 
+
+
+
+
+
+
+
+
+

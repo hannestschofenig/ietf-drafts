@@ -79,7 +79,7 @@
 
 
 \begin{slide}
-\heading{Current State of Routing Protocol Security\symbolfootnote[1]{We're just talking about securing adjacencies here}}
+\heading{Current State of Routing Protocol Security\symbolfootnote[2]{We're just talking about securing adjacencies here}}
 
 \vspace{-.25 in}
 
@@ -280,7 +280,7 @@ Alice & Bob \\
 \begin{itemize}
 \item Two new keys:
 \item[] $K_{a \rightarrow b} = HMAC(K_{ab}, Random_{Alice} || Random_{Bob})$
-\item[] $K_{b \rightarrow a} = HMAC(K_{ba}, Random_{Bob} || Random_{Alice})$
+\item[] $K_{b \rightarrow a} = HMAC(K_{ab}, Random_{Bob} || Random_{Alice})$
 \end{itemize}
 \vspace{.05 in}
 Similar protocols can be used with asymmetric keys
