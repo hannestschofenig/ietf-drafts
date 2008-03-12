@@ -1,1 +1,0 @@
-PICS=multicast1.eps

@@ -61,9 +61,16 @@
 \begin{slide}
 \begin{center}
 \vspace{1 in}
-\LARGE{{\bf}Key management? Wait, what?}\\
+\LARGE{{\bf}Key management... Dude, wait, what?}\\
 
+\vspace{.5 in}
+
+\large{Eric Rescorla} \\
+\large{RTFM, Inc.} \\
+\large{ekr@rtfm.com} \\
+\vspace{.25 in} 
 \large{{IETF 71}} \\
+
 \end{center}
 \end{slide}
 
@@ -72,12 +79,21 @@
 
 
 \begin{slide}
-\heading{Current State of Routing Protocol Security\symbolfootnote[1]{We're just tallking about securing adjacencies here}}
+\heading{Current State of Routing Protocol Security\symbolfootnote[1]{We're just talking about securing adjacencies here}}
+
+\vspace{-.25 in}
 
 \begin{itemize}
+\item Focus is on integrity and data origin authentication
+\begin{itemize}
+\item This data is not confidential
+\end{itemize}
 \item Routing protocols use manual key management
 \begin{itemize}
 \item Shared keys are configured at the router interface
+\begin{itemize}
+\item This usage model is critical to preserve
+\end{itemize}
 \item Traffic is protected with ad-hoc MACs based on those keys
 \end{itemize}
 \item Why is this bad?
@@ -143,9 +159,9 @@ Alice & Attacker & Bob\\
 \item Force it to be unique
 \end{itemize}
 \end{itemize}
-\begin{itemize}
-\item Fresh keys for the association
 \end{itemize}
+\item Fresh keys for the association
+\begin{itemize}
 \item Using a key management protocol
 \item This is the standard COMSEC solution
 \begin{itemize}
@@ -153,7 +169,6 @@ Alice & Attacker & Bob\\
 \end{itemize}
 \end{itemize}
 \end{itemize}
-
 \end{slide}
 
 
@@ -297,11 +312,23 @@ Similar protocols can be used with asymmetric keys
 \begin{slide}
 \heading{Key Management with a Group Master}
 
-\begin{figure}
-\begin{center}
-\includegraphics[width=2 in]{multicast1}
-\end{center}
-\end{figure}
+\xymatrix@R=1.5in@C=1.5in{
+& Master \ar[dl]_{E(K_{E_1}, K_{group})} \ar[d]_{E(K_{E_2}, K_{group})} \ar[dr]^{E(K_{E_3}, K_{group})}\\
+E_1  & E_2 & E_3 \\
+}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Integrity with a Group Key}
+
+\xymatrix@R=1.5in@C=1.5in{
+E_1 \ar[r]^{M_1, MAC(K_{group}, M_1)} \ar[d]_{M_1, MAC(K_{group}, M_1)} 
+\ar[rd]^{M_1, MAC(K_{group}, M_1)}  & E_2 \\
+E_3 & E_4 \\
+}
+
 \end{slide}
 
 
@@ -314,7 +341,108 @@ Similar protocols can be used with asymmetric keys
 \item Who runs this?
 \item Why do you trust them?
 \end{itemize}
-\item 
+\item Impersonation of other group members
+\begin{itemize}
+\item All group members have the same MAC key
+\begin{itemize}
+\item Used for both MAC generation and MAC verification
+\end{itemize}
+\item Any group member can impersonate any other group member
+\end{itemize}
+\item When is this a problem?
+\begin{itemize}
+\item When group members are mutually suspicious
+\item Is this true for these protocols?
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Operating without a dedicated master}
+
+\begin{itemize}
+\item Option 1: joint key establishment
+\begin{itemize}
+\item Everyone works together to establish a group key
+\item e.g., group Diffie-Hellman
+\item What happens when a new member joins/leaves?
+\begin{itemize}
+\item Generate a new key
+\item Or have some node act as master for it
+\end{itemize}
+\end{itemize}
+\item Option 2: elect a master
+\begin{itemize}
+\item What happens if that master leaves?
+\item New election...
+\end{itemize}
+\item Either of these would require significant new protocol work
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Dealing with impersonation}
+
+\vspace{-.25 in}
+
+\begin{itemize}
+\item Basic problem is use of one symmetric key
+\begin{itemize}
+\item Used for both MAC generation and verification
+\item Need to separate these functions
+\end{itemize}
+\item Option 1: Public key cryptography
+\begin{itemize}
+\item Every message is signed
+\item Need to somehow establish all the key pairs
+\begin{itemize}
+\item PKI? Pairwise agreements? Bootstrap CA protocol?
+\end{itemize}
+\end{itemize}
+\item Option 2: TESLA
+\begin{itemize}
+\item Needs a master
+\begin{itemize}
+\item Which you need to trust
+\end{itemize}
+\item We have no operational experience with TESLA
+\begin{itemize}
+\item The timing is known to be tricky
+\end{itemize}
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{What problem were we trying to solve again?}
+
+\vspace{-.2 in}
+\begin{itemize}
+\item Hey this all looks pretty expensive
+\vspace{.05 in}
+\item Replay attack
+\begin{itemize}
+\item This can be fixed by hacking the non-security part
+\item Add unique per-association identifiers inside the MAC
+\end{itemize}
+\item Key agility
+\begin{itemize}
+\item This can be fixed (clumsily) by adding a key identifier
+\end{itemize}
+\item Stronger algorithms and algorithm agility
+\begin{itemize}
+\item This can be fixed (clumsily) by tying algorithms to keys 
+\end{itemize}
+\item Impersonation of other group members
+\begin{itemize}
+\item This looks pretty hard to fix
+\item How bad is it?
+\end{itemize}
 \end{itemize}
 
 \end{slide}
