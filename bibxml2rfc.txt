@@ -4,7 +4,7 @@ NAME
      bibxml2rfc -- build a bibliography for an xml2rfc file
 
 SYNOPSIS
-     bibxml2rfc [-ci] file
+     bibxml2rfc [-vi] file
 
 DESCRIPTION
      bibxml2rfc is a bibliography helper program for xml2rfc files.
@@ -39,6 +39,10 @@ DESCRIPTION
      to mark a reference normative, so if multiple <xref> elements
      are present, only one need be so marked.
 
+     
+     ARGUMENTS
+     -v -- verbose mode
+     -i -- synthetic entry mode
 
      AUTOMATIC INCORPORATION
      In order to take full advantage of bibxml2rfc, it is best
@@ -82,8 +86,8 @@ DESCRIPTION
      If you haven't copied the references database into references/
      (or if you don't have a recent copy) you may find while working
      offline that an entry is not found and you will not be able
-     to run xml2rfc. bibxml2rfc can automatically create synthetic
-     entries to compensate for this issue. If you provide the 
+     to run xml2rfc. bibxml2rfc can automatically create lame-looking
+     synthetic entries to compensate for this issue. If you provide the 
      '-i' flag, bibxml2rfc will make synthetic biblio entries for
      any reference starting with "I-D" or "RFC". Note that these
      synthetic entries do not get cached, so if you rerun bibxml2rfc,
