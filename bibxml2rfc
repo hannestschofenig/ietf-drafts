@@ -128,6 +128,10 @@ reference_body={};
 # Find all the references
 for xref in xrefs:
     target = xref.getAttribute("target")
+    if target.find("/") != -1:
+        warning("Illegal character '/' in target '"+target+"'")
+        continue
+    
     norm = xref.getAttribute("norm").lower()
 
     # Figure out what kind of reference it is
@@ -164,8 +168,5 @@ for key in reference_out.keys():
     
     
     
-    
-        
-
     
     
