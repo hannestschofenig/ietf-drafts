@@ -1,0 +1,119 @@
+BIBXML2RFC(1)
+
+NAME
+     bibxml2rfc -- build a bibliography for an xml2rfc file
+
+SYNOPSIS
+     bibxml2rfc [-ci] file
+
+DESCRIPTION
+     bibxml2rfc is a bibliography helper program for xml2rfc files.
+     One of the motivations for bibxml2rfc is that it's hard
+     to work with xml2rfc in offline settings. Either you need
+     to download the entire database or manually enter each
+     database entry. In either case, you need to significantly
+     edit your XML file to add a new reference. bibxml2rfc
+     is intended to mitigate these issues.
+     
+     When handed an XML file, bibxml2rfc tries to identify the
+     references and construct an appropriate bibliography. The
+     general procedure is as follows:
+     
+     - Find all <xref> elements in the XML file (<file>)
+     - Extract the "target" attributes.
+     - Look in the local bibliography cache (references/) for files
+       named <target>.xml.
+     - If no cached entry is found or the the target appears to be
+       an I-D (starts with "I-D."), then try to fetch an entry out
+       of the appropriate repository on xml.resource.org.
+     - Build two files:
+       + <file>-normative containing reference entries for the
+         normative references
+       + <file>-informative containing reference entries for the
+         informative references
+     
+     bibxml2rfc determines whether a reference is normative or
+     informative by looking at the 'norm' attribute in the <xref>
+     element. If it is 'true', then the reference is normative.
+     Note that a single instance of 'norm="true"' is sufficient
+     to mark a reference normative, so if multiple <xref> elements
+     are present, only one need be so marked.
+
+
+     AUTOMATIC INCORPORATION
+     In order to take full advantage of bibxml2rfc, it is best
+     to modify your XML file to incorporate the files it generates
+     automatically. In the prologue add:
+     
+          <!ENTITY informative SYSTEM "x.xml-informative">
+          <!ENTITY normative SYSTEM "x.xml-normative">
+     
+     And then in the Normative and Informative references sections,
+     reference these entities, like so:
+     
+         <references title="Normative References">
+           &normative;
+         </references>;
+     
+         <references title="Informative References">
+           &informative;
+         </references>
+     
+     Once you have done this, you can leave your XML file alone and
+     rely solely on bibxml2rfc.
+
+
+     ADDING NEW ENTRIES
+     bibxml2rfc will automatically retrieve anything that appears
+     to be a reference to an RFC or I-D. This is done by looking for
+     references with targets starting with "RFC" or "I-D". However,
+     if you want to reference non-RFCs, you need only place an
+     appropriate file in the references/ directory. E.g., to create
+     a reference with anchor "ER08", just create a file named
+     "references/ER08.xml" with an appropriate <reference> element
+     in it.
+     
+     In addition, you can simply copy the XML references database
+     into references/ and bibxml2rfc will automatically pick
+     it up.
+
+
+     SYNTHETIC ENTRIES
+     If you haven't copied the references database into references/
+     (or if you don't have a recent copy) you may find while working
+     offline that an entry is not found and you will not be able
+     to run xml2rfc. bibxml2rfc can automatically create synthetic
+     entries to compensate for this issue. If you provide the 
+     '-i' flag, bibxml2rfc will make synthetic biblio entries for
+     any reference starting with "I-D" or "RFC". Note that these
+     synthetic entries do not get cached, so if you rerun bibxml2rfc,
+     they don't interfere with its operation.
+
+     Note that we don't try to create synthetic entries for any
+     other missing references. There are two primary reasons:
+
+     - bibxml2rfc doesn't know how to fetch them anyway, so we
+       assume you'll fill them in for yourself.  
+     - xml2rfc doesn't distinguish between citations and crossreferences
+       the way LaTeX does, so we don't want to create synthetic
+       references for crossreferences
+
+BUGS
+     bibxml2rfc is pretty stupid about any reference that doesn't
+     have a name that fits the expected format. Luckily, this is
+     the format used by the online repository.
+
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
