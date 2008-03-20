@@ -1,0 +1,28 @@
+BIBXML2RFC-MERGE(1)
+
+NAME
+     bibxml2rfc-merge -- merge a bibliography made with bibxml2rfc
+     		         into the main XML file for submission
+
+SYNOPSIS
+     bibxmlrfc-merge infile [outfile]
+
+DESCRIPTION
+     XML files with bibliographies prepared with bibxml2rfc
+     refer to supplemental bibliography files created in
+     the same directory and therefore cannot be submitted
+     directly in compilable form. bibxml2rfc-merge merges
+     the files into a single file for submission.
+
+     If only one filename is provided, the file is merged
+     in place with the original file renamed <file>.orig.
+     If two filenames are provided, the merged file is
+     placed in the second filename.
+
+SEE ALSO
+     bibxml2rfc(1)
+
+
+BUGS
+     bibxml2rfc-merge will not work unless you use the exact entity
+     names specified in the bibxml2rfc(1) documentation.
