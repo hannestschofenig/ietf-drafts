@@ -4,7 +4,7 @@ NAME
      bibxml2rfc -- build a bibliography for an xml2rfc file
 
 SYNOPSIS
-     bibxml2rfc [-vi] file
+     bibxml2rfc [-inv] file
 
 DESCRIPTION
      bibxml2rfc is a bibliography helper program for xml2rfc files.
@@ -41,9 +41,10 @@ DESCRIPTION
 
      
      ARGUMENTS
-     -v -- verbose mode
      -i -- synthetic entry mode
-
+     -n -- don't try to refresh IDs from the network
+     -v -- verbose mode
+     
      AUTOMATIC INCORPORATION
      In order to take full advantage of bibxml2rfc, it is best
      to modify your XML file to incorporate the files it generates
