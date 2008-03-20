@@ -5225,6 +5225,9 @@ Changes in This Version
 
    Added support for SHA-224 for signatures (though not for HMAC).
 
+   Consistent use of camelback style for references to messages (e.g.,
+   ServerHelloDone) in the text.
+
    Changed "DSS" to "DSA" where we are referring to the algorithm.
 
    Extensive editorial revisions from Alfred Hoenes.
@@ -5257,15 +5260,15 @@ Normative References
 
    [PKIX]   Housley, R., Ford, W., Polk, W. and D. Solo, "Internet X.509
             Public Key Infrastructure Certificate and Certificate
-            Revocation List (CRL) Profile", RFC 3280, April 2002.
-
-
 
 
 
 Dierks & Rescorla            Standards Track                   [Page 94]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
+
+
+            Revocation List (CRL) Profile", RFC 3280, April 2002.
 
 
    [SCH]    B. Schneier. "Applied Cryptography: Protocols, Algorithms,
@@ -5313,9 +5316,6 @@ Informative References
             "Password Interception in a SSL/TLS Channel", Advances in
             Cryptology -- CRYPTO 2003, LNCS vol. 2729, 2003.
 
-   [CCM]    "NIST Special Publication 800-38C: The CCM Mode for
-            Authentication and Confidentiality",
-            http://csrc.nist.gov/publications/nistpubs/800-38C/
 
 
 
@@ -5324,6 +5324,9 @@ Dierks & Rescorla            Standards Track                   [Page 95]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+   [CCM]    "NIST Special Publication 800-38C: The CCM Mode for
+            Authentication and Confidentiality",
+            http://csrc.nist.gov/publications/nistpubs/800-38C/
             SP800-38C.pdf
 
    [DES]    National Institute of Standards and Technology, "Data
@@ -5369,9 +5372,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
             Diffie-Hellman groups for Internet Key Exchange (IKE)", RFC
             3526, May 2003.
 
-   [PKCS6]  RSA Laboratories, "PKCS #6: RSA Extended Certificate Syntax
-            Standard", version 1.5, November 1993.
-
 
 
 
@@ -5379,6 +5379,9 @@ Dierks & Rescorla            Standards Track                   [Page 96]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
+
+   [PKCS6]  RSA Laboratories, "PKCS #6: RSA Extended Certificate Syntax
+            Standard", version 1.5, November 1993.
 
    [PKCS7]  RSA Laboratories, "PKCS #7: RSA Cryptographic Message Syntax
             Standard", version 1.5, November 1993.
@@ -5425,9 +5428,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
             Suites for Transport Layer Security (TLS)", RFC 4492, May
             2006.
 
-   [TLSEXT] Eastlake, D.E.,  "Transport Layer Security (TLS) Extensions:
-            Extension Definitions", January 2008, draft-ietf-tls-
-            rfc4366-bis-01.txt.
 
 
 
@@ -5435,6 +5435,10 @@ Dierks & Rescorla            Standards Track                   [Page 97]
 
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
+
+   [TLSEXT] Eastlake, D.E.,  "Transport Layer Security (TLS) Extensions:
+            Extension Definitions", January 2008, draft-ietf-tls-
+            rfc4366-bis-01.txt.
 
    [TLSPGP] Mavrogiannopoulos, N., "Using OpenPGP keys for TLS
             authentication", RFC 5081, November 2007.
@@ -5480,10 +5484,6 @@ Credits
 
    Martin Abadi
    University of California, Santa Cruz
-   abadi@cs.ucsc.edu
-
-   Steven M. Bellovin
-   Columbia University
 
 
 
@@ -5492,6 +5492,10 @@ Dierks & Rescorla            Standards Track                   [Page 98]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+   abadi@cs.ucsc.edu
+
+   Steven M. Bellovin
+   Columbia University
    smb@cs.columbia.edu
 
    Simon Blake-Wilson
@@ -5536,10 +5540,6 @@ draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
    hugo@ee.technion.ac.il
 
    Jan Mikkelsen
-   Transactionware
-   EMail: janm@transactionware.com
-
-   Magnus Nystrom
 
 
 
@@ -5548,6 +5548,10 @@ Dierks & Rescorla            Standards Track                   [Page 99]
 draft-ietf-tls-rfc4346-bis-10.txt  TLS                       March, 2008
 
 
+   Transactionware
+   EMail: janm@transactionware.com
+
+   Magnus Nystrom
    RSA Security
    EMail: magnus@rsasecurity.com
 
@@ -5580,10 +5584,6 @@ Comments
 
    Archives of the list can be found at:
    <http://www.ietf.org/mail-archive/web/tls/current/index.html>
-
-
-
-
 
 
 
