@@ -31,8 +31,8 @@
 import sys
 import getopt
 import urllib2
-from xml.sax import parse
-from xml.sax import ContentHandler
+from xml.sax import make_parser
+from xml.sax import ContentHandler, handler
 from os.path import exists, dirname, abspath, isdir
 from os import mkdir
 
@@ -44,9 +44,11 @@ REF_ID_URI_PREFIX="http://xml.resource.org/public/rfc/bibxml3/reference."
 
 
 def usage():
-    sys.stderr.write("usage: bibxml2rfc [-vi] filename\n\
-    -v verbose\n\
-    -i fake entries for IETF documents\n")
+    sys.stderr.write("usage: bibxml2rfc [-inv] filename\n\
+    -i fake entries for IETF documents\n\
+    -n don't try to download new entries (operate from cache)\n\
+    -v verbose\n")
+    
     sys.exit(1)
 
 
@@ -63,6 +65,9 @@ def get_reference(name,cachefile):
 
     if name.startswith("I-D."):
         # Internet Draft
+        if (cached != None) and (dont_refresh_entries):
+            return cached
+        
         # There may be new versions so need to check the net
         uri=REF_ID_URI_PREFIX + name + ".xml"
     elif name.startswith("RFC"):
@@ -114,15 +119,18 @@ def opt_isset(opts,flag):
 # Control parameters
 verbose = False
 fake_ietf_entries = True
+dont_refresh_entries = False
 
 # Read the command line arguments
-getopt_out=getopt.getopt(sys.argv[1:],"vi")
+getopt_out=getopt.getopt(sys.argv[1:],"vin")
 options=getopt_out[0]
 
 if opt_isset(options,'-v'):
     verbose=True
 if opt_isset(options,'-i'):
     fake_ietf_entries=True
+if opt_isset(options,'-n'):
+    dont_refresh_entries=True
 
 arguments=getopt_out[1]
 if len(arguments)!=1:
@@ -194,7 +202,10 @@ class XrefHandler(ContentHandler):
 
 
 # Parse the document
-parse(filename, XrefHandler())
+parser=make_parser()
+parser.setContentHandler(XrefHandler())
+parser.setFeature(handler.feature_external_ges,False)
+parser.parse(filename)
 
 # Now write out the reference sections
 refs = reference_out.keys()
