@@ -3,12 +3,13 @@
 #
 # Eric Rescorla <ekr@rtfm.com>
 #
-# Copyright (C) 2008 RTFM, Inc. 200
+# Copyright (C) 2008 RTFM, Inc. 
 
 import sys
 import getopt
 import urllib2
-from xml.dom.minidom import parse, parseString;
+from xml.sax import parse
+from xml.sax import ContentHandler
 from os.path import exists, dirname, abspath, isdir
 from os import mkdir
 
@@ -57,20 +58,20 @@ def get_reference(name,cachefile):
         res = fh.read()
         fh.close()
     except Exception:
-        warning("Could not fetch target "+target+" (url="+uri+")")
+        warning("Could not fetch referene for "+name+" (url="+uri+")")
         if cached != None:
             report("Using cached value")
             return cached
         
         if fake_ietf_entries == True:
-            report("Faking entry for "+target)
-            res = '<reference anchor="'+target+'">\n' + '<front><title>Fake Entry</title>\n'+'<author initials="F." surname="Author" fullname="Fake Author"/>\n'+ '<date year="2000"/>\n'+ '</front>\n'+ '<seriesInfo name="Fake" value="Series"/>\n'+ '</reference>\n'
+            report("Faking entry for "+name)
+            res = '<reference anchor="'+name+'">\n' + '<front><title>Fake Entry</title>\n'+'<author initials="F." surname="Author" fullname="Fake Author"/>\n'+ '<date year="2000"/>\n'+ '</front>\n'+ '<seriesInfo name="Fake" value="Series"/>\n'+ '</reference>\n'
             return res
         else:
             return None
 
     # OK, we have the file. Now open the cachefile and store it there
-    report("Successfully fetched "+target)
+    report("Successfully fetched "+name)
     fh = open(cachefile, 'w')
     fh.write(res)
     fh.close()
@@ -114,10 +115,6 @@ refdir = filedir + '/' + REFDIR
 if isdir(refdir)==False:
     mkdir(refdir)
 
-# OK, now parse the file
-dom1 = parse(filename)
-xrefs = dom1.getElementsByTagName("xref")
-
 # Open the files to write to
 f_normative = open(filename + "-normative","w")
 f_informative = open(filename + "-informative","w")
@@ -125,48 +122,63 @@ f_informative = open(filename + "-informative","w")
 reference_out={};
 reference_body={};
 
+
 # Find all the references
-for xref in xrefs:
-    target = xref.getAttribute("target")
-    if target.find("/") != -1:
-        warning("Illegal character '/' in target '"+target+"'")
-        continue
-    
-    norm = xref.getAttribute("norm").lower()
+class XrefHandler(ContentHandler):
+    def startElement(self, name, attrs):
+        if name.lower() != "xref":
+            return
 
-    # Figure out what kind of reference it is
-    if norm == "":
-        normative=f_informative
-    elif norm == "true":
-        normative=f_normative
-    elif norm == "false":
-        normative=f_informative
-    else:
-        sys.stderr.write("Unknown 'norm' value '"+norm+"' for target '"+target+"'. Assuming informative.\n")
+        try:
+            target = attrs.getValue("target")
+        except KeyError:
+            return
 
-    cachefile = refdir + "/" + target + ".xml"
-
-    ref_body = get_reference(target, cachefile)
-    if ref_body != None:
-        """
-         Add this reference if it's not already listed
-         If it is already listed but as informative and defined
-         here as normative, then override it"""
+        report("processing xref for "+target)
         
-        if reference_out.has_key(target)==False:
-            reference_out[target]=normative
-            reference_body[target]=ref_body
-        else:
-            if reference_out[target]==f_informative and normative==True:
-                reference_out[target]=f_normative
-                
+        if target.find("/") != -1:
+            warning("Illegal character '/' in target '"+target+"'")
+            return
+
+        # Figure out what kind of reference it is
+        try:
+            norm = attrs.getValue("norm").lower()
+            if norm == "true":
+                normative=f_normative
+            elif norm == "false":
+                normative=f_informative
+            else:
+                sys.stderr.write("Unknown 'norm' value '"+norm+"' for target '"+target+"'. Assuming informative.\n")
+                normative=f_informative
+        except KeyError:
+            normative=f_informative
+            
+        cachefile = refdir + "/" + target + ".xml"
+            
+        ref_body = get_reference(target, cachefile)
+        if ref_body != None:
+            """
+            Add this reference if it's not already listed
+            If it is already listed but as informative and defined
+            here as normative, then override it"""
+            
+            if reference_out.has_key(target)==False:
+                reference_out[target]=normative
+                reference_body[target]=ref_body
+            else:
+                if reference_out[target]==f_informative and normative==True:
+                    reference_out[target]=f_normative
+
+
+# Parse the document
+parse(filename, XrefHandler())
 
 # Now write out the reference sections
-for key in reference_out.keys():
+refs = reference_out.keys()
+for key in sorted(refs):
+    report("Including reference for "+key)
     reference_out[key].write("\n\n")
     reference_out[key].write(reference_body[key])
-    
-    
-    
-    
-    
+
+# Success
+sys.exit(0)

@@ -49,22 +49,27 @@ DESCRIPTION
      to modify your XML file to incorporate the files it generates
      automatically. In the prologue add:
      
-          <!ENTITY informative SYSTEM "x.xml-informative">
-          <!ENTITY normative SYSTEM "x.xml-normative">
+          <!ENTITY bibxml2rfc-informative SYSTEM "x.xml-informative">
+          <!ENTITY bibxml2rfc-normative SYSTEM "x.xml-normative">
      
      And then in the Normative and Informative references sections,
      reference these entities, like so:
      
          <references title="Normative References">
-           &normative;
+           &bibxml2rfc-normative;
          </references>;
      
          <references title="Informative References">
-           &informative;
+           &bibxml2rfc-informative;
          </references>
+
+     Note: you can use any names you want, but bibxml2rfc-merge
+     will only work if you choose these. That's a bug.
      
      Once you have done this, you can leave your XML file alone and
      rely solely on bibxml2rfc.
+
+
 
 
      ADDING NEW ENTRIES
@@ -102,22 +107,17 @@ DESCRIPTION
        the way LaTeX does, so we don't want to create synthetic
        references for crossreferences
 
+     
+SEE ALSO
+     bibxml2rfc-merge(1)
+
 BUGS
      bibxml2rfc is pretty stupid about any reference that doesn't
      have a name that fits the expected format. Luckily, this is
      the format used by the online repository.
 
-     
+     bibxml2rfc-merge will not work unless you use the exact entity
+     names above. 
 
-
-
-
-
-
-
-
-
-
-
-
+     Arguably this functionality should be merged into xml2rfc.
 

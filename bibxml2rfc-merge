@@ -1,0 +1,66 @@
+#!/usr/bin/python
+# Merge in the bibliography for an xml2rfc input file
+#
+# Eric Rescorla <ekr@rtfm.com>
+#
+# Copyright (C) 2008 RTFM, Inc. 
+
+import sys
+import getopt
+import re
+import os
+from tempfile import mkstemp
+
+# Read the command line arguments
+                        
+getopt_out=getopt.getopt(sys.argv[1:],"v")
+options=getopt_out[0]
+arguments=getopt_out[1]
+
+if (len(arguments) < 1) or (len(arguments)>2):
+   usage()
+
+# Figure out what files to work with
+infile = arguments[0]
+if len(arguments)==2:
+   outfile = arguments[1]
+else:
+   outfile = infile
+
+# Compile the regexes we'll need
+re_entitydecl = re.compile("ENTITY\s+bibxml2rfc-(n|inf)ormative")
+re_entityref = re.compile("&(bibxml2rfc-(informative|normative));")
+
+# Now process the file
+IN = open(infile,'r')
+# There does not seem to be a utility function for what we need,
+# namely a tempfile which persists past close
+[out_fd, tmpfile_name] = mkstemp(".xml",text=True)
+OUT = os.fdopen(out_fd, "w")
+
+for line in IN:
+   if re_entitydecl.search(line):
+      continue
+   m = re_entityref.search(line)
+   if m != None:
+      rfile = infile + "-" + m.group(2)
+      REF = open(rfile,"r")
+      OUT.write("\n<!-- BEGIN INCLUDED references file "+rfile+" -->\n")
+      for r in REF:
+         OUT.write(r)
+
+      OUT.write("\n<!-- END INCLUDED references file "+rfile+" -->\n")
+      continue
+   OUT.write(line)
+      
+OUT.close()
+if infile == outfile:
+   os.rename(infile, infile+".orig")
+os.rename(tmpfile_name, outfile)
+
+# Success
+sys.exit(0)
+
+        
+
+
