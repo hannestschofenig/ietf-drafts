@@ -90,7 +90,7 @@ has two basic properties:
 .ti 3
 -  The connection is private. Symmetric cryptography is used for
 .in 6
-data encryption (e.g., AES [DES], RC4 [SCH] etc.). The keys for
+data encryption (e.g., AES [AES], RC4 [SCH] etc.). The keys for
 this symmetric encryption are generated uniquely for each
 connection and are based on a secret negotiated by another
 protocol (such as the TLS Handshake Protocol). The Record
@@ -844,7 +844,7 @@ enum { null, rc4, 3des, aes }
 
 enum { stream, block, aead } CipherType;
 
-enum { null, hmac_md5, hmac_sha1, hmac_sha224,
+enum { null, hmac_md5, hmac_sha1, hmac_sha256,
      hmac_sha384, hmac_sha512} MACAlgorithm;
 
 enum { null(0), (255) } CompressionMethod;
@@ -2111,7 +2111,7 @@ leap seconds) according
 to the sender's internal clock. Clocks are not required to be
 set correctly by the basic TLS Protocol; higher-level or
 application protocols may define additional requirements.
-requirements. Note that, for historical reasons, the data
+Note that, for historical reasons, the data
 element is named using GMT, the predecessor of the current
 worldwide time base, UTC.
 
@@ -2653,7 +2653,7 @@ same.  Note that this also implies that the DH_DSS, DH_RSA, ECDH_ECDSA,
 and ECDH_RSA key exchange algorithms do not restrict the algorithm
 used to sign the certificate. Fixed DH certificates MAY be signed with
 any hash/signature algorithm pair appearing in the extension.
-The names rsa_fixed_dh and ds_fixed_dh are historical.
+The names DH_DSS, DH_RSA, ECDH_ECDSA, and ECDH_RSA are historical.
 
 .in 3
 If the server has multiple certificates, it chooses one of them
@@ -2693,9 +2693,6 @@ true for the following key exchange methods:
 DHE_DSS
 DHE_RSA
 DH_anon
-ECDHE_DSS (from [RFC 4492])
-ECDHE_RSA (from [RFC 4492])
-ECDHE_ANON (from [RFC 4492])
 .fi
 
 .in 6
@@ -2709,7 +2706,11 @@ DH_DSS
 DH_RSA
 .fi
 
+Other key exchange algorithms, such as those defined
+in [TLSECC], MUST specify whether the ServerKeyExchange message is
+sent or not; and if the message is sent, its contents.
 .in 6
+
 .ti 3
 Meaning of this message:
 
@@ -3584,11 +3585,6 @@ range 64-223 (decimal) inclusive are assigned via
 Specification Required [RFC2434].  Values from 224-255
 (decimal) inclusive are reserved for Private Use [RFC2434].
 
-.in 3
-This document defines one new TLS extension, signature_algorithms,
-which is to be (has been) allocated value TBD-BY-IANA in the
-TLS ExtensionType registry.
-
 This document also uses the TLS Compression Method Identifiers
 Registry, defined in [RFC3749].  IANA is requested to allocate 
 value  0 for the "null" compression method.
@@ -3656,11 +3652,12 @@ struct {
     };
 } GenericBlockCipher;
 
-aead-ciphered struct {
-    opaque IV[SecurityParameters.record_iv_length];
-    opaque aead_output[AEADEncrypted.length];
+struct {
+   opaque nonce_explicit[SecurityParameters.record_iv_length];
+   aead-ciphered struct {
+       opaque content[TLSCompressed.length];
+   };
 } GenericAEADCipher;
-
 .ti 0
 A.2. Change Cipher Specs Message
 
@@ -5226,8 +5223,8 @@ of Basic Encoding Rules (BER), Canonical Encoding Rules
 Informative References
 
 .ti 3
-[AEAD]   Mcgrew, D., "Authenticated Encryption",
-RFC 5116, January 2008.
+[AEAD]   Mcgrew, D., "An Interface and Algorithms for
+Authenticated Encryption", RFC 5116, January 2008.
 
 .ti 3
 [AH]     Kent, S., and Atkinson, R., "IP Authentication Header", 
@@ -5263,9 +5260,10 @@ National Institute of Standards and Technology, U.S. Department of
 Commerce, 2006.
 
 .ti 3
-[ECDSA]  ANSI, "Public Key Cryptography For The Financial Services
-Industry: The Elliptic Curve Digital Signature Algorithm
-(ECDSA)", ANSI X9.62, 1998.
+[ECSDSA] American National Standards Institute, "Public Key
+Cryptography for the Financial Services Industry: The Elliptic
+Curve Digital Signature Algorithm (ECDSA)", ANS X9.62-2005,
+November 2005.
 
 .ti 3
 [ENCAUTH] Krawczyk, H., "The Order of Encryption and Authentication for 
