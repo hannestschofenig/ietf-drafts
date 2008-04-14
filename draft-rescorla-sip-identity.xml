@@ -601,6 +601,9 @@ limited set
             must be disregarded as untrusted, which is undesirable.
 	</artwork>
       </figure>
+      
+      <t>FOOBAR</t>
+
       <section title="Mechanisms Requiring Confidentiality">
 	<t>
 	  One way of binding the media to the signalling is to 
@@ -656,6 +659,26 @@ security
 	</t>
       </section>
     </section> 
+    <section title="Concerns about RFC 4474">
+      <t>
+	Prior to IETF 71, a number of internet-drafts were
+	published documenting concerns the authors had about
+	RFC 4474. This section attempts to provide a summary
+	of the relevant issues.
+      </t>
+      <section title="E.164 Addresses">
+      </section>
+      
+      <section title="SBC Modification of Headers">
+      </section>
+
+      <section title="Baiting">
+      </section>
+
+      <section title="Binding Identity to Media">
+      </section>
+
+    </section>
   </section>
 
 

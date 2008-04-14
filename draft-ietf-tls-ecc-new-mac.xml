@@ -2,13 +2,12 @@
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY rfc4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
-<!ENTITY rfc4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 <!ENTITY rfc4492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4492.xml">
 <!ENTITY rfc3686 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3686.xml">
+<!ENTITY rfc5116 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5116.xml">
 <!ENTITY I-D.ietf-tls-rfc4346-bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc4346-bis.xml">
 <!ENTITY I-D.ietf-tls-ctr SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-ctr.xml">
-<!ENTITY I-D.mcgrew-auth-enc SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.mcgrew-auth-enc.xml">
-<!ENTITY I-D.salowey-tls-rsa-aes-gcm SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.salowey-tls-rsa-aes-gcm.xml">
+<!ENTITY I-D.ietf-tls-rsa-aes-gcm SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rsa-aes-gcm.xml">
 
 ]>
 
@@ -21,7 +20,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-04.txt"> 
+<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-05.txt"> 
 
 <front>
      <title abbrev="TLS ECC New MAC">TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode</title>
@@ -43,15 +42,15 @@
 
            </author>
 
-           <date month="February" year="2008" />
+           <date month="April" year="2008" />
 
            <abstract>
                <t>RFC 4492 describes elliptic curve cipher suites for
                Transport Layer Security (TLS). However, all those
                cipher suites use SHA-1 as their MAC algorithm. This
-               document describes eight new CipherSuites for TLS/DTLS
-               which specify stronger digest algorithms. Four
-	       use HMAC with SHA-256 or SHA-384 and four use
+               document describes sixteen new CipherSuites for TLS/DTLS
+               which specify stronger digest algorithms. Eight
+	       use HMAC with SHA-256 or SHA-384 and eight use
 	       AES in Galois Counter Mode (GCM).
 </t>
            </abstract>
@@ -64,15 +63,15 @@ RFC 4492 <xref target="RFC4492"/> describes Elliptic Curve Cryptography
 4492 suites use HMAC-SHA1 as their MAC algorithm. Due to recent
 analytic work on SHA-1 <xref target="Wang05"/>, the IETF is gradually moving away
 from SHA-1 and towards stronger hash algorithms. This document
-specifies TLS ECC cipher suites which replace SHA-256 and SHA-384
+specifies TLS ECC cipher suites which use SHA-256 and SHA-384
 rather than SHA-1.
 </t>
 <t>
 TLS 1.2 <xref target="I-D.ietf-tls-rfc4346-bis"/>, adds support for authenticated encryption with additional data (AEAD)
-cipher modes <xref target="I-D.mcgrew-auth-enc"/>. This document
+cipher modes <xref target="RFC5116"/>. This document
 also specifies a set of ECC cipher suites using one such mode,
 Galois Counter Mode (GCM) <xref target="GCM"/>. Another document
-<xref target="I-D.salowey-tls-rsa-aes-gcm"/>, provides support for
+<xref target="I-D.ietf-tls-rsa-aes-gcm"/>, provides support for
 GCM with other key establishment methods.
 </t>
 <section title="Conventions Used In This Document">
@@ -90,7 +89,7 @@ defined in RFC 4492.
 </t>
 <section title="HMAC-based Cipher Suites">
 <t>
-The first four cipher suites use AES <xref target="AES"/> in CBC 
+The first eight cipher suites use AES <xref target="AES"/> in CBC 
 <xref target="CBC"/> mode with an
 HMAC-based MAC:
 </t>
@@ -99,26 +98,39 @@ HMAC-based MAC:
      CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384  = {0xXX,XX};
      CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX};
      CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX};
+     CipherSuite TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256    = {0xXX,XX};  
+     CipherSuite TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384    = {0xXX,XX};
+     CipherSuite TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256     = {0xXX,XX};
+     CipherSuite TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384     = {0xXX,XX};
 </artwork>
 <t>
-These four cipher suites are the same as the corresponding cipher
+These eight cipher suites are the same as the corresponding cipher
 suites in RFC 4492 (TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, 
 TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
-and TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA) except for the hash and PRF
+TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
+TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, 
+TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
+and TLS_ECDH_RSA_WITH_AES_256_CBC_SHA) except for the hash and PRF
 algorithms, which are SHA-256 and SHA-384 <xref target="SHS"/> as follows.
 </t>
 <artwork>
      Cipher Suite                                MAC          PRF
      ------------                                ---          ---
-     TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256     HMAC-SHA-256 P_SHA-256 
-     TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384     HMAC-SHA-384 P_SHA-384
-     TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256      HMAC-SHA-256 P_SHA-256 
-     TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384      HMAC-SHA-384 P_SHA-384
+     TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256     HMAC-SHA-256 P_SHA256 
+     TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384     HMAC-SHA-384 P_SHA384
+     TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256      HMAC-SHA-256 P_SHA256 
+     TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384      HMAC-SHA-384 P_SHA384
+     TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256       HMAC-SHA-256 P_SHA256 
+     TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384       HMAC-SHA-384 P_SHA384
+     TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256        HMAC-SHA-256 P_SHA256 
+     TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384        HMAC-SHA-384 P_SHA384
 </artwork>
 </section>
 <section title="Galois Counter Mode-based Cipher Suites">
 <t>
-The second four cipher suites use the new authenticated encryption
+The second eight cipher suites use the same asymmetric algorithms
+as those in the previous section but use the 
+new authenticated encryption
 modes defined in TLS 1.2 with AES in Galois Counter Mode (GCM) 
 <xref target="GCM"/>:
 </t>
@@ -127,118 +139,61 @@ modes defined in TLS 1.2 with AES in Galois Counter Mode (GCM)
      CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384  = {0xXX,XX};
      CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256   = {0xXX,XX};
      CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX};
+     CipherSuite TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256    = {0xXX,XX};
+     CipherSuite TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384    = {0xXX,XX};
+     CipherSuite TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256     = {0xXX,XX};
+     CipherSuite TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384     = {0xXX,XX};
 </artwork>
 <t>
 These cipher suites use authenticated encryption with additional
 data algorithms AEAD_AES_128_GCM and AEAD_AES_256_GCM described in
-<xref target="I-D.mcgrew-auth-enc"/>. The "nonce" input to the AEAD
-algorithm SHALL be 12 bytes long, and is "partially implicit" (see
-Section 3.2.1 of <xref target="I-D.mcgrew-auth-enc"/>). Part of
-the nonce is generated as part of the handshake process and
-is static for the entire session and part is carried in each packet.
+<xref target="RFC5116"/>. GCM is used
+as described in <xref target="I-D.ietf-tls-rsa-aes-gcm"/>.
 </t>
+<t>
 <artwork>
-          struct {
-             opaque salt[4];
-             opaque explicit_nonce_part[8];
-          } GCMNonce.
+     Cipher Suite                                PRF
+     ------------                                ---
+     TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256     P_SHA256 
+     TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384     P_SHA384
+     TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256      P_SHA256 
+     TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384      P_SHA384
+     TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256       P_SHA256 
+     TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384       P_SHA384
+     TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256        P_SHA256 
+     TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384        P_SHA384
 </artwork>
-<t>
-The salt value is either the client_write_IV if the client is sending
-or the server_write_IV if the server is sending. These IVs SHALL be
-4 bytes long. 
-Therefore, for all the algorithms defined
-in this section, SecurityParameters.fixed_iv_length=4.
 </t>
-<t>
-The explicit_nonce_part is chosen by the sender and included in the
-packet.  Each value of the explicit_nonce_part MUST be distinct from
-all other values, for any fixed key. Failure to meet this  
-uniqueness requirement can significantly degrade security.
-The explicit_nonce_part is carried in the IV field of the 
-GenericAEADCipher structure. Therefore, for all the algorithms defined
-in this section, SecurityParameters.record_iv_length=8.
-</t>
-<t>
-In the case of TLS the counter MAY be the 64-bit sequence number.   
-In the case of Datagram TLS <xref target="RFC4347"/> 
-the counter MAY be formed from the concatenation of  
-the 16-bit epoch with the 48-bit sequence number. 
-</t>
-<t>
-The PRF algorithms SHALL be as follows:
-</t>
-<t>For
-TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 and
-TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256 it SHALL be P_SHA-256.
-</t>
-<t>
-For
-TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA384 and
-TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA384 it SHALL be P_SHA-384.</t>
 </section>
-</section>
-<section title="TLS Versions">
-<t>
-Because these cipher suites depend on features available only in TLS
-1.2 (PRF flexibility and combined authenticated encryption cipher
-modes), they MUST NOT be negotiated by older versions of TLS. Clients
-MUST NOT offer these cipher suites if they do not offer TLS 1.2 or
-later. Servers which select an earlier version of TLS MUST NOT select
-one of these cipher suites. Because TLS has no way for the client to
-indicate that it supports TLS 1.2 but not earlier, a non-compliant
-server might potentially negotiate TLS 1.1 or earlier and select one
-of the cipher suites in this document. Clients MUST check the
-TLS version and generate a fatal "illegal_parameter" alert
-if they detect an incorrect version.
-</t>
 </section>
 <section title="Security Considerations">
-<t>The security considerations in RFC 4346 and RFC 4492 apply to
-this document as well. The remainder of this section describes
-security considerations
-specific to the cipher suites described in this document.
+<t>The security considerations in RFC 4346, RFC 4492, and
+<xref target="I-D.ietf-tls-rsa-aes-gcm"/> apply to
+this document as well. In addition, as described in
+<xref target="I-D.ietf-tls-rsa-aes-gcm"/>, these cipher
+suites may only be used with TLS 1.2 or greater.
 </t>
-<section title="Downgrade Attack">
-<t>
-TLS negotiation is only as secure as the weakest cipher suite
-that is supported. For instance, an implementation which 
-supports both 160-bit and 256-bit elliptic curves can be
-subject to an active downgrade attack to the 160-bit security
-level. An attacker who can attack that can then forge the Finished
-handshake check and successfully mount a man-in-the-middle
-attack.
-</t>
-</section>
-<section title="Perfect Forward Secrecy">
-<t>
-The static ECDH cipher suites specified in this document do
-not provide perfect forward secrecy (PFS). Thus, compromise
-of a single static key leads to potential decryption of all traffic
-protected using that key. Implementors of this specification
-SHOULD provide at least one ECDHE mode of operation.
-</t>
-</section>
-<section title="Counter Reuse with GCM">
-<t>
-AES-GCM is only secure if the counter is never reused. The
-IV construction algorithm above is designed to ensure that this
-cannot happen.
-</t>
-</section>
 </section>	
 <section title="IANA Considerations">
 <t>
-IANA has assigned the following values for these cipher suites:
+  IANA has assigned the following values for these cipher suites:
 <artwork>
-   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX};
-   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX};
-   CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256    = {0xXX,XX};
-   CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384    = {0xXX,XX};
-   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256   = {0xXX,XX};  
-   CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX};
-   CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256    = {0xXX,XX};
-   CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384    = {0xXX,XX};
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256  = {0xXX,XX};  
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384  = {0xXX,XX};
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256   = {0xXX,XX};
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384   = {0xXX,XX};
+     CipherSuite TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256    = {0xXX,XX};  
+     CipherSuite TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384    = {0xXX,XX};
+     CipherSuite TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256     = {0xXX,XX};
+     CipherSuite TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384     = {0xXX,XX};
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256  = {0xXX,XX};
+     CipherSuite TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384  = {0xXX,XX};
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256   = {0xXX,XX};
+     CipherSuite TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384   = {0xXX,XX};
+     CipherSuite TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256    = {0xXX,XX};
+     CipherSuite TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384    = {0xXX,XX};
+     CipherSuite TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256     = {0xXX,XX};
+     CipherSuite TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384     = {0xXX,XX};
 </artwork>
 </t>
 </section>
@@ -257,7 +212,7 @@ text as well as providing a review of this document.</t>
 
 &rfc2119;
 &rfc4492;
-&I-D.mcgrew-auth-enc;
+&rfc5116;
 &I-D.ietf-tls-rfc4346-bis;
 
 <reference anchor="AES">
@@ -329,8 +284,7 @@ text as well as providing a review of this document.</t>
 	<seriesInfo name="CRYPTO" value="2005"/>
 </reference>		
 
-&rfc4347;
-&I-D.salowey-tls-rsa-aes-gcm;
+&I-D.ietf-tls-rsa-aes-gcm;
 </references>
 </back>
 </rfc>

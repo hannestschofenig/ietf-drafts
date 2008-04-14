@@ -72,14 +72,14 @@ Table of Contents
      3.3.  Message Security Mechanisms  . . . . . . . . . . . . . . .  8
        3.3.1.  S/MIME . . . . . . . . . . . . . . . . . . . . . . . .  8
        3.3.2.  Identity and Connected-Identity  . . . . . . . . . . . 10
-       3.3.3.  Media Security . . . . . . . . . . . . . . . . . . . . 11
-   4.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 11
-     4.1.  Normative References . . . . . . . . . . . . . . . . . . . 11
-     4.2.  Informational References . . . . . . . . . . . . . . . . . 11
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 12
-   Intellectual Property and Copyright Statements . . . . . . . . . . 13
-
-
+     3.4.  Media Security . . . . . . . . . . . . . . . . . . . . . . 11
+       3.4.1.  Mechanisms Requiring Confidentiality . . . . . . . . . 11
+       3.4.2.  Mechanisms Required Integrity  . . . . . . . . . . . . 11
+   4.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+     4.1.  Normative References . . . . . . . . . . . . . . . . . . . 12
+     4.2.  Informational References . . . . . . . . . . . . . . . . . 12
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 13
+   Intellectual Property and Copyright Statements . . . . . . . . . . 14
 
 
 
@@ -561,7 +561,7 @@ Rescorla                Expires September 1, 2008              [Page 10]
 Internet-Draft                SIP Identity                 February 2008
 
 
-3.3.3.  Media Security
+3.4.  Media Security
 
    The above discussion covers only signalling-level security.  However,
    a VoIP system doesn't provide useful security if the signalling is
@@ -578,13 +578,63 @@ Internet-Draft                SIP Identity                 February 2008
    o  Those which require integrity in the signalling (e.g., DTLS-SRTP
       [I-D.ietf-sip-dtls-srtp-framework]).
 
-Note:
+               Note: ZRTP has a mode in which it operates
+               independently of the signalling, but this has two
+               undesirable consequences. First, there are known
+               security problems with the voice-based short
+               authentication string mechanism it uses. Second,
+               it means that all the information in the signalling
+               must be disregarded as untrusted, which is undesirable.
 
-   ZRTP has a mode in which it operates independently of the signalling,
-   but this has two undesirable consequences.  First, there are known
-   security problems with the voice-based short authentication string
-   mechanism it uses.  Second, it means that all the information in the
-   signalling must be disregarded as untrusted, which is undesirable.
+   FOOBAR
+
+3.4.1.  Mechanisms Requiring Confidentiality
+
+   One way of binding the media to the signalling is to carry a secret
+   in the signalling which is then used to establish the keys for SRTP.
+   SDES [RFC4568] is one such mechanism.
+
+   If such a mechanism is used with S/MIME encryption, it can provide
+   end-to-end security for the media because only the recipient sees the
+   keys.  However, if S/MIME encryption is not used, any intermediate
+   proxy can see the keys.  In addition, unless TLS encryption is used
+   on every link, a passive attacker may be able to recover the traffic
+   keys.  Either attack would allow the attacker to impersonate either
+   side of the call to the other (whether on or off-path) and if he is
+   on-path for the media, to decrypt all the media as well.
+
+3.4.2.  Mechanisms Required Integrity
+
+   Mechanisms also exist which depend only on the integrity of the
+   signalling.  For instance, DTLS-SRTP
+   [I-D.ietf-sip-dtls-srtp-framework] carries a fingerprint of the UA's
+   certificate in the SIP signalling.  This cryptographically binds the
+
+
+
+Rescorla                Expires September 1, 2008              [Page 11]
+
+Internet-Draft                SIP Identity                 February 2008
+
+
+   signalling to the media plane key agreement protocol.
+
+   In this system, the media is secure provided that the integrity of
+   the signalling messages is preserved, which can be done either with
+   S/MIME signatures or (more likely) with RFC 4474 Identity.  If either
+   mechanism is used, the media is secure from attack by any proxy in
+   the middle of the signalling, even if TLS is not used for some proxy-
+   proxy links.
+
+   It's important to understand that this sort of cryptographic binding
+   simple extends the security boundary of the signalling to cover the
+   media:  once you have verified the caller/callee's identity using
+   whatever security mechanism you are using, the binding then allows
+   you to be sure that the media came from the same entity.  However, if
+   the signalling authenticates someone you have never heard of, or--as
+   in the PSTN gateway case--provides minimal information about the real
+   caller, then media encryption does not help to resolve that
+   uncertainty.
 
 
 4.  References
@@ -609,20 +659,19 @@ Note:
 
    [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
               A., Peterson, J., Sparks, R., Handley, M., and E.
-
-
-
-Rescorla                Expires September 1, 2008              [Page 11]
-
-Internet-Draft                SIP Identity                 February 2008
-
-
               Schooler, "SIP: Session Initiation Protocol", RFC 3261,
               June 2002.
 
    [RFC3263]  Rosenberg, J. and H. Schulzrinne, "Session Initiation
               Protocol (SIP): Locating SIP Servers", RFC 3263,
               June 2002.
+
+
+
+Rescorla                Expires September 1, 2008              [Page 12]
+
+Internet-Draft                SIP Identity                 February 2008
+
 
    [RFC3325]  Jennings, C., Peterson, J., and M. Watson, "Private
               Extensions to the Session Initiation Protocol (SIP) for
@@ -668,7 +717,14 @@ Author's Address
 
 
 
-Rescorla                Expires September 1, 2008              [Page 12]
+
+
+
+
+
+
+
+Rescorla                Expires September 1, 2008              [Page 13]
 
 Internet-Draft                SIP Identity                 February 2008
 
@@ -724,5 +780,5 @@ Acknowledgment
 
 
 
-Rescorla                Expires September 1, 2008              [Page 13]
+Rescorla                Expires September 1, 2008              [Page 14]
 
