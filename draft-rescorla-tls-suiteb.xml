@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY rfc4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
+<!ENTITY rfc4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
+<!ENTITY rfc4492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4492.xml">
+ <!ENTITY I-D.ietf-tls-rfc4346-bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc4346-bis.xml">
+<!ENTITY I-D.ietf-tls-rsa-aes-gcm SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rsa-aes-gcm.xml">
+<!ENTITY I-D.ietf-tls-ecc-new-mac SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-ecc-new-mac.xml">
+]>
+
+<!-- $Id -->
+<?rfc toc="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc inline="yes"?>
+<?rfc toc="yes" ?>
+<?rfc iprnotified="no" ?>
+<?rfc compact="yes" ?>
+<?rfc sortrefs="no" ?>
+<?rfc colonspace='yes' ?>
+<rfc category="info" ipr="full3978" docName="draft-rescorla-tls-suiteb-02.txt">
+
+<front>
+     <title abbrev="Suite B for TLS">Suite B Cipher Suites for TLS</title>
+           <author initials="M." surname="Salter"
+                   fullname="Margaret Salter">
+               <organization>National Security Agency</organization>
+
+               <address>
+                   <postal>
+                       <street>9800 Savage Rd.</street>
+                       <city>Fort Meade</city> 
+                       <code>20755-6709</code>
+		       <state>MD</state>
+                       <country>USA</country>
+                   </postal>
+
+                   <email>msalter@restarea.ncsc.mil</email>
+               </address>
+           </author>
+
+
+           <author initials="E.K." surname="Rescorla"
+                   fullname="Eric Rescorla">
+               <organization>Network Resonance</organization>
+
+               <address>
+                   <postal>
+                       <street>2064 Edgewood Drive</street>
+                       <city>Palo Alto</city> 
+                       <code>94303</code>
+		       <state>CA</state>
+                       <country>USA</country>
+                   </postal>
+
+                   <email>ekr@rtfm.com</email>
+               </address>
+
+           </author>
+
+           <date month="April" year="2008" />
+
+           <abstract>
+               <t>The United States Government has published
+               guidelines for "NSA Suite B Cryptography" dated July, 2005,
+	       which defines cryptographic algorithm polcy
+	       for national security applications. This document
+	       defines a profile of TLS which is conformant with
+	       Suite B.
+	       </t>
+           </abstract>
+       </front>
+<middle>
+<section title="Introduction" anchor="intro">
+<t>
+In July, 2005 the National
+Security Agency posted "Fact Sheet, NSA Suite B Cryptography" which
+stated:
+<artwork>
+    To complement the existing policy for the use of the Advanced
+    Encryption Standard (AES) to protect national security systems
+    and information as specified in The National Policy on the use of
+    the Advanced Encryption Standard (AES) to Protect National
+    Security Systems and National Security Information (CNSSP-15),
+    the National Security Agency (NSA) announced Suite B Cryptography
+    at the 2005 RSA Conference.  In addition to the AES, Suite B
+    includes cryptographic algorithms for hashing, digital
+    signatures, and key exchange.
+
+    Suite B only specifies the cryptographic algorithms to be
+    used. Many other factors need to be addressed in determining
+    whether a particular device implementing a particular set of
+    cryptographic algorithms should be used to satisfy a particular
+    requirement.  
+</artwork>
+</t>
+<t>
+Among those factors are "requirements for interoperability both
+domestically and internationally".
+</t>
+<t>
+This document is a profile of of TLS 1.2 <xref
+target="I-D.ietf-tls-rfc4346-bis"/> and of the cipher suites defined
+in <xref target="I-D.ietf-tls-ecc-new-mac"/>, but does not itself define
+any new cipher suites. This profile requires TLS 1.2.
+</t>
+</section>
+<section title="Conventions Used In This Document">
+  <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in <xref
+    target="RFC2119"></xref>.</t>
+</section>
+ 
+<section title="Suite B Requirements">
+<t>
+The "Suite B Fact Sheet" requires that key establishment and authentication
+algorithms be based on Elliptic Curve Cryptography, that the encryption
+algorithm be AES <xref target="AES"/>, and that the function used for key derivation and
+data integrity be SHA <xref target="SHS"/>. It defines two security levels, of 128 and
+192 bits. 
+</t>
+<t>
+In particular it states:
+</t>
+<t>
+</t>
+<list style="empty">
+<t>
+SUITE B includes:
+<artwork>
+     Encryption:          Advanced Encryption Standard (AES)  -
+                          FIPS 197 (with keys sizes of 128 and 256
+                          bits)
+
+     Digital Signature:   Elliptic Curve Digital Signature Algorithm -
+                          FIPS 186-2 (using the curves with 256 and 
+                          384-bit prime moduli)
+
+     Key Exchange:        Elliptic Curve Diffie-Hellman or Elliptic
+                          Curve MQV Draft NIST Special Publication 
+                          800-56 (using the curves with 256 and 
+                          384-bit prime moduli)
+
+     Hashing:             Secure Hash Algorithm - FIPS 180-2
+                          (using SHA-256 and SHA-384)
+</artwork>
+All implementations of Suite B must, at a minimum, include AES with
+128-bit keys, the 256-bit prime modulus elliptic curve and SHA-256 as
+a common mode for widespread interoperability.
+</t>
+</list>
+<t>The 128-bit security level corresponds to an elliptic curve size of 256 bits, AES-128, and SHA-256. The 192-bit security level corresponds to an elliptic
+curve size of 384 bits, AES-256, and SHA-384.
+</t>
+</section>
+<section title="Suite B Compliance Requirements">
+<t>
+To be considered "Suite B compatible" at least one of the Galois
+Counter Mode (GCM) CipherSuites defined in <xref
+target="I-D.ietf-tls-ecc-new-mac"/> MUST be negotiated.  In compliance
+with the guidance in the Suite B Fact Sheet every TLS implementation
+of Suite B SHOULD implement TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+</t>
+<section title="Security Levels">
+<t>
+As described in <xref target="intro"/>, Suite B specifies two 
+security levels, 128 and 192 bit. The following table lists the
+security levels for each cipher suite:
+<texttable>
+<ttcol>Cipher Suite</ttcol>
+<ttcol>Security Level</ttcol>
+<c>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</c><c>128</c>
+<c>TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256</c><c>128</c>
+<c>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</c><c>192</c>
+<c>TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384</c><c>192</c>
+</texttable>
+</t>
+</section>
+<section title="Acceptable Curves" anchor="acceptable.curves">
+<t>
+RFC 4492 defines a variety of elliptic curves. For cipher suites
+defined in this specification, only secp256r1 (23) or
+secp384r1 (24) may be used. (These are the same curves that
+appear in FIPS 186-2 <xref target="DSS"/> as P-256 and P-384, respectively.)
+For cipher suites at the 128-bit
+security level, secp256r1 MUST be used. For cipher suites at
+the 192-bit security level, secp384r1 MUST be used.
+RFC 4492 requires that uncompressed (0) form be supported.
+ansiX962_compressed_prime(1) point formats MAY be supported.
+</t>
+<t>
+Clients desiring to negotiate only a Suite B-compliant connection
+MUST generate a "Supported Elliptic 
+Curves Extension" containing only the allowed curves. These
+curves MUST match the cipher suite security levels being offered.
+Clients which are willing to do both Suite B-compliant and
+non-Suite B-compliant connections MAY omit the extension or
+send the extension but offer other curves as well as the appropriate
+Suite B ones.
+</t>
+<t>
+Servers desiring to negotiate a Suite B-compliant connection
+SHOULD check for the presence of the
+extension, but MUST NOT negotiate inappropriate curves even
+if they are offered by the client. This allows a Client which
+is willing to do either Suite B-compliant or non-Suite B-compliant
+modes to interoperate with a server which will only do Suite B-compliant
+modes. If the client does not advertise an acceptable curve,
+the server MUST generate a fatal "handshake_failure" alert
+and terminate the connection. Clients MUST check the chosen
+curve to make sure it is acceptable.
+</t>
+</section>
+</section>
+<section title="Security Considerations">
+<t>
+Most of the security considerations for this document are described
+in TLS 1.2 <xref target="I-D.ietf-tls-rfc4346-bis"/>, RFC 4492
+<xref target="RFC4492"/>, <xref target="I-D.ietf-tls-rsa-aes-gcm"/>,
+and <xref target="I-D.ietf-tls-ecc-new-mac"/>.
+Readers should consult those documents.
+</t>
+<t>
+In order to meet the goal of a consistent security level for the
+entire cipher suite, in Suite B mode TLS implementations MUST ONLY
+use the curves defined in <xref target="acceptable.curves"/>.
+Otherwise, it is possible to have a set of symmetric algorithms
+with much weaker or stronger security properties than the 
+asymmetric (ECC) algorithms.
+</t>
+</section>
+<section title="IANA Considerations">
+<t>
+This document defines no actions for IANA.
+</t>
+</section>
+<section title="Acknowledgements">
+<t>
+This work was supported by the US Department of Defense.
+</t>
+</section>
+</middle>
+<back>
+<references title="Normative References">
+
+&rfc2119;
+&rfc3686;
+&rfc4492;
+&I-D.ietf-tls-rfc4346-bis;
+&I-D.ietf-tls-ecc-new-mac;
+
+<reference anchor="AES">
+        <front>
+          <title abbrev="AES">Specification for the Advanced Encryption Standard (AES)</title>
+
+          <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology"><organization></organization>
+          </author>
+
+          <date month="November" year="2001" />
+        </front>
+
+        <seriesInfo name="FIPS"
+                    value="197" />
+</reference>
+
+<reference anchor="SHS">
+        <front>
+          <title abbrev="SHS">Secure Hash Standard</title>
+
+          <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology">
+          </author>
+
+          <date month="August" year="2002" />
+        </front>
+
+        <seriesInfo name="FIPS"
+                    value="180-2" />
+</reference>
+
+<reference anchor="DSS">
+        <front>
+          <title abbrev="DSS">Digital Signature Standard</title>
+
+          <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology">
+          </author>
+
+          <date year="2000" month="January"/>
+        </front>
+
+        <seriesInfo name="FIPS"
+                    value="186-2" />
+</reference>
+
+</references>
+<references title="Informative References">
+&I-D.ietf-tls-rsa-aes-gcm;
+</references>
+</back>
+</rfc>
