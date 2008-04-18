@@ -1159,8 +1159,8 @@ provides examples of protocols which fit into each class.
    In addition to strict identity verification, it's possible to use
    certificates to carry authorization information. This allows a cen-
    tral authority to make both authentication and access control deci-
-   sions for distributed servers merely by issuing certificates. [POLI-
-   CYMAKE] describes such a system.
+   sions for distributed servers merely by issuing certificates. <xref target="BFL96"/>
+   describes such a system.
 </t><t>
 </t>
 </section>
@@ -1215,7 +1215,7 @@ provides examples of protocols which fit into each class.
 </section>
 <section anchor="sec-10.6" title=" Case Study: SMTP over TLS">
 <t>
-   SMTP can be combined with TLS as described in [STARTTLS]. This pro-
+   SMTP can be combined with TLS as described in <xref target="RFC2487"/>. This pro-
    vides similar protection to that provided when using IPSEC. Since TLS
 </t><t>
    certificates typically contain the server's host name, recipient
@@ -1241,7 +1241,8 @@ provides examples of protocols which fit into each class.
 <t>
    An approach that has lately gained currency is to use a generic
    authentication negotiation system. Examples of such systems include
-   SASL [SASL] and EAP [EAP]. The general idea is that one has a proto-
+   SASL <xref target="RFC2222"/> and EAP <xref target="RFC2284"/>.
+   The general idea is that one has a proto-
    col framework which doesn't provide any authentication features per
    se but instead allows you to negotiate the authentication mechanisms
    you wish to use. SASL, for instance, allows the negotiation of CRAM-
@@ -1282,8 +1283,9 @@ provides examples of protocols which fit into each class.
    The ease of adding new security mechanisms to generic authentication
    layers means that a given authentication layer may have a number of
    different mechanisms with essentially similar characteristics. For
-   instance, SASL has mechanisms for SecurID [<a href="rfc2808.html">RFC 2808</a>], OTP [<a href="rfc2245.html">RFC 2245</a>],
-   and Digest Authentication [<a href="rfc2831.html">RFC 2831</a>]. In addition, there is currently
+   instance, SASL has mechanisms for SecurID <xref target="RFC2808"/>,
+   OTP <xref target="RFC2245"/>,
+   and Digest Authentication <xref target="RFC2831"/>. In addition, there is currently
    an Internet-Draft for CRAM-MD5 support in SASL. These methods offer
    fairly equivalent security (with the major exception being the pass-
    word equivalence issue for the challenge response mechanisms).
@@ -1317,11 +1319,11 @@ provides examples of protocols which fit into each class.
    and under which should they use it through GSSAPI?
 </t><t>
    Another example of the same problem is the Extensible Authentication
-   Protocol (EAP) [EAP], an authentication framework originally designed
-   for PPP [PPP]. Note that PPP itself allows multiple authentication
+   Protocol (EAP) <xref target="RFC2284"/>, an authentication framework originally designed
+   for PPP <xref target="RFC1661"/>. Note that PPP itself allows multiple authentication
    mechanisms, so PPP must first negotiate EAP. EAP then negotiates the
    individual mechanisms. To make matters worse, one of the EAP mecha-
-   nisms is TLS [TLS] which can negotiate its own authentication mecha-
+   nisms is TLS <xref target="RFC4346"/> which can negotiate its own authentication mecha-
    nisms. Three levels of indirection seems a bit much.
 </t><t>
    In accordance with the principle of having as few mechanisms as pos-
@@ -1405,7 +1407,7 @@ provides examples of protocols which fit into each class.
 </section>
 <section anchor="sec-12.4" title=" Case Study: Kerberos">
 <t>
-   Kerberos [KERBEROS] is a popular authentication/single sign-on ser-
+   Kerberos <xref target="RFC1510"/> is a popular authentication/single sign-on ser-
    vice, especially in academic environments. Kerberos is based on the
    Needham-Schroeder authentication protocol. The authentication server
    role is played by a Key Distribution Center (KDC). When a client
@@ -1555,7 +1557,7 @@ provides examples of protocols which fit into each class.
    a token.) When designing a new system, the ability to provide a
    familiar interface to a user is valuable, minimizing additional work
    for client and server implementors is not. NIST Spec. Pub. 800-63
-   [800-63] provides good guidance about the minimum requirements for
+   <xref target="800-63"/> provides good guidance about the minimum requirements for
    various applications.
 </t><t>
 </t>
@@ -1685,7 +1687,7 @@ provides examples of protocols which fit into each class.
    If the client and the server establish a tunnel through the proxy
    then they can behave as if this was an ordinary client/server trans-
    action. Although this rather obviates the point of having a proxy,
-   it's still a popular strategy and is used with HTTPS [HTTPTLS]. Since
+   it's still a popular strategy and is used with HTTPS <xref target="RFC2818"/>. Since
    the proxy is untrusted, the application protocol must either be run
    over a secure channel or hardened against active attacks.
 </t><t>
@@ -1752,7 +1754,7 @@ provides examples of protocols which fit into each class.
    the group are trusted and so it's feasible to have some group key
    which is used for authenticating all transmissions. This group key
    may be manually configured or established via some protocol such as
-   GSAKMP [GSAKMP].
+   GSAKMP <xref target="RFC4535"/>.
 </t><t>
    In the second case, individual group members are not trusted not to
    forge messages. With such systems, it's not really practical to use

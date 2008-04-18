@@ -3,6 +3,6 @@
 	  <title>Strong Password-Only Authenticated Key Exchange</title>
 	  <author initials="D." surname="Jablon" fullname="D. Jablon"/>
 	</front>
-	<seriesInfo value="Computer Communication Review" name=""/>
+	<annotation>Computer Communication Review</annotation>
 	<date month="October" year="1996"/>
       </reference>

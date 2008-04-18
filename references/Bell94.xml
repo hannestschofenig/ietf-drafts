@@ -7,6 +7,6 @@ Augmented Encrypted Key
 	  <author initials="S.M." surname="Bellovin" fullname="S.M. Bellovin"/>
 	  <author initials="M." surname="Merritt" fullname="M. Merritt"/>
 	</front>
-	<seriesInfo value="AT&T Bell Laboratires Technical Report" name=""/>
+	<annotation>AT&T Bell Laboratories Technical Report</annotation>
 	<date year="1994"/>
       </reference>

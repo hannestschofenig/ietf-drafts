@@ -4,6 +4,6 @@
 	  <author initials="X." surname="Wang" fullname="Xiaoyun Wang"/>
 	  <author initials="H." surname="Yu" fullname="Hongbu Yu"/>
 	</front>
-	<seriesInfo name="" value="EUROCRYPT 2005"/>
+	<seriesInfo name="EUROCRYPT" value="2005"/>
 	<date year="2005"/>
       </reference>
