@@ -78,13 +78,11 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-2" title=" The Authentication Problem">
 <t>
    The authentication problem is simple to describe but hard to solve:
-   Two parties are communicating and one wishes to establish its iden-
-   tity to another. The basic scenario is exemplified by TELNET. A
+   Two parties are communicating and one wishes to establish its identity to another. The basic scenario is exemplified by TELNET. A
    client (on behalf of a user) wishes to remotely access resources on a
    TELNET server. The user has an account on the server and the server
    remembers the user's authentication information but the client itself
-   may have no long-term storage and only limited computational capabil-
-   ities. The client side of the credentials must be able to be carried
+   may have no long-term storage and only limited computational capabilities. The client side of the credentials must be able to be carried
    by the user, either on a small device or in his memory. Note that the
    major technical division here is between situations in which there is
    any clients-side storage (for instance for cryptographic keys) and
@@ -97,16 +95,11 @@ provides examples of protocols which fit into each class.
    authenticated party has permission to access a particular resource or
    service. Although tightly bound, it is important to realize that
    authentication and authorization are two separate mechanisms. Perhaps
-   because of this tight coupling, authentication is sometimes mistak-
-   enly thought to imply authorization. Authentication simply validates
-   the identity of a party; authorization defines whether they can per-
-   form a certain action.
+   because of this tight coupling, authentication is sometimes mistakenly thought to imply authorization. Authentication simply validates
+   the identity of a party; authorization defines whether they can perform a certain action.
 </t><t>
-   Authorization necessarily relies on authentication, but authentica-
-   tion alone does not imply authorization. Rather, before granting per-
-   mission to perform an action, the authorization mechanism must be
-   consulted to determine whether that action is permitted. This docu-
-   ment is solely concerned with authentication.
+   Authorization necessarily relies on authentication, but authentication alone does not imply authorization. Rather, before granting permission to perform an action, the authorization mechanism must be
+   consulted to determine whether that action is permitted. This document is solely concerned with authentication.
 </t><t>
 </t>
 </section>
@@ -117,20 +110,16 @@ provides examples of protocols which fit into each class.
 </t><t>
    2. Something you know--a secret, e.g., a password
 </t><t>
-   The best authentication mechanisms combine two or more of these mech-
-   anisms. For instance, if you use a driver's license or a passport to
+   The best authentication mechanisms combine two or more of these mechanisms. For instance, if you use a driver's license or a passport to
    authenticate, that's something you have (the license) and something
-   you are (your resemblance to the picture on the license). In prac-
-   tice, biometric authentication mechanisms work poorly over the Inter-
-   net, so the best Internet authentication mechanisms will involve a
+   you are (your resemblance to the picture on the license). In practice, biometric authentication mechanisms work poorly over the Internet, so the best Internet authentication mechanisms will involve a
    token plus a secret.
 </t><t>
 </t>
 </section>
 <section anchor="sec-2.3" title=" Clients and Servers">
 <t>
-   Most of the protocols which run on the Internet are inherently asym-
-   metric, with one peer taking the role of the client and the other the
+   Most of the protocols which run on the Internet are inherently asymmetric, with one peer taking the role of the client and the other the
    server. Because the servers are generally fixed machines with a fixed
    address and the clients may have any address, many protocols (such as
    SSH or TLS) operate by attempting to authenticate the server and then
@@ -148,15 +137,11 @@ provides examples of protocols which fit into each class.
 </section>
 <section anchor="sec-3" title=" Description of Authentication Mechanisms">
 <t>
-   The next seven sections each describe a single class of authentica-
-   tion technology. In each case, we first describe the technology in
-   general, with possible subsections describing security or implementa-
-   tion issues that are generic to this technology. Once we have
+   The next seven sections each describe a single class of authentication technology. In each case, we first describe the technology in
+   general, with possible subsections describing security or implementation issues that are generic to this technology. Once we have
    described the technology in general we then provide one or more case
-   studies: descriptions of specific protocols which use this authenti-
-   cation technology and the various security or implementation issues
-   that are specific to that protocol. Thus, each section uses the fol-
-   lowing pattern.
+   studies: descriptions of specific protocols which use this authentication technology and the various security or implementation issues
+   that are specific to that protocol. Thus, each section uses the following pattern.
 </t><t>
      A Mechanism
        (Description)
@@ -197,8 +182,7 @@ provides examples of protocols which fit into each class.
    client and the server (this is relatively easy, especially if the
    attacker is on the same network as one of the endpoints). Since the
    password traverses the network in the clear, the attacker is easily
-   able to recover the password and can use it for any future authenti-
-   cations.
+   able to recover the password and can use it for any future authentications.
 </t><t>
 </t>
 </section>
@@ -218,9 +202,7 @@ provides examples of protocols which fit into each class.
 <t>
    Extensive experience <xref target="Klein90"/> shows that users choose bad passwords.
    Common choices include the user's real name, login name, date of
-   birth, and simple dictionary words. An attacker with no special capa-
-   bilities can therefore attack a server by simply trying known or com-
-   mon usernames and common passwords. This technique was used to great
+   birth, and simple dictionary words. An attacker with no special capabilities can therefore attack a server by simply trying known or common usernames and common passwords. This technique was used to great
    effect by the Morris worm <xref target="Worm88"/>
 </t><t>
    The standard countermeasure to this attack is to make it difficult
@@ -232,8 +214,7 @@ provides examples of protocols which fit into each class.
    (DoS) attack--he can lock any account simply by performing failed
    logins.
 </t><t>
-   A superior approach is to incorporate a delay. For instance, the sys-
-   tem might allow the user to immediately try 3 passwords, but after
+   A superior approach is to incorporate a delay. For instance, the system might allow the user to immediately try 3 passwords, but after
    three failures lock the account for 10 seconds, increasing the delay
    (up to some fixed maximum) for each failure. This is a less effective
    countermeasure than simple LIMITED TRY but resists the DoS attack
@@ -244,15 +225,13 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-4.4" title=" Offline Dictionary Attack">
 <t>
    Even if digested password files are used, it still often possible for
-   an attacker who recovers the password file to discover user's pass-
-   words. The attacker can mount an OFFLINE DICTIONARY ATTACK on the
+   an attacker who recovers the password file to discover user's passwords. The attacker can mount an OFFLINE DICTIONARY ATTACK on the
    password file. A dictionary attack uses the fact that users tend to
    choose words rather than random strings in order to narrow the scope
    of exhaustive search. The attacker simply runs through each word (and
    common variations) in sequence, comparing the digest of the trial
    word against the digest in the password file. There are a number of
-   programs available to mount this sort of attack, including the clas-
-   sic Crack <xref target="Crack"/> program.
+   programs available to mount this sort of attack, including the classic Crack <xref target="Crack"/> program.
 </t><t>
 </t>
 <section anchor="sec-4.4.1" title=" Shadow Passwords">
@@ -293,14 +272,11 @@ provides examples of protocols which fit into each class.
    If a simple hash of the password is stored in the password file, then
    an attacker can attack all the passwords in the file in parallel. He
    simply generates the hash of each candidate and then compares it
-   against each stored hash. In order to prevent this attack, many sys-
-   tems SALT the hash with some random value (which is different for
+   against each stored hash. In order to prevent this attack, many systems SALT the hash with some random value (which is different for
    each user). Thus, instead of storing simply H(password) they store
    salt || H(salt || password), with the result that even two users who
-   have the same password will in general not have the same stored pass-
-   word hash. One interesting innovation is to use a secret salt. This
-   requires the attacker to try all possible salts, automatically slow-
-   ing down the process (thereby making iteration unnecessary).
+   have the same password will in general not have the same stored password hash. One interesting innovation is to use a secret salt. This
+   requires the attacker to try all possible salts, automatically slowing down the process (thereby making iteration unnecessary).
 </t><t>
 </t>
 </section>
@@ -310,11 +286,9 @@ provides examples of protocols which fit into each class.
    bad passwords. Even the 8 character UNIX password space allows 2^56
    possible passwords--a search space that is impractical for most
    attackers to search. One obvious countermeasure is to force users to
-   choose good passwords. This can be done reactively by running a pass-
-   word cracker on your system or proactively by forcing users to use
+   choose good passwords. This can be done reactively by running a password cracker on your system or proactively by forcing users to use
    good passwords when they set them. It's also possible to force users
-   to use randomly generated passwords. Unfortunately, unguessable pass-
-   words are often less memorable, causing users to write them down.
+   to use randomly generated passwords. Unfortunately, unguessable passwords are often less memorable, causing users to write them down.
    It's not clear that this is an improvement. Security-conscious people
 </t><t>
    are often willing to use complex mnemonics to help remember random
@@ -329,13 +303,10 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-4.5" title=" Case Study: HTTP Basic Authentication">
 <t>
    HTTP basic authentication  <xref target="RFC2617"/>
-   is the original HTTP authentica-
-   tion mechanism. It's a simple username/password scheme. The server
-   prompts the client with a request for authentication (in a WWW-
-   Authenticate header). The client responds with the password in an
+   is the original HTTP authentication mechanism. It's a simple username/password scheme. The server
+   prompts the client with a request for authentication (in a WWWAuthenticate header). The client responds with the password in an
    Authorization header. The password is base-64 encoded but this
-   doesn't provide any security, just protection from damage in trans-
-   port.
+   doesn't provide any security, just protection from damage in transport.
 </t><t>
 </t>
 <section anchor="sec-4.5.1" title=" Password Caching">
@@ -343,25 +314,19 @@ provides examples of protocols which fit into each class.
    Any reasonable Web page fetch consists of a number of HTTP fetches,
    each of which may requires HTTP authentication. Requiring the user to
    type in his password for each such fetch would be prohibitively
-   intrusive. Accordingly, web clients typically cache the user's pass-
-   word for some time (generally for the lifetime of the browser
+   intrusive. Accordingly, web clients typically cache the user's password for some time (generally for the lifetime of the browser
    process.)
 </t><t>
    In some cases, the browser will cache password on disk so that the
-   user never has to type in the password again. This practice intro-
-   duces a new security problem: protection of the user's cached pass-
-   words. These passwords can be encrypted on disk (under another pass-
-   word) but users often find this inconvenient and so the passwords are
-   often stored on the disk in the clear. This is dangerous on multi-
-   user machines, even ones which provide strong file permissions, since
+   user never has to type in the password again. This practice introduces a new security problem: protection of the user's cached passwords. These passwords can be encrypted on disk (under another password) but users often find this inconvenient and so the passwords are
+   often stored on the disk in the clear. This is dangerous on multiuser machines, even ones which provide strong file permissions, since
    administrators can still read such cache files.
 </t><t>
 </t>
 </section>
 <section anchor="sec-4.5.2" title=" Pro-active authentication">
 <t>
-   Requesting a page, receiving an authentication challenge and re-
-   requesting with a password introduces an extra round-trip. This
+   Requesting a page, receiving an authentication challenge and rerequesting with a password introduces an extra round-trip. This
    latency can be quite significant if the original request was large,
    such as with a file PUT. Thus, many clients pro-actively send their
    cached passwords whenever accessing any URL deeper than the URL for
@@ -403,8 +368,7 @@ provides examples of protocols which fit into each class.
    None of the one-time password schemes are very useful for automated
    authentication, since they only provide a limited number of keys.
    Using automated authentication with S/Key or OTP it is easy to
-   quickly use up a large number of keys. SecurID provides an essen-
-   tially infinite number of keys but they are changed too infrequently
+   quickly use up a large number of keys. SecurID provides an essentially infinite number of keys but they are changed too infrequently
    to be usable in most automated systems.
 </t><t>
    As with ordinary passwords, one time password mechanisms are subject
@@ -415,8 +379,7 @@ provides examples of protocols which fit into each class.
 </t>
 <section anchor="sec-5.1" title=" Case Study: S/Key and OTP">
 <t>
-   S/Key <xref target="RFC1760"/>, invented by Neil Haller and Phil Karn, is a straight-
-   forward one time password system that uses some clever implementation
+   S/Key <xref target="RFC1760"/>, invented by Neil Haller and Phil Karn, is a straightforward one time password system that uses some clever implementation
    tricks. One-Time Passwords (OTP) <xref target="RFC2289"/> is the successor protocol to
    S/Key, standardized by the IETF. In S/Key, the one time passwords are
    constructed by iteratively hashing a public seed and a secret. Thus:
@@ -432,8 +395,7 @@ provides examples of protocols which fit into each class.
    store the last password that it received (P[i]). The client will next
    authenticate with P[i-1]. The server can verify a password by hashing
    it and checking to see if it matches the stored password. Once
-   authentication is complete, the server simply deletes the old pass-
-   word and stores the new one.
+   authentication is complete, the server simply deletes the old password and stores the new one.
 </t><t>
    S/Key uses a special password encoding that's designed to make it
    easy for users to type passwords without errors. The 64-bit one-time
@@ -444,21 +406,17 @@ provides examples of protocols which fit into each class.
 </t><t>
      INCH SEA ANNE LONG AHEM TOUR
 </t><t>
-   This encoding is intended to be easier to type than base64 or hexa-
-   decimal. (Though hexadecimal is defined as well).
+   This encoding is intended to be easier to type than base64 or hexadecimal. (Though hexadecimal is defined as well).
 </t><t>
    S/Key can be used in two modes. In the first, the client is simply
    provided with a list of passwords on a piece of paper. He uses one at
    a time and crosses them off as he goes. In this case, the Secret is
    usually cryptographically random. In the second mode, the client has
-   a token or a computer program that he uses to calculate the appropri-
-   ate S/Key key. In this case, the Secret is generally some user-memo-
-   rable password which the user keys into the program or token.
+   a token or a computer program that he uses to calculate the appropriate S/Key key. In this case, the Secret is generally some user-memorable password which the user keys into the program or token.
 </t><t>
    S/Key scheme has a number of nice properties. First, the password
    file need not be kept secret, since going from P[i] to P[i-1]
-   requires reversing the message digest, which is believed to be compu-
-   tationally infeasible. (Note: if a text password is used as the
+   requires reversing the message digest, which is believed to be computationally infeasible. (Note: if a text password is used as the
    secret then the password file is still subject to dictionary attack,
    but a passive attacker who recovers ANY S/Key authenticator can mount
    a dictionary attack on it (by iteratively hashing the potential
@@ -468,8 +426,7 @@ provides examples of protocols which fit into each class.
    Second, it's easy for the user to rekey: He simply creates a new
    Secret, generates a set of keys and sends the last one to the server.
    Note that it's of course possible for an active attacker to hijack a
-   connection and rekey with a key of his choice, thus one time pass-
-   words are in general a poor choice when active attack is part of the
+   connection and rekey with a key of his choice, thus one time passwords are in general a poor choice when active attack is part of the
    threat model.
 </t><t>
 </t>
@@ -478,16 +435,14 @@ provides examples of protocols which fit into each class.
    S/Key has an interesting security flaw: Consider a protocol where
    passwords are transmitted one character at a time. A passive attacker
    might wait for the victim to log in and then create his own login
-   connection at the same time. The attacker would then echo the vic-
-   tim's password character for character, until there was only one
+   connection at the same time. The attacker would then echo the victim's password character for character, until there was only one
    character left. At this point the attacker would simply guess the
    last character and then complete the authentication. This attack is
    relatively simple to mount because nearly all the words in the S/Key
    dictionary are 4-characters long and the number of words with any
    given 3-letter prefix is generally quite small (2 or 3).
 </t><t>
-   The standard countermeasure to this attack is to only allow one pend-
-   ing authentication for a given user at any given time. In order to
+   The standard countermeasure to this attack is to only allow one pending authentication for a given user at any given time. In order to
    prevent DoS attacks, there must be at timeout on any such pending
    connection. OTP implementations are required to implement this or
    some other countermeasure.
@@ -501,11 +456,9 @@ provides examples of protocols which fit into each class.
    implementation is SecurID, sold by RSA Security Inc. Instead of using
    a fixed list of keys, SecurID uses a time-dependent key. The user has
    a token with an LCD displaying a pseudo-random number. That number
-   changes at an interval between 30 seconds and 2 minues and is syn-
-   chronized with an authentication server located at the server.
+   changes at an interval between 30 seconds and 2 minues and is synchronized with an authentication server located at the server.
 </t><t>
-   In order to authenticate the user enters both his PIN and the time-
-   dependent key (they can be concatenated so that this is transparent
+   In order to authenticate the user enters both his PIN and the timedependent key (they can be concatenated so that this is transparent
    to the client program.) The server verifies the password and checks
    that the time-dependent key is correct for the current time and only
    then allows login. It's clearly possible for an attacker to capture
@@ -537,23 +490,19 @@ provides examples of protocols which fit into each class.
    party provides a random (or at least unique) challenge and the
    authenticating party returns some function of the shared key and the
    challenge. Generally this function is some sort of message digest. In
-   the simplest form it is H(challenge || key), where H is a crypto-
-   graphic message digest (see <xref target="RFC3552"/>)  
+   the simplest form it is H(challenge || key), where H is a cryptographic message digest (see <xref target="RFC3552"/>)  
    and &quot;||&quot; denotes message
    concatenation. A better design is probably to use HMAC <xref target="RFC2104"/>
    which
    has stronger security guarantees.
 </t><t>
    Challenge/response mechanisms are resistant to simple sniffing
-   attacks but in general have all the other security problems of ordi-
-   nary password systems. Additionally, they are vulnerable to another
+   attacks but in general have all the other security problems of ordinary password systems. Additionally, they are vulnerable to another
    form of offline dictionary attack and are more vulnerable to password
-   file compromise than correctly implemented password in the clear sys-
-   tems.
+   file compromise than correctly implemented password in the clear systems.
 </t><t>
    Challenge/response mechanisms can be completely hardened against
-   offline dictionary attacks by the use of a sufficiently large ran-
-   domly-generated shared key instead of a password. Such a password is
+   offline dictionary attacks by the use of a sufficiently large randomly-generated shared key instead of a password. Such a password is
    of course difficult for a user to memorize but is quite useful if it
    can be statically configured on both sides of a connection.
 </t><t>
@@ -574,8 +523,7 @@ provides examples of protocols which fit into each class.
    probability (though not certainty) this will be the correct password.
    This problem is inherent in all simple challenge response mechanisms
    and cannot be fixed without public-key technology. This problem is
-   inherent unless public-key methods are incorporated within the chal-
-   lenge-response protocol, as will be discussed in <a href="#sec-7">Section 7</a> and 8, or
+   inherent unless public-key methods are incorporated within the challenge-response protocol, as will be discussed in <a href="#sec-7">Section 7</a> and 8, or
    the challenge-response transactions are carried over secure channels
    (which themselves must be authenticated).
 </t><t>
@@ -586,15 +534,13 @@ provides examples of protocols which fit into each class.
    Challenge/response mechanisms also introduce a new problem: PASSWORD
    EQUIVALENCE. In order to locally compute (for verification purposes)
    the appropriate response for a given challenge, the server must store
-   the user's password locally. Thus, if the password file is compro-
-   mised, the attacker can directly log in to the server, without even
+   the user's password locally. Thus, if the password file is compromised, the attacker can directly log in to the server, without even
    needing to crack the password file. We'll call this property WEAK
    PASSWORD EQUIVALENCE.
 </t><t>
    A more serious variant of the same problem occurs if users use the
    same password on multiple systems. Compromise of one system can thus
-   lead to compromise of many. This is called STRONG PASSWORD EQUIVA-
-   LENCE. This risk should not be overstated--compromise of an ordinary
+   lead to compromise of many. This is called STRONG PASSWORD EQUIVALENCE. This risk should not be overstated--compromise of an ordinary
    password system can still lead to attack if the attacker completely
    compromises the system and can capture people's passwords when they
    login--but is nevertheless worse in challenge/response than with
@@ -606,8 +552,7 @@ provides examples of protocols which fit into each class.
 </t><t>
    The server stores STORED instead of the password. (Making STORED
    effectively the password). The server then gives the client both SALT
-   and CHALLENGE, allowing the client to compute RESPONSE from the pass-
-   word alone. Note that the two-stage process only prevents compromise
+   and CHALLENGE, allowing the client to compute RESPONSE from the password alone. Note that the two-stage process only prevents compromise
    of one system from affecting others. Compromise of a password file
    still allows immediate access to the target system.
 </t><t>
@@ -618,8 +563,7 @@ provides examples of protocols which fit into each class.
    CRAM-MD5 <xref target="RFC2195"/> is a challenge/response authentication extension
    for IMAP <xref target="RFC2060"/>
    CRAM-MD5 is a classic challenge/response system: the
-   server provides a presumably random challenge and the client trans-
-   mits an HMAC of the challenge using the shared key as the HMAC key.
+   server provides a presumably random challenge and the client transmits an HMAC of the challenge using the shared key as the HMAC key.
    The interaction looks like this:
 </t>
 <figure>
@@ -631,8 +575,7 @@ provides examples of protocols which fit into each class.
      5 S: A0001 OK CRAM authentication successful
   </artwork>
 </figure><t>
-   The second message from the server (message 3) is the base-64 encod-
-   ing of the string &quot;&lt;1896.697170952@postoffice.reston.mci.net&gt;&quot;. This
+   The second message from the server (message 3) is the base-64 encoding of the string &quot;&lt;1896.697170952@postoffice.reston.mci.net&gt;&quot;. This
 </t><t>
    string must be in the form of an email address
    <xref target="RFC2822"/> and is
@@ -641,18 +584,14 @@ provides examples of protocols which fit into each class.
    for transmission in message 4.
 </t><t>
    CRAM-MD5 is an improvement on the password-in-the-clear mechanisms
-   that it replaces but still has all the security flaws of basic chal-
-   lenge/response mechanisms. In particular, it is vulnerable to post-
-   authentication hijacking and is strongly password equivalent.
+   that it replaces but still has all the security flaws of basic challenge/response mechanisms. In particular, it is vulnerable to postauthentication hijacking and is strongly password equivalent.
 </t><t>
    CRAM-MD5 has some interesting security properties with respect to
    server password file compromise. The RFC encourages servers to store
-   a pre-initialized HMAC context rather than than the client's pass-
-   word. Since the password has already gone through the MD5 compression
+   a pre-initialized HMAC context rather than than the client's password. Since the password has already gone through the MD5 compression
    function, it is believed to be infeasible to recover the password
    from the context. However, since the HMAC context is sufficient to
-   compute any response without knowing the key, an attacker who recov-
-   ers the context can impersonate the client without knowing the key.
+   compute any response without knowing the key, an attacker who recovers the context can impersonate the client without knowing the key.
    This context will be the same for all servers which share the same
    password. The result of these facts is that an attacker who recovers
    the password file from such a server can attack any other server
@@ -675,8 +614,7 @@ provides examples of protocols which fit into each class.
    The basic Digest Authentication interaction takes two round trips. In
    the first, the client requests some document and is rejected. The
    server's rejection (a 401 Unauthorized) contains an indication that
-   it supports Digest Authentication, a realm string, and a random chal-
-   lenge. The client's subsequent request includes a message digest over
+   it supports Digest Authentication, a realm string, and a random challenge. The client's subsequent request includes a message digest over
    the password, the challenge, and part of the HTTP Request.
 </t><t>
    HTTP Digest offers two types of integrity check (the field specifying
@@ -691,12 +629,10 @@ provides examples of protocols which fit into each class.
 </t>
 <section anchor="sec-6.4.1" title=" Message Integrity">
 <t>
-   As previously noted, simple challenge/response schemes without asso-
-   ciated channel security allow an attacker to hijack the connection
+   As previously noted, simple challenge/response schemes without associated channel security allow an attacker to hijack the connection
    after authentication has occurred. Since each HTTP request must be
    individually authenticated, an attacker who takes over the channel
-   cannot transmit new unauthenticated requests over that channel. How-
-   ever, an attacker might attempt to intercept an authenticated request
+   cannot transmit new unauthenticated requests over that channel. However, an attacker might attempt to intercept an authenticated request
    and mount a cut-and-paste attack, leaving the authenticator but
    changing the contents. This attack is prevented by including the URI
    in the message digest.
@@ -705,8 +641,7 @@ provides examples of protocols which fit into each class.
    information in the HTTP request. Both the headers and the body are
    potentially sensitive. For instance, if HTTP POST is used, FORM input
    values will be in the message body. The auth-int qop value protects
-   this information, but it is not widely deployed. None of the qop val-
-   ues protects the headers.
+   this information, but it is not widely deployed. None of the qop values protects the headers.
 </t><t>
    It's worth noting that Digest provides protection only for the
    request. No authentication is provided for the server, nor is message
@@ -756,8 +691,7 @@ provides examples of protocols which fit into each class.
    would then presumably be followed by an integrity attack on the
    client request. This attack could be prevented by requiring the
    client to include a digest of the server's offered qop values in the
-   client's authenticator. However, that is not the case with the cur-
-   rent scheme.
+   client's authenticator. However, that is not the case with the current scheme.
 </t><t>
 </t>
 </section>
@@ -781,33 +715,28 @@ provides examples of protocols which fit into each class.
    All three of the mechanisms mentioned so far can be hardened against
    passive attacks by the use of anonymous key exchange. Essentially,
    the peers arrange for a secure channel using a key establishment
-   mechanism that does not authenticate either side. Public key algo-
-   rithms such as Diffie-Hellman and RSA can be used in this way. Once
+   mechanism that does not authenticate either side. Public key algorithms such as Diffie-Hellman and RSA can be used in this way. Once
    the key is established you can encrypt all the traffic. and any data
    which is transmitted over the channel is secure from eavesdroppers.
    This includes data such as passwords or authenticators.
 </t><t>
    The problem with this system is that it's subject to what's called a
-   man-in-the-middle (MITM) attack. Because the cryptographic key estab-
-   lishment mechanism is unauthenticated, it is possible for an attacker
+   man-in-the-middle (MITM) attack. Because the cryptographic key establishment mechanism is unauthenticated, it is possible for an attacker
    to intercept communications between the peers (say Alice and Bob) and
    pose as Alice to Bob and Bob to Alice. The attacker can then forward
    traffic between them and get access to whatever's being encrypted.
 </t><t>
-   The MITM attack on Diffie-Hellman key exchange is shown in the fol-
-   lowing figure. Yc, Ya, and Ys are used to denote the client,
+   The MITM attack on Diffie-Hellman key exchange is shown in the following figure. Yc, Ya, and Ys are used to denote the client,
    attacker, and server public keys respectively.
 </t>
 <figure><artwork>
      Client                Attacker                Server
-     ------                --------                ------
-     Yc -&gt;
+     ------                --------                -----Yc -&gt;
                               Ya -&gt;
                                                     &lt;- Ys
                            &lt;- Ya
 </artwork></figure><t>
-   At the end of this exchange the client thinks that the server's pub-
-   lic key is Ya and the server thinks that the client's public key is
+   At the end of this exchange the client thinks that the server's public key is Ya and the server thinks that the client's public key is
    Ya. However, in reality both have established a shared secret with
    the attacker.
 </t><t>
@@ -818,9 +747,7 @@ provides examples of protocols which fit into each class.
    mount than passive attacks but by no means impossible <xref target="Bell89"/>
 </t><t>
    All of these mechanisms use public key cryptography to perform the
-   initial anonymous key exchange. As a result, performance can be unac-
-   ceptably slow if one side (e.g., a handheld device) is heavily con-
-   strained. Most Internet servers are fast enough to keep up with the
+   initial anonymous key exchange. As a result, performance can be unacceptably slow if one side (e.g., a handheld device) is heavily constrained. Most Internet servers are fast enough to keep up with the
    normal number of required authentications and hardware acceleration
    solutions are readily available.
 </t><t>
@@ -829,8 +756,7 @@ provides examples of protocols which fit into each class.
 <t>
    Secure Shell (SSH) provides a number of authentication mechanisms,
    but the first step is always to establish a secure channel between
-   the client and the server. SSH is designed not to require certifi-
-   cates: the server merely provides a raw public key to the client. As
+   the client and the server. SSH is designed not to require certificates: the server merely provides a raw public key to the client. As
    a countermeasure to man-in-the-middle attack, the SSH client caches
    the server's public key and generates a warning or error (depending
    on the implementation) if that key changes.
@@ -848,13 +774,8 @@ provides examples of protocols which fit into each class.
    key) out of band and comparing that to the fingerprint of the key the
    server offers.
 </t><t>
-   SSH bootstraps off of the system's login mechanisms so it will sup-
-   port either passwords in the clear or one time password authentica-
-   tion. Note that in either case if an attacker mounts a successful man
-   in the middle attack, he will be able to hijack the connection post-
-   authentication, just as he would have if the transaction was per-
-   formed in the clear. This vulnerability can be alleviated with care-
-   ful protocol design, as we'll see in the next case study.
+   SSH bootstraps off of the system's login mechanisms so it will support either passwords in the clear or one time password authentication. Note that in either case if an attacker mounts a successful man
+   in the middle attack, he will be able to hijack the connection postauthentication, just as he would have if the transaction was performed in the clear. This vulnerability can be alleviated with careful protocol design, as we'll see in the next case study.
 </t><t>
 </t>
 </section>
@@ -870,8 +791,7 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-8" title=" Zero-Knowledge Password Proofs">
 <t>
    All of the mechanisms mentioned so far depend on some sort of shared
-   key. If that shared key is a user-derived password, then it's possi-
-   ble for the attacker to mount an offline dictionary attack on the
+   key. If that shared key is a user-derived password, then it's possible for the attacker to mount an offline dictionary attack on the
    password, either completely passively (as with CRAM-MD5) or with a
    single MITM attack (as with TLS anonymous DH). However, a rather
    clever class of protocols known as Zero Knowledge Password Proofs
@@ -887,8 +807,7 @@ provides examples of protocols which fit into each class.
 <figure>
 <artwork>
      Client                             Server
-     ------                             ------
-     Name, E(Password, Ya)) -&gt;
+     ------                             -----Name, E(Password, Ya)) -&gt;
                        &lt;- E(Password, Yb),E(K,Challenge-b)
      E(K,Challenge-a || Challenge-b) -&gt;
                        &lt;-                E(K, Challenge-a)
@@ -938,33 +857,25 @@ provides examples of protocols which fit into each class.
    Anonymous key exchange, cleartext passwords, one time passwords, and
    challenge/response protocols can all run over an authenticated and
    encrypted channel. In such a system, there's no need to worry about
-   active attack, so the authentication protocols don't need to be hard-
-   ened against it.
+   active attack, so the authentication protocols don't need to be hardened against it.
 </t><t>
    Providing an encrypted channel with authentication for the server
-   dramatically reduces the security advantage enjoyed by more compli-
-   cated schemes over simple passwords. Since the marginal security ben-
-   efit of such systems is so modest when compared to the increased
+   dramatically reduces the security advantage enjoyed by more complicated schemes over simple passwords. Since the marginal security benefit of such systems is so modest when compared to the increased
    implementation and deployment complexity, common practice when server
    authentication is available is to use simple passwords over the
    encrypted channel. This includes systems such as passwords over SSL
    and passwords over IPsec VPNs.
 </t><t>
    In addition to making the overall authentication problem simpler,
-   hosting one's application protocol over an encrypted and authenti-
-   cated channel has a number of other security benefits. First, a prop-
-   erly designed channel security protocol removes the threat of post-
-</t><t>
-   authentication hijacking (described in <a href="#sec-4.2">Section 4.2</a>). Second, it pro-
-   vides confidentiality and message integrity for the rest of the
+   hosting one's application protocol over an encrypted and authenticated channel has a number of other security benefits. First, a properly designed channel security protocol removes the threat of post</t><t>
+   authentication hijacking (described in <a href="#sec-4.2">Section 4.2</a>). Second, it provides confidentiality and message integrity for the rest of the
    application traffic, which is in general a good thing.
 </t><t>
    The primary difficulty with this approach is that providing
    certificate-based server authentication is not straightforward. The
    first problem is that the server machine must have a certificate,
    which entails some inconvenience and cost. Self-signed certificates
-   aren't acceptable in this case (rather, they reduce you to the anony-
-   mous key exchange scenario described in <a href="#sec-7">Section 7</a>).
+   aren't acceptable in this case (rather, they reduce you to the anonymous key exchange scenario described in <a href="#sec-7">Section 7</a>).
 </t><t>
    The more serious problem is establishing what the server side name in
    the certificate ought to be. Common practice (stemming from practice
@@ -1013,8 +924,7 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-9.1.1" title=" Authentication State">
 <t>
    When Basic or Digest Authentication is used, the client can simply
-   transmit an authenticator with every request. However, if authentica-
-   tion is performed using an HTML form, this approach is impractical,
+   transmit an authenticator with every request. However, if authentication is performed using an HTML form, this approach is impractical,
    since it would require client interaction for every page fetch. Three
    approaches for solving this problem are generally proposed.
 </t><t>
@@ -1035,8 +945,7 @@ provides examples of protocols which fit into each class.
    authenticated users stored on the server. Note that these indices
    must be unpredictable to prevent one user from guessing another
    user's token. The self-authenticating approach has the advantage that
-   it does not require persistent storage on the server but the disad-
-   vantage that there is no way to mark a token invalid or update it
+   it does not require persistent storage on the server but the disadvantage that there is no way to mark a token invalid or update it
    (although they can of course contain an expiry time). When multiple
    servers are involved, self-authenticating tokens have the additional
    advantage that they do not require inter-server communication.
@@ -1057,8 +966,7 @@ provides examples of protocols which fit into each class.
    The CGI script would then use the authenticator argument to determine
    the client identity, recover the actual target page and perform the
    authentication checks. Using a CGI script this way is inconvenient
-   since it requires replicating the server's access control infrastruc-
-   ture. A less intrusive approach involves having a server plugin
+   since it requires replicating the server's access control infrastructure. A less intrusive approach involves having a server plugin
    unwrap the target URL early in the server's processing pipeline,
    before the access control checks are performed. This allows the
    server to perform its normal authentication checks based on the
@@ -1066,9 +974,7 @@ provides examples of protocols which fit into each class.
 </t><t>
    The primary difficulty with URL rewriting is that it all pages must
    be dynamically generated. Either each page must be generated by a
-   script which embeds the appropriate URLs or the server must postpro-
-   cess pages to embed them. Either approach makes the system more com-
-   plex and therefore adds instability. However, before the introduction
+   script which embeds the appropriate URLs or the server must postprocess pages to embed them. Either approach makes the system more complex and therefore adds instability. However, before the introduction
    of cookies, URL rewriting was essentially the only option for token
    passing.
 </t><t>
@@ -1084,14 +990,12 @@ provides examples of protocols which fit into each class.
    Browsers generally persistently cache cookies between invocations.
    Cookies are the method of choice for carrying HTTP state information
    and can be used to carry all kinds of state besides authentication
-   information. Note, however, that since cookies can be used to trans-
-   mit information from one server to another, they have been the focus
+   information. Note, however, that since cookies can be used to transmit information from one server to another, they have been the focus
    of privacy concerns <xref target="RFC2965"/>. Accordingly, some users choose not to
    accept or transmit cookies.
 </t><t>
    Note that <xref target="RFC2964"/> specifically recommends against the
-   usage of cookies for carrying authentication and authorization infor-
-   mation. Nevertheless, this practice is nearly universal on the Web.
+   usage of cookies for carrying authentication and authorization information. Nevertheless, this practice is nearly universal on the Web.
 </t><t>
 </t>
 </section>
@@ -1126,22 +1030,18 @@ provides examples of protocols which fit into each class.
    If both client and server have certificates, then the peers can use
    mutual certificate authentication. This is done by having both client
    and server establish that they know the private keys corresponding to
-   their certificates. A wide variety of protocols offer this function-
-   ality, including SSL, IPsec, and SSH (SSH actually offers mutual
+   their certificates. A wide variety of protocols offer this functionality, including SSL, IPsec, and SSH (SSH actually offers mutual
    authentication with pre-arranged public keys).
 </t><t>
    The two most important advantages of public key authentication are
-   that it has no password equivalence and that it can allow authentica-
-   tion between parties who have no prior arrangement.
+   that it has no password equivalence and that it can allow authentication between parties who have no prior arrangement.
 </t><t>
 </t>
 <section anchor="sec-10.1" title=" Password Equivalence">
 <t>
    With public key authentication, the server knows only the client's
-   public key. It is therefore incapable of forging any kind of authen-
-   tication message from the client. Similarly, knowledge of the public
-   key does not allow an attacker to authenticate to the server. Accord-
-   ingly, public key techniques never store a password equivalent on the
+   public key. It is therefore incapable of forging any kind of authentication message from the client. Similarly, knowledge of the public
+   key does not allow an attacker to authenticate to the server. Accordingly, public key techniques never store a password equivalent on the
    server.
 </t><t>
 </t>
@@ -1157,9 +1057,7 @@ provides examples of protocols which fit into each class.
    certificate matches that URL.
 </t><t>
    In addition to strict identity verification, it's possible to use
-   certificates to carry authorization information. This allows a cen-
-   tral authority to make both authentication and access control deci-
-   sions for distributed servers merely by issuing certificates. <xref target="BFL96"/>
+   certificates to carry authorization information. This allows a central authority to make both authentication and access control decisions for distributed servers merely by issuing certificates. <xref target="BFL96"/>
    describes such a system.
 </t><t>
 </t>
@@ -1168,8 +1066,7 @@ provides examples of protocols which fit into each class.
 <t>
    The primary security problem with public key authentication protocol
    (assuming the basic protocol is designed correctly) is protecting the
-   private key. In server applications and many non-mobile client appli-
-   cations, the key is simply stored on disk, often encrypted under a
+   private key. In server applications and many non-mobile client applications, the key is simply stored on disk, often encrypted under a
    password-derived symmetric key. In applications where the user must
    carry his authentication information around, this can be done in
    essentially two ways: with a token or by generating the key from a
@@ -1186,8 +1083,7 @@ provides examples of protocols which fit into each class.
    private key is generally protected by a PIN, but of course this PIN
    is known to any computer on which the token is used, since the PIN is
    sent to the token by the computer. The primary threat to tokens is
-   loss or theft. It's not generally economical to make such tokens com-
-   pletely tamper-proof, so a lost token in the hands of a dedicated
+   loss or theft. It's not generally economical to make such tokens completely tamper-proof, so a lost token in the hands of a dedicated
    attacker means a lost private key.
 </t><t>
    There are two major types of tokens: those which are pure memory for
@@ -1199,31 +1095,24 @@ provides examples of protocols which fit into each class.
 </section>
 <section anchor="sec-10.5" title=" Password Derived Keys">
 <t>
-   It's generally possible to derive a user's private key from a rela-
-   tively short password, simply by using the password to seed a crypto-
-   graphically secure PRNG which is used to generate the private key.
+   It's generally possible to derive a user's private key from a relatively short password, simply by using the password to seed a cryptographically secure PRNG which is used to generate the private key.
    Unfortunately, this technique is susceptible to dictionary attack,
    since an attacker can dictionary search the password space until he
-   finds a password that generates a key pair that matches the signa-
-   ture. Protocols can be designed to resist this attack by exchanging
+   finds a password that generates a key pair that matches the signature. Protocols can be designed to resist this attack by exchanging
    the signed client response under the server's private key, but many
    protocols (notably SSL) do not. Accordingly, password derived keys
-   should be viewed as a mechanism for using shared keys with public-
-   key-only protocols, not as a fully public key system.
+   should be viewed as a mechanism for using shared keys with publickey-only protocols, not as a fully public key system.
 </t><t>
 </t>
 </section>
 <section anchor="sec-10.6" title=" Case Study: SMTP over TLS">
 <t>
-   SMTP can be combined with TLS as described in <xref target="RFC2487"/>. This pro-
-   vides similar protection to that provided when using IPSEC. Since TLS
+   SMTP can be combined with TLS as described in <xref target="RFC2487"/>. This provides similar protection to that provided when using IPSEC. Since TLS
 </t><t>
    certificates typically contain the server's host name, recipient
    authentication may be slightly more obvious, but is still susceptible
-   to DNS spoofing attacks. Notably, common implementations of TLS con-
-   tain a US exportable (and hence low security) mode. Applications
-   desiring high security should ensure that this mode is disabled. Pro-
-   tection is provided against replay attacks, since the data itself is
+   to DNS spoofing attacks. Notably, common implementations of TLS contain a US exportable (and hence low security) mode. Applications
+   desiring high security should ensure that this mode is disabled. Protection is provided against replay attacks, since the data itself is
    protected and the packets cannot be replayed.
 </t><t>
 </t>
@@ -1242,19 +1131,15 @@ provides examples of protocols which fit into each class.
    An approach that has lately gained currency is to use a generic
    authentication negotiation system. Examples of such systems include
    SASL <xref target="RFC2222"/> and EAP <xref target="RFC2284"/>.
-   The general idea is that one has a proto-
-   col framework which doesn't provide any authentication features per
+   The general idea is that one has a protocol framework which doesn't provide any authentication features per
    se but instead allows you to negotiate the authentication mechanisms
-   you wish to use. SASL, for instance, allows the negotiation of CRAM-
-   MD5 (a digest-based challenge/response mechanism), SRP, and TLS among
+   you wish to use. SASL, for instance, allows the negotiation of CRAMMD5 (a digest-based challenge/response mechanism), SRP, and TLS among
    other mechanisms.
 </t><t>
-   Generic authentication mechanisms are attractive to application pro-
-   tocol designers because they allow them--in theory--to add security
+   Generic authentication mechanisms are attractive to application protocol designers because they allow them--in theory--to add security
    to their protocols without having to directly deal with the security
    issues. They simply specify that one should use a given framework.
-   They're attractive to security mechanism designers because it's rela-
-   tively easy to add new mechanisms.
+   They're attractive to security mechanism designers because it's relatively easy to add new mechanisms.
 </t><t>
 </t>
 <section anchor="sec-11.1" title=" Downgrade Attacks">
@@ -1264,13 +1149,10 @@ provides examples of protocols which fit into each class.
    interferes with the negotiation to force the parties to negotiate a
    weaker mechanism than they otherwise would. Consider a set of peers,
    each of which supports both challenge/response and simple passwords.
-   An attacker can force them into using a simple password and then cap-
-   ture that password.
+   An attacker can force them into using a simple password and then capture that password.
 </t><t>
    The standard countermeasure to downgrade attack is to authenticate a
-   message digest of the offered mechanisms. Unfortunately, this protec-
-   tion is only as strong as the weakest common mechanism. If this mech-
-   anism is a simple password then no protection against downgrade
+   message digest of the offered mechanisms. Unfortunately, this protection is only as strong as the weakest common mechanism. If this mechanism is a simple password then no protection against downgrade
    attack is possible. The possibility of downgrade attack requires that
    users of generic security mechanisms carefully profile the mechanisms
 </t><t>
@@ -1287,20 +1169,15 @@ provides examples of protocols which fit into each class.
    OTP <xref target="RFC2245"/>,
    and Digest Authentication <xref target="RFC2831"/>. In addition, there is currently
    an Internet-Draft for CRAM-MD5 support in SASL. These methods offer
-   fairly equivalent security (with the major exception being the pass-
-   word equivalence issue for the challenge response mechanisms).
+   fairly equivalent security (with the major exception being the password equivalence issue for the challenge response mechanisms).
 </t><t>
    So, why the proliferation of superficially redundant mechanisms? From
    a security perspective, they could all be replaced by Digest. The
-   reason appears to be legacy authentication mechanisms. Many environ-
-   ments already have S/Key or SecurID installed and the administrators
+   reason appears to be legacy authentication mechanisms. Many environments already have S/Key or SecurID installed and the administrators
    don't want to replace them. This inevitably creates pressure to add
    every conceivable security mechanism to one's generic framework.
 </t><t>
-   While the desire to support legacy authentication systems is under-
-   standable, it should be resisted to the extent possible. Having mul-
-   tiple equivalent mechanisms dramatically increases both implementa-
-   tion complexity and interoperability problems. When designing a new
+   While the desire to support legacy authentication systems is understandable, it should be resisted to the extent possible. Having multiple equivalent mechanisms dramatically increases both implementation complexity and interoperability problems. When designing a new
    system, designers should choose a very small number of authentication
    mechanisms, with no more than one of any given class.
 </t><t>
@@ -1308,13 +1185,9 @@ provides examples of protocols which fit into each class.
 </section>
 <section anchor="sec-11.3" title=" Excessive Layering">
 <t>
-   Many of the legacy authentication mechanisms that users and adminis-
-   trators wish to support are themselves generic frameworks of one kind
+   Many of the legacy authentication mechanisms that users and administrators wish to support are themselves generic frameworks of one kind
    or another. For instance, SASL allows the use of GSSAPI, which itself
-   is a generic framework for a number of mechanisms. This sort of lay-
-   ering dramatically increases both implementation and deployment com-
-   plexity. For instance, GSSAPI contains mechanisms that are essen-
-   tially equivalent to Kerberos, but SASL also supports Kerberos
+   is a generic framework for a number of mechanisms. This sort of layering dramatically increases both implementation and deployment complexity. For instance, GSSAPI contains mechanisms that are essentially equivalent to Kerberos, but SASL also supports Kerberos
    directly. Under what conditions should clients use Kerberos directly
    and under which should they use it through GSSAPI?
 </t><t>
@@ -1322,13 +1195,9 @@ provides examples of protocols which fit into each class.
    Protocol (EAP) <xref target="RFC2284"/>, an authentication framework originally designed
    for PPP <xref target="RFC1661"/>. Note that PPP itself allows multiple authentication
    mechanisms, so PPP must first negotiate EAP. EAP then negotiates the
-   individual mechanisms. To make matters worse, one of the EAP mecha-
-   nisms is TLS <xref target="RFC4346"/> which can negotiate its own authentication mecha-
-   nisms. Three levels of indirection seems a bit much.
+   individual mechanisms. To make matters worse, one of the EAP mechanisms is TLS <xref target="RFC4346"/> which can negotiate its own authentication mechanisms. Three levels of indirection seems a bit much.
 </t><t>
-   In accordance with the principle of having as few mechanisms as pos-
-   sible, frameworks should avoid mechanisms that are themselves frame-
-   works, in favor of using the second framework's mechanisms directly.
+   In accordance with the principle of having as few mechanisms as possible, frameworks should avoid mechanisms that are themselves frameworks, in favor of using the second framework's mechanisms directly.
    &quot;We'll build ours on top of theirs&quot; is a bad policy.
 </t><t>
 </t>
@@ -1358,8 +1227,7 @@ provides examples of protocols which fit into each class.
    authentication data reside on different machines. This problem is
    typically solved (when it is solved, as opposed to simply ignored) by
    having some unique system which has the credentials. Such a machine
-   may either provide authentication as service (as in Kerberos) or sim-
-   ply provide credentials to authorized machines (YP, NIS). In either
+   may either provide authentication as service (as in Kerberos) or simply provide credentials to authorized machines (YP, NIS). In either
    case, this protocol needs to be secured.
 </t><t>
 </t>
@@ -1369,15 +1237,13 @@ provides examples of protocols which fit into each class.
    A related problem is that users don't necessarily want to have to
    manually authenticate each time some service wants authentication.
    Rather, they want to authenticate once and have software take care of
-   the rest. This capability is called SINGLE SIGN-ON. If all authenti-
-   cation will be performed by one program, this can be fixed simply by
+   the rest. This capability is called SINGLE SIGN-ON. If all authentication will be performed by one program, this can be fixed simply by
    having the program cache the user's credentials. If credentials need
    to be shared across multiple services then it's necessary to have
    some way to pass them from the program which first authenticates to
    others (or to have some central credential manager). This service is
    generally called SINGLE SIGN-ON.
-     As a special case, consider the case where mutually suspicious sys-
-   tems all want to allow a user to authenticate with a single set of
+     As a special case, consider the case where mutually suspicious systems all want to allow a user to authenticate with a single set of
    credentials. If certificate-based authentication is being used, this
    is relatively straightforward. In the case where passwords are being
    used, the typical solution is to have some third party authentication
@@ -1390,8 +1256,7 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-12.3" title=" Case Study: RADIUS">
 <t>
    RADIUS is a remote authentication service commonly used for network
-   attachment points. Many network access points are relatively con-
-   strained, untrusted devices. Thus, it's convenient for them not to
+   attachment points. Many network access points are relatively constrained, untrusted devices. Thus, it's convenient for them not to
    perform authentication directly. Instead, authentication is done by
    an authentication server.
 </t><t>
@@ -1407,15 +1272,13 @@ provides examples of protocols which fit into each class.
 </section>
 <section anchor="sec-12.4" title=" Case Study: Kerberos">
 <t>
-   Kerberos <xref target="RFC1510"/> is a popular authentication/single sign-on ser-
-   vice, especially in academic environments. Kerberos is based on the
+   Kerberos <xref target="RFC1510"/> is a popular authentication/single sign-on service, especially in academic environments. Kerberos is based on the
    Needham-Schroeder authentication protocol. The authentication server
    role is played by a Key Distribution Center (KDC). When a client
    first signs on the client proves its identity to the KDC, usually by
    means of a password shared with the KDC.
      Kerberos is unusual in that the authentication service is provided
-   to the client rather than the server. When a client wishes to commu-
-   nicate with a server, it first contacts the KDC and acquires a
+   to the client rather than the server. When a client wishes to communicate with a server, it first contacts the KDC and acquires a
    TICKET. That ticket contains a new symmetric key encrypted for both
    the client and server. The client can transmit the ticket to the
    server and use it both to prove its identity and establish a secure
@@ -1451,8 +1314,7 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-13.1.1" title=" What's my threat model?">
 <t>
    Sorting out the threat model is always the first step in deciding
-   what sorts of security mechanisms to use. In the case of authentica-
-   tion you must consider, at minimum.
+   what sorts of security mechanisms to use. In the case of authentication you must consider, at minimum.
 </t><t>
      2. Does the threat model include active attack. (Hint: it should.)
      3. Do I need protection for my data or just the authentication.
@@ -1484,9 +1346,7 @@ provides examples of protocols which fit into each class.
 </section>
 <section anchor="sec-13.1.4" title=" Do I need to share authentication data">
 <t>
-   If authentication data needs to be shared, especially between multi-
-   ple servers, it's generally worth considering some sort of authenti-
-   cation server or using certificates.
+   If authentication data needs to be shared, especially between multiple servers, it's generally worth considering some sort of authentication server or using certificates.
 </t><t>
 </t>
 </section>
@@ -1499,18 +1359,14 @@ provides examples of protocols which fit into each class.
 </t><t>
    weakest link. In general, there are two reasons why systems allow
    more than one authentication mechanism. The first is that you're
-   retrofitting a system which already has a large number of authentica-
-   tion mechanisms which cannot be displaced. The second is that users
+   retrofitting a system which already has a large number of authentication mechanisms which cannot be displaced. The second is that users
    have widely different environments which for some reason cannot use
    the same authentication mechanism conveniently (e.g. some users have
    tokens and some do not).
 </t><t>
    Naturally, designers need to take such considerations into account
-   but they should take reasonable steps to minimize the number of mech-
-   anisms. Designers should take special care to minimize the number of
-   equivalent mechanisms. For instance, a system that provides a chal-
-   lenge/response mechanism and a public key based mechanism is a rea-
-   sonable design, one that provides three different challenge/response
+   but they should take reasonable steps to minimize the number of mechanisms. Designers should take special care to minimize the number of
+   equivalent mechanisms. For instance, a system that provides a challenge/response mechanism and a public key based mechanism is a reasonable design, one that provides three different challenge/response
    mechanisms is not.
 </t><t>
    This doesn't mean that designers should not use security frameworks
@@ -1526,10 +1382,8 @@ provides examples of protocols which fit into each class.
    It's widely known that simple plaintext passwords are unsafe, but
    what's less widely known is that merely providing such a scheme can
    weaken systems even if stronger mechanisms are present. Consider the
-   case where a system uses a negotiation framework that allows pass-
-   words. A downgrade attack can force the user to reveal his password
-   even if both client and server support stronger mechanisms. Accord-
-   ingly, designers should avoid deploying simple password mechanisms if
+   case where a system uses a negotiation framework that allows passwords. A downgrade attack can force the user to reveal his password
+   even if both client and server support stronger mechanisms. Accordingly, designers should avoid deploying simple password mechanisms if
    at all possible, not just provide stronger mechanisms.
 </t><t>
 </t>
@@ -1537,8 +1391,7 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-13.4" title=" Avoid inventing something new">
 <t>
    Despite the large number of mechanisms we've discussed, this document
-   describes only a small number of the available authentication mecha-
-   nisms. There are very few situations in which designers cannot use
+   describes only a small number of the available authentication mechanisms. There are very few situations in which designers cannot use
    some preexisting mechanism. This is vastly preferable to designing
    their own version of one of the standard mechanisms. In particular,
    designers should avoid designing their own channel security systems.
@@ -1552,8 +1405,7 @@ provides examples of protocols which fit into each class.
    plan. It's particularly good advice here, since passwords in the
    clear, one-time passwords, challenge-response and zero-knowledge
 </t><t>
-   password proofs all require the user to have the same kind of creden-
-   tial: a password. (Note that some OTP schemes such as SecurID require
+   password proofs all require the user to have the same kind of credential: a password. (Note that some OTP schemes such as SecurID require
    a token.) When designing a new system, the ability to provide a
    familiar interface to a user is valuable, minimizing additional work
    for client and server implementors is not. NIST Spec. Pub. 800-63
@@ -1568,8 +1420,7 @@ provides examples of protocols which fit into each class.
    themselves resistant to active attacks, many are subject to hijacking
    after authentication has completed. If your threat model includes
    active attack (it should), you should strongly consider providing
-   message integrity for all of your protocol messages in order to pre-
-   vent hijacking.
+   message integrity for all of your protocol messages in order to prevent hijacking.
 </t><t>
 </t>
 </section>
@@ -1603,20 +1454,16 @@ provides examples of protocols which fit into each class.
 <t>
    Three basic strategies are suitable for the situation where neither
    side has a key pair: challenge/response, one-time passwords, and
-   ZKPPs. The only situation in which OTP systems are superior to chal-
-   lenge/response systems is when adapting a legacy system in which it
+   ZKPPs. The only situation in which OTP systems are superior to challenge/response systems is when adapting a legacy system in which it
    is difficult to change the client software. If the client software
    can be changed, challenge/response offers roughly equivalent security
 </t><t>
-   with significantly less management complexity. ZKPP proofs are tech-
-   nically superior however, in at least two cases (SACRED and IPS),
+   with significantly less management complexity. ZKPP proofs are technically superior however, in at least two cases (SACRED and IPS),
    IETF WGs have chosen not to require ZKPPs due to IPR concerns.
 </t><t>
    These considerations make challenge/response the best choice for this
    scenario. If at all possible, it should be performed under cover of
-   an anonymous key exchange, as described in <a href="#sec-7">section 7</a>. With this adap-
-   tation, an attacker needs to mount an active attack in order to dic-
-   tionary search the password space.
+   an anonymous key exchange, as described in <a href="#sec-7">section 7</a>. With this adaptation, an attacker needs to mount an active attack in order to dictionary search the password space.
 </t><t>
 </t>
 </section>
@@ -1628,8 +1475,7 @@ provides examples of protocols which fit into each class.
    directly under the server's public key, the standard practice here is
    to use the server's key to establish a secure channel and then pass
    the password over that channel. Challenge/response is in fact weaker
-   in this case because it is is password equivalent. Once confidential-
-   ity is provided, OTP and ZKPP systems offer significant additional
+   in this case because it is is password equivalent. Once confidentiality is provided, OTP and ZKPP systems offer significant additional
    management complexity for marginal security benefit.
 </t><t>
 </t>
@@ -1670,11 +1516,9 @@ provides examples of protocols which fit into each class.
 </t><t>
    The problem of authenticating to the proxy looks essentially like the
    ordinary client/server authentication problem (except in the case
-   where there are multiple proxies in which case authenticating to any-
-   thing other than the first hop proxy looks rather like problem 2.)
+   where there are multiple proxies in which case authenticating to anything other than the first hop proxy looks rather like problem 2.)
 </t><t>
-   The problem of authenticating through the proxy is rather more diffi-
-   cult. The obstacle is that either client nor server may not trust the
+   The problem of authenticating through the proxy is rather more difficult. The obstacle is that either client nor server may not trust the
    proxy and they do not want to involve it in their authentication.
    They therefore need to provide an authentication method (preferably
    with message integrity) that doesn't require trusting the proxy. This
@@ -1685,8 +1529,7 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-14.2.2.1" title=" Tunnel">
 <t>
    If the client and the server establish a tunnel through the proxy
-   then they can behave as if this was an ordinary client/server trans-
-   action. Although this rather obviates the point of having a proxy,
+   then they can behave as if this was an ordinary client/server transaction. Although this rather obviates the point of having a proxy,
    it's still a popular strategy and is used with HTTPS <xref target="RFC2818"/>. Since
    the proxy is untrusted, the application protocol must either be run
    over a secure channel or hardened against active attacks.
@@ -1696,8 +1539,7 @@ provides examples of protocols which fit into each class.
 <section anchor="sec-14.2.2.2" title=" Challenge/Response">
 <t>
    A shared symmetric key between client and server can be used for
-   authentication even in the face of a proxy by using standard chal-
-   lenge/response methods (with appropriate protocol modifications to
+   authentication even in the face of a proxy by using standard challenge/response methods (with appropriate protocol modifications to
    distinguish between protocol data units (PDUs) directed towards the
    proxy and those directed towards endpoints.) These methods should
    include integrity protection for the individual PDUs.
@@ -1707,8 +1549,7 @@ provides examples of protocols which fit into each class.
    large chain of proxies each of which wishes to authenticate the
    client, server, other proxies or all three, an enormous number of
    pairwise keys need to be established and maintained. In a protocol
-   where long proxy chains are expected, symmetric key based authentica-
-   tion is probably impractical.
+   where long proxy chains are expected, symmetric key based authentication is probably impractical.
 </t><t>
    A variant of this technique is to use a message-based system with
    symmetric keying such as S/MIME. All PDUs can then be encapsulated in
@@ -1735,9 +1576,7 @@ provides examples of protocols which fit into each class.
    A number of important IETF protocols, most importantly, e-mail, are
    of the store and forward messaging variety. Such protocols have
    roughly the same security options as proxied protocols except that
-   tunneling is no longer possible. Additionally, since store and for-
-   ward protocols are non-interactive, many of the usual chal-
-   lenge/response techniques for preventing replay attack no longer work
+   tunneling is no longer possible. Additionally, since store and forward protocols are non-interactive, many of the usual challenge/response techniques for preventing replay attack no longer work
    and so care must be taken to either make one's system idempotent or
    introduce a specific anti-replay mechanism. The standard technique
    for store-and-forward situations is message security a la S/MIME.
@@ -1746,10 +1585,8 @@ provides examples of protocols which fit into each class.
 </section>
 <section anchor="sec-14.2.4" title=" Multicast">
 <t>
-   A number of IETF protocols have the property that multicast or broad-
-   cast message integrity needs to be provided. For example, routing and
-   DNS both require the ability for a single sender to broadcast authen-
-   ticated and integrity protected messages to a large number of
+   A number of IETF protocols have the property that multicast or broadcast message integrity needs to be provided. For example, routing and
+   DNS both require the ability for a single sender to broadcast authenticated and integrity protected messages to a large number of
    receivers. There are two relevant cases: In the first, all members of
    the group are trusted and so it's feasible to have some group key
    which is used for authenticating all transmissions. This group key

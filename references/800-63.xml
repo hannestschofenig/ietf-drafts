@@ -1,0 +1,14 @@
+<reference anchor="800-63">
+        <front>
+          <title abbrev="800-63">Electronic Authentication Guideline: Recommendations
+           of the National Institute of Standards and Technology</title>
+
+          <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology">
+          </author>
+
+          <date  year="2004" />
+        </front>
+
+        <seriesInfo name="SP"
+                    value="800-63" />
+</reference>
