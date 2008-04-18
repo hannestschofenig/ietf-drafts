@@ -1,0 +1,17 @@
+      <reference anchor="Sybil">
+        <front>
+          <title>The Sybil Attack</title>
+
+          <author fullname="John R. Douceur" initials="J. R."
+                  surname="Douceur">
+            <organization>Microsoft Research</organization>
+          </author>
+
+          <date month="March" year="2002" />
+        </front>
+
+        <seriesInfo name="IPTPS" value="02" />
+
+        <format target="http://www.cs.rice.edu/Conferences/IPTPS02/101.pdf"
+                type="PDF" />
+      </reference>

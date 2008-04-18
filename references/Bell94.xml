@@ -1,0 +1,12 @@
+      <reference anchor="Bell94">
+	<front>
+	  <title>
+Augmented Encrypted Key
+	   Exchange: a Password-Based Protocol Secure Against
+	   Dictionary Attacks and Password File Compromise</title>
+	  <author initials="S.M." surname="Bellovin" fullname="S.M. Bellovin"/>
+	  <author initials="M." surname="Merritt" fullname="M. Merritt"/>
+	</front>
+	<seriesInfo value="AT&T Bell Laboratires Technical Report" name=""/>
+	<date year="1994"/>
+      </reference>

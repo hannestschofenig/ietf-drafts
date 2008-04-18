@@ -1,0 +1,8 @@
+      <reference anchor="">
+	<front>
+	  <title>How to Break MD5 and Other Hash Functions</title>
+	  <author initials="X." surname="Wang" fullname="Xiaoyun Wang"/>
+	</front>
+	<seriesInfo name="" value="EUROCRYPT 2005"/>
+	<date year="2005"/>
+      </reference>

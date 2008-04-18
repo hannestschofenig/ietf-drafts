@@ -1,0 +1,9 @@
+      <reference anchor="KP01">
+	<front>
+	  <title>PDM: A New Strong Password-Based Protocol</title>
+	  <author initials="C." surname="Kaufman" fullname="C. Kaufman"/>
+	  <author initials="R." surname="Perlman" fullname="R. Perlman"/>
+	</front>
+	<seriesInfo value"Proceedings of the 10th USENIX Security Symposium" name=""/>
+	<date month=August" year="2001"/>
+      </reference>

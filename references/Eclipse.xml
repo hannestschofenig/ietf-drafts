@@ -1,0 +1,26 @@
+      <reference anchor="Eclipse">
+        <front>
+          <title>Eclipse Attacks on Overlay Networks: Threats and
+          Defenses</title>
+
+          <author fullname="Atul Singh" initials="A." surname="Singh">
+            <organization></organization>
+          </author>
+
+          <author fullname="Tsuen-Wan Ngan" initials="T. W." surname="Ngan">
+            <organization></organization>
+          </author>
+
+          <author fullname="Peter Druschel" initials="T." surname="Druschel">
+            <organization></organization>
+          </author>
+
+          <author fullname="Dan S. Wallach" initials="D. S." surname="Wallach">
+            <organization></organization>
+          </author>
+
+          <date month="April" year="2006" />
+        </front>
+
+        <seriesInfo name="INFOCOM" value="2006" />
+      </reference>
