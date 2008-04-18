@@ -634,8 +634,8 @@ provides examples of protocols which fit into each class.
    The second message from the server (message 3) is the base-64 encod-
    ing of the string &quot;&lt;1896.697170952@postoffice.reston.mci.net&gt;&quot;. This
 </t><t>
-   string must be in the form of a
-   <xref target="RFC822"/> and is
+   string must be in the form of an email address
+   <xref target="RFC2822"/> and is
    intended to be globally unique. The client's response (message 4) is
    computed using HMAC-MD5(password,challenge) and then base-64 encoded
    for transmission in message 4.
