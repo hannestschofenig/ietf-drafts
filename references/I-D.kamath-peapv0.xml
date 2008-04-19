@@ -1,0 +1,10 @@
+      <reference anchor="I-D.kamath-ppext-peapv0">
+	<front>
+	  <title>Microsoft's PEAP version 0 (Implementation in Windows XP SP1)</title>
+	  <author initials="V." surname="Kamath" fullname="Vivek Kamath"/>
+	  <author initials="A." surname="Palekar" fullname="Ashwin Palekar"/>
+	 <author initials="M." surname="Wodrich" fullname="M. Wodrich"/>
+	</front>
+	<seriesInfo name="Work in Progress" value="draft-kamath-ppext-peapv0-00"/>
+	<date month="October" year="2002"/>
+      </reference>

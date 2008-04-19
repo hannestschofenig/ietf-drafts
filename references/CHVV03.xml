@@ -6,6 +6,6 @@
    	 <author initials="S." surname="Vaudenay" fullname="S. Vaudenay"/>
 	 <author initials="M." surname="Vuagnoux" fullname="M. Vuagnoux"/>
 	</front>
-	<seriesInfo name "Advances in Cryptology" value="CRYPTO 2003"/>
+	<seriesInfo name="Advances in Cryptology" value="CRYPTO 2003"/>
 	<date year="2003"/>
       </reference>
