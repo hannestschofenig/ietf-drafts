@@ -37,7 +37,7 @@
 
            </author>
 
-           <author initials="" surname="IAB"
+           <author initials="" surname="Internet Architecture Board"
                    fullname="Internet Architecture Board">
                <organization>IAB</organization>
 	   </author>
@@ -142,14 +142,22 @@ provides examples of protocols which fit into each class.
    described the technology in general we then provide one or more case
    studies: descriptions of specific protocols which use this authentication technology and the various security or implementation issues
    that are specific to that protocol. Thus, each section uses the following pattern.
-</t><t>
+</t>
+<figure>
+<artwork>
      A Mechanism
        (Description)
+     A.x risk
        (description and countermeasures)
+     A.y risk
        (description and countermeasures)
+     A.z Case Study: Specific Protocol
        (description of the protocol)
+     A.z.x Protocol Specific problems.
      A.w List of known Protocols/Systems that use this mechanism
-</t><t>
+</artwork>
+</figure>
+<t>
 In order to understand the pros and cons of each mechanism, it's important
 to have a clear idea of the threat model for the environment in which your
 protocol will be deployed. <xref target="RFC3552"/> provides more information
@@ -740,7 +748,8 @@ on threat modelling.
 </t>
 <figure><artwork>
      Client                Attacker                Server
-     ------                --------                -----Yc -&gt;
+     ------                --------                -----
+     Yc -&gt;
                               Ya -&gt;
                                                     &lt;- Ys
                            &lt;- Ya
@@ -1130,56 +1139,156 @@ on threat modelling.
 <t>
    SSL/TLS (client auth mode) [TLS]
    IPsec IKE [IKE]
-   S/MIME [s/MIME]
+   S/MIME [S/MIME]
 </t><t>
 </t>
 </section>
 </section>
-<section anchor="sec-11" title=" Generic Authentication Mechanisms">
+<section title="Channel Security Protocols">
+  <t>
+    Building a full security system into each application protocol
+    is extremely expensive in terms of design and implementation effort.
+    One common approach is to design a generic channel security protocol
+    which provides a generic secure channel abstraction
+    between a pair of endpoints. The endpoints of the channel
+    can be authenticated at setup time and then all data flowing between them is
+    automatically secured, allowing the application to be mostly 
+    agnostic about the security properties. SSL, SSH, and IPsec all
+    provide this sort of functionality.
+  </t>
+  <t>
+    TLS <xref target="RFC4346"/> provides a good example of the basic pattern,
+    as shown below.
+</t>
+<figure>
+<artwork>
+<![CDATA[
+     Client                                        Server
+     ------                                        ------
+     <-----------------  TLS Handshake  ---------------->  
+     
+     Application message (protected by TLS) ------------>
+     <------------ Application message (protected by TLS)
+                            ...
+]]>
+</artwork>
+</figure>
 <t>
-An approach that has gained currency is to use a generic
-authentication negotiation system. Examples of such systems include
-SASL <xref target="RFC2222"/> and EAP <xref target="RFC2284"/>.
-The general idea is that one has a 
-protocol framework which doesn't provide any authentication features per
-se but instead allows you to negotiate the authentication mechanisms
-you wish to use. SASL, for instance, allows the negotiation of CRAM-
-MD5 (a digest-based challenge/response mechanism), SRP, and TLS among
-other mechanisms.
+  At the beginning of the TLS session, the client initiates a TCP
+  connection to the server (TLS only works over TCP, but DTLS
+  <xref target="RFC4347"/> serves a similar function for UDP),
+  but instead of sending application data, the client and the
+  server perform a TLS handshake, which can authenticate the
+  server and/or the client, and which establishes cryptographic
+  keys which are then used to protect all future traffic. 
+  This cryptographically binds any application layer traffic
+  to the authentication performed in the handshake. 
 </t>
 <t>
-Authentication frameworks are appealing to security mechanism developers
-since they enable mechanisms to be supported by multiple protocols
-by writing a single specification. In general, it is easier to provide
-support for a mechanism with a framework than to integrate a security
-mechanism within each protocol which might use it.
+  A channel security protocol is not itself an authentication
+  technology. Rather, it's built on top of an authentication
+  technology, or on top of multiple technologies. Most such
+  protocols support multiple types of authentication. For instance,
+  TLS can be used with X.509 certificates, OpenPGP certificates
+  <xref target="RFC5081"/>, shared keys
+  <xref target="RFC4785"/>, and passwords <xref target="RFC5054"/>.
 </t>
+<section title="Limited Authentication Options">
+  <t>
+    However, because a secure channel protocol needs to be able
+    to establish cryptographic keys, the authentication options
+    are necessarily somewhat limited. In particular, mechanisms
+    such as passwords in the clear (both in the reusable and
+    one-time varieties) may not be available. (See 
+    <xref target="sec-7.1"/> for one approach to work around
+    this limitation.) 
+  </t>
+</section>
+<section title="Limited Application Integration">
+  <t>
+    Because the secure channel protocol sits beneath the application
+    layer protocol rather than being integrated with it, the level
+    of integration between the two protocols is fairly loose.
+    This is an advantage in that the
+    application security protocol need not change at all in order
+    to use a channel security protocol. All that is needed is
+    for the implementation to arrange for the channel security
+    protocol to run underneath.
+  </t>
+  <t>
+    The disadvantage is that the application protocol tends
+    to have limited visibility into what the channel security
+    protocol is doing.
+    IPsec provides an extreme example of this: because much
+    of the stack typically lives in the kernel, the application
+    cannot even portably specify security properties or determine
+    which properties apply
+    to a given class of traffic association (there are APIs for this such as 
+    PF_KEY <xref target="RFC2367"/> but they are not universally
+    deployed). Even with more tightly coupled protocols such as
+    SSH or TLS, the applications are typically limited to setting
+    general policy and interrogating the state of the association.
+    They cannot, for instance, control the protection properties
+    of individual PDUs.
+  </t>
+</section>
+<section title=" List of Channel Security Protocols">
+<figure>
+<artwork>
+   IPsec	
+   SSH
+   SSL/TLS
+   DTLS
+</artwork>
+</figure>
+</section>
+</section>
+<section title="Authentication Frameworks">
+  <t>
+    Another popular approach is to use an authentication framework.
+    The general idea behind an application framework is that you would
+    like the application protocol actively involved in the authentication
+    (unlike with a channel security protocol) but that you want to
+    avoid specifying all of the details. 
+    Typically, the 
+    protocol framework doesn't provide any authentication features per
+    se but instead allows you to negotiate the authentication mechanisms
+    you wish to use. SASL, for instance, allows the negotiation of CRAM-
+    MD5 (a digest-based challenge/response mechanism), SRP, and TLS among
+    other mechanisms.
+  </t>
+  <t>
+    Authentication frameworks are appealing to security mechanism developers
+    since they enable mechanisms to be supported by multiple protocols
+    by writing a single specification. In general, it is easier to provide
+    support for a mechanism with a framework than to integrate a security
+    mechanism within each protocol which might use it.
+  </t>
+  <t>
+    Generic authentication mechanisms are attractive to application pro-
+    tocol designers because When properly used, frameworks allow protocol
+    designers to treat mechanism-specific details in an abstract manner.
+  </t>
+  <t>
+    While frameworks still require protocol designers to
+    determine the threats and required security services (e.g.
+    need for authentication/integrity/confidentiality/replay protection,
+    protection against active attacks, etc.) as well as naming of the
+    conversation endpoints, details of individual mechanisms can
+    be abstracted. For example, it is not necessary for a protocol
+    designer to concern themselves about how to locate a Kerberos
+    KDC, or what information the latest revision of example.com's
+    proprietary authentication token requires; these issues are
+    handled by the framework.
+  </t>
+  <t>
+    While frameworks inherently provide abstraction benefits for
+    protocol designers, the detail hiding is generally imperfect,
+    especially from the perspective of implementors.
+  </t>
+<section anchor="sec-downgrade-1" title=" Downgrade Attacks">
 <t>
-Generic authentication mechanisms are attractive to application pro-
-tocol designers because When properly used, frameworks allow protocol
-designers to treat mechanism-specific details in an abstract manner.
-</t>
-<t>
-While frameworks still require protocol designers to
-determine the threats and required security services (e.g.
-need for authentication/integrity/confidentiality/replay protection,
-protection against active attacks, etc.) as well as naming of the
-conversation endpoints, details of individual mechanisms can
-be abstracted. For example, it is not necessary for a protocol
-designer to concern themselves about how to locate a Kerberos
-KDC, or what information the latest revision of example.com's
-proprietary authentication token requires; these issues are
-handled by the framework.
-</t>
-<t>
-While frameworks inherently provide abstraction benefits for
-protocol designers, the detail hiding is generally imperfect,
-especially from the perspective of implementors.
-</t><t>
-</t>
-<section anchor="sec-11.1" title=" Downgrade Attacks">
-<t>
-   The most serious problem with generic authentication mechanisms is
+   One of the most serious problem with generic authentication mechanisms is
    their susceptibility to DOWNGRADE ATTACK, in which the attacker
    interferes with the negotiation to force the parties to negotiate a
    weaker mechanism than they otherwise would. Consider a set of peers,
@@ -1187,15 +1296,15 @@ especially from the perspective of implementors.
    An attacker can force them into using a simple password and then capture that password.
 </t><t>
    The standard countermeasure to downgrade attack is to authenticate
-   a message digest of the offered mechanisms. Unfortunately, this
-   protection is only as strong as the weakest common mechanism. If this
-   mechanism is a simple password then no protection against downgrade
-   attack is possible. Note that this protection can be provided asymmetrically.
-   For instance, if the client can establish an authenticated, integrity
-   protected channel to the server (e.g., via TLS), then the client
-   authentication mechanism can be negotiated without fear of downgrade.
+   a message digest of the offered mechanisms, as is done in the handshakes
+   of both IKE and TLS. However, this is not possible if a simple password
+   mechanism is supported, as is the case in many frameworks, because 
+   the attacker can simply capture the password in flight.
  </t>
  <t>
+   Note that if the client can establish an authenticated, integrity
+   protected channel to the server (as is done in SSH), then the client
+   authentication mechanism can be negotiated without fear of downgrade.
    Some protection against downgrade attacks can also be provided by
    having an endpoint cache the other endpoint's offers and complain
    if less secure mechanisms than were previously offered suddenly
@@ -1211,121 +1320,191 @@ especially from the perspective of implementors.
 </section>
 <section anchor="sec-11.2" title=" Multiple Equivalent Mechanisms">
 <t>
-The ease of adding new security mechanisms to generic authentication
-layers enables the development of multiple mechanisms with similar
-characteristics or even multiple mechanisms supporting the same
-authentication technology. This diversity has the potential to
-introduce interoperability problems as well as additional complexity. 
+  The ease of adding new security mechanisms to generic authentication
+  layers enables the development of multiple mechanisms with similar
+  characteristics or even multiple mechanisms supporting the same
+  authentication technology. This diversity has the potential to
+  introduce interoperability problems as well as additional complexity. 
 </t>
 <t>
-For example, use of RSA Secure-Id tokens for network access can 
-be enabled via a variety of EAP mechanisms, including:
+  For example, use of RSA Secure-Id tokens for network access can 
+  be enabled via a variety of EAP mechanisms, including:
 </t>
 <t>
-a. Use of EAP Generic Token Card (GTC) defined in <xref target="RFC3748"/>, 
-along with a tunneling mechanism such as PEAPv0 <xref target="I-D.kamath-ppext-peapv0"/>,
-PEAPv1 [PEAPv1], EAP-TTLSv0 <xref target="I-D.funk-eap-ttls-v0"/> or 
-<xref target="RFC4851"/>.
+  a. Use of EAP Generic Token Card (GTC) defined in <xref target="RFC3748"/>, 
+  along with a tunneling mechanism such as PEAPv0 <xref target="I-D.kamath-ppext-peapv0"/>,
+  PEAPv1 [PEAPv1], EAP-TTLSv0 <xref target="I-D.funk-eap-ttls-v0"/> or 
+  <xref target="RFC4851"/>.
 </t>
 <t>
-b. Use of EAP-RSA along with a tunneling mechanism such as 
-PEAPv0.
+  b. Use of EAP-RSA along with a tunneling mechanism such as 
+  PEAPv0.
 </t>
 <t>
-c. Use of EAP Protected One Time Password (POTP) <xref target="RFC4793"/>.
+  c. Use of EAP Protected One Time Password (POTP) <xref target="RFC4793"/>.
 </t>
 <t>
-Given this level of diversity, it is common today for popular EAP peer
-and server implementations from different vendors to be unable to
-negotiate a common EAP method for Secure-Id support, despite the
-availability of published specifications.
+  Given this level of diversity, it is common today for popular EAP peer
+  and server implementations from different vendors to be unable to
+  negotiate a common EAP method for Secure-Id support, despite the
+  availability of published specifications.
 </t>
 <t>
-Another example occurs with pre-shared key mechanisms. <xref target="RFC3748"/>
-defined EAP-MD5; since this mechanisms did not support key generation
-it did not satisfy the security requirements outlined in
-<xref target="RFC4017"/> for use on wireless networks. In order to address
-this weakness, additional mechanisms have been defined, including
-EAP-SIM <xref target="RFC4186"/>, EAP-AKA <xref target="RFC4187"/>, 
-EAP-PSK <xref target="RFC4764"/>, EAP-PAX <xref target="RFC4746"/>
-and EAP-SAKE <xref target="RFC4763"/>.
+  Another example occurs with pre-shared key mechanisms. <xref target="RFC3748"/>
+  defined EAP-MD5; since this mechanisms did not support key generation
+  it did not satisfy the security requirements outlined in
+  <xref target="RFC4017"/> for use on wireless networks. In order to address
+  this weakness, additional mechanisms have been defined, including
+  EAP-SIM <xref target="RFC4186"/>, EAP-AKA <xref target="RFC4187"/>, 
+  EAP-PSK <xref target="RFC4764"/>, EAP-PAX <xref target="RFC4746"/>
+  and EAP-SAKE <xref target="RFC4763"/>.
 </t>
 <t>
-Often the proliferation of mechanisms is driven by the need to 
-support widely deployed authentication technologies, particularly 
-those embodied in hardware which enable "what you have" authentication. 
-Aside from manufacturing and distribution costs, deployment of these
-mechanisms may involve training or backend integration costs which
-can only be recouped after a considerable period of use. 
+  Often the proliferation of mechanisms is driven by the need to 
+  support widely deployed authentication technologies, particularly 
+  those embodied in hardware which enable "what you have" authentication. 
+  Aside from manufacturing and distribution costs, deployment of these
+  mechanisms may involve training or backend integration costs which
+  can only be recouped after a considerable period of use. 
 </t>
 <t>
-However, in many situations movement to limited set of standardized
-mechanisms is feasible and should be encouraged. For example, today EAP 
-authentication within RADIUS <xref target="RFC3579"/> is now widely supported, 
-and implementations offering mechansims satisfying the security 
-requirements outlined in <xref target="RFC4017"/> are common in
-such implementations as FreeRADIUS.
-As a result, greenfield client or server deployments rarely 
-have a need for use of EAP-MD5, and at some point the development
-of additional standard EAP mechanisms may provide a mechanism suitable
-for replacement of EAP-MD5 as the mandatory-to-implement 
-EAP authentication mechanism.
+  However, in many situations movement to limited set of standardized
+  mechanisms is feasible and should be encouraged. For example, today EAP 
+  authentication within RADIUS <xref target="RFC3579"/> is now widely supported, 
+  and implementations offering mechansims satisfying the security 
+  requirements outlined in <xref target="RFC4017"/> are common in
+  such implementations as FreeRADIUS.
+  As a result, greenfield client or server deployments rarely 
+  have a need for use of EAP-MD5, and at some point the development
+  of additional standard EAP mechanisms may provide a mechanism suitable
+  for replacement of EAP-MD5 as the mandatory-to-implement 
+  EAP authentication mechanism.
 </t>
 <t>
-In order to encourage interoperability and the reduction of
-complexity, it is recommended that the IETF standardize only
-a small number of authentication mechanisms within a framework, 
-with no more than one of any given class.
+  In order to encourage interoperability and the reduction of
+  complexity, it is recommended that the IETF standardize only
+  a small number of authentication mechanisms within a framework, 
+  with no more than one of any given class.
+</t>
+</section>
+<section anchor="sec-channel-bindings" title="Channel Bindings">
+<t>
+  Many applications desire channel security but tighter integration
+  of authentication with the application than is typically provided
+  by channel security protocols. A common approach is to run the
+  application protocol on top of a channel security protocol
+  (most commonly TLS) but to use an authentication framework
+  (most commonly SASL) for client (and sometimes server) authentication.
+  As described in <xref target="sec-7"/> 
+  this is potentially subject to man in the middle attacks, where
+  the attacker forms channel security connections to both client
+  and server and then proxies their authentication messages.
+  As described in <xref target="sec-7.1"/> and
+  <xref target="sec-9"/> if the server can be
+  authenticated by the channel security protocol, then a 
+  MITM attack is not possible.
+</t>
+<t>
+ If the server cannot be so authenticated, then the authentication
+ performed by the authentication framework must be cryptographically
+ bound to the cryptographic context formed by the channel security
+ protocol (this is often called a CHANNEL BINDING) 
+ so that the authentication framework will fail if a MITM
+ attack is underway. For instance, if the authentication framework
+ is using a challenge-response mechanism, the response computation
+ could include a characteristic value from channel security protocol,
+ thus forcing the response given to the attacker and the response
+ expected by the server to be different. Note that care must be
+ used in selecting the characteristic value to ensure that the 
+ attacker cannot force the values to be the same for both connections.
+ <xref target="I-D.altman-tls-channel-bindings"/>,
+ <xref target="I-D.williams-ipsec-channel-binding"/> and
+ <xref target="I-D.williams-sshv2-channel-bindings"/> describe
+ selection of values for TLS, IPsec, and SSH.
+</t>
+<t>
+  Note that this technique cannot be used with non-cryptographic
+  mechanisms such as simple passwords or one-time passwords.
+  If these mechanisms are to be used 
+  threat environments where MITM attacks are a concern, 
+  then the server must be authenticated by the channel security
+  protocol.
 </t>
 </section>
 <section anchor="sec-11.3" title=" Excessive Layering">
-<t>
-Many of the legacy authentication mechanisms that users and
-administrators wish to support are themselves generic frameworks of
-one kind or another. For instance, SASL allows the use of GSSAPI,
-which itself is a generic framework for a number of mechanisms. This
-sort of layering dramatically increases both implementation and
-deployment complexity. For instance, GSSAPI contains mechanisms that
-are essentially equivalent to Kerberos, but SASL also supports
-Kerberos directly. Under what conditions should clients use Kerberos
-directly and under which should they use it through GSSAPI?
-</t><t>
-This issue has been encountered within the Extensible
-Authentication Protocol (EAP), defined in <xref target="RFC3748"/>
-Where EAP runs over link layers that support authentication
-mechanisms other than EAP (such as PPP or IEEE 802.16), 
-it may be necessary to first negotiate use of EAP, and 
-then within EAP, to negotiate the specific EAP mechanism 
-to be used. This may introduce security vulnerabilities. 
-For example, since neither PPP authentication negotiation nor EAP
-mechanism are secured, it is necessary for both PPP and EAP
-authentication policy to be pre-provisioned on the EAP peer and
-server in order to prevent bidding down attacks. 
-</t>
-<t>
-Since EAP supports a wide range of security mechanisms, support
-for multiple link layer authentication mechanisms is generally
-unnecessary, and in general greenfield link layer designs
-supporting EAP are best advised to forgo other approaches. 
-</t>
-<t>
-The issue of multiple negotiation layers is also encountered
-within EAP methods. While some EAP methods (such as EAP-TLS
-<xref target="RFC2716"/> only support a single authentication mechanism,
-other such as EAP-FAST <xref target="RFC4851"/> and <xref target="I-D.funk-eap-ttls-v0"/> act as
-"tunneling methods", providing for negotiation of an 
-"inner EAP method". As noted in <xref target="RFC3748"/> Section 7.4, 
-unless the inner and outer authentication mechanisms are
-cryptographically bound, tunneling methods are 
-vulnerable to a man-in-the-middle attack.
-</t><t>
-   In accordance with the principle of having as few mechanisms as
-possible, frameworks should avoid mechanisms that are themselves
-frameworks, in favor of using the second framework's mechanisms
-directly.
-   &quot;We'll build ours on top of theirs&quot; is a bad policy.
-</t><t>
-</t>
+  <t>
+    Many of the legacy authentication mechanisms that users and
+    administrators wish to support are themselves generic frameworks of
+    one kind or another.
+    In general, when two security frameworks are run together
+    with one as a mode of the other, it becomes very difficult
+    to make assertions about the security properties of the
+    composed system. Among the issues:
+    <list style="symbols">
+      <t>
+	The state machines can become interlinked, causing 
+	confusion at one layer about the state of the other layer.
+	For instance, TLS has a simple two round trip exchange,
+	but <xref target="I-D.nir-tls-eap"/> extends that 
+	with a generic "EAPMsg" that may occur an arbitrary number
+	of times without transitions in the TLS state machine.
+      </t>
+      <t>
+	Understanding the composed system becomes difficult. Experts
+	in one security protocol often are not experts in all, and
+	unless the encapsulation boundaries are very carefully
+	drawn, analyzing the composed protocol may require an
+	unavailable level of general expertise.
+      </t>
+      <t>
+	Any proofs of security that
+	may be available for one of the systems almost certainly 
+	depend on knowledge of the available cryptographic mechanisms,
+	but if one of those mechanisms is a framework, then those
+	proofs no longer apply.
+      </t>
+    </list>
+  </t>
+  <t>
+    These issues have been encountered within the Extensible
+    Authentication Protocol (EAP), defined in <xref target="RFC3748"/>
+    Where EAP runs over link layers that support authentication
+    mechanisms other than EAP (such as PPP or IEEE 802.16), 
+    it may be necessary to first negotiate use of EAP, and 
+    then within EAP, to negotiate the specific EAP mechanism 
+    to be used. This may introduce security vulnerabilities. 
+    For example, since neither PPP authentication negotiation nor EAP
+    mechanism are secured, it is necessary for both PPP and EAP
+    authentication policy to be pre-provisioned on the EAP peer and
+    server in order to prevent bidding down attacks. 
+  </t>
+  <t>
+    Since EAP supports a wide range of security mechanisms, support
+    for multiple link layer authentication mechanisms is generally
+    unnecessary, and in general greenfield link layer designs
+    supporting EAP are best advised to forgo other approaches. 
+  </t>
+  <t>
+    The issue of multiple negotiation layers is also encountered
+    within EAP methods. While some EAP methods (such as EAP-TLS
+    <xref target="RFC2716"/> only support a single authentication mechanism,
+    other such as EAP-FAST <xref target="RFC4851"/> and <xref target="I-D.funk-eap-ttls-v0"/> act as
+    "tunneling methods", providing for negotiation of an 
+    "inner EAP method". As noted in <xref target="RFC3748"/> Section 7.4, 
+    unless the inner and outer authentication mechanisms are
+    cryptographically bound, tunneling methods are 
+    vulnerable to a man-in-the-middle attack.
+    </t><t>
+    In accordance with the principle of having as few mechanisms as
+    possible, applications should try to avoid having multiple
+    negotiation layers. If that is not possible, 
+    applications should profile a single negotiation
+    layer. If application Foo is to be used with framework Bar which
+    supports authentication methods Alpha and Bravo,
+    itself supports framework Baz, which supports authentication methods
+    Alpha, Bravo, and Charlie, Foo should indicate whether Alpha and
+    Bravo are to be supported via Bar or Baz. 
+  </t>
 </section>
 <section anchor="sec-11.4" title=" List of Generic Authentication Systems">
 <t>
@@ -1463,7 +1642,7 @@ authorization and billing purposes. "</t><t>
 </t>
 <section anchor="sec-13.1.1" title=" What's my threat model?">
 <t>
-   Sorting out the threat model is always the first step in deciding
+   Sorting out the threat model (see <xref target="RFC3552"/>) is always the first step in deciding
    what sorts of security mechanisms to use. In the case of authentication you must consider, at minimum.
 </t><t>
      2. Does the threat model include active attack. (Hint: it should.)
@@ -1501,38 +1680,57 @@ authorization and billing purposes. "</t><t>
 </t>
 </section>
 </section>
-<section anchor="sec-13.2" title=" Use As Few Mechanisms as You Can">
-<t>
-   Preferably, systems should have only one form of authentication. The
-   more methods of authentication a system allows, the more things there
-   are to go wrong. Remember that a chain is only as strong as its
-</t><t>
-   weakest link. In general, there are two reasons why systems allow
-   more than one authentication mechanism. The first is that you're
-   retrofitting a system which already has a large number of authentication mechanisms which cannot be displaced. The second is that users
-   have widely different environments which for some reason cannot use
-   the same authentication mechanism conveniently (e.g. some users have
-   tokens and some do not).
-</t><t>
-   Naturally, designers need to take such considerations into account
-   but they should take reasonable steps to minimize the number of mechanisms. Designers should take special care to minimize the number of
-   equivalent mechanisms. For instance, a system that provides a challenge/response mechanism and a public key based mechanism is a reasonable design, one that provides three different challenge/response
-   mechanisms is not.
-</t><t>
-   This doesn't mean that designers should not use security frameworks
-   where multiple mechanisms are appropriate, but it does mean that they
-   should be avoided unless necessary. Where generic security frameworks
-   are used, they supported mechanisms should be carefully profiled to a
-   minimal set.
-</t><t>
-</t>
+<section anchor="sec-13.2" title=" Use as Few Mechanisms as You Can">
+  <t>
+    In the best case, each system would only have one or a small
+    number of forms of authentication. 
+    The
+    more methods of authentication a system allows, the more things there
+    are to go wrong. Remember that a chain is only as strong as its
+    weakest link. Unfortunately, this is not always possible. 
+    In general, there are two reasons why systems allow more
+    than one authentication mechanism. The first is that you're
+    retrofitting a system which already has a large number of
+    authentication mechanisms which cannot be displaced. The second is
+    that users have widely different environments which for some reason
+    cannot use the same authentication mechanism conveniently (e.g. some
+    users have tokens and some do not).
+  </t>
+  <t>
+    Naturally, designers need to take such considerations into account but
+    they should take reasonable steps to minimize the number of
+    mechanisms. Designers should take special care to minimize the number
+    of mechanisms that use the same underlying keying material in different
+    ways. For instance, a system that provides a
+    challenge/response mechanism and a public key based mechanism is a
+    reasonable design, one that provides three different
+    challenge/response mechanisms using the same passwords/keys presents
+    serious complexity challenges and should be avoided if possible.
+    Again, this is not always possible in systems with legacy authentication
+    mechanisms but should be avoided in new designs.
+  </t>
+  <t>
+    This doesn't mean that designers should not use security frameworks
+    where multiple mechanisms are appropriate, but it does mean that they
+    should be avoided unless there's a good a priori case for diversity in
+    authentication mechanisms. Where generic security frameworks
+    are used, designers need to carefully analyze the threats relevant
+    to each mechanism in the context of the specific application layer protocol
+    environment. In order to mimimize the attack surface,
+    individual deployments would be wise to specify policies
+    which disallow mechanisms which are unnecessary in their environment,
+    even if they are specified in the protocol. For instance, if
+    users are expected to use challenge response, then optimally clients
+    would be configured not even to perform plaintext passwords, as this
+    represents a security threat no matter what the server configuration is.
+  </t>
 </section>
 <section anchor="sec-13.3" title=" Avoid simple passwords">
   <t>
     It's widely known that simple plaintext passwords are unsafe, but
     what's less widely known is that merely providing such a scheme can
     weaken systems even if stronger mechanisms are present. The difficulty
-    is that simple passwords almsot never provide the user with any
+    is that simple passwords almost never provide the user with any
     form of server authentication. Consider the
     case where a system uses a negotiation framework that allows
     passwords. A downgrade attack can force the user to reveal his
@@ -1811,8 +2009,9 @@ it may not be.
 <section title="Acknowledgements">
 <t>
    Early versions of this document were reviewed by Fred Baker, Lisa
-   Dusseault, Ted Hardie, and Mike St. Johns. Thanks to John Linn and
-   Paul Hoffman for their comments.
+   Dusseault, Ted Hardie, and Mike St. Johns. Thanks to Jeffrey Altman,
+   Sam Hartman, Paul Hoffman, John Linn, and Nico Williams.
+   Bernard Aboba contributed extensive sections of this document.
 </t>
 </section>
 </middle>
@@ -1826,7 +2025,19 @@ it may not be.
 <section title="IAB Members at the time of this writing">
 <figure>
 <artwork>
-[Insert names here]
+Loa Andersson
+Gonzalo Camarillo
+Stuart Cheshire
+Russ Housley
+Olaf Kolkman
+Gregory Lebovitz
+Barry Leiba
+Kurtis Lindqvist
+Andrew Malis
+Danny McPherson
+David Oran
+Dave Thaler
+Lixia Zhang
 </artwork>
 </figure>
 </section>
