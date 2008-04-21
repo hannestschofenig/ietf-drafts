@@ -6,6 +6,6 @@
 	  <author initials="S.M." surname="Bellovin" fullname="S.M. Bellovin"/>
 	  <author initials="M." surname="Merritt" fullname="M. Merritt"/>
 	</front>
-	<annotation>Proceedings of the IEEE Symposium on Research in Security and Privacy</annotation>
+	<seriesInfo name="Proceedings of the IEEE Symposium on Research in Security and Privacy" value="'92"/>
 	<date month="May" year="1992"/>
       </reference>

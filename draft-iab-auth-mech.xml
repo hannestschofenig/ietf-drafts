@@ -44,13 +44,14 @@
            
 	   <date month = "April" year="2008"/>
 	   <abstract>
-Authentication is a common security issue for the design of
+<t>Authentication is a common security issue for the design of
 Internet protocols. A wide variety of authentication technologies
 are available. A common problem is knowing which technology to
 choose or which of a variety of essentially similar implementations
 of a given technique to choose. This memo provides a survey
 of available mechanisms and guidance on selecting one for a
 given protocol.
+</t>
 	   </abstract>
 </front>
 <middle>
@@ -58,10 +59,10 @@ given protocol.
 <t>
 Authentication is perhaps the most basic security problem for 
 designers of network protocols. Even the early Internet protocols
-such as TELNET and FTP, which provided no other security
+such as TELNET <xref target="RFC0854"/> and FTP <xref target="RFC0959"/>, which provided no other security
 services, made provision for user authentication. Unfortunately,
 these early authentication systems were wholly inadequate 
-for the Internet Threat Model <xref target="RFC3553"/> and a vast array of other 
+for the Internet Threat Model <xref target="RFC3552"/> and a vast array of other 
 authentication mechanisms have been introduced in an attempt
 to close these holes.
 </t>
@@ -85,7 +86,7 @@ provides examples of protocols which fit into each class.
    may have no long-term storage and only limited computational capabilities. The client side of the credentials must be able to be carried
    by the user, either on a small device or in his memory. Note that the
    major technical division here is between situations in which there is
-   any clients-side storage (for instance for cryptographic keys) and
+   any client-side storage (for instance for cryptographic keys) and
    ones where any authentication material must be memorized.
 </t><t>
 </t>
@@ -108,7 +109,11 @@ provides examples of protocols which fit into each class.
    The classic formulation of authentication is that there are three
    kinds of mechanisms:
 </t><t>
-   2. Something you know--a secret, e.g., a password
+<list style="numbers">
+  <t>Something you have--a physical token like a key.</t>
+  <t>Something you know--a secret, e.g., a password</t>
+  <t>Something you are--some physical characteristic particular to you.</t>
+</list>
 </t><t>
    The best authentication mechanisms combine two or more of these mechanisms. For instance, if you use a driver's license or a passport to
    authenticate, that's something you have (the license) and something
@@ -144,7 +149,7 @@ provides examples of protocols which fit into each class.
    that are specific to that protocol. Thus, each section uses the following pattern.
 </t>
 <figure>
-<artwork>
+<artwork><![CDATA[
      A Mechanism
        (Description)
      A.x risk
@@ -155,7 +160,7 @@ provides examples of protocols which fit into each class.
        (description of the protocol)
      A.z.x Protocol Specific problems.
      A.w List of known Protocols/Systems that use this mechanism
-</artwork>
+]]></artwork>
 </figure>
 <t>
 In order to understand the pros and cons of each mechanism, it's important
@@ -177,7 +182,7 @@ on threat modelling.
    the serious problem that if the password file is somehow compromised,
    the attacker has immediate access to all user passwords and can log
    in as any user. The standard approach, first described by Wilkes
-   <xref target="Wilkes68"/> 
+   <xref target="Wil68"/>, 
    is to store the output of a one-way function (typically a
    cryptographic message digest (see <xref target="RFC4949"/> for a definition of
    terms like this)) the password instead of the password itself. When
@@ -203,7 +208,6 @@ on threat modelling.
    An attacker who can hijack network connections need not know the
    user's password at all. He can simply wait for the user to complete
    his authentication and then take over the connection. This attack is
-</t><t>
    more difficult to mount than password sniffing, but as we'll see
    later, it can be useful when stronger authentication schemes are
    employed.
@@ -229,7 +233,7 @@ on threat modelling.
    A superior approach is to incorporate a delay. For instance, the system might allow the user to immediately try 3 passwords, but after
    three failures lock the account for 10 seconds, increasing the delay
    (up to some fixed maximum) for each failure. This is a less effective
-   countermeasure than simple LIMITED TRY but resists the DoS attack
+   countermeasure than simple limited try but resists the DoS attack
    better.
 </t><t>
 </t>
@@ -275,7 +279,7 @@ on threat modelling.
    The idea here is that noone will notice a second or so delay on login
    but that making each guess take a second will seriously slow down an
    attacker. To compensate for the speed of modern computers, rather
-   more iterations are currently required each year.
+   more iterations are currently required each year. 
 </t><t>
 </t>
 </section>
@@ -312,13 +316,26 @@ on threat modelling.
 </t>
 </section>
 </section>
+<section title="Phishing">
+<t>
+  Even an attacker with no access to the victim's network can capture
+  a user's password with a social engineering attack (often called
+  PHISHING). In the basic attack, the attacker sends the victim an
+  email posing as some site that the victim has a relationship 
+  with (e.g., eBay) and containing a URL <xref target="RFC1738"/> for
+  the user to dereference. When the user dereferences the URL he is
+  prompted for his password, which he often supplies.  
+  (See also <xref target="DTH06"/>).
+</t>
+</section>
 <section anchor="sec-4.5" title=" Case Study: HTTP Basic Authentication">
 <t>
    HTTP basic authentication  <xref target="RFC2617"/>
    is the original HTTP authentication mechanism. It's a simple username/password scheme. The server
    prompts the client with a request for authentication (in a WWWAuthenticate header). The client responds with the password in an
    Authorization header. The password is base-64 encoded but this
-   doesn't provide any security, just protection from damage in transport.
+   doesn't provide any security, just protection from damage due
+   to transport reencoding.
 </t><t>
 </t>
 <section anchor="sec-4.5.1" title=" Password Caching">
@@ -336,22 +353,21 @@ on threat modelling.
 </t><t>
 </t>
 </section>
-<section anchor="sec-4.5.2" title=" Pro-active authentication">
+<section anchor="sec-4.5.2" title=" Proactive authentication">
 <t>
    Requesting a page, receiving an authentication challenge and rerequesting with a password introduces an extra round-trip. This
    latency can be quite significant if the original request was large,
-   such as with a file PUT. Thus, many clients pro-actively send their
+   such as with a file PUT. Thus, many clients proactively send their
    cached passwords whenever accessing any URL deeper than the URL for
    which they were originally prompted.
-</t><t>
 </t>
 </section>
 </section>
 <section anchor="sec-4.6" title=" List of Systems that Use Passwords in the Clear">
 <t>
 <figure>
-<artwork>
-   FTP(when none of GSSAP-KRB5, SRP, or TLS are negotiated)
+<artwork><![CDATA[
+   FTP(when none of GSSAPI-KRB5, SRP, or TLS are negotiated)
    TELNET (when neither AUTH or STARTTLS are used)
    HTTP (basic authentication)
    SASL (password mode)
@@ -359,7 +375,7 @@ on threat modelling.
    POP (among others mechanisms)
    IMAP (among other mechanisms)
    (too many others to mention)
-</artwork>
+]]></artwork>
 </figure>
 </t><t>
 </t>
@@ -402,10 +418,10 @@ on threat modelling.
    constructed by iteratively hashing a public seed and a secret. Thus:
 </t>
 <figure>
-  <artwork>
+  <artwork><![CDATA[
      P[0] = H(Seed,Secret)
      P[i] = H(P[i-1]).
-  </artwork>
+  ]]></artwork>
 </figure>
 <t>
    Passwords are used in reverse order. This allows the server to simply
@@ -488,15 +504,12 @@ on threat modelling.
 <t>
    Note: any system that uses passwords can be adapted to use one-time
    passwords.
-</t>
-<figure>
-  <artwork>
-   S/Key [SKEY]
-   OTP [OTP]
-   SecurID <xref target="RFC2808"/>
-  </artwork>
-</figure>
-<t>
+</t><t>
+<list>
+  <t>S/Key <xref target="RFC1760"/></t>
+  <t>OTP <xref target="RFC2289"/></t>
+  <t>SecurID <xref target="RFC2808"/></t>
+</list>
 </t>
 </section>
 </section>
@@ -507,7 +520,7 @@ on threat modelling.
    party provides a random (or at least unique) challenge and the
    authenticating party returns some function of the shared key and the
    challenge. Generally this function is some sort of message digest. In
-   the simplest form it is H(challenge || key), where H is a cryptographic message digest (see <xref target="RFC3552"/>)  
+   the simplest form it is H(challenge || key), where H is a cryptographic message digest   
    and &quot;||&quot; denotes message
    concatenation. A better design is probably to use HMAC <xref target="RFC2104"/>
    which
@@ -528,7 +541,12 @@ on threat modelling.
    exchange. Such systems can be made resistant to most forms of active
    attack, and depending on the strength of the shared key, passive
    attacks as well.
-</t><t>
+</t>
+<t>
+  A challenge-response system can also be turned into a secure channel
+  protocol by using the shared key to establish cryptographic keys
+  which are then used to encrypt the traffic. TLS-PSK <xref target="RFC4279"/>
+  is one example of such a system.
 </t>
 <section anchor="sec-6.1" title=" Offline Attacks on Challenge/Response">
 <t>
@@ -572,25 +590,36 @@ on threat modelling.
    and CHALLENGE, allowing the client to compute RESPONSE from the password alone. Note that the two-stage process only prevents compromise
    of one system from affecting others. Compromise of a password file
    still allows immediate access to the target system.
-</t><t>
+</t>
+   SCRAM <xref target="I-D.newman-auth-scram"/> describes one defense
+   against this sort of attack. The server stores a hashed version of
+   the password, and must prove that it knows it using challenge-response.
+   The client then provides the preimage for the hashed password, thus
+   demonstrating that it knew the original password. With this system,
+   an attacker who recovers the password file can immediately
+   impersonate the server
+   to the client, but not the client to the server. However, if he 
+   impersonates the server to the client he can capture the preimage
+   and can then impersonate the client to the server.
+<t>
 </t>
 </section>
 <section anchor="sec-6.3" title=" Case Study: CRAM-MD5">
 <t>
    CRAM-MD5 <xref target="RFC2195"/> is a challenge/response authentication extension
-   for IMAP <xref target="RFC2060"/>
+   for IMAP <xref target="RFC3501"/>
    CRAM-MD5 is a classic challenge/response system: the
    server provides a presumably random challenge and the client transmits an HMAC of the challenge using the shared key as the HMAC key.
    The interaction looks like this:
 </t>
 <figure>
-  <artwork>
+  <artwork><![CDATA[
      1 S: * OK IMAP4 Server
      2 C: A0001 AUTHENTICATE CRAM-MD5
      3 S: + PDE4OTYuNjk3MTcwOTUyQHBvc3RvZmZpY2UucmVzdG9uLm1jaS5uZXQ+
      4 C: dGltIGI5MTNhNjAyYzdlZGE3YTQ5NWI0ZTZlNzMzNGQzODkw
      5 S: A0001 OK CRAM authentication successful
-  </artwork>
+  ]]></artwork>
 </figure><t>
    The second message from the server (message 3) is the base-64 encoding of the string &quot;&lt;1896.697170952@postoffice.reston.mci.net&gt;&quot;. This
 </t><t>
@@ -640,7 +669,6 @@ on threat modelling.
    and the message body, but not the message headers since they may be
    changed in transit by proxies or other intermediaries. Negotiation of
    the qop is simple: the server offers a set of acceptable qop values
-</t><t>
    and the client chooses one.
 </t><t>
 </t>
@@ -666,12 +694,12 @@ on threat modelling.
    provide this feature using a shared key, as is done in S-HTTP 
    <xref target="RFC2660"/>, but Digest doesn't do so.
 </t><t>
-   Digest deployment has been somewhat spotty. Fr instance, the popular
+   Digest deployment has been somewhat spotty. For instance, the popular
    Netscape Navigator 4 versions did not support it. The fact that there
    have recently been some reports of incompatibilities between various
    implementations suggests that only minimal testing has so far
-   occurred. Note that SIP <xref target="RFC3261"/> requires Digest authentication and a
-   fair amount of testing has occurred there.
+   occurred. SIP <xref target="RFC3261"/> requires Digest authentication
+   and it is near universal there.
 </t><t>
 </t>
 </section>
@@ -689,7 +717,6 @@ on threat modelling.
    the server can provide a new nonce in a response header. This nonce
    must be used for the next client request. This feature interacts
    poorly with request pipelining so HTTP Digest also allows the client
-</t><t>
    to issue multiple requests using a given server challenge by using  a
    request sequence number (the &quot;nonce-count&quot;).
 </t><t>
@@ -700,8 +727,9 @@ on threat modelling.
    HTTP Digest suffers from two types of downgrade attack. In the first
    type of attack, the attacker forces the peers to agree on Basic
    authentication rather than on Digest. There is no realistic way to
-   protect against this attack, other than simply refusing to accept
-   Basic at all.
+   protect against this attack, other than simply refusing to send
+   Basic at all&mdash;note that the server refusing to accept it does
+   not help, since the attacker can impersonate the server.
 </t><t>
    In the second Downgrade attack, the attacker forces the peers to
    negotiate a qop of &quot;auth&quot; instead of &quot;auth-int&quot;. The downgrade attack
@@ -714,16 +742,14 @@ on threat modelling.
 </section>
 </section>
 <section anchor="sec-6.5" title=" List of Challenge-Response Systems">
-  <figure>
-  <artwork>
-   APOP <xref target="RFC1939"/>
-   HTTP Digest <xref target="RFC2617"/>
-   AKA <xref target="AKA"/>
-   CRAM-MD5 <xref target="RFC2195"/>
-   Kerberos password-based authentication <xref target="RFC1510"/>
-  </artwork>
-  </figure>
 <t>
+  <list>
+    <t>APOP <xref target="RFC1939"/></t>
+    <t>HTTP Digest <xref target="RFC2617"/></t>
+    <t>AKA <xref target="AKA"/></t>
+    <t>CRAM-MD5 <xref target="RFC2195"/></t>
+    <t>Kerberos password-based authentication <xref target="RFC4120"/></t>
+  </list>
 </t>
 </section>
 </section>
@@ -746,19 +772,20 @@ on threat modelling.
    The MITM attack on Diffie-Hellman key exchange is shown in the following figure. Yc, Ya, and Ys are used to denote the client,
    attacker, and server public keys respectively.
 </t>
-<figure><artwork>
+<figure><artwork><![CDATA[
      Client                Attacker                Server
      ------                --------                -----
      Yc -&gt;
                               Ya -&gt;
                                                     &lt;- Ys
                            &lt;- Ya
-</artwork></figure><t>
+]]></artwork></figure><t>
    At the end of this exchange the client thinks that the server's public key is Ya and the server thinks that the client's public key is
    Ya. However, in reality both have established a shared secret with
-   the attacker.
+   the attacker. Thus, when the password is transmitted over
+   channel the attacker sees it.
 </t><t>
-   This attack cannot be detected with CRYPTOGRAPHICALLY authenticating
+   This attack cannot be detected by CRYPTOGRAPHICALLY authenticating
    at least one side of the connection. Thus, how much security you
    believe that anonymous key exchange adds to your protocol depends on
    your threat model. Active attacks are generally more difficult to
@@ -781,7 +808,7 @@ on threat modelling.
 </t><t>
    In theory, caching the public key protects against MITM attack at any
    time other than the initial connection to the server. In practice,
-   when users encounter the error that the key has changed, they often
+   when users encounter the error that the key has changed, they may
    simply override the warning or delete the cache entry when the error
    occurs, assuming, correctly, that the likely case is that the server
    administrator has just reset the public key (e.g. by reinstalling the
@@ -798,12 +825,12 @@ on threat modelling.
 </t>
 </section>
 <section anchor="sec-7.2" title=" List of Anonymous Key Exchange Mechanisms">
-<figure>
-<artwork>
-   SSH (password mode) <xref target="RFC4251"/>
-   SSL/TLS (anonymous keying) <xref target="RFC4346"/>
-</artwork>
-</figure>
+  <t>
+  <list>
+    <t>SSH (password mode) <xref target="RFC4251"/></t>
+    <t>SSL/TLS (anonymous keying) <xref target="RFC4346"/></t>
+  </list>
+  </t>
 </section>
 </section>
 <section anchor="sec-8" title=" Zero-Knowledge Password Proofs">
@@ -823,13 +850,14 @@ on threat modelling.
    are encrypted using a password. The protocol looks like this.
 </t>
 <figure>
-<artwork>
+<artwork><![CDATA[
      Client                             Server
-     ------                             -----Name, E(Password, Ya)) -&gt;
-                       &lt;- E(Password, Yb),E(K,Challenge-b)
-     E(K,Challenge-a || Challenge-b) -&gt;
-                       &lt;-                E(K, Challenge-a)
-</artwork>
+     ------                             -----
+     Name, E(Password, Ya)) ->
+           <- E(Password, Yb),E(K,Challenge-b)
+     E(K,Challenge-a || Challenge-b) ->
+           <-                E(K, Challenge-a)
+]]></artwork>
 </figure>
 <t>
      Where K is the DH shared secret == g(Xa * Xb) mod p
@@ -849,7 +877,7 @@ on threat modelling.
 <section anchor="sec-8.1" title=" Intellectual Property">
 <t>
    From a technical perspective, ZKPPs dominate the anonymous key
-   exchange mechanisms described in <a href="#sec-7">Section 7</a>. Their performance is
+   exchange mechanisms described in <xref target="sec-7"/>. Their performance is
    roughly equivalent and their security guarantees are superior. The
    major ZKPPs are EKE, A-EKE, SPEKE, and SRP. there are a number of
    Intellectual Property Rights in this area, some of which are on file
@@ -859,12 +887,13 @@ on threat modelling.
 </section>
 <section anchor="sec-8.2" title=" List of Zero Knowledge Password Proof Systems">
 <t>
-   EKE [EKE]
-   A-EKE [A-EKE]
-   PDM [PDM]
-   SPEKE [SPEKE]
-   SRP [SRP]
-</t><t>
+  <list>
+    <t>EKE <xref target="Bell92"/></t>
+    <t>A-EKE <xref target="Bell94"/></t>
+    <t>PDM <xref target="KP01"/></t>
+    <t>SPEKE <xref target="Jab96"/></t>
+    <t>SRP <xref target="RFC2945"/></t>
+  </list>
 </t>
 </section>
 </section>
@@ -885,15 +914,14 @@ on threat modelling.
    and passwords over IPsec VPNs.
 </t><t>
    In addition to making the overall authentication problem simpler,
-   hosting one's application protocol over an encrypted and authenticated channel has a number of other security benefits. First, a properly designed channel security protocol removes the threat of post</t><t>
-   authentication hijacking (described in <a href="#sec-4.2">Section 4.2</a>). Second, it provides confidentiality and message integrity for the rest of the
+   hosting one's application protocol over an encrypted and authenticated channel has a number of other security benefits. First, a properly designed channel security protocol removes the threat of post-authentication hijacking (described in <a href="#sec-4.2">Section 4.2</a>). Second, it provides confidentiality and message integrity for the rest of the
    application traffic, which is in general a good thing.
 </t><t>
    The primary difficulty with this approach is that providing
    certificate-based server authentication is not straightforward. The
    first problem is that the server machine must have a certificate,
    which entails some inconvenience and cost. Self-signed certificates
-   aren't acceptable in this case (rather, they reduce you to the anonymous key exchange scenario described in <a href="#sec-7">Section 7</a>).
+   aren't acceptable in this case (rather, they reduce you to the anonymous key exchange scenario described in <xref target="sec-7"/>.
 </t><t>
    The more serious problem is establishing what the server side name in
    the certificate ought to be. Common practice (stemming from practice
@@ -1001,7 +1029,7 @@ on threat modelling.
 <section anchor="sec-9.1.1.3" title=" Cookies">
 <t>
    The inconvenience of URL rewriting lead to the introduction of HTTP
-   Cookies <xref target="RFC2109"/>. Essentially, an HTTP cookie is a token issued by
+   Cookies <xref target="RFC2695"/>. Essentially, an HTTP cookie is a token issued by
    the server and transmitted by the client with requests. The cookies
    can be labeled to be transmitted only when resources matching various
    prefixes are dereferenced, including resources on another server.
@@ -1035,10 +1063,13 @@ on threat modelling.
 </section>
 <section anchor="sec-9.2" title=" List of Server Certificate Systems">
 <t>
-   HTTP over TLS (HTTPS) [HTTPTLS]
-   SMTP over TLS [STARTTLS]
-   XMPP over TLS [XMPP]
-   IPsec (under some conditions)
+  <list>
+    <t>HTTP over TLS (HTTPS) <xref target="RFC2818"/></t>
+    <t>SMTP over TLS <xref target="RFC3207"/></t>
+    <t>XMPP over TLS <xref target="RFC3290"/></t>
+    <t>SIP over TLS <xref target="RFC3261"/></t>
+    <t>IPsec (under some conditions)</t>
+  </list>
 </t><t>
 </t>
 </section>
@@ -1125,25 +1156,25 @@ on threat modelling.
 </section>
 <section anchor="sec-10.6" title=" Case Study: SMTP over TLS">
 <t>
-   SMTP can be combined with TLS as described in <xref target="RFC2487"/>. This provides similar protection to that provided when using IPSEC. Since TLS
-</t><t>
+   SMTP can be combined with TLS as described in <xref target="RFC3207"/>. This provides similar protection to that provided when using IPSEC. Since TLS
    certificates typically contain the server's host name, recipient
    authentication may be slightly more obvious, but is still susceptible
-   to DNS spoofing attacks. Notably, common implementations of TLS contain a US exportable (and hence low security) mode. Applications
-   desiring high security should ensure that this mode is disabled. Protection is provided against replay attacks, since the data itself is
+   to DNS spoofing attacks.  Protection is provided against replay attacks, since the data itself is
    protected and the packets cannot be replayed.
 </t><t>
 </t>
 </section>
 <section anchor="sec-10.7" title=" List of Mutual Public Key Systems">
 <t>
-   SSL/TLS (client auth mode) [TLS]
-   IPsec IKE [IKE]
-   S/MIME [S/MIME]
-</t><t>
+  <list>
+    <t>SSL/TLS (client auth mode) <xref target="RFC4346"/></t>
+    <t>IPsec IKE <xref target="RFC4306"/></t>
+    <t>S/MIME <xref target="RFC3850"/></t>
+  </list>
 </t>
 </section>
 </section>
+<section title="Generic Issues">
 <section title="Channel Security Protocols">
   <t>
     Building a full security system into each application protocol
@@ -1161,8 +1192,7 @@ on threat modelling.
     as shown below.
 </t>
 <figure>
-<artwork>
-<![CDATA[
+<artwork><![CDATA[
      Client                                        Server
      ------                                        ------
      <-----------------  TLS Handshake  ---------------->  
@@ -1170,8 +1200,7 @@ on threat modelling.
      Application message (protected by TLS) ------------>
      <------------ Application message (protected by TLS)
                             ...
-]]>
-</artwork>
+]]></artwork>
 </figure>
 <t>
   At the beginning of the TLS session, the client initiates a TCP
@@ -1195,7 +1224,7 @@ on threat modelling.
 </t>
 <section title="Limited Authentication Options">
   <t>
-    However, because a secure channel protocol needs to be able
+    Because a secure channel protocol needs to be able
     to establish cryptographic keys, the authentication options
     are necessarily somewhat limited. In particular, mechanisms
     such as passwords in the clear (both in the reusable and
@@ -1232,15 +1261,15 @@ on threat modelling.
     of individual PDUs.
   </t>
 </section>
-<section title=" List of Channel Security Protocols">
-<figure>
-<artwork>
-   IPsec	
-   SSH
-   SSL/TLS
-   DTLS
-</artwork>
-</figure>
+<section title="List of Channel Security Protocols">
+  <t>
+  <list>
+    <t>IPsec <xref target="RFC4301"/></t>
+    <t>SSH <xref target="RFC4251"/></t>
+    <t>SSL/TLS <xref target="RFC4346"/></t>
+    <t>DTLS <xref target="RFC4347"/></t>
+  </list>
+  </t>
 </section>
 </section>
 <section title="Authentication Frameworks">
@@ -1253,8 +1282,9 @@ on threat modelling.
     Typically, the 
     protocol framework doesn't provide any authentication features per
     se but instead allows you to negotiate the authentication mechanisms
-    you wish to use. SASL, for instance, allows the negotiation of CRAM-
-    MD5 (a digest-based challenge/response mechanism), SRP, and TLS among
+    you wish to use. SASL <xref target="RFC4422"/>, for instance, allows the negotiation of 
+    plaintext passwords, 
+    CRAM-MD5 (a digest-based challenge/response mechanism), and TLS among
     other mechanisms.
   </t>
   <t>
@@ -1265,8 +1295,8 @@ on threat modelling.
     mechanism within each protocol which might use it.
   </t>
   <t>
-    Generic authentication mechanisms are attractive to application pro-
-    tocol designers because When properly used, frameworks allow protocol
+    Generic authentication mechanisms are attractive to application 
+    protocol designers because when properly used, they allow protocol
     designers to treat mechanism-specific details in an abstract manner.
   </t>
   <t>
@@ -1284,14 +1314,20 @@ on threat modelling.
   <t>
     While frameworks inherently provide abstraction benefits for
     protocol designers, the detail hiding is generally imperfect,
-    especially from the perspective of implementors.
+    especially from the perspective of implementors. For instance,
+    if the framework provides mechanisms with a wide variety of
+    security levels, designers and implementors need to be
+    conscious of what security is provides with each level.
   </t>
 <section anchor="sec-downgrade-1" title=" Downgrade Attacks">
 <t>
    One of the most serious problem with generic authentication mechanisms is
    their susceptibility to DOWNGRADE ATTACK, in which the attacker
    interferes with the negotiation to force the parties to negotiate a
-   weaker mechanism than they otherwise would. Consider a set of peers,
+   weaker mechanism than they otherwise would. This issue is generally worse
+   with frameworks which do not provide channel security because the 
+   weakest provided mechanism is often quite weak.
+   Consider a set of peers,
    each of which supports both challenge/response and simple passwords.
    An attacker can force them into using a simple password and then capture that password.
 </t><t>
@@ -1332,8 +1368,8 @@ on threat modelling.
 </t>
 <t>
   a. Use of EAP Generic Token Card (GTC) defined in <xref target="RFC3748"/>, 
-  along with a tunneling mechanism such as PEAPv0 <xref target="I-D.kamath-ppext-peapv0"/>,
-  PEAPv1 [PEAPv1], EAP-TTLSv0 <xref target="I-D.funk-eap-ttls-v0"/> or 
+  along with a tunneling mechanism such as PEAPv0 <xref target="I-D.kamath-pppext-peapv0"/>,
+  PEAPv1, EAP-TTLSv0 <xref target="I-D.funk-eap-ttls-v0"/> or 
   <xref target="RFC4851"/>.
 </t>
 <t>
@@ -1351,7 +1387,7 @@ on threat modelling.
 </t>
 <t>
   Another example occurs with pre-shared key mechanisms. <xref target="RFC3748"/>
-  defined EAP-MD5; since this mechanisms did not support key generation
+  defined EAP-MD5; since this mechanism did not support key generation
   it did not satisfy the security requirements outlined in
   <xref target="RFC4017"/> for use on wireless networks. In order to address
   this weakness, additional mechanisms have been defined, including
@@ -1396,9 +1432,7 @@ on threat modelling.
   (most commonly TLS) but to use an authentication framework
   (most commonly SASL) for client (and sometimes server) authentication.
   As described in <xref target="sec-7"/> 
-  this is potentially subject to man in the middle attacks, where
-  the attacker forms channel security connections to both client
-  and server and then proxies their authentication messages.
+  this is potentially subject to man in the middle attack.
   As described in <xref target="sec-7.1"/> and
   <xref target="sec-9"/> if the server can be
   authenticated by the channel security protocol, then a 
@@ -1406,7 +1440,7 @@ on threat modelling.
 </t>
 <t>
  If the server cannot be so authenticated, then the authentication
- performed by the authentication framework must be cryptographically
+ performed by the framework must be cryptographically
  bound to the cryptographic context formed by the channel security
  protocol (this is often called a CHANNEL BINDING) 
  so that the authentication framework will fail if a MITM
@@ -1426,7 +1460,7 @@ on threat modelling.
   Note that this technique cannot be used with non-cryptographic
   mechanisms such as simple passwords or one-time passwords.
   If these mechanisms are to be used 
-  threat environments where MITM attacks are a concern, 
+  in environments where MITM attacks are a concern, 
   then the server must be authenticated by the channel security
   protocol.
 </t>
@@ -1439,7 +1473,9 @@ on threat modelling.
     In general, when two security frameworks are run together
     with one as a mode of the other, it becomes very difficult
     to make assertions about the security properties of the
-    composed system. Among the issues:
+    composed system. Among the issues are:
+  </t>
+  <t>
     <list style="symbols">
       <t>
 	The state machines can become interlinked, causing 
@@ -1508,9 +1544,11 @@ on threat modelling.
 </section>
 <section anchor="sec-11.4" title=" List of Generic Authentication Systems">
 <t>
-   GSS-API
-   SASL
-   EAP 
+  <list>
+  <t>GSS-API <xref target="RFC2743"/></t>
+  <t>SASL <xref target="RFC4422"/></t>
+  <t>EAP <xref target="RFC3748"/></t>
+  </list>
 </t>
 </section>
 </section>
@@ -1537,7 +1575,7 @@ on threat modelling.
 </section>
 <section anchor="sec-12.2" title=" Single Sign-On">
 <t>
-   A related problem is it's undesirable to have 
+   A related problem is that it's undesirable to have 
    users manually authenticate each time some service wants authentication.
    First, it's inconvenient for the users. Second the cognitive load
    associated with frequent authentication seems likely to lead to 
@@ -1550,8 +1588,7 @@ on threat modelling.
    having the program cache the user's credentials. If credentials need
    to be shared across multiple services then it's necessary to have
    some way to pass them from the program which first authenticates to
-   others (or to have some central credential manager). This service is
-   generally called SINGLE SIGN-ON.
+   others (or to have some central credential manager).
    As a special case, consider the case where mutually suspicious systems all want to allow a user to authenticate with a single set of
    credentials. If certificate-based authentication is being used, the
    protocols are straightforward since all relying parties can have
@@ -1600,7 +1637,7 @@ authorization and billing purposes. "</t><t>
 </section>
 <section anchor="sec-12.4" title=" Case Study: Kerberos">
 <t>
-   Kerberos <xref target="RFC1510"/> is a popular authentication/single sign-on service.
+   Kerberos <xref target="RFC4210"/> is a popular authentication/single sign-on service.
    Kerberos is based on the
    Needham-Schroeder authentication protocol. The authentication server
    role is played by a Key Distribution Center (KDC). When a client
@@ -1617,11 +1654,14 @@ authorization and billing purposes. "</t><t>
 </section>
 <section anchor="sec-12.5" title=" List of Authentication Server Systems">
 <t>
-   Kerberos [KERBEROS]
-   RADIUS [RADIUS]
-   DIAMETER [DIAMETER]
+  <list>
+    <t>Kerberos <xref target="RFC4120"/></t>
+    <t>RADIUS <xref target="RFC2865"/></t>
+    <t>Diameter <xref target="RFC3588"/></t>
+  </list>
 </t><t>
 </t>
+</section>
 </section>
 </section>
 <section anchor="sec-13" title=" Guidance for Protocol Designers">
@@ -1645,10 +1685,15 @@ authorization and billing purposes. "</t><t>
    Sorting out the threat model (see <xref target="RFC3552"/>) is always the first step in deciding
    what sorts of security mechanisms to use. In the case of authentication you must consider, at minimum.
 </t><t>
-     2. Does the threat model include active attack. (Hint: it should.)
-     3. Do I need protection for my data or just the authentication.
-        (Hint: probably you do).
-        attacks practical?
+<list style="numbers">
+  <t>What will be the result of various forms of attack?</t>
+  <t>Does the threat model include active attack? (Hint: it should.)</t>
+  <t>Do I need protection for my data or just the authentication?
+  (Hint: probably you do)</t>
+  <t> How valuable is the data being secured? Are exhaustive computational
+   attacks practical?</t>
+   <t>5. How competent are my users going to be?</t>
+</list>
 </t><t>
 </t>
 </section>
@@ -1673,14 +1718,14 @@ authorization and billing purposes. "</t><t>
 </t><t>
 </t>
 </section>
-<section anchor="sec-13.1.4" title=" Do I need to share authentication data">
+<section anchor="sec-13.1.4" title=" Do I need to share authentication data?">
 <t>
    If authentication data needs to be shared, especially between multiple servers, it's generally worth considering some sort of authentication server or using certificates.
 </t><t>
 </t>
 </section>
 </section>
-<section anchor="sec-13.2" title=" Use as Few Mechanisms as You Can">
+<section anchor="sec-13.2" title=" Use as few mechanisms as you can">
   <t>
     In the best case, each system would only have one or a small
     number of forms of authentication. 
@@ -1757,7 +1802,9 @@ authorization and billing purposes. "</t><t>
    describes only a small number of the available authentication mechanisms. There are very few situations in which designers cannot use
    some preexisting mechanism. This is vastly preferable to designing
    their own version of one of the standard mechanisms. In particular,
-   designers should avoid designing their own channel security systems.
+   designers should avoid designing their own authentication frameworks or
+   channel security systems. If you want an authentication framework, use
+   SASL or GSS-API or (if you're in a network access context) EAP.
    If you want a channel security system, use IPsec, TLS, or DTLS.
    Note that none of these systems can be blindly dropped into
    an existing system and provide adequate security. Care must
@@ -1914,8 +1961,12 @@ it may not be.
    through some gateway, as happens with HTTP. This situation has two
    potential authentication problems.
 </t><t>
-        proxy knows to serve it.
-        proxy in the way.
+<list style="numbers">
+<t>How does the client authenticate to the proxy so that the
+   proxy knows to serve it?</t>
+<t>How does the client authenticate to the server with the
+   proxy in the way?</t>
+</list>
 </t><t>
    The problem of authenticating to the proxy looks essentially like the
    ordinary client/server authentication problem (except in the case
@@ -1933,7 +1984,9 @@ it may not be.
 <t>
    If the client and the server establish a tunnel through the proxy
    then they can behave as if this was an ordinary client/server transaction. Although this rather obviates the point of having a proxy,
-   it's still a popular strategy and is used with HTTPS <xref target="RFC2818"/>. Since
+   it's still a popular strategy and is used with HTTPS <xref target="RFC2817"/>,
+   <xref target="RFC2818"/>.
+   Since
    the proxy is untrusted, the application protocol must either be run
    over a secure channel or hardened against active attacks.
 </t><t>
@@ -2024,7 +2077,7 @@ it may not be.
 </references>
 <section title="IAB Members at the time of this writing">
 <figure>
-<artwork>
+<artwork><![CDATA[
 Loa Andersson
 Gonzalo Camarillo
 Stuart Cheshire
@@ -2038,7 +2091,7 @@ Danny McPherson
 David Oran
 Dave Thaler
 Lixia Zhang
-</artwork>
+]]></artwork>
 </figure>
 </section>
 </back>

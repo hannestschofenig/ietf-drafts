@@ -1,0 +1,10 @@
+      <reference anchor="DTH06">
+	<front>
+	  <title>Why Phishing Works</title>
+	  <author initials="R." surname="Dhamija" fullname="Rachna Dhamija"/>
+	  <author initials="J.D." surname="Tygar" fullanme="J.D. Tygar"/>
+	  <author initials="M." surname="Hearst" fullname="Marti Hearst"/>
+	</front>
+	<seriesInfo name="CHI" value="2006"/>
+	<date month="April" year="2006"/>
+      </reference>

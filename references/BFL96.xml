@@ -5,6 +5,6 @@
 	  <author initials="J." surname="Feigenbaum" fullname="J. Feigenbaum"/>
    	 <author initials="J." surname="Lacy" fullname="J. Lacy"/>
 	</front>
-	<annotation>IEEE Symposium on Security and Privacy</annotation>
+	<seriesInfo name="IEEE Symposium on Security and Privacy" value="'96"/>
 	<date month="May" year="1996"/>
       </reference>

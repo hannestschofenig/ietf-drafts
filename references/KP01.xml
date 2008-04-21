@@ -4,6 +4,6 @@
 	  <author initials="C." surname="Kaufman" fullname="C. Kaufman"/>
 	  <author initials="R." surname="Perlman" fullname="R. Perlman"/>
 	</front>
-	<anotation>Proceedings of the 10th USENIX Security Symposium</anotation>
+	<seriesInfo name="Proceedings of the 10th USENIX Security Symposium" value="'01"/>
 	<date month="August" year="2001"/>
       </reference>
