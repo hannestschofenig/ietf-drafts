@@ -105,13 +105,9 @@ HMAC-based MAC:
 </artwork>
 <t>
 These eight cipher suites are the same as the corresponding cipher
-suites in RFC 4492 (TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, 
-TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA,
-TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA,
-TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, 
-TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDH_RSA_WITH_AES_128_CBC_SHA,
-and TLS_ECDH_RSA_WITH_AES_256_CBC_SHA) except for the hash and PRF
-algorithms, which are SHA-256 and SHA-384 <xref target="SHS"/> as follows.
+suites in RFC 4492 (with names ending in "_SHA" in place of "_SHA256"
+or "_SHA384"), except for the hash and PRF algorithms, which use
+SHA-256 and SHA-384 <xref target="SHS"/> as follows.
 </t>
 <artwork>
      Cipher Suite                                MAC          PRF
