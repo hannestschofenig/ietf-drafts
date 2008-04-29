@@ -9,7 +9,7 @@ Expires:  October 31, 2008
 
 TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter
                                   Mode
-                   draft-ietf-tls-ecc-new-mac-05.txt
+                   draft-ietf-tls-ecc-new-mac-06.txt
 
 Status of this Memo
 
