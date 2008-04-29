@@ -21,8 +21,8 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<?rfc status='Informational' ?>
-<rfc category="info" docName="draft-rescorla-tcp-auth-arch-00.txt" ipr="full3978">
+
+<rfc category="info" docName="draft-rescorla-tcp-auth-arch-01.txt" ipr="full3978">
   <front>
     <title abbrev="TCP Auth. Arch">Notes on TCP Authentication Architectures</title>
     <author fullname="Eric Rescorla" initials="E." surname="Rescorla">
@@ -45,7 +45,7 @@
       </address>
     </author>
 
-    <date day="09" month="March" year="2008" />
+    <date day="22" month="April" year="2008" />
     <abstract><t>
       This document provides an architectural survey of a variety of
       approaches to key management for TCP-level authentication.</t>
@@ -62,7 +62,7 @@
 	static key shared between a pair of TCP endpoints.
       </t>
       <t>
-	Recent work by Wang et al. [WH05] has demonstrated significant 
+	Recent work by Wang et al. <xref target="WH05"/> has demonstrated significant 
 	weaknesses in MD5 which imply that TCP MD5 should be phased 
 	out in favor of a more modern MAC algorithm. In addition,
 	it seems worth addressing some of the more glaring protocol
@@ -667,6 +667,10 @@
       </section>
     </section>
     </section>
+    </section>
+    <section title="Proposed Design">
+      <
+      
     </section>
     <section title="Security Considerations">
       <t>This entire document is about security.</t>

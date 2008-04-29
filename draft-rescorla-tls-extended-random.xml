@@ -13,7 +13,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="informational" ipr="full3978" docName="draft-rescorla-tls-extended-random-00.txt">
+<rfc category="info" ipr="full3978" docName="draft-rescorla-tls-extended-random-00.txt">
 
 <front>
      <title abbrev="Extended TLS Random">Extended Random Values for TLS</title>

@@ -3,9 +3,9 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                              M. Salter
-Expires:  October 17, 2008                      National Security Agency
-                                                          April 15, 2008
+Intended status:  Informational                                M. Salter
+Expires:  October 31, 2008                      National Security Agency
+                                                          April 29, 2008
 
 
                      Extended Random Values for TLS
@@ -34,7 +34,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on October 17, 2008.
+   This Internet-Draft will expire on October 31, 2008.
 
 Copyright Notice
 
@@ -52,7 +52,7 @@ Abstract
 
 
 
-Rescorla & Salter       Expires October 17, 2008                [Page 1]
+Rescorla & Salter       Expires October 31, 2008                [Page 1]
 
 Internet-Draft             Extended TLS Random                April 2008
 
@@ -108,7 +108,7 @@ Table of Contents
 
 
 
-Rescorla & Salter       Expires October 17, 2008                [Page 2]
+Rescorla & Salter       Expires October 31, 2008                [Page 2]
 
 Internet-Draft             Extended TLS Random                April 2008
 
@@ -164,7 +164,7 @@ Internet-Draft             Extended TLS Random                April 2008
 
 
 
-Rescorla & Salter       Expires October 17, 2008                [Page 3]
+Rescorla & Salter       Expires October 31, 2008                [Page 3]
 
 Internet-Draft             Extended TLS Random                April 2008
 
@@ -220,7 +220,7 @@ Internet-Draft             Extended TLS Random                April 2008
 
 
 
-Rescorla & Salter       Expires October 17, 2008                [Page 4]
+Rescorla & Salter       Expires October 31, 2008                [Page 4]
 
 Internet-Draft             Extended TLS Random                April 2008
 
@@ -276,7 +276,7 @@ Internet-Draft             Extended TLS Random                April 2008
 
 
 
-Rescorla & Salter       Expires October 17, 2008                [Page 5]
+Rescorla & Salter       Expires October 31, 2008                [Page 5]
 
 Internet-Draft             Extended TLS Random                April 2008
 
@@ -332,7 +332,7 @@ Authors' Addresses
 
 
 
-Rescorla & Salter       Expires October 17, 2008                [Page 6]
+Rescorla & Salter       Expires October 31, 2008                [Page 6]
 
 Internet-Draft             Extended TLS Random                April 2008
 
@@ -388,7 +388,7 @@ Internet-Draft             Extended TLS Random                April 2008
 
 
 
-Rescorla & Salter       Expires October 17, 2008                [Page 7]
+Rescorla & Salter       Expires October 31, 2008                [Page 7]
 
 Internet-Draft             Extended TLS Random                April 2008
 
@@ -444,5 +444,5 @@ Acknowledgment
 
 
 
-Rescorla & Salter       Expires October 17, 2008                [Page 8]
+Rescorla & Salter       Expires October 31, 2008                [Page 8]
 
