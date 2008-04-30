@@ -1176,14 +1176,14 @@ to SRTPparameters?
                 used in SDP media descriptions ('m' lines and their associated
                 parameters). The new values defined for the proto field are:
                 <list style="symbols">
-                    <t> When a RTP/SAVP stream is transported over DTLS with DCCP, then
-                        the token SHALL be DCCP/TLS/RTP/SAVP.</t>
+                    <t> When a RTP/SAVP or RTP/SAVPF <xref target="RFC5124"/> stream is transported over DTLS with DCCP, then
+                        the token SHALL be DCCP/TLS/RTP/SAVP or DCCP/TLS/RTP/SAVPF respectively.</t>
                     
-                    <t> When a RTP/SAVP stream is transported over DTLS with UDP, the
-                        token SHALL be UDP/TLS/RTP/SAVP.</t>
+                    <t> When a RTP/SAVP or RTP/SAVPF stream is transported over DTLS with UDP, the
+                        token SHALL be UDP/TLS/RTP/SAVP or UDP/TLS/RTP/SAVPF respectively.</t>
 
-                    <t> When a RTP/SAVP stream is transported over DTLS with TCP, the token
-                        SHALL be TCP/TLS/RTP/SAVP. Note that even though TCP is being
+                    <t> When a RTP/SAVP or RTP/SAVPF stream is transported over DTLS with TCP, the token
+                        SHALL be TCP/TLS/RTP/SAVP or TCP/TLS/RTP/SAVPF respectively. Note that even though TCP is being
 			used, the PDUs carried over the TCP connection are the
 			same as would be carried over DCCP or UDP.</t>
                 </list>
@@ -1230,6 +1230,10 @@ to SRTPparameters?
         proto           TCP/TLS/RTP/SAVP             [RFC-XXXX]
         proto           UDP/TLS/RTP/SAVP             [RFC-XXXX]
         proto           DCCP/TLS/RTP/SAVP            [RFC-XXXX]
+
+        proto           TCP/TLS/RTP/SAVPF            [RFC-XXXX]
+        proto           UDP/TLS/RTP/SAVPF             [RFC-XXXX]
+        proto           DCCP/TLS/RTP/SAVPF           [RFC-XXXX]
 	]]></artwork>
       </figure>
       <t> Note to RFC Editor: Please replace RFC-XXXX with the RFC number of this specification.</t>
@@ -1422,12 +1426,3 @@ sgml-local-ecat-files:nil
 End:
 -->
 
-<!-- TODO: 
-
-EVEN
-2. The registration should include SAVPF profile
-
-
-
-
--->

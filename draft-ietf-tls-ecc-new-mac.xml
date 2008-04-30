@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
-<!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!--<!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"> -->
 <!ENTITY rfc4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
 <!ENTITY rfc4492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4492.xml">
 <!ENTITY rfc3686 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3686.xml">
@@ -48,7 +48,7 @@
                <t>RFC 4492 describes elliptic curve cipher suites for
                Transport Layer Security (TLS). However, all those
                cipher suites use SHA-1 as their MAC algorithm. This
-               document describes sixteen new CipherSuites for TLS/DTLS
+               document describes sixteen new cipher suites for TLS
                which specify stronger digest algorithms. Eight
 	       use HMAC with SHA-256 or SHA-384 and eight use
 	       AES in Galois Counter Mode (GCM).
@@ -63,7 +63,7 @@ RFC 4492 <xref target="RFC4492"/> describes Elliptic Curve Cryptography
 4492 suites use HMAC-SHA1 as their MAC algorithm. Due to recent
 analytic work on SHA-1 <xref target="Wang05"/>, the IETF is gradually moving away
 from SHA-1 and towards stronger hash algorithms. This document
-specifies TLS ECC cipher suites which use SHA-256 and SHA-384
+specifies TLS ECC cipher suites which use SHA-256 and SHA-384 <xref target="SHS"/>
 rather than SHA-1.
 </t>
 <t>
@@ -74,12 +74,6 @@ Galois Counter Mode (GCM) <xref target="GCM"/>. Another document
 <xref target="I-D.ietf-tls-rsa-aes-gcm"/>, provides support for
 GCM with other key establishment methods.
 </t>
-<section title="Conventions Used In This Document">
-  <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-   document are to be interpreted as described in <xref
-    target="RFC2119"></xref>.</t>
-</section>
 </section>
 <section title="Cipher Suites">
 <t>
@@ -106,8 +100,8 @@ HMAC-based MAC:
 <t>
 These eight cipher suites are the same as the corresponding cipher
 suites in RFC 4492 (with names ending in "_SHA" in place of "_SHA256"
-or "_SHA384"), except for the hash and PRF algorithms, which use
-SHA-256 and SHA-384 <xref target="SHS"/> as follows.
+or "_SHA384"), except for the hash and PRF algorithms, which are
+as listed in the following table.
 </t>
 <artwork>
      Cipher Suite                                MAC          PRF
@@ -121,7 +115,7 @@ SHA-256 and SHA-384 <xref target="SHS"/> as follows.
      TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256        HMAC-SHA-256 P_SHA256 
      TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384        HMAC-SHA-384 P_SHA384
 </artwork>
-</section>
+o</section>
 <section title="Galois Counter Mode-based Cipher Suites">
 <t>
 The second eight cipher suites use the same asymmetric algorithms
@@ -206,10 +200,11 @@ text as well as providing a review of this document.</t>
 <back>
 <references title="Normative References">
 
-&rfc2119;
+<!--&rfc2119; -->
 &rfc4492;
 &rfc5116;
 &I-D.ietf-tls-rfc4346-bis;
+&I-D.ietf-tls-rsa-aes-gcm;
 
 <reference anchor="AES">
         <front>
@@ -256,7 +251,7 @@ text as well as providing a review of this document.</t>
 
 <reference anchor="GCM">
         <front>
-          <title abbrev="GCM">Recommendation for Block Cipher Modes of Operation: Galois;/Counter Mode (GCM) for Confidentiality and Authentication</title>
+          <title abbrev="GCM">Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) for Confidentiality and Authentication</title>
 
           <author initials="" surname="National Institute of Standards and Technology" fullname="National Institute of Standards and Technology">
           </author>
@@ -280,7 +275,6 @@ text as well as providing a review of this document.</t>
 	<seriesInfo name="CRYPTO" value="2005"/>
 </reference>		
 
-&I-D.ietf-tls-rsa-aes-gcm;
 </references>
 </back>
 </rfc>
