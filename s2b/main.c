@@ -446,11 +446,12 @@ int output_public_decl_bits(p_decl *decl)
     ctx.output_select=output_select_bits;
     ctx.output_varray=output_varray_bits;
 
+    output_bits_header(&ctx,decl->name);
     print_decl(&ctx,decl);
+    output_bits_footer(&ctx);
 
     return(0);
   }
-
 
 
  main(argc,argv)
