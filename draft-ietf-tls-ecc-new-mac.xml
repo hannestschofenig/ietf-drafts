@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
-<!--<!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"> -->
+<!ENTITY rfc2104 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2104.xml">
+<!ENTITY rfc2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"> 
 <!ENTITY rfc4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
 <!ENTITY rfc4492 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4492.xml">
 <!ENTITY rfc3686 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3686.xml">
@@ -20,7 +21,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-06.txt"> 
+<rfc category="info" ipr="full3978" docName="draft-ietf-tls-ecc-new-mac-07.txt"> 
 
 <front>
      <title abbrev="TLS ECC New MAC">TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode</title>
@@ -42,7 +43,7 @@
 
            </author>
 
-           <date month="April" year="2008" />
+           <date month="May" year="2008" />
 
            <abstract>
                <t>RFC 4492 describes elliptic curve cipher suites for
@@ -75,9 +76,15 @@ Galois Counter Mode (GCM) <xref target="GCM"/>. Another document
 GCM with other key establishment methods.
 </t>
 </section>
+    <section title="Conventions Used In This Document">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+      document are to be interpreted as described in <xref
+      target="RFC2119"></xref>.</t>
+    </section>
 <section title="Cipher Suites">
 <t>
-This document defines 8 new cipher suites to be added to TLS. All use
+This document defines 16 new cipher suites to be added to TLS. All use
 Elliptic Curve Cryptography for key exchange and digital signature, as
 defined in RFC 4492.
 </t>
@@ -100,22 +107,26 @@ HMAC-based MAC:
 <t>
 These eight cipher suites are the same as the corresponding cipher
 suites in RFC 4492 (with names ending in "_SHA" in place of "_SHA256"
-or "_SHA384"), except for the hash and PRF algorithms, which are
-as listed in the following table.
+or "_SHA384"), except for the hash and PRF algorithms.
 </t>
-<artwork>
-     Cipher Suite                                MAC          PRF
-     ------------                                ---          ---
-     TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256     HMAC-SHA-256 P_SHA256 
-     TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384     HMAC-SHA-384 P_SHA384
-     TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256      HMAC-SHA-256 P_SHA256 
-     TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384      HMAC-SHA-384 P_SHA384
-     TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256       HMAC-SHA-256 P_SHA256 
-     TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384       HMAC-SHA-384 P_SHA384
-     TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256        HMAC-SHA-256 P_SHA256 
-     TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384        HMAC-SHA-384 P_SHA384
-</artwork>
-o</section>
+<t>
+These SHALL be as follows:
+</t>
+<t>
+<list style="symbols">
+<t>
+For cipher suites ending with _SHA256, the PRF is the TLS PRF
+<xref target="I-D.ietf-tls-rfc4346-bis"/> with SHA-256 as the
+hash function. The MAC is HMAC <xref target="RFC2104"/> with
+SHA-256 as the hash function.
+</t>
+<t>For cipher suites ending with _SHA384, the PRF is the TLS PRF
+<xref target="I-D.ietf-tls-rfc4346-bis"/> with SHA-384 as the
+hash function. The MAC is HMAC <xref target="RFC2104"/> with
+SHA-384 as the hash function.</t>
+</list>
+</t>
+</section>
 <section title="Galois Counter Mode-based Cipher Suites">
 <t>
 The second eight cipher suites use the same asymmetric algorithms
@@ -141,18 +152,18 @@ data algorithms AEAD_AES_128_GCM and AEAD_AES_256_GCM described in
 as described in <xref target="I-D.ietf-tls-rsa-aes-gcm"/>.
 </t>
 <t>
-<artwork>
-     Cipher Suite                                PRF
-     ------------                                ---
-     TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256     P_SHA256 
-     TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384     P_SHA384
-     TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256      P_SHA256 
-     TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384      P_SHA384
-     TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256       P_SHA256 
-     TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384       P_SHA384
-     TLS_ECDH_RSA_WITH_AES_128_GCM_SHA256        P_SHA256 
-     TLS_ECDH_RSA_WITH_AES_256_GCM_SHA384        P_SHA384
-</artwork>
+The PRFs SHALL be as follows:
+</t>
+<t>
+<list style="symbols">
+<t>
+For cipher suites ending with _SHA256, the PRF is the TLS PRF
+<xref target="I-D.ietf-tls-rfc4346-bis"/> with SHA-256 as the
+hash function.</t>
+<t>For cipher suites ending with _SHA384, the PRF is the TLS PRF
+<xref target="I-D.ietf-tls-rfc4346-bis"/> with SHA-384 as the
+hash function.</t>
+</list>
 </t>
 </section>
 </section>
@@ -192,15 +203,15 @@ suites may only be used with TLS 1.2 or greater.
 This work was supported by the US Department of Defense.
 </t>
 <t>
-David McGrew contributed substantual sections of the GCM nonce
-text as well as providing a review of this document.</t>
+David McGrew, Pasi Eronen, and Alfred Hines provided reviews of this document.</t>
 </section>
 
 </middle>
 <back>
 <references title="Normative References">
 
-<!--&rfc2119; -->
+&rfc2104;
+&rfc2119;
 &rfc4492;
 &rfc5116;
 &I-D.ietf-tls-rfc4346-bis;
