@@ -1,0 +1,39 @@
+1.        Introduction                                             2
+1.1.      Requirements Terminology                                 3
+2.        Usage Model                                              3
+3.        Overview of DTLS                                         4
+3.1.      Loss-Insensitive Messaging                               4
+3.2.      Providing Reliability for Handshake                      5
+3.2.1.    Packet Loss                                              5
+3.2.2.    Reordering                                               5
+3.2.3.    Message Size                                             6
+3.3.      Replay Detection                                         6
+4.        Differences from TLS                                     6
+4.1.      Record Layer                                             6
+4.1.1.    Transport Layer Mapping                                  8
+4.1.1.1.  PMTU Discovery                                           8
+4.1.2.    Record Payload Protection                                9
+4.1.2.1.  MAC                                                      9
+4.1.2.2.  Null or Standard Stream Cipher                           10
+4.1.2.3.  Block Cipher                                             10
+4.1.2.3.  AEAD Ciphers                                             10
+4.1.2.5.  New Cipher Suites                                        10
+4.1.2.6.  Anti-replay                                              10
+4.2.      The DTLS Handshake Protocol                              11
+4.2.1.    Denial of Service Countermeasures                        11
+4.2.2.    Handshake Message Format                                 14
+4.2.3.    Message Fragmentation and Reassembly                     15
+4.2.4.    Timeout and Retransmission                               16
+4.2.4.1.  Timer Values                                             19
+4.2.5.    ChangeCipherSpec                                         20
+4.2.6.    Finished Messages                                        20
+4.2.7.    Alert Messages                                           20
+4.3.      Summary of new syntax                                    20
+4.3.1.    Record Layer                                             21
+4.3.2.    Handshake Protocol                                       21
+5.        Security Considerations                                  22
+6.        Acknowledgements                                         23
+7.        IANA Considerations                                      23
+8.        References                                               23
+8.1.      Normative References                                     23
+8.2.      Informative References                                   24
