@@ -1,42 +1,70 @@
-Network Working Group                                        E. Rescorla
-Request for Comments: 4347                                    RTFM, Inc.
-Category: Standards Track                                    N. Modadugu
-                                                     Stanford University
-                                                              April 2006
+.pl 10.0i
+.po 0
+.ll 7.2i
+.lt 7.2i
+.nr LL 7.2i
+.nr LT 7.2i
+.ds LF Rescorla & Modadugu
+.ds RF FORMFEED[Page %]
+.ds CF Standards Track
+.ds LH RFC 4347
+.ds RH April 2006
+.ds CH Datagram Transport Layer Security
+.hy 0
+.ad l
+.nf
+INTERNET-DRAFT                                               E. Rescorla
+Obsoletes (if approved): RFC 4347                             RTFM, Inc.
+Intended Status: Proposed Standard                           N. Modadugu
+<draft-ietf-tls-rfc4347-bis-11.txt>                               Google
+                                        May 2008 (Expires November 2008)
 
 
 .ce
-Datagram Transport Layer Security
+Datagram Transport Layer Security version 1.2
 
 
-.ti 0
+
+.nf
 Status of This Memo
 
-.fi
-.in 3
-This document specifies an Internet standards track protocol for
-the Internet community, and requests discussion and suggestions
-for improvements.  Please refer to the current edition of the
-"Internet Official Protocol Standards" (STD 1) for the
-standardization state and status of this protocol.  Distribution
-of this memo is unlimited.
+   By submitting this Internet-Draft, each author represents that any
+   applicable patent or other IPR claims of which he or she is aware
+   have been or will be disclosed, and any of which he or she becomes
+   aware will be disclosed, in accordance with Section 6 of BCP 79.
 
-.ti 0 
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt.
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html.
+
 Copyright Notice
 
-Copyright (C) The Internet Society (2006).
+   Copyright (C) The IETF Trust (2008).
 
 .ti 0
 Abstract
 
-This document specifies Version 1.0 of the Datagram Transport Layer
+This document specifies Version 1.2 of the Datagram Transport Layer
 Security (DTLS) protocol.  The DTLS protocol provides communications
 privacy for datagram protocols.  The protocol allows client/server
 applications to communicate in a way that is designed to prevent
 eavesdropping, tampering, or message forgery.  The DTLS protocol is
 based on the Transport Layer Security (TLS) protocol and provides
 equivalent security guarantees.  Datagram semantics of the underlying
-transport are preserved by the DTLS protocol.
+transport are preserved by the DTLS protocol. This document
+updates DTLS 1.0 to work with TLS version 1.2.
 
 .ti 0
 Table of Contents
@@ -1263,52 +1291,51 @@ Stanford, CA 94305
 EMail: nagendra@cs.stanford.edu
 
 .bp
-.in3
-.fi
-.ti 0
+.nf
 Full Copyright Statement
 
-Copyright (C) The Internet Society (2006).
+   Copyright (C) The IETF Trust (2008).
 
-This document is subject to the rights, licenses and restrictions
-contained in BCP 78, and except as set forth therein, the authors
-retain all their rights.
+   This document is subject to the rights, licenses and restrictions
+   contained in BCP 78, and except as set forth therein, the authors
+   retain all their rights.
 
-This document and the information contained herein are provided on an
-"AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE
-REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY AND THE
-INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
-THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
-WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+   This document and the information contained herein are provided on an
+   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
+   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
+   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
+   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
+   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
+   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
-.ti 0
+
 Intellectual Property
 
-The IETF takes no position regarding the validity or scope of any
-Intellectual Property Rights or other rights that might be claimed
-to pertain to the implementation or use of the technology
-described in this document or the extent to which any license
-under such rights might or might not be available; nor does it
-represent that it has made any independent effort to identify any
-such rights.  Information on the procedures with respect to
-rights in RFC documents can be found in BCP 78 and BCP 79.
+   The IETF takes no position regarding the validity or scope of any
+   Intellectual Property Rights or other rights that might be claimed to
+   pertain to the implementation or use of the technology described in
+   this document or the extent to which any license under such rights
+   might or might not be available; nor does it represent that it has
+   made any independent effort to identify any such rights.  Information
+   on the procedures with respect to rights in RFC documents can be
+   found in BCP 78 and BCP 79.
 
-Copies of IPR disclosures made to the IETF Secretariat and any
-assurances of licenses to be made available, or the result of an
-attempt made to obtain a general license or permission for the use
-of such proprietary rights by implementers or users of this
-specification can be obtained from the IETF on-line IPR repository
-at http://www.ietf.org/ipr.
+   Copies of IPR disclosures made to the IETF Secretariat and any
+   assurances of licenses to be made available, or the result of an
+   attempt made to obtain a general license or permission for the use of
+   such proprietary rights by implementers or users of this
+   specification can be obtained from the IETF on-line IPR repository at
+   http://www.ietf.org/ipr.
 
-The IETF invites any interested party to bring to its attention
-any copyrights, patents or patent applications, or other
-proprietary rights that may cover technology that may be required
-to implement this standard.  Please address the information to the
-IETF at \%ietf-ipr@ietf.org.
+   The IETF invites any interested party to bring to its attention any
+   copyrights, patents or patent applications, or other proprietary
+   rights that may cover technology that may be required to implement
+   this standard.  Please address the information to the IETF at
+   ietf-ipr@ietf.org.
 
-.ti 0
-Acknowledgement
 
-Funding for the RFC Editor function is provided by the IETF
-Administrative Support Activity (IASA).
+Acknowledgment
+
+   Funding for the RFC Editor function is provided by the IETF
+   Administrative Support Activity (IASA).
+
