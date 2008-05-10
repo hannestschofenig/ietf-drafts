@@ -1748,46 +1748,46 @@ Layer         |TLS    |  |DTLS  |
                For instance, "uint16 array&lt;0..256&gt;;" represents up to 256 bytes
                but only up to 128 values.
              </t>
-	     <section anchor="sec-definitions" title="Common Definitions">
-	       <t>
-		 The following definitions are used throughout RELOAD and so are
-		 defined here. They also provide a convenient introduction to how
-		 to read the presentation language.
-	       </t>
+             <section anchor="sec-definitions" title="Common Definitions">
+               <t>
+                 The following definitions are used throughout RELOAD and so are
+                 defined here. They also provide a convenient introduction to how
+                 to read the presentation language.
+               </t>
          <figure>
            <!--begin-pdu-->
            
            <artwork><![CDATA[
 
-	   typedef opaque       PeerId[16];
+           typedef opaque       PeerId[16];
 
        ]]></artwork>
-	 </figure>
-	 
-	 <t>
-	   A PeerId structure represents a single peer-id. It is a fixed-length
-	   128-bit structure represented as a series of bytes, most significant
-	   byte first. Note: the use of "typedef" here is an extension to the
-	   TLS language, but its meaning should be relatively obvious.
-	 </t>
+         </figure>
+         
+         <t>
+           A PeerId structure represents a single peer-id. It is a fixed-length
+           128-bit structure represented as a series of bytes, most significant
+           byte first. Note: the use of "typedef" here is an extension to the
+           TLS language, but its meaning should be relatively obvious.
+         </t>
          <figure>
            <!--begin-pdu-->
            
            <artwork><![CDATA[
 
-	   typedef opaque       ResourceId<0..255>;
+           typedef opaque       ResourceId<0..255>;
 
        ]]></artwork>
-	 </figure>
-	 <t>
-	   A ResourceId structure represents a single resource. Unlike
-	   peer-ids, resource ids are variable length, up to 255
-	   bytes (2048 bits) in length.
-	 </t>
-	 <t>
-	   A more complicated example is Address:
-	 </t>
-	   
+         </figure>
+         <t>
+           A ResourceId structure represents a single resource. Unlike
+           peer-ids, resource ids are variable length, up to 255
+           bytes (2048 bits) in length.
+         </t>
+         <t>
+           A more complicated example is Address:
+         </t>
+           
          <figure>
            <!--begin-pdu-->
            <artwork><![CDATA[
@@ -1807,58 +1807,58 @@ Layer         |TLS    |  |DTLS  |
       
       struct {
         AddressType             type;
-	uint8                   length;
-	
-	select (type) {
-	  case ipv4_address:
+        uint8                   length;
+        
+        select (type) {
+          case ipv4_address:
              IPv4AddrPort;
-	  
+          
           case ipv6_address:
              IPv6AddrPort;
 
-	  /* This structure can be extended */
+          /* This structure can be extended */
 
        } Address;
 
        ]]></artwork>
-	 </figure>
+         </figure>
 
-	 <t>
-	   An Address structure represents a network address and
-	   can be used to represent either an IPv6 or IPv4 address.
-	   The first two fields in the structure are the same no 
-	   matter what kind of address is being represented:
-	 </t>
-	 <t>
-	   <list style="hanging">
-	     <t hangText="type -"> the type of address (v4 or v6).</t>
-	     <t hangText="length -">the length of the rest of the structure.</t>
-	   </list>
-	 </t>
-	 <t>
-	   By having the type and the length appear at the beginning
-	   of the structure regardless of the kind of address being
-	   represented, an implementation which does not understand
-	   new address type X can still parse the Address field 
-	   and then discard it if it is not needed.
-	 </t>
-	 <t>
-	   The rest of the Address structure is either an IPv4AddrPort
-	   or an IPv6AddrPort. Both of these simply consist of an
-	   address represented as an integer and a 16-bit port.
-	   As an example, here is the wire representation of 
-	   the IPv4 address "192.0.2.1" with port "6100".
-	 </t>
+         <t>
+           An Address structure represents a network address and
+           can be used to represent either an IPv6 or IPv4 address.
+           The first two fields in the structure are the same no 
+           matter what kind of address is being represented:
+         </t>
+         <t>
+           <list style="hanging">
+             <t hangText="type -"> the type of address (v4 or v6).</t>
+             <t hangText="length -">the length of the rest of the structure.</t>
+           </list>
+         </t>
+         <t>
+           By having the type and the length appear at the beginning
+           of the structure regardless of the kind of address being
+           represented, an implementation which does not understand
+           new address type X can still parse the Address field 
+           and then discard it if it is not needed.
+         </t>
+         <t>
+           The rest of the Address structure is either an IPv4AddrPort
+           or an IPv6AddrPort. Both of these simply consist of an
+           address represented as an integer and a 16-bit port.
+           As an example, here is the wire representation of 
+           the IPv4 address "192.0.2.1" with port "6100".
+         </t>
          <figure>
            <artwork><![CDATA[
-	   01           ; type    = IPv4
+           01           ; type    = IPv4
            06           ; length  = 6
-	   c0 00 02 01  ; address = 192.0.2.21
+           c0 00 02 01  ; address = 192.0.2.21
            17 d4        ; port    = 6100
-	   ]]></artwork>
-	 </figure>
-	     </section>
-	   </section>
+           ]]></artwork>
+         </figure>
+             </section>
+           </section>
            <section anchor="sec-forwarding-header" title="Forwarding Header">
              <t>
                The layout of the forwarding header is shown below. We 
@@ -2023,8 +2023,8 @@ Layer         |TLS    |  |DTLS  |
       
       struct {
         DestinationType         type;
-        uint8			length;
-        DestinationData		destination_data[Destination.length];
+        uint8                   length;
+        DestinationData         destination_data[Destination.length];
       } Destination;
       
       
@@ -2045,34 +2045,34 @@ Layer         |TLS    |  |DTLS  |
 
       ]]></artwork>
          </figure>
-	 
-	 <t>This is a TLV structure with the following contents:</t>
-	 <t>
-	 <list style="hanging">
-	   <t hangText="type -">
-	     The type of the DestinationData PDU. This may be one of
-	     peer, resource, or compressed.
-	   </t>
-	   <t hangText="length -">
-	     The length of the destination_data.
-	   </t>
-	   <t hangText="destination_value -">
-	     The destination value itself, which is an encoded
-	     DestinationData, which may be any of the above
-	     types.
-	   </t>
-	 </list>
-	 </t>
-	 <note title="Stylistic Note:">
-	   <t>
-	     This structure encodes a type, length, value. 
-	     The length field specifies the length of the
-	     DestinationData values, which allows the addition of new
-	     DestinationTypes. This allows an implementation which does not understand
-	     a given DestinationType to skip over it.
-	   </t>
-	 </note>
-	 
+         
+         <t>This is a TLV structure with the following contents:</t>
+         <t>
+         <list style="hanging">
+           <t hangText="type -">
+             The type of the DestinationData PDU. This may be one of
+             peer, resource, or compressed.
+           </t>
+           <t hangText="length -">
+             The length of the destination_data.
+           </t>
+           <t hangText="destination_value -">
+             The destination value itself, which is an encoded
+             DestinationData, which may be any of the above
+             types.
+           </t>
+         </list>
+         </t>
+         <note title="Stylistic Note:">
+           <t>
+             This structure encodes a type, length, value. 
+             The length field specifies the length of the
+             DestinationData values, which allows the addition of new
+             DestinationTypes. This allows an implementation which does not understand
+             a given DestinationType to skip over it.
+           </t>
+         </note>
+         
          <t>A destination_object can have one of three types (this is
          extensible):</t>
 
@@ -2142,8 +2142,8 @@ Layer         |TLS    |  |DTLS  |
           be used with care.</t>
 
           <t>
-	    The route log is defined as follows:
-	  </t>
+            The route log is defined as follows:
+          </t>
 
           <figure>
             <!-- begin-pdu-->
@@ -2155,11 +2155,11 @@ Layer         |TLS    |  |DTLS  |
 
 
        struct {
-         opaque			version<0..255>;    /* A string */
-         Transport		transport;	    /* TCP or UDP */
+         opaque                 version<0..255>;    /* A string */
+         Transport              transport;            /* TCP or UDP */
          peer_id                id; 
-	 uint32                 uptime;
-         AddressPort		address;
+         uint32                 uptime;
+         AddressPort            address;
          opaque                 certificate<0..2^16-1>;
        } RouteLogEntry;
 
@@ -2170,10 +2170,10 @@ Layer         |TLS    |  |DTLS  |
 
               ]]></artwork>
           </figure>
-	  
-	  <t>The route log is a variable length vector consisting of an
-	  arbitrary number of RouteLogEntry values. Each node that
-	  the </t>
+          
+          <t>The route log is a variable length vector consisting of an
+          arbitrary number of RouteLogEntry values. Each node that
+          the </t>
 
           <t>Each route log entry consists of the following values:</t>
 
@@ -2182,7 +2182,7 @@ Layer         |TLS    |  |DTLS  |
               version</t>
 
               <t hangText="transport -">The transport type, currently
-	      either "tcp_tls" or "udp_dtls".</t>
+              either "tcp_tls" or "udp_dtls".</t>
 
               <t hangText="id -">The peer-id of the peer.</t>
 
@@ -2199,8 +2199,8 @@ Layer         |TLS    |  |DTLS  |
 
       <section anchor="sec-contents" title="Message Contents Format">
         <t>RELOAD messages share a common content structure, 
-	defined by MessageContents:</t>
-	
+        defined by MessageContents:</t>
+        
 
          <figure>
            <!--begin-pdu-->
@@ -2208,24 +2208,24 @@ Layer         |TLS    |  |DTLS  |
            <artwork><![CDATA[
        struct {
          MessageCode            message_code;
-	 uint16                 reserved;
-	 opaque			payload<0..2^16-1>;
+         uint16                 reserved;
+         opaque                        payload<0..2^16-1>;
        } MessageContents;
        
        ]]>
 </artwork>
-	 </figure>
-	 
-	 <t>
-	   The contents of this structure are as follows:
-	 </t>
-	 <t>
-	 <list style="hanging">
-	   <t hangText="message_code -">
-	     This indicates the message that is being sent. The
-	     code space is broken up as follows.
-	     
-	     <list style="hanging">
+         </figure>
+         
+         <t>
+           The contents of this structure are as follows:
+         </t>
+         <t>
+         <list style="hanging">
+           <t hangText="message_code -">
+             This indicates the message that is being sent. The
+             code space is broken up as follows.
+             
+             <list style="hanging">
               <t hangText="0">Reserved</t>
 
               <t hangText="1 .. 0x7fff">Requests and responses. These code
@@ -2238,22 +2238,22 @@ Layer         |TLS    |  |DTLS  |
 
               <t hangText="0xffff">Error</t>
             </list></t>
-	    <t hangText="reserved -">
-	      A reserved 16-bit value. [TODO: Do we need this?]
-	    </t>
-	    <t hangText="message_body -">
-	      The message body itself, represented as a variable-length
-	      string of bytes. The bytes themselves are dependent on the code
-	      value. See the sections describing the various RELOAD methods
-	      (JOIN, UPDATE, CONNECT, STORE, FETCH, etc.) for the definitions
-	      of the payload contents.</t>
-	 </list>
-	 </t>
-	 <t>
-	   [TODO: We could represent this as a big select() with enums
-	   as well. That sort of removes layering but is clearer from
-	   a presentation language perspective. Comments?]
-	 </t>
+            <t hangText="reserved -">
+              A reserved 16-bit value. [TODO: Do we need this?]
+            </t>
+            <t hangText="message_body -">
+              The message body itself, represented as a variable-length
+              string of bytes. The bytes themselves are dependent on the code
+              value. See the sections describing the various RELOAD methods
+              (JOIN, UPDATE, CONNECT, STORE, FETCH, etc.) for the definitions
+              of the payload contents.</t>
+         </list>
+         </t>
+         <t>
+           [TODO: We could represent this as a big select() with enums
+           as well. That sort of removes layering but is clearer from
+           a presentation language perspective. Comments?]
+         </t>
 
          <section anchor="sec-response-code"
                    title="Response Codes and Response Errors">
@@ -2277,7 +2277,7 @@ Layer         |TLS    |  |DTLS  |
 
        public struct {
              uint16             error_code;
-	     opaque             reason_phrase<0..255>;  /* String*/
+             opaque             reason_phrase<0..255>;  /* String*/
              opaque             error_info<0..65000>;
        } ErrorResponse;
 
@@ -2347,7 +2347,7 @@ Layer         |TLS    |  |DTLS  |
 
           <figure>
             <!--begin-pdu-->
-	    
+            
             <artwork><![CDATA[
 
 
@@ -2357,28 +2357,28 @@ Layer         |TLS    |  |DTLS  |
 
        select (identity_type) {
          case signer_identity_peer:
-	   PeerId               id;
+           PeerId               id;
  
          case signer_identity_name:
            opaque               name<0..2^16-1>;
-	 
+         
          case signer_identity_certificate:
            opaque               certificate<0..2^16-1>;
 
-	 /* This structure may be extended with new types */
+         /* This structure may be extended with new types */
        } SignerIdentityValue;
 
 
        struct {
          SignerIdentityType     identity_type;
-	 uint16			length;
-	 SignerIdentityValue    identity[SignerIdentity.length];
+         uint16                 length;
+         SignerIdentityValue    identity[SignerIdentity.length];
        } SignerIdentity;
 
 
        struct  {
           SignatureAndHashAlgorithm     algorithm;
-	  SignerIdentityType		identity;
+          SignerIdentityType            identity;
           opaque                        signature_value<0..2^16-1>;
        } Signature;
 
@@ -2391,19 +2391,19 @@ Layer         |TLS    |  |DTLS  |
 
           <t><list style="hanging">
               <t hangText="algorithm -">The signature algorithm in use.
-	      The definitions for this PDU come from [REF: TLS 1.2]</t>
+              The definitions for this PDU come from [REF: TLS 1.2]</t>
 
               <t hangText="identity -">The identity or certificate used to
               form the signature</t>
-	      
-	      <t hangText="signature_value -">The value of the signature</t>
-	      
+              
+              <t hangText="signature_value -">The value of the signature</t>
+              
             </list></t>
 
           <t>[[TODO: Should we convert all of this to CMS?]]</t>
 
           <t>A number of possible identity formats are permitted. The peer
-	  may indicate any of:</t>
+          may indicate any of:</t>
 
           <t><list style="symbols">
               <t>Peer-id</t>
@@ -2412,20 +2412,20 @@ Layer         |TLS    |  |DTLS  |
 
               <t>The certificate itself.</t>
             </list>
-	  </t>
-	  
+          </t>
+          
 
           <t>For signatures over messages the input to the signature function
           is:
-	  </t>
-	  <t>
-	  <list>
-	    <t>overlay + transaction_id + MessageContents + SignerIdentity</t>
-	  </list>
-	  </t>
-	  <t>
-	    Where overlay and transaction_id come from the forwarding header.
-	  </t>
+          </t>
+          <t>
+          <list>
+            <t>overlay + transaction_id + MessageContents + SignerIdentity</t>
+          </list>
+          </t>
+          <t>
+            Where overlay and transaction_id come from the forwarding header.
+          </t>
           <t>[[TODO: Check the inputs to this carefully.]]</t>
 
           <t>The input to signatures over data values is different, and is
@@ -2473,11 +2473,11 @@ Layer         |TLS    |  |DTLS  |
           <figure>
             <!--begin-pdu-->
 
-	    <artwork><![CDATA[
+            <artwork><![CDATA[
 
        struct {
           PeerId                desired_peer_id;
-	  opaque		dht_specific_data<0..2^16-1>;
+          opaque                dht_specific_data<0..2^16-1>;
        } JoinQ;
 
 
@@ -2511,7 +2511,7 @@ Layer         |TLS    |  |DTLS  |
 
        public struct {
           PeerId                leaving_peer_id;
-	  opaque		dht_specific_data<0..2^16-1>;
+          opaque                dht_specific_data<0..2^16-1>;
        } LeaveQ;
 
               ]]></artwork>
@@ -2578,7 +2578,7 @@ Layer         |TLS    |  |DTLS  |
 
        struct {
          uint8                  send_update;
-	 Destination		destination;
+         Destination            destination;
        } RouteQueryQ;
 
 
@@ -2614,7 +2614,7 @@ Layer         |TLS    |  |DTLS  |
 
       struct {
         PeerId                  next_peer;
-	Address                 next_addr;
+        Address                 next_addr;
       } RouteQueryQ;
 
 
@@ -2666,94 +2666,97 @@ Layer         |TLS    |  |DTLS  |
           to just sending ACKs. All the complexity is at the sender side. This
           allows the sending implementation to trade off performance versus
           implementation complexity without affecting the wire protocol.</t>
-	  
-	  <t>
-	    In order to support unreliable transport, each message is wrapped
-	    in a very simple framing layer (FramedMessage)
-	    which is only used for each hop.
-	    This layer contains a sequence number which can then be used
-	    for ACKs.
-	  </t>
+          
+          <t>
+            In order to support unreliable transport, each message is wrapped
+            in a very simple framing layer (FramedMessage)
+            which is only used for each hop.
+            This layer contains a sequence number which can then be used
+            for ACKs.
+          </t>
           <section title="Framed Message Format">
-	    <t>
-	    </t>
+            <t>
+            </t>
 
             <figure>
               <!--begin-pdu-->
-			
+                        
               <artwork><![CDATA[
+
+
       enum {data (1), ack (2)} FramedMessageType;
 
-      struct { 	   
+      struct {            
         FramedMessageType       type;
 
-	select (type) {
-	  case data:
+        select (type) {
+          case data:
             uint24              sequence;
-	    opaque		message<0..2^16-1>;
+            opaque              message<0..2^16-1>;
 
-	  case ack:
-	    uint24              ack_sequence;
+          case ack:
+            uint24              ack_sequence;
             uint32              received;            
-	};
+        };
       } FramedMessage;
 
+
       ]]>
-	      </artwork>
-	    </figure>
+              </artwork>
+            </figure>
 
-	    <t>The type field of the PDU is set to indicate whether the message
-	    is data or an acknowledgement.</t>
+            <t>The type field of the PDU is set to indicate whether the message
+            is data or an acknowledgement.</t>
 
-	    <t>If the message is of type "data", then the remainder of the PDU is
-	    as follows:
-	    </t>
+            <t>If the message is of type "data", then the remainder of the PDU is
+            as follows:
+            </t>
             <t>
-	      <list style="hanging">
-		<t hangText="sequence -"> the sequence number</t>
-		<t hangText="message -"> the original message that is being transmitted.</t>
-	      </list>
-	    </t>
+              <list style="hanging">
+                <t hangText="sequence -"> the sequence number</t>
+                <t hangText="message -"> the original message that is being transmitted.</t>
+              </list>
+            </t>
             <t>
-	      Each association has it own sequence number. Initially the
-	      value is zero and it increments by exactly one for each message
-	      sent over that DTLS session.
-	    </t>
-	    <t>
-	      If the message is of type "ack", then the remainder of the PDU is
-	      as follows:
-	    </t>
-	    <t>
-	      <list style="hanging">
-		<t hangText="ack_sequence -">
-		  The sequence number of the message being acknowledged.
-		</t>
-		<t hangText="received -">
-		  A bitmask indicating whether or not
-		  each of the previous 32 packets has been received. The high
-		  order bit represents the first packet in the sequence
-		  space.
-		</t>
-	      </list>
-	    </t>
+              Each association has it own sequence number. Initially the
+              value is zero and it increments by exactly one for each message
+              sent over that DTLS session.
+            </t>
             <t>
-	      When the receiver receive a message, it SHOULD immediately send
-	      an ACK message. The receiver MUST keep track of the 32 most recent
-	      sequence numbers received on this association in order to generate
-	      the appropriate ack.
-	    </t>
+              If the message is of type "ack", then the remainder of the PDU is
+              as follows:
+            </t>
+            <t>
+              <list style="hanging">
+                <t hangText="ack_sequence -">
+                  The sequence number of the message being acknowledged.
+                </t>
+                <t hangText="received -">
+                  A bitmask indicating whether or not
+                  each of the previous 32 packets has been received. The high
+                  order bit represents the first packet in the sequence
+                  space.
+                </t>
+              </list>
+            </t>
+            <t>
+              When the receiver receive a message, it SHOULD immediately send
+              an ACK message. The receiver MUST keep track of the 32 most recent
+              sequence numbers received on this association in order to generate
+              the appropriate ack.
+            </t>
 
-	    <t>
-	      The received field bits in the ACK provide a very high degree
-	     of redundancy for the sender to figure out which packets the
+            <t>
+              The received field bits in the ACK provide a very high degree
+             of redundancy for the sender to figure out which packets the
              receiver received and can then estimate packet loss rates. If the
              sender also keeps track of the time at which recent sequence
-	     numbers were sent, the RTT can be estimated.
-	    </t>
+             numbers were sent, the RTT can be estimated.
+            </t>
 
           </section>
-	  
-	  <section title="Retransmission and Flow Control">
+          
+          <section title="Retransmission and Flow Control">
              <t>Because the receiver's role is limited to providing packet
              acknowledgements, a wide variety of congestion control algorithms
              can be implemented on the sender side while using the same basic
@@ -2840,11 +2843,11 @@ Layer         |TLS    |  |DTLS  |
 
       struct  {
         opaque                  ufrag<0..255>;
-	opaque			password<0..255>;		
-	uint16                  application;
-	opaque			fingerprint<0..255>;
-	opaque			role<0..255>;
- 	IceCandidate		candidates<0..2^16-1>;
+        opaque                  password<0..255>;                
+        uint16                  application;
+        opaque                  fingerprint<0..255>;
+        opaque                  role<0..255>;
+        IceCandidate            candidates<0..2^16-1>;
       } ConnectQ;
 
 
@@ -2908,7 +2911,8 @@ Layer         |TLS    |  |DTLS  |
 
               <artwork><![CDATA[
 
-      enum { responsible_set(1), num_resources(2), (255)} PingInformationType;
+      enum { responsible_set(1), num_resources(2), (255)} 
+           PingInformationType;
 
       struct {
         PingInformationType     requested_info<0..255>;
@@ -2919,19 +2923,19 @@ Layer         |TLS    |  |DTLS  |
             </figure>
 
             <t>The two currently defined values for PingInformation are:</t>
-	    
-	    <list style="hanging">
-	      <t hangText="responsible_set">
-		indicates that the peer should Respond with the
-		fraction of the overlay for which the responding peer is
-	        responsible.
-	      </t>
-	      
-	      <t hangText="num_resources">
-		indicates that the peer should Respond with the
-		number of resources currently being stored by the peer.
-	      </t>
-	    </list>
+            
+            <list style="hanging">
+              <t hangText="responsible_set">
+                indicates that the peer should Respond with the
+                fraction of the overlay for which the responding peer is
+                responsible.
+              </t>
+              
+              <t hangText="num_resources">
+                indicates that the peer should Respond with the
+                number of resources currently being stored by the peer.
+              </t>
+            </list>
           </section>
 
 
@@ -2946,12 +2950,16 @@ Layer         |TLS    |  |DTLS  |
 
        struct {
          PingInformationType    type;
-	 
-	 select (type) {
+         
+         select (type) {
            case responsible_set:
              uint32             responsible_ppb;
+
            case num_resources:
              uint32             num_resources;                           
+
+           /* This type may be extended */
+
          };
        } PingInformation;
 
@@ -2967,7 +2975,7 @@ Layer         |TLS    |  |DTLS  |
             <t>A PING_A message contains the following elements:</t>
 
             <t>
-	      <list style="hanging">
+              <list style="hanging">
                 <t hangText="response_id -">A randomly generated 64-bit
                 response ID. This is used to distinguish PING responses in
                 cases where the PING request is multicast.</t>
@@ -2975,15 +2983,15 @@ Layer         |TLS    |  |DTLS  |
                 <t hangText="ping_info -">A sequence of PingInformation structures,
                 as shown below.</t>
               </list>
-	    </t>
-	     
-	    <t>
-	      Each of the current possible PING information types is a 32-bit
-	      unsigned integer. For type "responsible_ppb", it is the
-	      fraction of the overlay for which the peer is responsible
-	      in parts per billion. For type "num_resources", it is the
-	      number of resources the peer is storing.
-	    </t>
+            </t>
+             
+            <t>
+              Each of the current possible PING information types is a 32-bit
+              unsigned integer. For type "responsible_ppb", it is the
+              fraction of the overlay for which the peer is responsible
+              in parts per billion. For type "num_resources", it is the
+              number of resources the peer is storing.
+            </t>
 
             <t>The responding peer SHOULD include any values that the
             requesting peer requested and that it recognizes. They SHOULD be
@@ -3104,66 +3112,146 @@ Layer         |TLS    |  |DTLS  |
          simply by defining new code points and a small set of rules.
          No new protocol mechanisms are required.
       </t>
-         
-      <section title="Kinds and Data Models" anchor="sec-kind-model">
-         <t>
-           Each resource-id specifies a single location in the DHT.
-           However, each location may contain multiple data values
-           distinguished by kind-id. The definition of a kind describes
-           both the data values which may be stored and the data
-           model of the data. Thus, multiple values can be stored
-           under the same kind-id.
-           The protocol currently defines the following data
-         models:</t>
-
-         <t><list style="symbols">
-           <t>single value</t>
-
-           <t>array</t>
-
-           <t>dictionary</t>
-         </list></t>
-
-         <t>
-           Thus, for instance, a given resource-id might contain 
-           a single-value element stored under kind-id X and
-           an array containing multiple values stored under kind-id Y. 
-         </t>
-	 
-	 <t>
-	   Stored data is represented by the StoredDataEntry PDU, as shown below
-	 </t>
-
-            <figure>
+      <t>
+        The basic unit of stored is a single StoredData structure:
+      </t>
+           <figure>
               <!--begin-pdu-->
               <artwork><![CDATA[
 
-
-      enum { single_value(0), array(1), dictionary(2), (255)} DataModel;
 
       struct {
         uint32                  length;
         uint64                  storage_time;
         uint32                  lifetime;
-        
-        select (DataModel) {
-          case single_value:
-  	  opaque                value<0..2^32-1>;
+        StoredDataValue         value;
+        Signature               signature;
+      } StoredData;
+
+
+      ]]>
+      </artwork>
+    </figure>
+    <t>
+      The contents of this structure are as follows:
+    </t>
+    <t><list style="hanging">
+      <t hangText="Length -">The length of the rest of the
+      structure.</t>
+
+      <t hangText="storage_time -">The time when the data was stored
+      in absolute time, represented in seconds since the Unix epoch.
+      Any attempt to store a data value with a storage time before
+      that of a value already stored at this location MUST generate a
+      412 error. This prevents rollback attacks. Note that this does
+      not require synchronized clocks: the receiving peer uses the
+      storage time in the previous store, not its own clock.</t>
+
+      <t hangText="lifetime -">The validity period for the data, in
+      seconds, starting from the time of store.</t>
+
+      <t hangText="value -">The data value itself, as described
+      in <xref target="sec-kind-model"/>.</t>
+
+
+      <t hangText="signature -">A signature over the data value.
+      <xref target="sec-data-sig"></xref> describes the signature
+      computation. The element is formatted as described in <xref
+      target="sec-signature"></xref></t>
+    </list></t>
+
+    <t>
+      [TODO: this doesn't include the resource ID and kind to
+      avoid duplicating it in each value. It would make things
+      more self-contained, though.
+    </t>
+    <t>
+      Each resource-id specifies a single location in the DHT.
+      However, each location may contain multiple StoredData values
+      distinguished by kind-id. 
+      Thus, for instance, a given resource-id might contain 
+      a single-value element stored under kind-id X and
+      an array containing multiple values stored under kind-id Y. 
+    </t>
+
+    <t>
+      The definition of a kind describes
+      both the data values which may be stored and the data
+      model of the data. Some data models allow multiple values
+      to be stored under the same kind-id. Section <xref target="sec-kind-model"/>
+      describes the available data models.
+    </t>
+    <section anchor="sec-data-sig" title="Data Signature Computation">
+
+      <t>Each stored-data element is individually signed. However, the
+      signature also must be self-contained and cover the kind-id and
+      resource-id even though they are not present in the StoredData
+      structure. The data signed is defined as:</t>
+
+      <t><list>
+        resource_id + kind + StoredData
+      </list>
+      </t>
+
+      <t>Where these values are:</t>
+
+      <t><list style="hanging">
+        <t hangText="resource -">The resource ID where this data is
+        stored.</t>
+
+        <t hangText="kind -">The kind-id for this data.</t>
+
+        <t hangText="StoredData -">The contents of the stored data
+        value, as described in the previous sections.</t>
+      </list></t>
+
+      <t>[[TODO: Should we include the identity?.]]</t>
+
+      <t>Once the signature has been computed, the signature is
+      represented using a signature element, as described in <xref
+      target="sec-signature"></xref>.</t>
+    </section>
+
+    <section title="Kinds and Data Models" anchor="sec-kind-model">
+      <t>
+        The protocol currently defines the following data
+        models:
+      </t>
+      <t>
+        <list style="symbols">
+        <t>single value</t>
+
+        <t>array</t>
+
+        <t>dictionary</t>
+      </list></t>
+
+        <figure>
+          <!--begin-pdu-->
+          <artwork><![CDATA[
           
-          case array:
-            int32                 index;	  
-  	  opaque                value<0..2^32-1>;          
-  
-          case dictionary:
-  	    opaque                key<0..2^16-1>;
-            opaque                value<0..2^32-1>;          	  
-  
-          /* This structure may be extended */
-        };
-      }	StoredDataValue;
-]]>
-	      </artwork>
-	    </figure>
+          
+      enum { single_value(0), array(1), dictionary(2), (255)} 
+             DataModel;
+      
+      select (DataModel) {
+        case single_value:
+          SingleValueEntry      single_value_entry;
+ 
+        case array:
+          ArrayEntry            array_entry;
+
+        case DictionaryEntry:
+          DictionaryEntry       dictionary_entry;
+
+
+        /* This structure may be extended */
+      };
+
+
+      ]]>
+          </artwork>           
+        </figure>
 
          <t>We now discuss each data model:</t>
 
@@ -3171,7 +3259,24 @@ Layer         |TLS    |  |DTLS  |
            <t>There may be only one single-value element for each
            resource-id, kind-id pair. A store of a new single-value element
            MUST overwrite the current value. 
-	   </t>
+           </t>
+           <t>
+             A single value element is represented as a SingleValueEntry:
+           </t>
+
+            <figure>
+              <!--begin-pdu-->
+              <artwork><![CDATA[
+              
+              
+       struct {
+         opaque                        value<0..2^32-1>;
+       } SingleValueEntry;
+
+
+       ]]>
+              </artwork>
+            </figure>
          </section>
 
          <section title="Array">
@@ -3182,7 +3287,27 @@ Layer         |TLS    |  |DTLS  |
            NA, NA, "X"]. Future attempts to fetch elements at index 0 or 1
            will return empty strings. If the index value is -1, then the
            value is placed at the end of the array. </t>
-	 </section>
+
+           <t>
+             A array element is represented as an ArrayEntry:
+           </t>
+
+            <figure>
+              <!--begin-pdu-->
+              <artwork><![CDATA[
+              
+              
+       struct {
+         int32                  index;
+         opaque                 value<0..2^32-1>;
+       } ArrayEntry;
+
+
+       ]]>
+              </artwork>
+            </figure>
+         </section>
+
 
          <section title="Dictionary">
            <t>A stored dictionary entry has a dictionary-key used as a
@@ -3190,44 +3315,34 @@ Layer         |TLS    |  |DTLS  |
            There may be only one value for any given dictionary-key, a
            write to a dictionary-key overwrites whatever is there. A
            single dictionary entry is represented as follows
-	   </t>
+           </t>
+
+           <t>
+             A dictionary element is represented as a DictionaryEntry:
+           </t>
+
+            <figure>
+              <!--begin-pdu-->
+              <artwork><![CDATA[
+              
+       typedef opaque           DictionaryKey<0..2^16-1>;
+              
+       struct {
+         DictionaryKey          key<0..2^^16-1>;
+         opaque                 value<0..2^32-1>;
+       } DictionaryEntry;
+
+
+       ]]>
+              </artwork>
+            </figure>
+
          </section>
-	 
-	 <section anchor="sec-data-sig" title="Data Signature Computation">
-
-            <t>Each stored-data element is individually signed. However, the
-            signature also must be self-contained and cover the kind-id and
-            resource-id even though they are not present in the stored value.
-            The data signed is defined as:</t>
-
-	    <t><list>
-	      resource_id + kind + StoredData
-	      </list>
-	    </t>
-
-            <t>Where these values are:</t>
-
-            <t><list style="hanging">
-                <t hangText="resource -">The resource ID where this data is
-                stored.</t>
-
-                <t hangText="kind -">The kind-id for this data.</t>
-
-                <t hangText="StoredData -">The contents of the stored data
-                value, as described in the previous sections.</t>
-              </list></t>
-
-            <t>[[TODO: Should we include the identity?.]]</t>
-
-            <t>Once the signature has been computed, the signature is
-            represented using a signature element, as described in <xref
-            target="sec-signature"></xref>.</t>
-          </section>
 
            <section title="Defining New Kinds">
              <t>
                A new kind MUST define:
-
+             </t>
                <t><list style="symbols">
                   <t>The meaning of the data to be stored.</t>
                   <t>The kind-id.</t>
@@ -3239,7 +3354,8 @@ Layer         |TLS    |  |DTLS  |
 
                   <t>The minimum amounts of data that a conformant
                   implementation MUST be willing to store.</t>
-               </list></t>
+               </list>
+               </t>
 
                <t>While each kind MUST define what data model is used for its data,
                that does not mean that it must define new data models. Where
@@ -3251,11 +3367,11 @@ Layer         |TLS    |  |DTLS  |
                   <t hangText="Note:">New usages MAY reuse existing kind-ids. New
                   kind-ids only need to be defined where different data is stored or
                   different behavior is required.</t>
-               </list></t>
-             </t>
+               </list>
+               </t>
            </section>
-      </section>
-           <section title="Data Storage Methods">
+         </section>
+         <section title="Data Storage Methods">
              <section anchor="sec-store" title="STORE">
           <t>The STORE method is used to store data in the overlay.
           The format of the STORE request depends on the data model.</t>
@@ -3277,13 +3393,13 @@ Layer         |TLS    |  |DTLS  |
      struct {
          KindId                 kind;
          DataModel              data_model;
-	 uint64                 generation_counter;
-	 StoredDataEntry        values<0..2^32-1>;
+         uint64                 generation_counter;
+         StoredData             values<0..2^32-1>;
      } StoreKindData;
 
      struct {
          ResourceId             resource;
-	 StoreKindData          kind_data<0..2^32-1>;
+         StoreKindData          kind_data<0..2^32-1>;
      } StoreQ;
 
 
@@ -3294,14 +3410,14 @@ Layer         |TLS    |  |DTLS  |
             single resource location. The contents of the request are:</t>
 
             <t>
-	      <list style="hanging">
+              <list style="hanging">
                 <t hangText="Resource -">The resource to store at.</t>
 
                 <t hangText="Store Kind Data -">A series of elements, one for
                 each kind of data to be stored.</t>
               </list>
-	    </t>
-	      
+            </t>
+              
             <t>Each StoreKindData element represents the data to be stored
             for a single kind-id. The contents of the element are:</t>
 
@@ -3319,53 +3435,10 @@ Layer         |TLS    |  |DTLS  |
                 <t hangText="values -">The value or values to be stored. This
                 may contain one or more stored_data values depending on the
                 data model associated with each kind.</t>
-              </list></t>
+              </list>
+            </t>
 
-            <figure>
-              <!--begin-pdu-->
-
-              <artwork><![CDATA[
-
-  struct {
-       uint32 length;
-       uint64 storage_time;
-       uint32 lifetime;
-       blob data-value;
-       blob signature;
-} stored_data;
-
-
-              ]]></artwork>
-            </figure>
-
-            <t>Each stored_data element represents a single stored data value.
-            These elements are individually signed. The contents of the
-            element are as follows:</t>
-
-            <t><list style="hanging">
-                <t hangText="Length -">The length of the stored data
-                element.</t>
-
-                <t hangText="Storage Time -">The time when the data was stored
-                in absolute time, represented in seconds since the Unix epoch.
-                Any attempt to store a data value with a storage time before
-                that of a value already stored at this location MUST generate a
-                412 error. This prevents rollback attacks. Note that this does
-                not require synchronized clocks: the receiving peer uses the
-                storage time in the previous store, not its own clock.</t>
-
-                <t hangText="Lifetime -">The validity period for the data, in
-                seconds, starting from the time of store.</t>
-
-                <t hangText="Signature -">A signature over the data value.
-                <xref target="sec-data-sig"></xref> describes the signature
-                computation. The element is formatted as described in <xref
-                target="sec-signature"></xref></t>
-
-                <t hangText="Data Value -">The data value itself, as described
-                  in <xref target="sec-kind-model"/>.</t>
-              </list></t>
-o
+              
             <t>The responsible peer MUST perform the following checks:</t>
 
             <t><list style="symbols">
@@ -3403,7 +3476,7 @@ o
 
           <section title="Response Definition">
             <t>In response to a successful STORE request the peer MUST return
-            a STORE_A message containing a series of store_kind_response
+            a STORE_A message containing a series of StoreKindResponse
             elements containing the current value of the generation counter
             for each kind-id, as well as a list of the peers where the data
             was replicated.</t>
@@ -3412,29 +3485,31 @@ o
               <!--begin-pdu-->
 
               <artwork><![CDATA[
-               public struct {
-                 kind_id kind;
-                  generation_counter generation;
-                  peer_id replicas<65535>;
-               } store_kind_response;
+
+      struct {
+        KindId                  kind;
+        uint64                  generation_counter;
+        PeerId                  replicas<0..2^16-1>;
+      } StoreKindResponse;
+
+
+      struct {
+        StoreKindResponse       kind_responses<0..2^16-1>;
+      } StoreA;
+
+
               ]]></artwork>
             </figure>
 
-            <!--
-   store-response = 1*store-type-response
-
-   store-type-response = type-id generation-counter
--->
-
-            <t>The contents of each element are:</t>
+            <t>The contents of each StoreKindResponse are:</t>
 
             <t><list style="hanging">
-                <t hangText="Kind -">The kind-id being represented.</t>
+                <t hangText="kind -">The kind-id being represented.</t>
 
-                <t hangText="Generation -">The current value of the generation
+                <t hangText="generation -">The current value of the generation
                 counter for that kind-id.</t>
 
-                <t hangText="Replicas -">The list of other peers at which the
+                <t hangText="replicas -">The list of other peers at which the
                 data was/will-be replicated. In DHTs and applications where
                 the responsible peer is intended to store redundant copies,
                 this allows the storing peer to independently verify that the
@@ -3452,135 +3527,117 @@ o
           </section>
 
         </section>
-
         <section title="FETCH">
-          <t>The FETCH request retrieves one or more data elements stored at a
-          given resource-id.</t>
+          <t>
+            The FETCH request retrieves one or more data elements stored at a
+            given resource-id.
+          </t>
 
           <section title="Request Definition">
-            <t>A FETCH_Q message consists of a single fetch_request element
-            followed by a series of fetch_kind_data elements.</t>
-
             <figure>
               <!--begin-pdu-->
 
               <artwork><![CDATA[
-                  public struct {
-                         resource_id resource;
-                         fetch_kind_data fetch_data<65000>;
-                  } fetch_q;
+
+
+      struct {
+        KindId                  kind;
+        DataModel               model;
+        uint64                  generation;
+        uint16                  length;
+        
+        select (kind) {
+          case single_value: {};
+
+          case array:
+               int32            first;
+               int32            last;
+          
+          case dictionary:
+               DictionaryKey    keys<0..2^16-1>;
+
+          /* This structure may be extended */
+
+        } model_specifier;
+      } StoredDataSpecifier;
+
+      struct {
+        ResourceId              resource;
+        StoredDataSpecifier     specifiers<0..2^16-1>;
+      } FetchQ;
+
+
               ]]></artwork>
             </figure>
-
-            <t>The contents of the request are as follows:</t>
+            
+            <t>The contents of this structure are as follows:</t>
 
             <t><list style="hanging">
-                <t hangText="Resource -">The resource ID to fetch from.</t>
+                <t hangText="resource -">
+                  The resource ID to fetch from.
+                </t>
 
-                <t hangText="Fetch Data -">A sequence of data specifiers, one
-                for each desired kind-id.</t>
+                <t hangText="specifiers -">
+                  A sequence of StoredDataSpecifier values, each
+                  specifying some of the data values to retrieve.
+                </t>
               </list></t>
 
-            <t>Each fetch_kind_data element is specified as follows.</t>
-
-            <figure>
-              <!--begin-pdu-->
-
-              <artwork><![CDATA[
-                  public struct {
-                    kind_id kind;
-                    uint8 data_model;
-                    generation_counter generation;
-                    fetch_data_reference reference;
-                  } fetch_kind_data;
-              ]]></artwork>
-            </figure>
-
+            <t>
+              Each StoredDataSpecifier specifies a single kind of
+              data to retrieve and (if appropriate) the subset of
+              values that are to be retrieved. The contents of the
+              structure are as follows:
+            </t>
+            
             <t><list style="hanging">
-                <t hangText="Kind -">The kind-id of the data being fetched.
+                <t hangText="kind -">The kind-id of the data being fetched.
                 Implementations SHOULD reject requests corresponding to
                 unknown kinds unless specifically configured otherwise.</t>
 
-                <t hangText="Data Model -">The data model of the data.</t>
+                <t hangText="model -">The data model of the data.</t>
 
-                <t hangText="Generation -">The last generation counter that
+                <t hangText="generation -">The last generation counter that
                 the requesting peer saw. This is used to avoid unnecessary
                 fetches.</t>
 
-                <t hangText="Reference -">A reference to the data value being
-                requested within the data model specified for the kind, as
-                specified below.</t>
-              </list></t>
+                <t hangText="length -">The length of the rest of the structure,
+                thus allowing extensibility.</t>
 
-            <figure>
-              <!--begin-pdu-->
+                <t hangText="model_specifier -">A reference to the data value being
+                requested within the data model specified for the kind. For instance,
+                if the data model is "array", it might specify some subset of the values.
+                </t>
+              </list>
+            </t>
+              
+            <t>The model_specifier is as follows:</t>
 
-              <artwork><![CDATA[
-                  public struct {
-                    int32 first;
-                    int32 last;                                    
-                  } fetch_array_reference;                  
-
-                  public struct {
-                    dictionary_key dictionary_keys<65000>;                    
-                  } fetch_dictionary_reference;
-
-                  public struct {
-                    string key_value<65000>;
-                } dictionary_key;
-              ]]></artwork>
-            </figure>
-
-            <!--
-                  enum {fetch_single (1), fetch_array (2), fetch_dictionary (3)} fetch_model;
-
-                  select {
-                    case fetch_array:
-                      fetch_array_reference array_ref;
-                  case fetch_dictionary:
-                    fetch_dictionary_reference dictionary_ref;
-                  } fetch_data_reference;
--->
-
-            <!--   fetch-request = resource-id 1*fetch-type-data
-   
-   fetch-type-data = type-id
-                     generation-counter
-                     fetch-data-reference
-  
-   fetch-data-reference = array-reference / dictionary-reference / *byte
-
-   array-reference = int32 int32
-
-   dictionary-reference = uint32        ; number of keys
-                          *data-value  ; list of dictionary keys-->
-
-            <t>As with STORE, the FETCH_Q contains a list of kind-ids and
-            associated references. The reference encoding depends on the kind
-            of value being stored.</t>
-
-            <t><list style="symbols">
-                <t>If the data is of data model single value, the reference is
+            <t>
+              <list style="symbols">
+                <t>If the data is of data model single value, the specifier is
                 empty.</t>
 
-                <t>If the data is of data model array, the reference contains
+                <t>If the data is of data model array, the specifier contains
                 two integers. The first integer is the beginning of the range
                 and the second is the end of the range. 0 is used to indicate
                 the first element and -1 is used to indicate the final
                 element. The beginning of the range MUST be earlier in the
                 array then the end.</t>
 
-                <t>If the data is of data model dictionary then the reference
+                <t>If the data is of data model dictionary then the specifier
                 contains a list of the dictionary keys being requested. If no
                 keys are specified, than this is a wildcard fetch and all
                 key-value pairs are returned. [[TODO: We really need a way to
                 return only the keys. We'll need to modify this.]]</t>
-              </list></t>
+              </list>
 
+            </t>
             <t>The generation-counter is used to indicate the requester's
             expected state of the storing peer. If the generation-counter in
             the request matches the stored counter, then the storing peer
-            returns a cache hit indicator rather than the stored data.</t>
+            returns a cache hit indicator rather than the stored data.
+            </t>
 
             <t>Note that because the certificate for a user is typically
             stored at the same location as any data stored for that user, a
@@ -3588,7 +3645,7 @@ o
             should request the certificate in the FETCH as an
             optimization.</t>
           </section>
-
+          
           <section title="Response Definition">
             <t>The response to a successful FETCH request is a FETCH_A message
             containing the data requested by the requester.</t>
@@ -3597,27 +3654,28 @@ o
               <!--begin-pdu-->
 
               <artwork><![CDATA[
-               public struct {
-                 kind_id kind;
-                  generation_counter generation;
-                  opaque stored_data<65000>;
-               } fetch_a;
+
+
+       struct {
+         KindId                 kind;
+         uint64                 generation;
+         StoredData             values<0..2^32-1>;
+       } FetchKindResponse;
+
+       struct {
+         FetchKindResponse      kind_responses<0..2^32-1>;
+       } FetchA;
+
+
               ]]></artwork>
             </figure>
 
-            <!--
-   fetch-response = 1*fetch-type-value 
- 
-   fetch-type-value = type-id
-                      generation-counter
-                      uint16        ; number of stored data elements
-                      1*stored-data
--->
 
-            <t>There MUST be one fetch_kind_data element for each kind-id in
-            the request. If the generation-counter in the request matches the
-            generation-counter in the stored data, then the count of stored
-            data elements MUST be zero. Otherwise, all relevant data values
+            <t>There MUST be one FetchKindResponse element for each kind-id in
+            the request. If the generation counter in the request matches the
+            generation-counter in the stored data, then the response values
+            must be empty for that kind-id.
+            Otherwise, all relevant data values
             MUST be returned. A nonexistent value is represented as a value
             with an empty data value portion and no signature. In particular,
             if a dictionary key that does not exist is requested, then there
@@ -3632,6 +3690,21 @@ o
           data should be allowed to remove it. Any successful remove of an
           existing element for a given kind MUST increment the generation
           counter by at least one.</t>
+          
+            <figure>
+              <!--begin-pdu-->
+
+              <artwork><![CDATA[
+
+      struct {
+        ResourceId              resource;
+        StoredDataSpecifier     specifiers<0..2^16-1>;
+      } RemoveQ;
+
+      ]]>
+              </artwork>
+            </figure>
+
 
           <t>A remove-request has exactly the same syntax as a FETCH request
           except that each entry represents a set of values to be removed
@@ -3691,8 +3764,21 @@ o
             items did not exist. However, if the generation counter does
             change, that does not mean that the items existed.</t>
           </section>
-        </section>
 
+            <figure>
+              <!--begin-pdu-->
+
+              <artwork><![CDATA[
+
+      struct {
+        StoreKindResponse          kind_responses<0..2^16-1>;
+      } RemoveA;
+
+
+      ]]>
+              </artwork>
+            </figure>
+        </section>
         <section title="FIND">
           <t>The FIND request can be used to explore the DHT. A FIND request for a
           resource-id R and a kind-id T retrieves the resource-id (if any) of
@@ -3790,6 +3876,7 @@ o
         </section>
       </section>
     </section>
+
       <section anchor="sec-connect-ice" title="ICE and Connection Formation">
       <t>[TODO: JDR]</t>
       <t>At numerous times during the operation of RELOAD, a node will need to
@@ -4141,28 +4228,28 @@ o
               SIP-REGISTRATION values of up to 10 kilobytes and must be
               prepared to store up to 10 values for each user name.</t>
             </list></t>
-	    
-	    <t>
-	      Data stored under the SIP-REGISTRATION kind is of type
-	      SipRegistration. This comes in two varieties:
-	    </t>
-	    <t>
-	      <list style="hanging">
-		<t hangText="sip_registration_uri -">a URI
-		which the user can be reached at.</t>
-		<t hangText="sip_registration_route -">a
-		destination list which can be used to
-		reach the user's peer.</t>
-	      </list>
-	    </t>
-	    
+            
+            <t>
+              Data stored under the SIP-REGISTRATION kind is of type
+              SipRegistration. This comes in two varieties:
+            </t>
+            <t>
+              <list style="hanging">
+                <t hangText="sip_registration_uri -">a URI
+                which the user can be reached at.</t>
+                <t hangText="sip_registration_route -">a
+                destination list which can be used to
+                reach the user's peer.</t>
+              </list>
+            </t>
+            
           <figure>
             <!--begin-pdu-->
 
             <artwork><![CDATA[
 
-       enum {sip_registration_uri (1), sip_registration_route (2), (255)}
-          SipRegistrationType;
+       enum {sip_registration_uri (1), sip_registration_route (2), 
+          (255)} SipRegistrationType;
       
        select (SipRegistration.type) {
          case sip_registration_uri:
@@ -4172,37 +4259,37 @@ o
            opaque               contact_prefs<0..2^16-1>;
            Destination          destination_list<0..2^16-1>;
 
-	 /* This type can be extended */
+         /* This type can be extended */
 
        } SipRegistrationData;
 
        struct {
           SipRegistrationType   type;
           uint16                length;
-	  SipRegistrationData   data;	  
+          SipRegistrationData   data;          
       } SipRegistration;
 
 
                 ]]></artwork>
           </figure>
 
-	  <t>
-	    The contents of the SipRegistration PDU are:
-	  </t>
-	  <list style="hanging">
-	    <t hangText="type -">the type of the registration</t>
-	    <t hangText="length -">the length of the rest of the PDU</t>
-	    <t hangText="data -">the registration data</t>
-	  </list>
-	  <t>
-	    If the registration is of type "sip_registration_uri", then the
-	    contents are an opaque string containing the URI.
-	  </t>
-	  <t>
-	    If the registration is of type "sip_registration_route",
-	    then the contents are an opaque string containing the callee's
-	    contact preferences and a destination list for the peer.
-	  </t>
+          <t>
+            The contents of the SipRegistration PDU are:
+          </t>
+          <list style="hanging">
+            <t hangText="type -">the type of the registration</t>
+            <t hangText="length -">the length of the rest of the PDU</t>
+            <t hangText="data -">the registration data</t>
+          </list>
+          <t>
+            If the registration is of type "sip_registration_uri", then the
+            contents are an opaque string containing the URI.
+          </t>
+          <t>
+            If the registration is of type "sip_registration_route",
+            then the contents are an opaque string containing the callee's
+            contact preferences and a destination list for the peer.
+          </t>
         </section>
 
         <section title="SIP Connect">
