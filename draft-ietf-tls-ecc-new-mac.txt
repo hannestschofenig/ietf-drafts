@@ -247,7 +247,7 @@ Internet-Draft               TLS ECC New MAC                    May 2008
 
    This work was supported by the US Department of Defense.
 
-   David McGrew, Pasi Eronen, and Alfred Hines provided reviews of this
+   David McGrew, Pasi Eronen, and Alfred Hoenes provided reviews of this
    document.
 
 

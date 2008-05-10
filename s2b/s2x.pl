@@ -3,6 +3,13 @@
 # Process an xml file and convert all the syntax into
 # bit diagrams
 
+use Getopt::Std;
+my %opts;
+
+getopts("n",\%opts);
+
+$NO_REWRITE=1 if $opts{'n'};
+
 use File::Temp qw/ :mktemp  /;
 
 $S2B = "/users/ekr/doc/ietf-drafts/ekr/s2b/s2b";
@@ -14,7 +21,14 @@ open(OUT,">$ARGV[1]") || die("Couldn't open output file");
 
 
 while(<IN>){
+    if($NO_REWRITE){
+	print OUT;
+	next;
+    }
+
     print OUT;
+   
+    next if $NO_REWRITE;
 
     if(/<!--\s*begin-prologue\s*-->/){
 	while(!/artwork/){
