@@ -2958,7 +2958,9 @@ Layer         |TLS    |  |DTLS  |
        struct {
          uint64                 response_id;
          PingInformation        ping_info<0..2^16-1>;
-	 }
+       } PingA;
+
+
 ]]></artwork>
             </figure>
 
@@ -3138,24 +3140,27 @@ Layer         |TLS    |  |DTLS  |
 
 
       enum { single_value(0), array(1), dictionary(2), (255)} DataModel;
-  
-      select (DataModel) {
-        case single_value:
-	  opaque                value<0..2^32-1>;
+
+      struct {
+        uint32                  length;
+        uint64                  storage_time;
+        uint32                  lifetime;
         
-        case array:
-          int32                 index;	  
-	  opaque                value<0..2^32-1>;          
-
-        case dictionary:
-	  opaque                key<0..2^16-1>;
-          opaque                value<0..2^32-1>;          	  
-
-	/* This structure may be extended */
-
-      } StoredDataEntry;
-
-      
+        select (DataModel) {
+          case single_value:
+  	  opaque                value<0..2^32-1>;
+          
+          case array:
+            int32                 index;	  
+  	  opaque                value<0..2^32-1>;          
+  
+          case dictionary:
+  	    opaque                key<0..2^16-1>;
+            opaque                value<0..2^32-1>;          	  
+  
+          /* This structure may be extended */
+        };
+      }	StoredDataValue;
 ]]>
 	      </artwork>
 	    </figure>
@@ -3267,6 +3272,8 @@ Layer         |TLS    |  |DTLS  |
               <!--begin-pdu-->
 
               <artwork><![CDATA[
+
+
      struct {
          KindId                 kind;
          DataModel              data_model;
@@ -3286,41 +3293,30 @@ Layer         |TLS    |  |DTLS  |
             <t>A single STORE request stores data of a number of kinds to a
             single resource location. The contents of the request are:</t>
 
-            <t><list style="hanging">
+            <t>
+	      <list style="hanging">
                 <t hangText="Resource -">The resource to store at.</t>
 
                 <t hangText="Store Kind Data -">A series of elements, one for
                 each kind of data to be stored.</t>
-              </list></t>
-
-            <figure>
-              <!--begin-pdu-->
-
-              <artwork><![CDATA[
-public struct {
-         kind_id kind;
-         uint8 data_model;
-         generation_counter generation;
-         stored_data values<65000>;
-} store_kind_data;
-              ]]></artwork>
-            </figure>
-
-            <t>Each store kind data element represents the data to be stored
+              </list>
+	    </t>
+	      
+            <t>Each StoreKindData element represents the data to be stored
             for a single kind-id. The contents of the element are:</t>
 
             <t><list style="hanging">
-                <t hangText="Kind -">The kind-id. Implementations SHOULD
+                <t hangText="kind -">The kind-id. Implementations SHOULD
                 reject requests corresponding to unknown kinds unless
                 specifically configured otherwise.</t>
 
-                <t hangText="Data Model -">The data model of the data.</t>
+                <t hangText="data_model -">The data model of the data.</t>
 
-                <t hangText="Generation -">The expected current state of the
+                <t hangText="generation -">The expected current state of the
                 generation counter (approximately the number of times this
                 object has been written, see below for details).</t>
 
-                <t hangText="Values -">The value or values to be stored. This
+                <t hangText="values -">The value or values to be stored. This
                 may contain one or more stored_data values depending on the
                 data model associated with each kind.</t>
               </list></t>
@@ -3329,13 +3325,16 @@ public struct {
               <!--begin-pdu-->
 
               <artwork><![CDATA[
-public struct {
+
+  struct {
        uint32 length;
        uint64 storage_time;
        uint32 lifetime;
        blob data-value;
        blob signature;
 } stored_data;
+
+
               ]]></artwork>
             </figure>
 
@@ -3709,10 +3708,13 @@ o
               <!--begin-pdu-->
 
               <artwork><![CDATA[
-                  public struct {
-                    resource_id resource;
-                    kind_id ids<255>;
-                  } find_q;
+
+   struct {
+     ResourceID                 resource;
+     KindId                     kinds<255>;
+   } FindQ;
+
+
               ]]></artwork>
             </figure>
 
@@ -3723,9 +3725,9 @@ o
           indicated below.</t>
 
           <t><list style="hanging">
-              <t hangText="Resource -">The desired resource-id</t>
+              <t hangText="resource -">The desired resource-id</t>
 
-              <t hangText="Ids -">The desired kind-ids. Each value MUST only
+              <t hangText="kinds -">The desired kind-ids. Each value MUST only
               appear once.</t>
             </list></t>
 
@@ -3738,10 +3740,18 @@ o
               <!--begin-pdu-->
 
               <artwork><![CDATA[
-                  public struct {
-                    kind_id kind;
-                    resource_id closest;
-                } find_kind_data;
+
+
+  struct {
+    KindId                      kind;
+    ResourceID                  closest;
+  } FindKindData;
+
+  struct {
+    FindKindData                results<0..2^16-1>;
+  } FindA;
+
+
               ]]></artwork>
             </figure>
 
@@ -3761,7 +3771,7 @@ o
             resource-id MUST be 0. Note that different kind-ids may have
             different closest resource-ids.</t>
 
-            <t>The response is simply a series of find_kind_data elements, one
+            <t>The response is simply a series of FindKindData elements, one
             per kind, concatenated end-to-end. The contents of each element
             are:</t>
 
@@ -4131,38 +4141,68 @@ o
               SIP-REGISTRATION values of up to 10 kilobytes and must be
               prepared to store up to 10 values for each user name.</t>
             </list></t>
-
-          <t>The contents of the SIP-REGISTRATION kind are</t>
-
+	    
+	    <t>
+	      Data stored under the SIP-REGISTRATION kind is of type
+	      SipRegistration. This comes in two varieties:
+	    </t>
+	    <t>
+	      <list style="hanging">
+		<t hangText="sip_registration_uri -">a URI
+		which the user can be reached at.</t>
+		<t hangText="sip_registration_route -">a
+		destination list which can be used to
+		reach the user's peer.</t>
+	      </list>
+	    </t>
+	    
           <figure>
             <!--begin-pdu-->
 
             <artwork><![CDATA[
-             typedef string sip_registration_uri;
-             
-             struct  {
-                string contact_prefs;
-                peer_id destination_list<65000>;
-             } sip_registration_route;
 
-             enum {sip_registration_uri_type(1), sip_registration_route_type(2)} sip_registration_type;
+       enum {sip_registration_uri (1), sip_registration_route (2), (255)}
+          SipRegistrationType;
+      
+       select (SipRegistration.type) {
+         case sip_registration_uri:
+           opaque               uri<0..2^16-1>;
 
-             select {
-               case sip_registration_uri_type:
-                 sip_registration_uri registration_uri;
-              case sip_registration_route_type:
-                sip_registration_route registration_route;
-            } sip_registration_data_;
-           
-            public struct {
-              sip_registration_data_ registration_data;
-             } sip_registration;
+         case sip_registration_route:
+           opaque               contact_prefs<0..2^16-1>;
+           Destination          destination_list<0..2^16-1>;
+
+	 /* This type can be extended */
+
+       } SipRegistrationData;
+
+       struct {
+          SipRegistrationType   type;
+          uint16                length;
+	  SipRegistrationData   data;	  
+      } SipRegistration;
+
+
                 ]]></artwork>
           </figure>
 
-          <t>A registration may contain either a URI (type code 0x01) or a
-          contact preferences structure and a destination list (type code
-          0x01). The leading byte indicates the type.</t>
+	  <t>
+	    The contents of the SipRegistration PDU are:
+	  </t>
+	  <list style="hanging">
+	    <t hangText="type -">the type of the registration</t>
+	    <t hangText="length -">the length of the rest of the PDU</t>
+	    <t hangText="data -">the registration data</t>
+	  </list>
+	  <t>
+	    If the registration is of type "sip_registration_uri", then the
+	    contents are an opaque string containing the URI.
+	  </t>
+	  <t>
+	    If the registration is of type "sip_registration_route",
+	    then the contents are an opaque string containing the callee's
+	    contact preferences and a destination list for the peer.
+	  </t>
         </section>
 
         <section title="SIP Connect">
@@ -4647,33 +4687,30 @@ o
         </section>
 
         <section title="UPDATEs">
-          <t>An UPDATE is defined as</t>
+          <t>A chord UPDATE is defined as</t>
 
           <figure>
             <!--begin-pdu-->
 
             <artwork><![CDATA[
-             public struct {
-              peer_id predecessors<255>;                     
-              peer_id successors<255>;                     
-             } chord_update;
+
+
+      struct {
+        PeerId                  predecessors<0..2^16-1>;
+        PeerId                  successors<0..2^16-1>;
+      } ChordUpdate;
+
+
               ]]></artwork>
           </figure>
-
-          <!--
-  chord-update = uint8    ; number of predecessors
-                 *peer-id ; predecessor set
-                 uint8    ; number of successors
-                 *peer-id ; successor set
--->
 
           <t>The contents of this message are:</t>
 
           <t><list style="hanging">
-              <t hangText="Predecessors -">The predecessor set of the
+              <t hangText="predecessors -">The predecessor set of the
               UPDATEing peer.</t>
 
-              <t hangText="Successors -">The successor set of the UPDATEing
+              <t hangText="successors -">The successor set of the UPDATEing
               peer.</t>
             </list></t>
 
