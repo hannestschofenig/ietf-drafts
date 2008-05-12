@@ -223,7 +223,7 @@ typedef uint64 generation_counter;
       successful P2P protocol for the Internet. These are:</t>
 
       <t><list style="hanging">
-          <t hangText="Security Framework:">Security is one of the most
+          <t></t><t hangText="Security Framework:">Security is one of the most
           challenging problems in a P2P protocol. A P2P network will often be
           established among a set of peers that do not trust each other. Yet,
           despite this lack of trust, the network must operate reliably to
@@ -235,7 +235,7 @@ typedef uint64 generation_counter;
           stored in the overlay. This does not remove all attacks but greatly
           reduces the possible attack space.</t>
 
-          <t hangText="Usage Model:">RELOAD is designed to support a variety
+          <t></t><t hangText="Usage Model:">RELOAD is designed to support a variety
           of applications, including P2P multimedia communications with the
           Session Initiation Protocol <xref
           target="I-D.ietf-p2psip-concepts"></xref>. Consequently, RELOAD has
@@ -249,7 +249,7 @@ typedef uint64 generation_counter;
           documentation process that supplies the details for each
           application.</t>
 
-          <t hangText="NAT Traversal:">Operations for NAT traversal are part
+          <t></t><t hangText="NAT Traversal:">Operations for NAT traversal are part
           of the base design, including establishing new RELOAD connections
           and tunneling SIP or other application protocols required by P2PSIP.
           RELOAD makes use of Interactive Connectivity Establishment (ICE)
@@ -262,7 +262,7 @@ typedef uint64 generation_counter;
           peers are behind NATs, yet are able to fully participate without
           imposing any constraints on the actual DHT algorithm.</t>
 
-          <t hangText="High Performance Routing:">The very nature of DHT
+          <t></t><t hangText="High Performance Routing:">The very nature of DHT
           algorithms introduces a requirement that peers participating in the
           P2P network route requests on behalf of other peers in the network.
           This introduces a load on those other peers, in the form of
@@ -281,7 +281,7 @@ typedef uint64 generation_counter;
           necessary for routing from the message contents simplifies
           processing and increases security.</t>
 
-          <t hangText="Transport Flexibility:">RELOAD has native support for
+          <t></t><t hangText="Transport Flexibility:">RELOAD has native support for
           both DTLS and TLS for the underlying transport protocol, with
           support for DTLS over UDP as mandatory to implement. TLS over TCP is
           preferred because it has better bulk data performance and connection
@@ -292,7 +292,7 @@ typedef uint64 generation_counter;
           the peer protocol must be flexible in this regard. New transports
           can be supported trivially.</t>
 
-          <t hangText="Pluggable DHT Algorithms:">RELOAD has been designed
+          <t></t><t hangText="Pluggable DHT Algorithms:">RELOAD has been designed
           with an abstract interface to the overlay layer to simplify
           implementing a variety of structured (DHT) and unstructured overlay
           algorithms. This specification also defines how RELOAD is used with
@@ -343,17 +343,17 @@ Layer         |TLS    |  |DTLS  |
         <t>The three layers defined by RELOAD include:</t>
 
         <t><list style="hanging">
-            <t hangText="Usage Layer:">Provides an application-specific
+            <t></t><t hangText="Usage Layer:">Provides an application-specific
             interface that maps an application's requirements onto the generic
             services of the DHT.</t>
 
-            <t hangText="Overlay Routing &amp; Storage Layer:">Implements the
+            <t></t><t hangText="Overlay Routing &amp; Storage Layer:">Implements the
             overlay. Chooses what links to establish to form the DHT's overlay
             network, manages the storage and migration of data for this peer
             and on behalf of other peers, and performs searches for requested
             data across the DHT.</t>
 
-            <t hangText="Forwarding Layer:">Provides packet forwarding
+            <t></t><t hangText="Forwarding Layer:">Provides packet forwarding
             services between nodes. Also handles setting up connections across
             NATs using ICE.</t>
           </list></t>
@@ -504,30 +504,30 @@ Layer         |TLS    |  |DTLS  |
       below for reference.</t>
 
       <t><list style="hanging">
-          <t hangText="DHT:">A distributed hash table. A DHT is an abstract
+          <t></t><t hangText="DHT:">A distributed hash table. A DHT is an abstract
           hash table service realized by storing the contents of the hash
           table across a set of peers.</t>
 
-          <t hangText="DHT Algorithm:">A DHT algorithm defines the rules for
+          <t></t><t hangText="DHT Algorithm:">A DHT algorithm defines the rules for
           determining which peers in a DHT store a particular piece of data
           and for determining a topology of interconnections amongst peers in
           order to find a piece of data.</t>
 
-          <t hangText="DHT Instance:">A specific hash table and the collection
+          <t></t><t hangText="DHT Instance:">A specific hash table and the collection
           of peers that are collaborating to provide read and write access to
           it. There can be any number of DHT instances running in an IP
           network at a time, and each operates in isolation of the others.</t>
 
-          <t hangText="P2P Network:">Another name for a DHT instance.</t>
+          <t></t><t hangText="P2P Network:">Another name for a DHT instance.</t>
 
-          <t hangText="P2P Network Name:">A string that identifies a unique
+          <t></t><t hangText="P2P Network Name:">A string that identifies a unique
           P2P network. P2P network names are DNS names - for example,
           "example.org". Lookup of such a name in DNS returns services
           associated with the DHT, such as enrollment servers, bootstrap
           peers, or gateways (for example, a SIP gateway between a traditional
           SIP and a P2P SIP network called "example.com").</t>
 
-          <t hangText="Resource-ID:">A value that is not human friendly to
+          <t></t><t hangText="Resource-ID:">A value that is not human friendly to
           read and identifies some resources and which is used as a key for
           storing and retrieving the resource. One way to generate a
           Resource-ID is by applying a mapping function to some other unique
@@ -539,55 +539,55 @@ Layer         |TLS    |  |DTLS  |
           identifier. In unstructured networks, resource identifiers may be
           used directly as resource-IDs and may have variable length.</t>
 
-          <t hangText="Peer:">A host that is participating in the DHT. By
+          <t></t><t hangText="Peer:">A host that is participating in the DHT. By
           virtue of its participation it can store data and is responsible for
           some portion of the overlay.</t>
 
-          <t hangText="Peer-ID:">A value that uniquely identifies a peer.
+          <t></t><t hangText="Peer-ID:">A value that uniquely identifies a peer.
           Peer-IDs 0 and 2^N - 1 are reserved and are invalid peer-IDs. A
           value of zero is not used in the wire protocol but can be used to
           indicate an invalid peer in implementations and APIs. The peer-id of
           2^N-1 is used on the wire protocol as a wildcard.</t>
 
-          <t hangText="Resource:">An object associated with a string
+          <t></t><t hangText="Resource:">An object associated with a string
           identifier. In unstructured P2P networks, the identifier is used
           directly as a Resource-Id. In structured P2P networks the identifier
           can be mapped into a Resource-ID by using the string as the input to
           the hash function. A SIP resource, for example, is identified by its
           AOR.</t>
 
-          <t hangText="User:">A human being.</t>
+          <t></t><t hangText="User:">A human being.</t>
         </list>&gt;</t>
 
       <t>We also introduce the following important new terms.</t>
 
       <t><list style="hanging">
-          <t hangText="Connection Table:">The set of peers to which a peer is
+          <t></t><t hangText="Connection Table:">The set of peers to which a peer is
           directly connected. This includes peers with which CONNECT
           handshakes have been done but which have not sent any UPDATEs.</t>
 
-          <t hangText="Routing Table:">The set of peers which a peer can use
+          <t></t><t hangText="Routing Table:">The set of peers which a peer can use
           to route DHT messages. In general, these peers will all be on the
           connection table but not vice versa, because some peers will have
           CONNECTed but not sent updates. Peers may send messages directly to
           peers which are on the connection table but may only route messages
           to other peers through peers which are on the routing table.</t>
 
-          <t hangText="Hashed-ID:">The generic term for an identifier in the
+          <t></t><t hangText="Hashed-ID:">The generic term for an identifier in the
           hash space of the DHT. Examples of Hashed-IDs include Resource-IDs
           and Peer-IDs. This only applies to structured overlays.</t>
 
-          <t hangText="Unhashed-ID:">An Unhashed-ID is a string used as an
+          <t></t><t hangText="Unhashed-ID:">An Unhashed-ID is a string used as an
           input to a hash function, the result of which is a Hashed-ID. This
           only applies to structured overlays.</t>
 
-          <t hangText="Usage:">A usage is an application that wishes to use
+          <t></t><t hangText="Usage:">A usage is an application that wishes to use
           the DHT for some purpose. Each application wishing to use the DHT
           defines a set of data kinds that it wishes to use. The SIP usage
           defines the location, certificate, STUN server and TURN server data
           kinds.</t>
 
-          <t hangText="Destination List:">A list of IDs through which a
+          <t></t><t hangText="Destination List:">A list of IDs through which a
           message is to be routed. This allows for request/response source
           routing. A single ID is a trivial form of destination list.</t>
         </list></t>
@@ -766,11 +766,11 @@ Layer         |TLS    |  |DTLS  |
           message to N_i. At this point two things can happen:</t>
 
           <t><list style="hanging">
-              <t hangText="Recursive Routing:">N_i repeats the same process as
+              <t></t><t hangText="Recursive Routing:">N_i repeats the same process as
               P, sending the message to one of its peers N_j. This same
               process repeats until the message is delivered to N.</t>
 
-              <t hangText="Iterative Routing:">N_i consults its table of
+              <t></t><t hangText="Iterative Routing:">N_i consults its table of
               direct connections and selects a new peer N_j which is closer to
               N. It responds to the original sending peer with a redirect to
               N_j. The original peer then sends the message to N_j, where the
@@ -1127,13 +1127,13 @@ Layer         |TLS    |  |DTLS  |
            own structures:</t>
 
            <t><list style="hanging">
-             <t hangText="single value:">There can be at most one item in the
+             <t></t><t hangText="single value:">There can be at most one item in the
              set and any value overwrites the previous item.</t>
 
-             <t hangText="array:">Many values can be stored and addressed by
+             <t></t><t hangText="array:">Many values can be stored and addressed by
              index.</t>
 
-             <t hangText="dictionary:">The values stored are indexed by a
+             <t></t><t hangText="dictionary:">The values stored are indexed by a
              key. Often this key is one of the values from the certificate of
              the peer sending the STORE request.</t>
            </list></t>
@@ -1692,18 +1692,18 @@ Layer         |TLS    |  |DTLS  |
           </t>
 
            <t><list style="hanging">
-             <t hangText="Forwarding Header:">Each message has a generic header
+             <t></t><t hangText="Forwarding Header:">Each message has a generic header
              which is used to forward the message between peers and to its final
              destination. This header is the only information that an
              intermediate peer (i.e., one that is not the target of a message)
              needs to examine.</t>
 
-             <t hangText="Message Contents:">The message being delivered between
+             <t></t><t hangText="Message Contents:">The message being delivered between
              the peers. From the perspective of the forwarding layer, the
              contents is opaque, however, it is interpreted by the higher
              layers.</t>
 
-             <t hangText="Signature:">A digital signature over the message
+             <t></t><t hangText="Signature:">A digital signature over the message
              contents and parts of the header of the message. Note that this
              signature can be computed without parsing the message contents.</t>
            </list></t>
@@ -1839,8 +1839,8 @@ Layer         |TLS    |  |DTLS  |
          </t>
          <t>
            <list style="hanging">
-             <t hangText="type "></t><t> the type of address (v4 or v6).</t>
-             <t hangText="length "></t><t>the length of the rest of the structure.</t>
+             <t></t><t hangText="type "></t><t> the type of address (v4 or v6).</t>
+             <t></t><t hangText="length "></t><t>the length of the rest of the structure.</t>
            </list>
          </t>
          <t>
@@ -2057,14 +2057,14 @@ Layer         |TLS    |  |DTLS  |
          <t>This is a TLV structure with the following contents:</t>
          <t>
          <list style="hanging">
-           <t hangText="type "></t><t>
+           <t></t><t hangText="type "></t><t>
              The type of the DestinationData PDU. This may be one of
              "peer", "resource", or "compressed".
            </t>
-           <t hangText="length "></t><t>
+           <t></t><t hangText="length "></t><t>
              The length of the destination_data.
            </t>
-           <t hangText="destination_value "></t><t>
+           <t></t><t hangText="destination_value "></t><t>
              The destination value itself, which is an encoded
              DestinationData structure, depending on the value
 	     of "type".
@@ -2082,14 +2082,14 @@ Layer         |TLS    |  |DTLS  |
          <t>A DestinationData can be one of three types:</t>
 
          <t><list style="hanging">
-           <t hangText="peer"></t><t>A peer-id.</t>
+           <t></t><t hangText="peer"></t><t>A peer-id.</t>
 
-           <t hangText="compressed"></t><t>A compressed list of peer-ids and/or
+           <t></t><t hangText="compressed"></t><t>A compressed list of peer-ids and/or
            resources. Because this value was
            compressed by one of the peers, it is only meaningful to that peer
            and cannot be decoded by other peers.</t>
 
-           <t hangText="resource"></t><t>The resource id of the resource which is
+           <t></t><t hangText="resource"></t><t>The resource id of the resource which is
            desired. This type MUST only appear in the final location of a
            destination list and MUST NOT appear in a via list. It is
            meaningless to try to route through a resource.</t>
@@ -2180,19 +2180,19 @@ Layer         |TLS    |  |DTLS  |
           <t>Each RouteLogEntry consists of the following values:</t>
 
           <t><list style="hanging">
-              <t hangText="version "></t><t>A textual representation of the software
+              <t></t><t hangText="version "></t><t>A textual representation of the software
               version</t>
 
-              <t hangText="transport "></t><t>The transport type, currently
+              <t></t><t hangText="transport "></t><t>The transport type, currently
               either "tcp_tls" or "udp_dtls".</t>
 
-              <t hangText="id "></t><t>The peer-id of the peer.</t>
+              <t></t><t hangText="id "></t><t>The peer-id of the peer.</t>
 
-              <t hangText="uptime "></t><t>The uptime of the peer in seconds.</t>
+              <t></t><t hangText="uptime "></t><t>The uptime of the peer in seconds.</t>
 
-              <t hangText="address "></t><t>The address and port of the peer. </t>
+              <t></t><t hangText="address "></t><t>The address and port of the peer. </t>
 
-              <t hangText="certificate "></t><t>The peer's certificate. Note that
+              <t></t><t hangText="certificate "></t><t>The peer's certificate. Note that
               this may be omitted by setting the length to zero.</t>
             </list></t>
         </section>
@@ -2222,27 +2222,27 @@ Layer         |TLS    |  |DTLS  |
          </t>
          <t>
          <list style="hanging">
-           <t hangText="message_code "></t><t>
+           <t></t><t hangText="message_code "></t><t>
              This indicates the message that is being sent. The
              code space is broken up as follows.
              
              <list style="hanging">
-              <t hangText="0">Reserved</t>
+              <t></t><t hangText="0">Reserved</t>
 
-              <t hangText="1 .. 0x7fff">Requests and responses. These code
+              <t></t><t hangText="1 .. 0x7fff">Requests and responses. These code
               points are always paired, with requests being odd and the
               corresponding response being the request code plus 1. Thus,
               PING_Q (the PING request) has value 1 and PING_A (the PING
               response) has value 2</t>
 
-              <t hangText="0x8000 .. 0xfffe">Reserved</t>
+              <t></t><t hangText="0x8000 .. 0xfffe">Reserved</t>
 
-              <t hangText="0xffff">Error</t>
+              <t></t><t hangText="0xffff">Error</t>
             </list></t>
-            <t hangText="reserved "></t><t>
+            <t></t><t hangText="reserved "></t><t>
               A reserved 16-bit value. [TODO: Do we need this?]
             </t>
-            <t hangText="message_body "></t><t>
+            <t></t><t hangText="message_body "></t><t>
               The message body itself, represented as a variable-length
               string of bytes. The bytes themselves are dependent on the code
               value. See the sections describing the various RELOAD methods
@@ -2288,14 +2288,14 @@ Layer         |TLS    |  |DTLS  |
            <t>The contents of this structure are as follows:</t>
 
            <t><list style="hanging">
-             <t hangText="error_code "></t><t>A numeric error code indicating the
+             <t></t><t hangText="error_code "></t><t>A numeric error code indicating the
              error that occurred.</t>
 
-             <t hangText="reason_phrase "></t><t>A free form text string indicating
+             <t></t><t hangText="reason_phrase "></t><t>A free form text string indicating
              the reason for the response. The reason phrase SHOULD BE as
              indicated in the error code list below (e.g., "Moved Temporarily).</t>
 
-             <t hangText="error_info "></t><t>Payload specific error information.
+             <t></t><t hangText="error_info "></t><t>Payload specific error information.
              This MUST be empty (zero length) except as specified below.</t>
            </list></t>
 
@@ -2304,34 +2304,34 @@ Layer         |TLS    |  |DTLS  |
            to fix.]</t>
 
            <t><list style="hanging">
-             <t hangText="302 (Moved Temporarily):">The requesting peer SHOULD
+             <t></t><t hangText="302 (Moved Temporarily):">The requesting peer SHOULD
              retry the request at the new address specified in the 302 response
              message.</t>
 
-             <t hangText="401 (Unauthorized):">The requesting peer needs to
+             <t></t><t hangText="401 (Unauthorized):">The requesting peer needs to
              sign and provide a certificate. [[TODO: The semantics here don't
              seem quite right.]]</t>
 
-             <t hangText="403 (Forbidden):">The requesting peer does not have
+             <t></t><t hangText="403 (Forbidden):">The requesting peer does not have
              permission to make this request.</t>
 
-             <t hangText="404 (Not Found):">The resource or peer cannot be
+             <t></t><t hangText="404 (Not Found):">The resource or peer cannot be
              found or does not exist.</t>
 
-             <t hangText="408 (Request Timeout):">A response to the request has
+             <t></t><t hangText="408 (Request Timeout):">A response to the request has
              not been received in a suitable amount of time. The requesting
              peer MAY resend the request at a later time.</t>
 
-             <t hangText="412 (Precondition Failed):">A request can't be
+             <t></t><t hangText="412 (Precondition Failed):">A request can't be
              completed because some precondition was incorrect. For instance,
              the wrong generation counter was provided</t>
 
-             <t hangText="498 (Incompatible with Overlay)">A peer receiving the
+             <t></t><t hangText="498 (Incompatible with Overlay)">A peer receiving the
              request is using a different overlay, DHT algorithm, or hash
              algorithm. [[Open Issue: What is the best error number and reason
              phrase to use?]]</t>
 
-             <t hangText="499 (UnWilling To Proxy)">A peer receiving the
+             <t></t><t hangText="499 (UnWilling To Proxy)">A peer receiving the
              request is unwilling to support the Routing mechanism specified in
              the Routing field of the message header. [[Open Issue: What is the
              best error number and reason phrase to use?]]</t>
@@ -2390,13 +2390,13 @@ Layer         |TLS    |  |DTLS  |
           <t>The signature construct contains the following values:</t>
 
           <t><list style="hanging">
-              <t hangText="algorithm "></t><t>The signature algorithm in use.
+              <t></t><t hangText="algorithm "></t><t>The signature algorithm in use.
               The definitions for this PDU come from [REF: TLS 1.2]</t>
 
-              <t hangText="identity "></t><t>The identity or certificate used to
+              <t></t><t hangText="identity "></t><t>The identity or certificate used to
               form the signature</t>
               
-              <t hangText="signature_value "></t><t>The value of the signature</t>
+              <t></t><t hangText="signature_value "></t><t>The value of the signature</t>
               
             </list></t>
 
@@ -2579,12 +2579,12 @@ Layer         |TLS    |  |DTLS  |
             <t>The contents of the ROUTE_QUERY_Q message are as follows:</t>
 
             <t><list style="hanging">
-                <t hangText="send_update "></t><t>A single byte. This may be set to "true"n
+                <t></t><t hangText="send_update "></t><t>A single byte. This may be set to "true"n
                 to indicate that the requester wishes the responder to
                 initiate an UPDATE request immediately. Otherwise, this value
                 MUST be set to "false".</t>
 
-                <t hangText="destination "></t><t>The destination which the
+                <t></t><t hangText="destination "></t><t>The destination which the
                 requester is interested in. This may be any valid destination
                 object, including a peer-id, compressed ids, or
                 resource-id</t>
@@ -2615,11 +2615,11 @@ Layer         |TLS    |  |DTLS  |
             <t>The contents of the ROUTE_QUERY_A are as follows:</t>
 
             <t><list style="hanging">
-                <t hangText="next_peer "></t><t>The peer to which the responding peer
+                <t></t><t hangText="next_peer "></t><t>The peer to which the responding peer
                 would route the message to in order to deliver it to the
                 destination listed in the request.</t>
 
-                <t hangText="next_addr"></t><t>The address of the next peer.</t>
+                <t></t><t hangText="next_addr"></t><t>The address of the next peer.</t>
               </list></t>
 
             <t>If the requester set the send_update flag, the responder SHOULD
@@ -2701,8 +2701,8 @@ Layer         |TLS    |  |DTLS  |
             </t>
             <t>
               <list style="hanging">
-                <t hangText="sequence "></t><t> the sequence number</t>
-                <t hangText="message "></t><t> the original message that is being transmitted.</t>
+                <t></t><t hangText="sequence "></t><t> the sequence number</t>
+                <t></t><t hangText="message "></t><t> the original message that is being transmitted.</t>
               </list>
             </t>
             <t>
@@ -2719,10 +2719,10 @@ Layer         |TLS    |  |DTLS  |
             </t>
             <t>
               <list style="hanging">
-                <t hangText="ack_sequence "></t><t>
+                <t></t><t hangText="ack_sequence "></t><t>
                   The sequence number of the message being acknowledged.
                 </t>
-                <t hangText="received "></t><t>
+                <t></t><t hangText="received "></t><t>
                   A bitmask indicating whether or not
                   each of the previous 32 packets has been received. The high
                   order bit represents the first packet in the sequence
@@ -2806,7 +2806,7 @@ Layer         |TLS    |  |DTLS  |
           described in [XREF].</t>
 
           <t><list style="hanging">
-              <t hangText="Note:">A CONNECT does not result in updating the
+              <t></t><t hangText="Note:">A CONNECT does not result in updating the
               routing table of either node. That function is performed by
               UPDATEs. If node A has CONNECTed to node B, it MAY route
               messages which are directly addressed to B through that channel
@@ -2841,11 +2841,11 @@ Layer         |TLS    |  |DTLS  |
             <t>The values contained in ConnectQ are:</t>
 
             <t><list style="hanging">
-                <t hangText="ufrag "></t><t>The username fragment (from ICE)</t>
+                <t></t><t hangText="ufrag "></t><t>The username fragment (from ICE)</t>
 
-                <t hangText="password "></t><t>The ICE password.</t>
+                <t></t><t hangText="password "></t><t>The ICE password.</t>
 
-                <t hangText="application "></t><t>A 16-bit port number. This port
+                <t></t><t hangText="application "></t><t>A 16-bit port number. This port
                 number represents the IANA registered port of the protocol
                 that is going to be sent on this connection. For SIP, this is
                 5060 or 5061, and for RELOAD is TBD. By using the IANA
@@ -2853,13 +2853,13 @@ Layer         |TLS    |  |DTLS  |
                 and allow RELOAD to be used to set up connections for any
                 existing or future application protocol.</t>
 
-                <t hangText="fingerprint "></t><t>One fingerprint attribute (from
+                <t></t><t hangText="fingerprint "></t><t>One fingerprint attribute (from
                 RFC 4572 <xref target="RFC4572"></xref>).</t>
 
-                <t hangText="role "></t><t>An active/passive/actpass attribute from
+                <t></t><t hangText="role "></t><t>An active/passive/actpass attribute from
                 RFC 4145 <xref target="RFC4145"></xref>.</t>
 
-                <t hangText="candidates "></t><t>One or more ICE candidate values.
+                <t></t><t hangText="candidates "></t><t>One or more ICE candidate values.
                 Each candidate has an IP address, IP address family, port,
                 transport protocol, priority, foundation, component ID, STUN
                 type and related address. The candidate_list is a list of
@@ -2909,13 +2909,13 @@ Layer         |TLS    |  |DTLS  |
             <t>The two currently defined values for PingInformation are:</t>
             
             <list style="hanging">
-              <t hangText="responsible_set"></t><t>
+              <t></t><t hangText="responsible_set"></t><t>
                 indicates that the peer should Respond with the
                 fraction of the overlay for which the responding peer is
                 responsible.
               </t>
               
-              <t hangText="num_resources"></t><t>
+              <t></t><t hangText="num_resources"></t><t>
                 indicates that the peer should Respond with the
                 number of resources currently being stored by the peer.
               </t>
@@ -2960,11 +2960,11 @@ Layer         |TLS    |  |DTLS  |
 
             <t>
               <list style="hanging">
-                <t hangText="response_id "></t><t>A randomly generated 64-bit
+                <t></t><t hangText="response_id "></t><t>A randomly generated 64-bit
                 response ID. This is used to distinguish PING responses in
                 cases where the PING request is multicast.</t>
 
-                <t hangText="ping_info "></t><t>A sequence of PingInformation structures,
+                <t></t><t hangText="ping_info "></t><t>A sequence of PingInformation structures,
                 as shown below.</t>
               </list>
             </t>
@@ -2993,7 +2993,7 @@ Layer         |TLS    |  |DTLS  |
           TUNNEL request are defined by that application's usage.</t>
 
           <t><list style="hanging">
-              <t hangText="Note:">The decision of whether to route
+              <t></t><t hangText="Note:">The decision of whether to route
               application-level traffic across the overlay or to open a direct
               connection requires careful consideration of the overhead
               involved in each transaction. Establishing a direct connection
@@ -3055,7 +3055,7 @@ Layer         |TLS    |  |DTLS  |
             <t>The values contained in the TUNNEL_Q are:</t>
 
             <t><list style="hanging">
-                <t hangText="Application "></t><t>A 16-bit port number. This port
+                <t></t><t hangText="Application "></t><t>A 16-bit port number. This port
                 number represents the IANA registered port of the protocol
                 that is going to be sent on this connection. For SIP, this is
                 5060 or 5061, and for RELOAD is TBD. By using the IANA
@@ -3063,12 +3063,12 @@ Layer         |TLS    |  |DTLS  |
                 and allow RELOAD to be used to set up connections for any
                 existing or future application protocol.</t>
 
-                <t hangText="Dialog ID "></t><t>An arbitrary string providing an
+                <t></t><t hangText="Dialog ID "></t><t>An arbitrary string providing an
                 application-defined way of associating related TUNNELed
                 messages. This attribute may also encode sequence information
                 as required by the application protocol.</t>
 
-                <t hangText="Application PDU "></t><t>An application PDU in the
+                <t></t><t hangText="Application PDU "></t><t>An application PDU in the
                 format specified by the application.</t>
               </list></t>
           </section>
@@ -3120,10 +3120,10 @@ Layer         |TLS    |  |DTLS  |
       The contents of this structure are as follows:
     </t>
     <t><list style="hanging">
-      <t hangText="length "></t><t>The length of the rest of the
+      <t></t><t hangText="length "></t><t>The length of the rest of the
       structure.</t>
 
-      <t hangText="storage_time "></t><t>The time when the data was stored
+      <t></t><t hangText="storage_time "></t><t>The time when the data was stored
       in absolute time, represented in seconds since the Unix epoch.
       Any attempt to store a data value with a storage time before
       that of a value already stored at this location MUST generate a
@@ -3131,14 +3131,14 @@ Layer         |TLS    |  |DTLS  |
       not require synchronized clocks: the receiving peer uses the
       storage time in the previous store, not its own clock.</t>
 
-      <t hangText="lifetime "></t><t>The validity period for the data, in
+      <t></t><t hangText="lifetime "></t><t>The validity period for the data, in
       seconds, starting from the time of store.</t>
 
-      <t hangText="value "></t><t>The data value itself, as described
+      <t></t><t hangText="value "></t><t>The data value itself, as described
       in <xref target="sec-kind-model"/>.</t>
 
 
-      <t hangText="signature "></t><t>A signature over the data value.
+      <t></t><t hangText="signature "></t><t>A signature over the data value.
       <xref target="sec-data-sig"></xref> describes the signature
       computation. The element is formatted as described in <xref
       target="sec-signature"></xref></t>
@@ -3180,12 +3180,12 @@ Layer         |TLS    |  |DTLS  |
       <t>Where these values are:</t>
 
       <t><list style="hanging">
-        <t hangText="resource "></t><t>The resource ID where this data is
+        <t></t><t hangText="resource "></t><t>The resource ID where this data is
         stored.</t>
 
-        <t hangText="kind "></t><t>The kind-id for this data.</t>
+        <t></t><t hangText="kind "></t><t>The kind-id for this data.</t>
 
-        <t hangText="StoredData "></t><t>The contents of the stored data
+        <t></t><t hangText="StoredData "></t><t>The contents of the stored data
         value, as described in the previous sections.</t>
       </list></t>
 
@@ -3348,7 +3348,7 @@ Layer         |TLS    |  |DTLS  |
                data model set be sufficient for most applications/usages.</t>
 
                <t><list style="hanging">
-                  <t hangText="Note:">New usages MAY reuse existing kind-ids. New
+                  <t></t><t hangText="Note:">New usages MAY reuse existing kind-ids. New
                   kind-ids only need to be defined where different data is stored or
                   different behavior is required.</t>
                </list>
@@ -3399,9 +3399,9 @@ Layer         |TLS    |  |DTLS  |
 
             <t>
               <list style="hanging">
-                <t hangText="resource "></t><t>The resource to store at.</t>
+                <t></t><t hangText="resource "></t><t>The resource to store at.</t>
 
-                <t hangText="kind_data "></t><t>A series of elements, one for
+                <t></t><t hangText="kind_data "></t><t>A series of elements, one for
                 each kind of data to be stored.</t>
               </list>
             </t>
@@ -3410,17 +3410,17 @@ Layer         |TLS    |  |DTLS  |
             for a single kind-id. The contents of the element are:</t>
 
             <t><list style="hanging">
-                <t hangText="kind "></t><t>The kind-id. Implementations SHOULD
+                <t></t><t hangText="kind "></t><t>The kind-id. Implementations SHOULD
                 reject requests corresponding to unknown kinds unless
                 specifically configured otherwise.</t>
 
-                <t hangText="data_model "></t><t>The data model of the data.</t>
+                <t></t><t hangText="data_model "></t><t>The data model of the data.</t>
 
-                <t hangText="generation "></t><t>The expected current state of the
+                <t></t><t hangText="generation "></t><t>The expected current state of the
                 generation counter (approximately the number of times this
                 object has been written, see below for details).</t>
 
-                <t hangText="values "></t><t>The value or values to be stored. This
+                <t></t><t hangText="values "></t><t>The value or values to be stored. This
                 may contain one or more stored_data values depending on the
                 data model associated with each kind.</t>
               </list>
@@ -3465,11 +3465,11 @@ Layer         |TLS    |  |DTLS  |
 	    </t>
 	    <t>
 	      <list style="hanging">
-		<t hangText="Single-value:"></t><t>
+		<t></t><t hangText="Single-value:"></t><t>
 		A store of a new single-value element creates the element
 		if it does not exist and overwrites any existing value.
 		with the new value.</t>
-		<t hangText="Array:"></t><t>A store of an array entry replaces
+		<t></t><t hangText="Array:"></t><t>A store of an array entry replaces
 		(or inserts) the given value at the location specified
 		by the index. Because arrays are sparse, a store 
 		past the end of the array extends it with empty values
@@ -3478,7 +3478,7 @@ Layer         |TLS    |  |DTLS  |
 		the end of the array regardless of the length of the
 		the array.
 		</t>
-		<t hangText="Dictionary:"></t><t>
+		<t></t><t hangText="Dictionary:"></t><t>
 		A store of a dictionary entry replaces (or inserts) the given
 		value at the location specified by the dictionry key.
 		</t>
@@ -3549,12 +3549,12 @@ Layer         |TLS    |  |DTLS  |
             <t>The contents of each StoreKindResponse are:</t>
 
             <t><list style="hanging">
-                <t hangText="kind "></t><t>The kind-id being represented.</t>
+                <t></t><t hangText="kind "></t><t>The kind-id being represented.</t>
 
-                <t hangText="generation "></t><t>The current value of the generation
+                <t></t><t hangText="generation "></t><t>The current value of the generation
                 counter for that kind-id.</t>
 
-                <t hangText="replicas "></t><t>The list of other peers at which the
+                <t></t><t hangText="replicas "></t><t>The list of other peers at which the
                 data was/will-be replicated. In DHTs and applications where
                 the responsible peer is intended to store redundant copies,
                 this allows the storing peer to independently verify that the
@@ -3617,11 +3617,11 @@ Layer         |TLS    |  |DTLS  |
             <t>The contents of the FETCH requests are as follows:</t>
 
             <t><list style="hanging">
-                <t hangText="resource "></t><t>
+                <t></t><t hangText="resource "></t><t>
                   The resource ID to fetch from.
                 </t>
 
-                <t hangText="specifiers "></t><t>
+                <t></t><t hangText="specifiers "></t><t>
                   A sequence of StoredDataSpecifier values, each
                   specifying some of the data values to retrieve.
                 </t>
@@ -3635,20 +3635,20 @@ Layer         |TLS    |  |DTLS  |
             </t>
             
             <t><list style="hanging">
-                <t hangText="kind "></t><t>The kind-id of the data being fetched.
+                <t></t><t hangText="kind "></t><t>The kind-id of the data being fetched.
                 Implementations SHOULD reject requests corresponding to
                 unknown kinds unless specifically configured otherwise.</t>
 
-                <t hangText="model "></t><t>The data model of the data.</t>
+                <t></t><t hangText="model "></t><t>The data model of the data.</t>
 
-                <t hangText="generation "></t><t>The last generation counter that
+                <t></t><t hangText="generation "></t><t>The last generation counter that
                 the requesting peer saw. This is used to avoid unnecessary
                 fetches.</t>
 
-                <t hangText="length "></t><t>The length of the rest of the structure,
+                <t></t><t hangText="length "></t><t>The length of the rest of the structure,
                 thus allowing extensibility.</t>
 
-                <t hangText="model_specifier "></t><t>A reference to the data value being
+                <t></t><t hangText="model_specifier "></t><t>A reference to the data value being
                 requested within the data model specified for the kind. For instance,
                 if the data model is "array", it might specify some subset of the values.
                 </t>
@@ -3725,11 +3725,11 @@ Layer         |TLS    |  |DTLS  |
 	    
 	    <t>
 	      <list style="hanging">
-		<t hangText="kind "> </t><t>the kind that this structure
+		<t></t><t hangText="kind "> </t><t>the kind that this structure
 		is for.</t>
-		<t hangText="generation "></t><t>the generation counter
+		<t></t><t hangText="generation "></t><t>the generation counter
 		for this kind.</t>
-		<t hangText="values "></t><t>the relevant values. 
+		<t></t><t hangText="values "></t><t>the relevant values. 
 		If the generation counter in the request matches the
             generation-counter in the stored data, then no values are
 	    returned. Otherwise, all relevant data values
@@ -3870,9 +3870,9 @@ Layer         |TLS    |  |DTLS  |
           indicated below.</t>
 
           <t><list style="hanging">
-              <t hangText="resource "></t><t>The desired resource-id</t>
+              <t></t><t hangText="resource "></t><t>The desired resource-id</t>
 
-              <t hangText="kinds "></t><t>The desired kind-ids. Each value MUST only
+              <t></t><t hangText="kinds "></t><t>The desired kind-ids. Each value MUST only
               appear once.</t>
             </list></t>
 
@@ -3921,9 +3921,9 @@ Layer         |TLS    |  |DTLS  |
             are:</t>
 
             <t><list style="hanging">
-                <t hangText="kind "></t><t>The kind-id.</t>
+                <t></t><t hangText="kind "></t><t>The kind-id.</t>
 
-                <t hangText="closest "></t><t>The closest resource ID to the
+                <t></t><t hangText="closest "></t><t>The closest resource ID to the
                 specified resource ID. This is 0 if no resource ID is
                 known.</t>
               </list></t>
@@ -4222,17 +4222,17 @@ Layer         |TLS    |  |DTLS  |
       peers should cache it for 8 hours.</t>
 
       <t><list style="hanging">
-         <t hangText="Kind IDs">This usage defines the CERTIFICATE kind-id
+         <t></t><t hangText="Kind IDs">This usage defines the CERTIFICATE kind-id
          to store a peer or user's certificate.</t>
 
-         <t hangText="Data Model">The data model for CERTIFICATE data is
+         <t></t><t hangText="Data Model">The data model for CERTIFICATE data is
          array.</t>
 
-         <t hangText="Access Control">The CERTIFICATE MUST contain a
+         <t></t><t hangText="Access Control">The CERTIFICATE MUST contain a
          peer-id or user name which, when hashed, maps the resource-id at
          which the value is being stored.</t>
 
-         <t hangText="Data Sizes">Peers MUST be prepared to store at least
+         <t></t><t hangText="Data Sizes">Peers MUST be prepared to store at least
          10 certificates of sizes up to 1K each.</t>
       </list></t>
     </section>
@@ -4264,7 +4264,7 @@ Layer         |TLS    |  |DTLS  |
           kind-id:</t>
 
           <t><list style="hanging">
-              <t hangText="Kind IDs">The Unhashed-ID for the SIP-REGISTRATION
+              <t></t><t hangText="Kind IDs">The Unhashed-ID for the SIP-REGISTRATION
               kind-id is a URI, typically the AOR for the user. The data
               stored is a sip-registration-data, which can contain either
               another URI or a destination list to the peer which is acting
@@ -4272,18 +4272,18 @@ Layer         |TLS    |  |DTLS  |
               here along with the route list, but I'm not sure how to do it
               yet.]]</t>
 
-              <t hangText="Data Model">The data model for the SIP-REGISTRATION
+              <t></t><t hangText="Data Model">The data model for the SIP-REGISTRATION
               kind-id is dictionary. The dictionary key is the peer-id of the
               storing peer. This allows each peer (presumably corresponding to
               a single device) to store a single route mapping.</t>
 
-              <t hangText="Access Control">If certificate-based access control
+              <t></t><t hangText="Access Control">If certificate-based access control
               is being used, stored data of kind-id SIP-REGISTRATION must be
               signed by a certificate which (1) contains user name matching
               the storing URI used as the Unhashed-ID for the resource-id and
               (2) contains a peer-id matching the storing dictionary key.</t>
 
-              <t hangText="Data Sizes">Peers MUST be prepared to store
+              <t></t><t hangText="Data Sizes">Peers MUST be prepared to store
               SIP-REGISTRATION values of up to 10 kilobytes and must be
               prepared to store up to 10 values for each user name.</t>
             </list></t>
@@ -4294,9 +4294,9 @@ Layer         |TLS    |  |DTLS  |
             </t>
             <t>
               <list style="hanging">
-                <t hangText="sip_registration_uri "></t><t>a URI
+                <t></t><t hangText="sip_registration_uri "></t><t>a URI
                 which the user can be reached at.</t>
-                <t hangText="sip_registration_route "></t><t>a
+                <t></t><t hangText="sip_registration_route "></t><t>a
                 destination list which can be used to
                 reach the user's peer.</t>
               </list>
@@ -4337,9 +4337,9 @@ Layer         |TLS    |  |DTLS  |
           </t>
 	  <t>
           <list style="hanging">
-            <t hangText="type "></t><t>the type of the registration</t>
-            <t hangText="length "></t><t>the length of the rest of the PDU</t>
-            <t hangText="data "></t><t>the registration data</t>
+            <t></t><t hangText="type "></t><t>the type of the registration</t>
+            <t></t><t hangText="length "></t><t>the length of the rest of the PDU</t>
+            <t></t><t hangText="data "></t><t>the registration data</t>
           </list>
 	  </t>
 	  <t>
@@ -4441,7 +4441,7 @@ Layer         |TLS    |  |DTLS  |
           message end-to-end.</t>
 
           <t><list style="hanging">
-              <t hangText="Note:">The easiest implementation of TUNNEL is
+              <t></t><t hangText="Note:">The easiest implementation of TUNNEL is
               likely to default to sending all messages across a TUNNEL when
               the first message is sent to a new destination GRUU and
               simultaneously issuing a CONNECT. Messages then continue through
@@ -4614,15 +4614,15 @@ Layer         |TLS    |  |DTLS  |
         <t>The following kinds are defined:</t>
 
         <t><list style="hanging">
-            <t hangText="SOFTWARE_VERSION">A single value element containing a
+            <t></t><t hangText="SOFTWARE_VERSION">A single value element containing a
             US-ASCII string that identifies the manufacture, model, and
             version of the software.</t>
 
-            <t hangText="UPTIME">A single value element containing an unsigned
+            <t></t><t hangText="UPTIME">A single value element containing an unsigned
             64-bit integer specifying the time the nodes has been up in
             seconds.</t>
 
-            <t hangText="AS_NUMBER">A single value element containing the
+            <t></t><t hangText="AS_NUMBER">A single value element containing the
             Autonomous System [TODO REF] number as an unsigned 32-bit integer.
             Zero is returned if the AS number is unknown.</t>
 
@@ -4631,50 +4631,50 @@ Layer         |TLS    |  |DTLS  |
             TURN server is inserted and looked up under H(AS). What if there
             are no TURN servers in the same AS? )</t>
 
-            <t hangText="CPU_UTILIZATION">A single value element containing an
+            <t></t><t hangText="CPU_UTILIZATION">A single value element containing an
             unsigned 8-bit integer representing the percentage CPU load from 1
             to 100.</t>
 
             <t>(OPEN ISSUE: It is not a very precise metric.)</t>
 
-            <t hangText="DATA_STORED">A single value element containing an
+            <t></t><t hangText="DATA_STORED">A single value element containing an
             unsigned 64-bit integer representing the number of bytes of data
             being stored by this node.</t>
 
-            <t hangText="MESSAGES_SENT">An array element containing the number
+            <t></t><t hangText="MESSAGES_SENT">An array element containing the number
             of messages sent and received. The array is indexed by method
             code. Each entry in the array is a pair of unsigned 64-bit
             integers (packed end to end) representing sent and received.</t>
 
-            <t hangText="INSTANCES_STORED">An array element containing the
+            <t></t><t hangText="INSTANCES_STORED">An array element containing the
             number of instances of each kind stored. The array is index by
             kind-id. Each entry is an unsigned 64-bit integer.</t>
 
-            <t hangText="ROUTING_TABLE_SIZE">A single value element containing
+            <t></t><t hangText="ROUTING_TABLE_SIZE">A single value element containing
             an unsigned 32-bit integer representing the number of peers in the
             node's routing table.</t>
 
-            <t hangText="NEIGHBOR_TABLE_SIZE">A single value element
+            <t></t><t hangText="NEIGHBOR_TABLE_SIZE">A single value element
             containing an unsigned 32-bit integer representing the number of
             peers in the node's neighbor table.</t>
 
-            <t hangText="EWMA_BYTES_SENT">A single value element containing an
+            <t></t><t hangText="EWMA_BYTES_SENT">A single value element containing an
             unsigned 32-bit integer representing an exponential weighted
             average of bytes sent by this peer.</t>
 
-            <t hangText="EWMA_BYTES_RCVD">A single value element containing an
+            <t></t><t hangText="EWMA_BYTES_RCVD">A single value element containing an
             unsigned 32-bit integer representing an exponential weighted
             average of bytes received by this peer.</t>
 
-            <t hangText="LAST_CONTACT">A single value element containing an
+            <t></t><t hangText="LAST_CONTACT">A single value element containing an
             unsigned 32-bit integer specifying the time in number of seconds
             the node was last contacted.</t>
 
-            <t hangText="MEMORY_FOOTPRINT">A single value element containing
+            <t></t><t hangText="MEMORY_FOOTPRINT">A single value element containing
             an unsigned 32-bit integer representing the memory footprint of
             the peer program in kilo bytes.</t>
 
-            <t hangText="RTT">A single value element containing an unsigned
+            <t></t><t hangText="RTT">A single value element containing an unsigned
             32-bit integer specifying the recent RTT estimate in ms between
             two peers.</t>
           </list></t>
@@ -4859,10 +4859,10 @@ Layer         |TLS    |  |DTLS  |
           <t>The contents of this message are:</t>
 
           <t><list style="hanging">
-              <t hangText="predecessors "></t><t>The predecessor set of the
+              <t></t><t hangText="predecessors "></t><t>The predecessor set of the
               UPDATEing peer.</t>
 
-              <t hangText="successors "></t><t>The successor set of the UPDATEing
+              <t></t><t hangText="successors "></t><t>The successor set of the UPDATEing
               peer.</t>
             </list></t>
 
@@ -5100,9 +5100,9 @@ Layer         |TLS    |  |DTLS  |
         "overlay" has the following attributes:</t>
 
         <t><list style="hanging">
-            <t hangText="name:">name of the overlay</t>
+            <t></t><t hangText="name:">name of the overlay</t>
 
-            <t hangText="expiration:">time in future at which this overlay
+            <t></t><t hangText="expiration:">time in future at which this overlay
             configuration is not longer valid and need to be retrieved again.
             This is expressed in seconds from the current time.</t>
           </list></t>
@@ -5110,39 +5110,39 @@ Layer         |TLS    |  |DTLS  |
         <t>Inside each overlay element, the following elements can occur:</t>
 
         <t><list style="hanging">
-            <t hangText="dht "></t><t>This element has an attribute called name that
+            <t></t><t hangText="dht "></t><t>This element has an attribute called name that
             describes which DHT algorithm is being used.</t>
 
-            <t hangText="root-cert "></t><t>This element contains a DER encoded
+            <t></t><t hangText="root-cert "></t><t>This element contains a DER encoded
             X.509v3 certificate that is the root trust store used to sign all
             certificates in this overlay. There can be more than one of
             these.</t>
 
-            <t hangText="required-usage "></t><t>This element has an attribute
+            <t></t><t hangText="required-usage "></t><t>This element has an attribute
             called "name" that describes a usage that peers in this overlay
             are required to support. More than one required-usage element may
             be present.</t>
 
-            <t hangText="credential-server "></t><t>This element contains the URL at
+            <t></t><t hangText="credential-server "></t><t>This element contains the URL at
             which the credential server can be reached in a "url" element.
             This URL MUST be of type "https:". More than one credential-server
             element may be present.</t>
 
-            <t hangText="bootstrap-peer "></t><t>This elements represents the
+            <t></t><t hangText="bootstrap-peer "></t><t>This elements represents the
             address of one of the bootstrap peers. It has an attribute called
             "address" that represents the IP address (either IPv4 or IPv6,
             since they can be distinguished) and an attribute called "port"
             that represents the port. More than one bootstrap-peer element may
             be present.</t>
 
-            <t hangText="multicast-bootstrap "></t><t>This element represents the
+            <t></t><t hangText="multicast-bootstrap "></t><t>This element represents the
             address of a multicast address and port that may be used for
             bootstrap and that peers SHOULD listen on to enable bootstrap. It
             has an attributed called "address" that represents the IP address
             and an attribute called "port" that represents the port. More than
             one "multicast-bootstrap" element may be present.</t>
 
-            <t hangText="iterative-permitted "></t><t>This element indicates that
+            <t></t><t hangText="iterative-permitted "></t><t>This element indicates that
             iterative routing (see <xref target="sec-route-query"></xref>) MAY
             be used. If iterative routing is permitted, then this value MUST
             be set to "TRUE". Otherwise, it SHOULD be absent, but MAY be set
@@ -5662,7 +5662,7 @@ Layer         |TLS    |  |DTLS  |
         <t>The initial contents of this registry are:</t>
 
         <t><list style="hanging">
-            <t hangText="chord-128-2-16+ "></t><t>The algorithm defined in <xref
+            <t></t><t hangText="chord-128-2-16+ "></t><t>The algorithm defined in <xref
             target="sec.chord-algorithm"></xref> of this document.</t>
           </list></t>
       </section>
