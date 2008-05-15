@@ -724,17 +724,15 @@ Layer         |TLS    |  |DTLS  |
          <t>[TODO: BBL]</t>
       </section>
       <section title="Connectivity Management">
-         <t>[TODO: CJ]</t>
-          <t>As described in [XREF], a peer
-          maintains a set of direct connections to other peers in the DHT.
-          Consider the case of a peer JP just joining the DHT. It communicates
-          with the admitting peer AP and gets the list of the peers in AP's
-          routing table. Naively, it could simply connect to the IP address
-          listed for each peer, but this works poorly if some of those peers
-          are behind a NAT or firewall. Instead, we use the CONNECT request to
-          establish a connection.</t>
-
-          <t>Say that peer A wishes to form a direct connection to peer B. It
+	<t>
+	  In order to provide efficient routing, a peer needs to maintain
+	  a set of direct connections to other peers in the DHT. Because
+	  of the presence of NATs, these connections often cannot be
+	  formed directly. Instead, we use the CONNECT request to
+          establish a connection.
+	</t>
+	<t>
+	  Say that peer A wishes to form a direct connection to peer B. It
           gathers ICE candidates and packages them up in a CONNECT request
           which it sends to B through usual DHT routing procedures. B does its
           own candidate gathering and sends back a response with its
@@ -742,16 +740,28 @@ Layer         |TLS    |  |DTLS  |
           pairs. The result is a connection between A and B. At this point, A
           and B can add each other to their routing tables and send messages
           directly between themselves without going through other DHT
-          peers.</t>
-
-          <t>In general, a peer needs to maintain connections to all of the
+          peers.
+	</t>
+	<t>
+	  There is one special case in which CONNECT cannot be used: when
+	  a peer is joining the overlay and is not connected to any
+	  peers. In order to support this case, some small number 
+	  of "bootstrap nodes" need to be publicly accessible so that
+	  new peers can directly connect to them. Section [XREF]
+	  contains more detail on this.
+	</t>
+	<t>
+	  In general, a peer needs to maintain connections to all of the
           peers near it in the DHT and to enough other peers to have efficient
           routing (the details depend on the specific DHT). If a peer cannot
           form a connection to some other peer, this isn't necessarily a
           disaster; DHTs can route correctly even without fully connected
           links. However, a peer should try to maintain the specified link set
           and if it detects that it has fewer direct connections, should form
-          more as required.</t>
+          more as required. This also implies that peers need to periodically
+	  verify that the connected peers are still alive and if not
+	  try to reform the connection or form an alternate one.
+	</t>
       </section>
       <section title="Routing">
          <t>[TODO: BBL; this needs reflow]</t>
@@ -986,6 +996,10 @@ Layer         |TLS    |  |DTLS  |
       <section title="Diagnostics">
          <t>[TODO: SAB]</t>
       </section>
+
+<!-- EKR: REMOVED. This is just noise. Maybe put this back in depending on how the 
+     introduction ends up looking.
+
       <section title="Transport">
          <t>[TODO: CJ]</t>
          <t>The transport layer sends and receives messages over TLS and DTLS.
@@ -998,9 +1012,31 @@ Layer         |TLS    |  |DTLS  |
         target="I-D.ietf-behave-tcp"></xref> compliant, then TLS over TCP
         would be preferred.</t>
       </section>
-      <section title="Enrollment and Bootstrap">
-         <t>[TODO: CJ]</t>
 
+-->
+
+      <section title="Enrollment and Bootstrap">
+         <t>
+	   The above sections have discussed how a RELOAD works
+	   once in operation. This section provides an overview of how
+	   users get connected to the overlay, both the first time
+	   they join and each time they reconnect their user agent.
+	 </t>
+
+	 <section title="Enrollment">
+	   <t>
+	     Before a new user can join the DHT for the first time, they must
+	     enroll in the P2P Network for the DHT they want to join. 
+	     We assume that the overlay 
+	  
+
+
+
+
+	 </section>
+
+<!-- EKR: REMOVED: TMI
+     
          <section title="Enrollment">
            <t>Before a new user can join the DHT for the first time, they must
            enroll in the P2P Network for the DHT they want to join. Enrollment
@@ -1058,7 +1094,7 @@ Layer         |TLS    |  |DTLS  |
              invariant that the enrollment server needs to ensure is that no two
              users may have the same identity.</t>
            </section>
-
+-->
            <section title="Bootstrap">
              <t>The above steps are only done the first time a peer joins a new
              overlay or when the overlay parameters are close to their expiration
@@ -1216,96 +1252,85 @@ Layer         |TLS    |  |DTLS  |
     </section>
 
     <section title="P2PSIP Integration Overview">
-      <t>[TODO: CJ]</t>
-          <t>From the perspective of P2PSIP, the most important usage is the
-          SIP Usage. The basic function of the SIP usage is to allow Alice to
-          start with a SIP URI (e.g., "bob@dht.example.com") and end up with a
-          connection which Bob's SIP UA can use to pass SIP messages back and
-          forth to Alice's SIP UA.</t>
 
-          <!--
-          <t>This operation can take a number of forms, but in the simplest
-          case, Bob's SIP UA has peer-ID "B". When Bob joins the DHT (i.e.,
-          turns on his phone), he stores the following mapping in the DHT:</t>
+          <t>
+	    The SIP Usage of RELOAD allows SIP user agents to provide
+	    a peer-to-peer telephony service without the requirement
+	    for permanent proxy or registration servers. In such
+	    a network, the RELOAD overlay itself performs the registration
+	    and rendezvous functions ordinarily associated with such
+	    servers.
+	  </t>
+	  <t>
+	    The basic function of the SIP usage is to allow Alice to
+	    start with a SIP URI (e.g., "bob@dht.example.com") and end up with a
+	    connection which Bob's SIP UA can use to pass SIP messages back and
+	    forth to Alice's SIP UA. The way this works is as follows:
+	  </t>
+	  <t>
+	    <list style="numbers">
+	      <t>
+		Bob, operating peer-id 1234, stores a mapping from
+		his URI to his peer-id in the overlay. I.e.,
+		"sip:bob@dht.example.com -> 1234".
+	      </t>
+	      <t>
+		Alice, operating peer-id 5678, decides to call
+		Bob. She looks up "sip:bob@dht.example.com"
+		in the overlay and retrieves "1234".
+	      </t>
+	      <t>
+		Alice uses the overlay to route a CONNECT
+		message to Bob's peer. Bob responds with
+		his own CONNECT and they set up a direct
+		connection, as shown below.
+	      </t>
+	    </list>
+	  </t>
+	  
+        <figure>
+          <artwork><![CDATA[
+	  Alice       Peer1      Overlay     PeerN      Bob
+          (5678)                                     (1234)
+	  -------------------------------------------------
+          CONNECT ->
+                      CONNECT ->
+                                 CONNECT -> 
+                                            CONNECT ->
+                                                <- CONNECT
+                                       <- CONNECT
+                              <- CONNECT
+                  <- CONNECT
 
-          <t><list style="symbols">
-              <t>sip:bob@dht.example.com -&gt; B</t>
-            </list></t>
-
-          <t>When Alice wants to call Bob, she starts with his URI and her UA
-          uses the DHT to look up his peer-ID B. She then routes a message
-          through the DHT to B requesting a direct connection. Once this
-          connection is established she can send SIP messages over it, which
-          allows her to set up the phone call.</t>
--->
-
-          <t>This is done using three key operations that are provided by the
-          SIP Usage. They are:</t>
-
-          <t><list style="symbols">
-              <t>Mapping SIP URIs that are not GRUUs to other SIP URIs or to
-              the DHT peer responsible for the SIP UA.</t>
-
-              <t>Mapping SIP GRUUs to the DHT peer responsible for the SIP
-              UA.</t>
-
-              <t>Forming a connection directly to a DHT peer that is used to
-              send SIP messages to the SIP UA.</t>
-            </list></t>
-
-          <t>All SIP URIs for a given overlay MUST be constructed so that they
-          terminate in the domain name of the overlay. For instance, if the
-          overlay name is "example.com", then all AORs must be of the form
-          {sip,sips}:username@example.com. Accordingly, to dereference a URI,
-          a P2PSIP implementation MUST check to see if the domain matches an
-          overlay which it is a member of. If so, it uses the following
-          procedures. Otherwise, it MUST follow <xref target="RFC3263"></xref>
-          procedures. Note that unless the P2PSIP overlay provides some kind
-          of gateway to ordinary SIP (e.g., a publicly accessible SIP server)
-          this is likely to be only partially successful, since, for instance,
-          the callee may not be able to call back.</t>
-
-          <section title="SIP Location">
-             <t>A peer acting as a SIP UA stores their registration information
-             in the DHT by storing either another URI (for retargeting) or a
-             destination lists to reach them at a Resource-ID in the DHT formed
-             from the user's SIP AOR. When another peer wishes to find a peer
-             that is registered for a SIP URI, the lookup of the user's name is
-             done by taking the user's SIP Address of Record (AOR) and using it
-             as the Unhashed-ID that is hashed to get a Resource-ID. When the
-             Unhashed-ID is dereferenced, the result is a set of values. Each
-             value is either another SIP URI or a destination list. If the
-             value is a SIP URI, the calling peer looks up that URI and
-             continues the process until it gets a destination list.</t>
-
-             <t>If the value is a destination list, then it is used to reach a
-             peer that represents a SIP UA registered for that AOR. Typically
-             this destination list will have just one entry but in the case of
-             peers or clients that can not be directly reached (for instance
-             via a strict NAT or firewall), a destination list with more than
-             one entry may need to be used.</t>
-
-             <t>The Unhashed-ID for this usage is a user's SIP AOR, such as
-             "sip:alice@example.com". This allows the set to store many values
-             in a dictionary structure. The authorization policy is that STORE
-             requests are only allowed if the user name in the signing
-             certificate, when turned into a SIP URL and hashed, matches the
-             Resource-ID. This policy ensures that only a user with the
-             certificate with the user name "alice@example.com" can write to
-             the Resource-ID that will be used to look up calls to
-             "sip:alice@example.com".</t>
-
-             <t>[[Open Issue: Should the Unhashed-ID be
-             "sip:alice@example.com", "alice@example.com", or a string that
-             includes the code point defined for the kind? The issue here is
-             determining whether different usages that store data at a
-             Unhashed-ID that is primarily formed from "alice@example.com"
-             should hash to the same Resource-ID as the SIP Usage. For example,
-             if a buddy list had a Unhashed-ID that was roughly the same, would
-             we want the buddy list information to end up on the same peers
-             that stored the SIP location data or on different peers?]]</t>
-           </section>
-
+          <------------------- ICE Checks ----------------->
+          INVITE ------------------------------------------>
+          <---------------------------------------------- OK
+          ACK --------------------------------------------->
+	  ]]>
+	  </artwork>
+	</figure>
+	<t>
+	  It's important to note that RELOAD's only role here
+	  is to set up the direct connection between Alice and
+	  Bob. As soon as the ICE checks complete and that
+	  connection is established, then ordinary SIP is used.
+	  In particular, the establishment of the media channel
+	  for the phone call happens via the usual SIP mechanisms,
+	  and RELOAD is not involved. Media never goes over
+	  the overlay.
+	</t>
+	<t>
+	  As well as allowing mappings from AORs to peer-ids,
+	  the SIP Usage also allows mappings from AORs to other
+	  AORs. For instance, if Bob wanted his phone calls
+	  temporarily forwarded to Charlie, he could store
+	  the mapping "sip:bob@dht.example.com -> sip:charlie@dht.example.com".
+	  When Alice wants to call Bob, she retrieves this mapping and then
+	  can fetch Charlie's AOR to retrieve his peer-id.
+	</t>
+<!-- EKR REMOVED: Too much information here
+            
+     
            <section title="SIP Connect">
              <t>This usage allows two clients to form a new TLS or DTLS
              connection between them and then use this connection for sending
@@ -1319,7 +1344,6 @@ Layer         |TLS    |  |DTLS  |
              connection is being formed to.</t>
            </section>
 
-
            <section title="SIP GRUUs">
              <t>GRUUs that refer to peers in the P2P network are constructed by
              simply forming a GRUU, where the value of gr URI parameter
@@ -1327,6 +1351,7 @@ Layer         |TLS    |  |DTLS  |
              will reach the peer. Typically the destination list is just a
              single entry with the peer-id of peer.</t>
            </section>
+-->
 
            <!-- EKR Removed
            <section title="SIP Tunnel">
@@ -4237,6 +4262,63 @@ Layer         |TLS    |  |DTLS  |
       </list></t>
     </section>
       <section title="SIP Usage">
+
+<!-- EKR: Fodder from previous P2PSIP overview 
+          <t>All SIP URIs for a given overlay MUST be constructed so that they
+          terminate in the domain name of the overlay. For instance, if the
+          overlay name is "example.com", then all AORs must be of the form
+          {sip,sips}:username@example.com. Accordingly, to dereference a URI,
+          a P2PSIP implementation MUST check to see if the domain matches an
+          overlay which it is a member of. If so, it uses the following
+          procedures. Otherwise, it MUST follow <xref target="RFC3263"></xref>
+          procedures. Note that unless the P2PSIP overlay provides some kind
+          of gateway to ordinary SIP (e.g., a publicly accessible SIP server)
+          this is likely to be only partially successful, since, for instance,
+          the callee may not be able to call back.</t>
+
+          <section title="SIP Location">
+             <t>A peer acting as a SIP UA stores their registration information
+             in the DHT by storing either another URI (for retargeting) or a
+             destination lists to reach them at a Resource-ID in the DHT formed
+             from the user's SIP AOR. When another peer wishes to find a peer
+             that is registered for a SIP URI, the lookup of the user's name is
+             done by taking the user's SIP Address of Record (AOR) and using it
+             as the Unhashed-ID that is hashed to get a Resource-ID. When the
+             Unhashed-ID is dereferenced, the result is a set of values. Each
+             value is either another SIP URI or a destination list. If the
+             value is a SIP URI, the calling peer looks up that URI and
+             continues the process until it gets a destination list.</t>
+
+             <t>If the value is a destination list, then it is used to reach a
+             peer that represents a SIP UA registered for that AOR. Typically
+             this destination list will have just one entry but in the case of
+             peers or clients that can not be directly reached (for instance
+             via a strict NAT or firewall), a destination list with more than
+             one entry may need to be used.</t>
+
+             <t>The Unhashed-ID for this usage is a user's SIP AOR, such as
+             "sip:alice@example.com". This allows the set to store many values
+             in a dictionary structure. The authorization policy is that STORE
+             requests are only allowed if the user name in the signing
+             certificate, when turned into a SIP URL and hashed, matches the
+             Resource-ID. This policy ensures that only a user with the
+             certificate with the user name "alice@example.com" can write to
+             the Resource-ID that will be used to look up calls to
+             "sip:alice@example.com".</t>
+
+             <t>[[Open Issue: Should the Unhashed-ID be
+             "sip:alice@example.com", "alice@example.com", or a string that
+             includes the code point defined for the kind? The issue here is
+             determining whether different usages that store data at a
+             Unhashed-ID that is primarily formed from "alice@example.com"
+             should hash to the same Resource-ID as the SIP Usage. For example,
+             if a buddy list had a Unhashed-ID that was roughly the same, would
+             we want the buddy list information to end up on the same peers
+             that stored the SIP location data or on different peers?]]</t>
+           </section>
+
+-->
+
          <t>[TODO: JDR]</t>
         <t>The SIP usage allows a RELOAD overlay to be used as a distributed
         SIP registrar/proxy network. The basic function of the SIP usage is to
