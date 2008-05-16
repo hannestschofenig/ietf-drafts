@@ -1001,7 +1001,7 @@ Layer         |TLS    |  |DTLS  |
      introduction ends up looking.
 
       <section title="Transport">
-         <t>[TODO: CJ]</t>
+         <t>[TODO</t>
          <t>The transport layer sends and receives messages over TLS and DTLS.
         For TLS it simply pushes the messages into the stream. For DTLS it
         takes care of fragmentation issues. The reason for including TLS is
@@ -4001,7 +4001,6 @@ Layer         |TLS    |  |DTLS  |
     </section>
 
       <section anchor="sec-connect-ice" title="ICE and Connection Formation">
-      <t>[TODO: JDR]</t>
       <t>At numerous times during the operation of RELOAD, a node will need to
       establish a connection to another node. This may be for the purposes of
       building finger tables when the node joins the P2P network, or when the
@@ -4358,71 +4357,60 @@ Layer         |TLS    |  |DTLS  |
 
 -->
 
-         <t>[TODO: JDR]</t>
-        <t>The SIP usage allows a RELOAD overlay to be used as a distributed
-        SIP registrar/proxy network. The basic function of the SIP usage is to
-        allow Alice to start with a SIP URI (e.g., "bob@dht.example.com") and
-        end up with a connection which Bob's SIP UA can use to pass SIP
-        messages back and forth to Alice's SIP UA. Provides the following
-        three functions:</t>
-
-        <t><list style="symbols">
-            <t>Mapping SIP URIs that are not GRUUs to the overlay peer
-            responsible for the SIP UA.</t>
-
-            <t>Mapping SIP GRUUs to the DHT peer responsible for the SIP
-            UA.</t>
-
-            <t>Forming a connection directly to a DHT peer that is used to
-            send SIP messages to the SIP UA.</t>
-          </list></t>
-
-        <t>[XRE] provides an overview of how
-        these fit together.</t>
-
-        <section title="SIP-REGISTRATION kind">
-          <t>The first mapping is provided using the SIP-REGISTRATION
-          kind-id:</t>
-
-          <t><list style="hanging">
-              <t></t><t hangText="Kind IDs">The Unhashed-ID for the SIP-REGISTRATION
-              kind-id is a URI, typically the AOR for the user. The data
-              stored is a sip-registration-data, which can contain either
-              another URI or a destination list to the peer which is acting
-              for the user. [[TODO: we want to somehow put caller-prefs in
-              here along with the route list, but I'm not sure how to do it
-              yet.]]</t>
-
-              <t></t><t hangText="Data Model">The data model for the SIP-REGISTRATION
-              kind-id is dictionary. The dictionary key is the peer-id of the
-              storing peer. This allows each peer (presumably corresponding to
-              a single device) to store a single route mapping.</t>
-
-              <t></t><t hangText="Access Control">If certificate-based access control
-              is being used, stored data of kind-id SIP-REGISTRATION must be
-              signed by a certificate which (1) contains user name matching
-              the storing URI used as the Unhashed-ID for the resource-id and
-              (2) contains a peer-id matching the storing dictionary key.</t>
-
-              <t></t><t hangText="Data Sizes">Peers MUST be prepared to store
-              SIP-REGISTRATION values of up to 10 kilobytes and must be
-              prepared to store up to 10 values for each user name.</t>
-            </list></t>
-            
-            <t>
-              Data stored under the SIP-REGISTRATION kind is of type
-              SipRegistration. This comes in two varieties:
-            </t>
-            <t>
-              <list style="hanging">
-                <t></t><t hangText="sip_registration_uri "></t><t>a URI
-                which the user can be reached at.</t>
-                <t></t><t hangText="sip_registration_route "></t><t>a
-                destination list which can be used to
-                reach the user's peer.</t>
-              </list>
-            </t>
-            
+        <t>
+	  The SIP usage allows a RELOAD overlay to be used as a distributed
+	  SIP registrar/proxy network. This entails three primary operations:
+	</t>
+	<t>
+	  <list style="symbols">
+	    <t>Registering a user AOR with the overlay.</t>
+	    <t>Looking up a given AOR in the overlay.</t>
+	    <t>Forming a direct connection to a given peer.</t>
+	  </list>
+	</t>
+	<section title="Registering AORs">
+	  <t>
+	    In ordinary SIP, a UA registers its AOR and location with
+	    a registrar. In RELOAD, this registrar function is
+	    provided by the overlay as a whole. To register its
+	    location, a RELOAD peer stores a SipRegistration 
+	    structure under its own AOR. This uses the
+	    SIP-REGISTRATION kind-id, which is formally defined
+	    in <xref target="sec.sip-reg-kind"/>.
+	  </t>
+	  <t>
+	    As a simple example,
+	    if Alice's
+	    AOR were "sip:alice@dht.example.com" and her peer-id
+	    were "1234", she might store
+	    the mapping "sip:alice@example.org -> 1234".
+	  </t>
+	  <t>
+	    RELOAD peers are allowed to store two kinds of SIP mappings:
+	  </t>
+	  <t>
+	    <list style="symbols">
+	      <t>
+		From AORs to destination lists (a single peer-id is just
+		a trivial destination list.
+	      </t>
+	      <t>
+		From AORs to other AORs. 
+	      </t>
+	    </list>
+	  </t>
+	  <t>
+	    The meaning of the first kind of mapping is "in order to contact
+	    me, form a connection with this peer." The meaning of the
+	    The second kind of mapping is "in order to contact me, 
+	    dereference this AOR". This allows for forwarding. For instance,
+	    if Alice wants calls to her to be forwarded to her secretary,
+	    Sam, she might insert the following mapping 
+	    "sip:alice@dht.example.org -> sip:sam@dht.example.org". 
+	  </t>
+	  <t>
+	    The contents of a SipRegistration structure are as follows:
+	  </t>
           <figure>
             <!--begin-pdu-->
 
@@ -4476,43 +4464,196 @@ Layer         |TLS    |  |DTLS  |
           </t>
 	  </list>
 	  </t>
+	  <t>
+	    RELOAD explicitly supports multiple registrations for a single
+	    AOR. The registrations are stored in a Dictionary with the
+	    dictionary keys being peer-ids. Consider, for instance, the
+	    case where Alice has two peers:
+	  </t>
+	  <t>
+	    <list style="symbols">
+	      <t>her desk phone (1234)</t>
+	      <t>her cell phone (5678)</t>
+	    </list>
+	  </t>
+	  <figure>
+            <artwork><![CDATA[
+	    sip:alice@dht.example.com:    1234 -> 1234
+                                          5678 -> 5678
+	    ]]>
+	    </artwork>
+	  </figure>
+	  <t>
+	    Note that this structure explicitly allows one peer-id to
+	    forward to another peer-id. For instance, Alice could
+	    set calls to her desk phone to ring at her cell phone.
+	    It's not clear that this is useful in this case, but
+	    may be useful if Alice has two AORs.
+	  </t>
+	  <t>
+	    In order to prevent call theft, registrations are subject
+	    to access control rules. Before a STORE is permitted,
+	    the storing peer MUST check that:
+	  </t>
+	  <t>
+	    <list style="symbols">
+	      <t>
+		The certificate contains a username that is a
+		SIP AOR that hashes to the resource-id being stored at.
+	      </t>
+	      <t>
+		The certificate contains a peer-id that is the
+		same as the dictionary key being stored at.
+	      </t>
+	    </list>
+	  </t>
+	  <t>
+	    Note that these rules permit Alice to forward calls to Bob
+	    without his permission. However, they do not permit Alice
+	    to forward Bob's calls to her.
+	  </t>
         </section>
+	<section title="Looking up an AOR">
+	  <t>
+	    When a RELOAD user wishes to call another user, starting
+	    with a non-GRUU AOR, he follows the following procedure.
+	    (GRUUs are discussed in [XREF]).
+	  </t>
+	  <t>
+	    <list style="symbols">
+	      <t>
+		Check to see if the domain part of the AOR matches
+		the domain name of an overlay of which he is a
+		member. If not, then this is an external AOR,
+		and he MUST do one of the following:
+		
+		<list style="numbers">
+		  <t>Fail the call.</t>
+		  <t>Use ordinary SIP procedures.</t>
+		  <t>
+		    Attempt to become a member of the overlay indicated
+		    by the domain part (only possible if the enrollment
+		    procedure defined in [XREF] indicates that this
+		    is a RELOAD overlay.)
+		  </t>
+		</list>
+	      </t>
+	      <t>
+		Perform a FETCH for kind SIP-REGISTRATION at the
+		resource-id corresponding to the AOR. This FETCH
+		SHOULD not indicate any dictionary keys, which
+		will result in fetching all the stored values.
+	      </t>
+	      <t>
+		If any of the results of the FETCH are non-GRUU
+		AORs, then repeat step 1.	    
+	      </t>
+	      <t>
+		Once only GRUUs and destination
+		lists remain, the peer converts the peer
+		removes duplicate destination
+		lists and GRUUs from the list and forms a SIP
+		connection to the appropriate peers as described in
+		the following section. If there are also external
+		AORs, the peer follows the appropriate procedure
+		for contacting them as well.
+	      </t>
+	    </list>
+	  </t>
+	</section>
+	
+	<section title="Forming a Direct Connection">
+	  <t>
+	    Once the peer has translated the AOR into a set of
+	    destination lists, it then uses the overlay to route
+	    CONNECT messages to each of those peers. The "application"
+	    field MUST be 5160 to indicate SIP. 
+	    If
+	    certificate-based authentication is in use, the responding peer MUST
+	    present a certificate with a peer-id matching the terminal entry in
+	    the route list.
+	  </t>
+	  <t>
+	    Once the CONNECT
+	    succeeds, the peer sends SIP messages over the
+	    connection as in normal SIP.
+	    Note that it is possible that the peers already
+	    have a RELOAD connection between them. This MUST NOT
+	    be used for SIP messages. However, if a SIP connection
+	    already exists, taht MAY be used.
+	  </t>
+	</section>
+	<section title="GRUUs">
+          <t>
+	    GRUUs do not require storing data in the DHT. Rather, they are
+	    constructed by embedding a base64-encoded destination list in the gr
+	    URI parameter of the GRUU. The base64 encoding is done with the
+	    alphabet specified in table 1 of RFC 4648 with the exception that ~
+	    is used in place of =. An example GRUU is
+	    "sip:alice@example.com;gr=MDEyMzQ1Njc4OTAxMjM0NTY3ODk~". When a peer
+	    needs to route a message to a GRUU in the same P2P network, it
+	    simply uses the destination list and connects to that peer.
+	  </t>
+	  <t>
+	    Because a GRUU contains a destination list, it MAY have the
+	    same contents as a destination list stored elsewhere in the
+	    resource dictionary. [[TODO: How to handle this? Omit
+	    one? use both?]]
+	  </t>
+          <t>
+	    Anonymous GRUUs are done in roughly the same way but require
+	    either that the enrollment server issue a different peer-id for each
+	    anonymous GRUU required or that a destination list be used that
+	    includes a peer that compresses the destination list to stop the
+	    peer-id from being revealed.
+	  </t>
 
-        <section title="SIP Connect">
-          <t>Once the destination list for a user has been identified, the
-          calling peer uses the CONNECT request to form a connection to the
-          peer identified by the destination list. The CONNECT request MUST
-          contain the connect-application value of 5160 (SIP). If
-          certificate-based authentication is in use, the responding peer MUST
-          present a certificate with a peer-id matching the terminal entry in
-          the route list.</t>
 
-          <t>[[TODO: Note that this constrains destination lists from hiding
-          the last peer-id when used here. I think that's OK, but we should
-          take a look]]</t>
-
-          <t>Once the association has been formed, the calling peer sends
-          generic SIP messages down the new association and ordinary SIP
-          procedures are followed.</t>
         </section>
+	  
+        <section anchor="sec.sip-reg-kind" title="SIP-REGISTRATION Kind Definition">
+          <t>The first mapping is provided using the SIP-REGISTRATION
+          kind-id:</t>
 
-        <section title="GRUUs">
-          <t>GRUUs do not require storing data in the DHT. Rather, they are
-          constructed by embedding a base64-encoded destination list in the gr
-          URI parameter of the GRUU. The base64 encoding is done with the
-          alphabet specified in table 1 of RFC 4648 with the exception that ~
-          is used in place of =. An example GRUU is
-          "sip:alice@example.com;gr=MDEyMzQ1Njc4OTAxMjM0NTY3ODk~". When a peer
-          needs to route a message to a GRUU in the same P2P network, it
-          simply uses the destination list and connects to that peer.</t>
+          <t><list style="hanging">
+              <t></t><t hangText="Kind IDs">The Unhashed-ID for the SIP-REGISTRATION
+              kind-id is the AOR of the user.
+	      The data
+              stored is a SipRegistrationData, which can contain either
+              another URI or a destination list to the peer which is acting
+              for the user.</t>
 
-          <t>Anonymous GRUUs are done in roughly the same way but require
-          either that the enrollment server issue a different peer-id for each
-          anonymous GRUU required or that a destination list be used that
-          includes a peer that compresses the destination list to stop the
-          peer-id from being revealed.</t>
-        </section>
+              <t></t><t hangText="Data Model">The data model for the SIP-REGISTRATION
+              kind-id is dictionary. The dictionary key is the peer-id of the
+              storing peer. This allows each peer (presumably corresponding to
+              a single device) to store a single route mapping.</t>
 
+              <t></t><t hangText="Access Control">If certificate-based access control
+              is being used, stored data of kind-id SIP-REGISTRATION must be
+              signed by a certificate which (1) contains user name matching
+              the storing URI used as the Unhashed-ID for the resource-id and
+              (2) contains a peer-id matching the storing dictionary key.</t>
+
+              <t></t><t hangText="Data Sizes">Peers MUST be prepared to store
+              SIP-REGISTRATION values of up to 10 kilobytes and must be
+              prepared to store up to 10 values for each user name.</t>
+            </list></t>
+            
+            <t>
+              Data stored under the SIP-REGISTRATION kind is of type
+              SipRegistration. This comes in two varieties:
+            </t>
+            <t>
+              <list style="hanging">
+                <t></t><t hangText="sip_registration_uri "></t><t>a URI
+                which the user can be reached at.</t>
+                <t></t><t hangText="sip_registration_route "></t><t>a
+                destination list which can be used to
+                reach the user's peer.</t>
+              </list>
+            </t>
+	</section>
+	</section>
          <!-- EKR REMOVED
 
         <section title="SIP Tunnel">
@@ -4606,7 +4747,6 @@ Layer         |TLS    |  |DTLS  |
         timers</t>
       </section>
       -->
-      </section>
 
       <section title="Diagnostic Usage" toc="default">
          <t>[TODO: SAB]</t>
