@@ -1015,26 +1015,65 @@ Layer         |TLS    |  |DTLS  |
 
 -->
 
-      <section title="Enrollment and Bootstrap">
+      <section title="Enrollment">
          <t>
 	   The above sections have discussed how a RELOAD works
 	   once in operation. This section provides an overview of how
 	   users get connected to the overlay, both the first time
 	   they join and each time they reconnect their user agent.
+	   We would like to enable a situation in which 
+	   users can start with the name of the overlay they wish to join
+	   and perhaps a username and password, and leverage that into
+	   having a working peer with minimal user intervention.
+	   This helps avoid the problems that have been experienced
+	   with conventional SIP clients where users are required
+	   to manually configure a large number of settings.
 	 </t>
 
+	 <section title="Initial Configuration">
+	   <t>
+	     In the first phase of this process, the user starts out
+	     with the name of the overlay and uses this to download
+	     an initial set of overlay configuration parameters.
+	     The user does a DNS SRV lookup on the overlay name
+	     to get the address of a configuration server. They
+	     can then connect to this server with HTTPS to download
+	     a configuration document which contains the basic
+	     overlay configuration parameters as well as a set
+	     of bootstrap nodes which can be used to join the overlay
+	     (see [XREF]).
+	   </t>
+	 </section>
 	 <section title="Enrollment">
 	   <t>
-	     Before a new user can join the DHT for the first time, they must
-	     enroll in the P2P Network for the DHT they want to join. 
-	     We assume that the overlay 
-	  
-
-
-
-
+	     If the overlay is using certificate-based access control,
+	     then a user needs to acquire a certificate before joining
+	     the overlay. In that case, the configuration document will
+	     contain the address of an enrollment server which can
+	     be used to obtain such a certificate. The enrollment
+	     server may (and probably will) require some sort of
+	     username and password before issuing the certificate.
+	   </t>
 	 </section>
-
+      </section>
+      <section title="Bootstrap">
+	<t>
+	  Whenever a peer starts up, it needs to form an initial set
+	  of connections to the overlay peers. The CONNECT method discussed
+	  in section [XREF] can't be used here because it requires 
+	  being connected to at least on peer already. In order to
+	  allow this initial connection, each overlay must have
+	  some initial (small) set of "bootstrap nodes"
+	  which have public IP addresses and therefore can be
+	  connected to directly. Once a peer has connected to one
+	  or more bootstrap nodes, it can form connections in the usual
+	  way by routing CONNECT messages through the overlay.
+	  Once a peer has connected to the overlay for the first time,
+	  it can cache the set of nodes it has connected to with 
+	  public IP addresses for use as future bootstrap nodes.
+	</t>
+      </section>
+    </section>
 <!-- EKR: REMOVED: TMI
      
          <section title="Enrollment">
@@ -1094,7 +1133,6 @@ Layer         |TLS    |  |DTLS  |
              invariant that the enrollment server needs to ensure is that no two
              users may have the same identity.</t>
            </section>
--->
            <section title="Bootstrap">
              <t>The above steps are only done the first time a peer joins a new
              overlay or when the overlay parameters are close to their expiration
@@ -1111,8 +1149,9 @@ Layer         |TLS    |  |DTLS  |
              nodes is to reduce the load on the bootstrap nodes.</t>
            </section>
          </section>
-      </section>
-    </section>
+
+-->
+
 
     <section title="Application Support Overview">
         <t>[TODO: HGS; this needs bridge text to explain what application
