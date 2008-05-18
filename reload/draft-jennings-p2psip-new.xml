@@ -960,38 +960,54 @@ Layer         |TLS    |  |DTLS  |
               for that data that this peer has taken over responsibility.</t>
             </list></t>
 
-          <t>First, the peer ("JP," for Joining Peer) uses the bootstrap
-          procedures to find some (any) peer in the DHT. It then typically
-          contacts the peer which would have formerly been responsible for the
-          peer's Resource-ID (since that is where in the DHT the peer will be
-          joining), the Admitting Peer (AP). It copies the other peer's state,
-          including the data values it is now responsible for and the
-          identities of the peers with which the other peer has direct
-          connections.</t>
+	<t>
+	  The first thing the peer needs to do is form a connection
+	  to some "bootstrap node". Because this is the first connection
+	  the peer makes, these nodes "bootstrap nodes"
+	  MUST have public IP addresses and therefore can be
+	  connected to directly. Once a peer has connected to one
+	  or more bootstrap nodes, it can form connections in the usual
+	  way by routing CONNECT messages through the overlay to other
+	  nodes.
+	  Once a peer has connected to the overlay for the first time,
+	  it can cache the set of nodes it has connected to with 
+	  public IP addresses for use as future bootstrap nodes.
+	</t>
+	
+	<t>
+	  Once the peer has connected to a bootstrap node, it
+	  then can use overlay routing to 
+	  contacts the peer which would have formerly been responsible for the
+	  peer's Resource-ID (since that is where in the DHT the peer will be
+	  joining), the Admitting Peer (AP). It copies the other peer's state,
+	  including the data values it is now responsible for and the
+	  identities of the peers with which the other peer has direct
+	  connections.
+	</t>
 
-          <t>The details of this operation depend mostly on the DHT involved,
-          but a typical case would be:</t>
+	<t>The details of this operation depend mostly on the DHT involved,
+	but a typical case would be:</t>
 
-          <t><list style="numbers">
-              <t>JP sends a JOIN request to AP announcing its intention to
-              join.</t>
+	<t><list style="numbers">
+	  <t>JP sends a JOIN request to AP announcing its intention to
+	  join.</t>
 
-              <t>AP sends an JOIN response.</t>
+	  <t>AP sends an JOIN response.</t>
 
-              <t>AP does a sequence of STOREs to JP to give it the data it
-              will need.</t>
+	  <t>AP does a sequence of STOREs to JP to give it the data it
+	  will need.</t>
 
-              <t>AP does UPDATEs to JP and to other peers to tell it about its
-              own routing table. At this point, both JP and AP consider JP
-              responsible for some section of the DHT.</t>
+	  <t>AP does UPDATEs to JP and to other peers to tell it about its
+	  own routing table. At this point, both JP and AP consider JP
+	  responsible for some section of the DHT.</t>
 
-              <t>JP makes its own connections to the appropriate peers in the
-              DHT.</t>
-            </list></t>
+	  <t>JP makes its own connections to the appropriate peers in the
+	  DHT.</t>
+	</list></t>
 
-          <t>After this process is completed, JP is a full member of the DHT
-          and can process STORE/FETCH requests.</t>
-        </section>
+	<t>After this process is completed, JP is a full member of the DHT
+	and can process STORE/FETCH requests.</t>
+	</section>
       </section>
       <section title="Diagnostics">
          <t>[TODO: SAB]</t>
@@ -1017,11 +1033,10 @@ Layer         |TLS    |  |DTLS  |
 
       <section title="Enrollment">
          <t>
-	   The above sections have discussed how a RELOAD works
-	   once in operation. This section provides an overview of how
-	   users get connected to the overlay, both the first time
-	   they join and each time they reconnect their user agent.
-	   We would like to enable a situation in which 
+	   Previous sections addesssed how RELOAD works
+	   once a node has connected. This section provides an overview of how
+	   users get connected to the overlay for the first time.
+	   RELOAD is designed so that 
 	   users can start with the name of the overlay they wish to join
 	   and perhaps a username and password, and leverage that into
 	   having a working peer with minimal user intervention.
@@ -1032,7 +1047,7 @@ Layer         |TLS    |  |DTLS  |
 
 	 <section title="Initial Configuration">
 	   <t>
-	     In the first phase of this process, the user starts out
+	     In the first phase of the process, the user starts out
 	     with the name of the overlay and uses this to download
 	     an initial set of overlay configuration parameters.
 	     The user does a DNS SRV lookup on the overlay name
@@ -1055,23 +1070,7 @@ Layer         |TLS    |  |DTLS  |
 	     username and password before issuing the certificate.
 	   </t>
 	 </section>
-      </section>
-      <section title="Bootstrap">
-	<t>
-	  Whenever a peer starts up, it needs to form an initial set
-	  of connections to the overlay peers. The CONNECT method discussed
-	  in section [XREF] can't be used here because it requires 
-	  being connected to at least on peer already. In order to
-	  allow this initial connection, each overlay must have
-	  some initial (small) set of "bootstrap nodes"
-	  which have public IP addresses and therefore can be
-	  connected to directly. Once a peer has connected to one
-	  or more bootstrap nodes, it can form connections in the usual
-	  way by routing CONNECT messages through the overlay.
-	  Once a peer has connected to the overlay for the first time,
-	  it can cache the set of nodes it has connected to with 
-	  public IP addresses for use as future bootstrap nodes.
-	</t>
+
       </section>
     </section>
 <!-- EKR: REMOVED: TMI
@@ -1303,8 +1302,8 @@ Layer         |TLS    |  |DTLS  |
 	  <t>
 	    The basic function of the SIP usage is to allow Alice to
 	    start with a SIP URI (e.g., "bob@dht.example.com") and end up with a
-	    connection which Bob's SIP UA can use to pass SIP messages back and
-	    forth to Alice's SIP UA. The way this works is as follows:
+	    connection which Alice's SIP UA can use to pass SIP messages back and
+	    forth to Bob's SIP UA. The way this works is as follows:
 	  </t>
 	  <t>
 	    <list style="numbers">
@@ -1364,8 +1363,8 @@ Layer         |TLS    |  |DTLS  |
 	  AORs. For instance, if Bob wanted his phone calls
 	  temporarily forwarded to Charlie, he could store
 	  the mapping "sip:bob@dht.example.com -> sip:charlie@dht.example.com".
-	  When Alice wants to call Bob, she retrieves this mapping and then
-	  can fetch Charlie's AOR to retrieve his peer-id.
+	  When Alice wants to call Bob, she retrieves this mapping and can
+	  then fetch Charlie's AOR to retrieve his peer-id.
 	</t>
 <!-- EKR REMOVED: Too much information here
             
@@ -1576,7 +1575,7 @@ Layer         |TLS    |  |DTLS  |
            topology and contents of the routing table.
          </t>
          <t>
-           RELOAD also incorporates a source routing feature called 
+           RELOAD also incorporates a loose source routing feature using
            DESTINATION LISTS. When a node transmits a message it
            can provide a set of peer-ids which it wishes the message
            to be routed through. Each intermediate node examines
@@ -1595,7 +1594,7 @@ Layer         |TLS    |  |DTLS  |
                                              
            <t>
              In order to originate a message to a given peer-id or resource-id, a
-             peer must construct an appropriate destination list. The most
+             peer must first construct an appropriate destination list. The most
              common such destination list is a single entry containing the
              peer/resource-id. This simply uses the normal DHT routing
              mechanisms to forward the message to that destination. The
@@ -1653,11 +1652,11 @@ Layer         |TLS    |  |DTLS  |
            another peer is responsible.</t>
          </list></t>
 
-         <t>These cases are handled separately.</t>
+         <t>These cases are handled as discussed below.</t>
 
          <section anchor="sec-private-peer-id" title="Private ID">
            <t>If the first entry on the destination list is a private id,
-           the peer replaces that entry with the store local value that it
+           the peer replaces that entry with the stored local value that it
            indexes and then re-examines the destination list to determine
            which case now applies.</t>
          </section>
@@ -1665,7 +1664,7 @@ Layer         |TLS    |  |DTLS  |
          <section anchor="sec-responsible-id" title="Responsible ID">
            <t>If the first entry on the destination list is a Hashed-ID for
            which the peer is responsible, the peer strips the entry off the
-           route list. If there are remaining entries on the destination
+           destination list. If there are remaining entries on the destination
            list, the peer then re-examines the destination list to
            determine which case now applies. If the destination list is now
            empty, then the message was destined for this peer and it MUST
@@ -1675,11 +1674,12 @@ Layer         |TLS    |  |DTLS  |
          <section anchor="sec-other-id" title="Other Hashed-ID">
            <t>If neither of the other two cases applies, then the peer MUST
            forward the message towards the first entry on the destination
-           list. This means that it MUST select one of the peers in its
-           route table which is closer to the first entry than to itself
+           list. This means that it MUST select one of the peers to which
+	   it is connected and which which is closer to the first entry than to itself
            and send the message to that peer. If the first entry on the
            destination list is in the peer's connection table, then it
-           SHOULD forward the message to that peer directly.</t>
+           SHOULD forward the message to that peer directly. Otherwise,
+	   it MUST consult the route table.</t>
 
            <t>RELOAD messages contain a via list which lists each peer
            that the message has traversed. When a peer forwards a message
@@ -1753,9 +1753,7 @@ Layer         |TLS    |  |DTLS  |
          
           <t>
             The contents of these parts are as follows:
-          </t>
-
-           <t><list style="hanging">
+	    <list style="hanging">
              <t></t><t hangText="Forwarding Header:">Each message has a generic header
              which is used to forward the message between peers and to its final
              destination. This header is the only information that an
@@ -1786,16 +1784,16 @@ Layer         |TLS    |  |DTLS  |
              <t>
                <list style="symbols">
                   <t>It is easy to write and familiar enough looking that most readers can grasp it quickly.</t>
-                  <t>The ability to define nested structures allows a separation between high-leval
+                  <t>The ability to define nested structures allows a separation between high-level
                   and low level message structures.</t>
                   <t>It has a straightforward wire encoding that allows quick implementation,
                   but the structures can be comprehended without knowing the encoding.</t>
                </list>
                <t>
-                  We consider it an open question what the final protocol definition
-                  method and encodings use. Possibilities include but are not limited to
-                  a language such as this one or XDR [REF]
-                  bit diagrams. We expect this to be a question for the WG to decide.
+		  This presentation is to some extent a placeholder.
+	          We consider it an open question what the final protocol definition
+                  method and encodings use. 
+		  We expect this to be a question for the WG to decide.
                </t>   
              </t>
              <t>
@@ -1858,8 +1856,8 @@ Layer         |TLS    |  |DTLS  |
          </t>
          <t>
            A more complicated example is Address,
-	   which reprsents a network address and
-           can be used to carry either an IPv6 or IPv4 address.
+	   which represents a network address and
+           can be used to carry either an IPv6 or IPv4 address:
          </t>
            
          <figure>
@@ -2083,7 +2081,7 @@ Layer         |TLS    |  |DTLS  |
          the other list entries. In other cases, some entries may need to be
          copied or moved.</t>
 
-         <t>The destination list and via lists a list of Destination values:</t>
+         <t>The destination list and via lists are sequences of Destination values:</t>
 
          <figure>
            <!--begin-pdu-->
@@ -2093,13 +2091,7 @@ Layer         |TLS    |  |DTLS  |
       enum {peer(0), resource(1), compressed(2), (255) }
            DestinationType;
       
-      struct {
-        DestinationType         type;
-        uint8                   length;
-        DestinationData         destination_data[Destination.length];
-      } Destination;
-      
-      
+     
       select (destination_type) {
         case peer:
            PeerId               peer_id;
@@ -2114,7 +2106,11 @@ Layer         |TLS    |  |DTLS  |
       
       } DestinationData;
 
-
+      struct {
+        DestinationType         type;
+        uint8                   length;
+        DestinationData         destination_data;
+      } Destination;
       ]]></artwork>
          </figure>
          
@@ -2151,7 +2147,9 @@ Layer         |TLS    |  |DTLS  |
            <t></t><t hangText="compressed"></t><t>A compressed list of peer-ids and/or
            resources. Because this value was
            compressed by one of the peers, it is only meaningful to that peer
-           and cannot be decoded by other peers.</t>
+           and cannot be decoded by other peers. Thus, it is represented
+	   as an opaque string.
+	 </t>
 
            <t></t><t hangText="resource"></t><t>The resource id of the resource which is
            desired. This type MUST only appear in the final location of a
@@ -2222,7 +2220,7 @@ Layer         |TLS    |  |DTLS  |
 
        struct {
          opaque                 version<0..255>;    /* A string */
-         Transport              transport;            /* TCP or UDP */
+         Transport              transport;          /* TCP or UDP */
          peer_id                id; 
          uint32                 uptime;
          AddressPort            address;
@@ -2263,8 +2261,9 @@ Layer         |TLS    |  |DTLS  |
       </section>
 
       <section anchor="sec-contents" title="Message Contents Format">
-        <t>RELOAD messages share a common content structure, 
-        defined by MessageContents:</t>
+        <t>
+	  The second major part of a RELOAD message is the contents
+	  part, which is defined by MessageContents:</t>
         
 
          <figure>
@@ -2274,7 +2273,7 @@ Layer         |TLS    |  |DTLS  |
        struct {
          MessageCode            message_code;
          uint16                 reserved;
-         opaque                 payload<0..2^16-1>;
+         opaque                 payload<0..2^24-1>;
        } MessageContents;
        
        ]]>
@@ -2333,8 +2332,11 @@ Layer         |TLS    |  |DTLS  |
            (error) and the payload MUST be an error_response PDU, as shown
            below.</t>
 
-           <t>For any code other than 200, the payload should be as defined
-           below:</t>
+           <t>
+	     When the message code is 0xffff, the payload MUST be an
+	     ErrorResponse.
+	   </t>
+
 
            <figure>
              <!--begin-pdu-->
@@ -2405,10 +2407,14 @@ Layer         |TLS    |  |DTLS  |
       </section>
         <section anchor="sec-signature" title="Signature">
 
-          <t>The Signature PDU is used to attach signatures to messages
-          and or stored data elements. All signatures are formatted using this
-          element. However, the input structure to the signature computation
-          varies depending on the data element being signed.</t>
+          <t>
+	    The third part of a RELOAD message is the signature,
+	    represented by a Signature structure.
+	    The Signature PDU is used to attach signatures to messages
+	    and or stored data elements. All signatures are formatted using this
+	    element. However, the input structure to the signature computation
+	    varies depending on the data element being signed.
+	  </t>
 
           <figure>
             <!--begin-pdu-->
@@ -2525,11 +2531,9 @@ Layer         |TLS    |  |DTLS  |
           peer-id which the new peer has. This notifies the responsible peer
           that the new peer is taking over some of the overlay and it needs to
           synchronize its state.</t>
-
           <figure>
             <!--begin-pdu-->
             <artwork><![CDATA[
-
        struct {
           PeerId                desired_peer_id;
           opaque                dht_specific_data<0..2^16-1>;
@@ -2562,7 +2566,6 @@ Layer         |TLS    |  |DTLS  |
             <!--begin-pdu-->
             <artwork><![CDATA[
 
-
        public struct {
           PeerId                leaving_peer_id;
           opaque                dht_specific_data<0..2^16-1>;
@@ -2591,6 +2594,7 @@ Layer         |TLS    |  |DTLS  |
           <t>The contents of the UPDATE_Q message are completely DHT-specific.
           The UPDATE_A response is expected to be either success or an
           error.</t>
+	  
         </section>
 
         <section anchor="sec-route-query" title="ROUTE_QUERY">
@@ -2636,14 +2640,13 @@ Layer         |TLS    |  |DTLS  |
          Destination            destination;
        } RouteQueryQ;
 
-
               ]]></artwork>
             </figure>
 
             <t>The contents of the ROUTE_QUERY_Q message are as follows:</t>
 
             <t><list style="hanging">
-                <t></t><t hangText="send_update "></t><t>A single byte. This may be set to "true"n
+                <t></t><t hangText="send_update "></t><t>A single byte. This may be set to "true"
                 to indicate that the requester wishes the responder to
                 initiate an UPDATE request immediately. Otherwise, this value
                 MUST be set to "false".</t>
@@ -2663,22 +2666,18 @@ Layer         |TLS    |  |DTLS  |
 
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
-
-
       struct {
         PeerId                  next_peer;
         Address                 next_addr;
-      } RouteQueryQ;
-
+      } RouteQueryA;
 
               ]]></artwork>
             </figure>
 
-            <t>The contents of the ROUTE_QUERY_A are as follows:</t>
+            <t>The contents of the ROUTE_QUERY_A are as follows:
 
-            <t><list style="hanging">
+	      <list style="hanging">
                 <t></t><t hangText="next_peer "></t><t>The peer to which the responding peer
                 would route the message to in order to deliver it to the
                 destination listed in the request.</t>
@@ -2687,7 +2686,7 @@ Layer         |TLS    |  |DTLS  |
               </list></t>
 
             <t>If the requester set the send_update flag, the responder SHOULD
-            initiate an UPDATE immediately after.</t>
+            initiate an UPDATE immediately after sending the ROUTE_QUERY_A.</t>
           </section>
          </section>
       </section>
@@ -2730,7 +2729,8 @@ Layer         |TLS    |  |DTLS  |
             for ACKs.
           </t>
           <section title="Framed Message Format">
-            <t>
+	    <t>
+	      The definition of FramedMessage is:
             </t>
             <figure>
               <!--begin-pdu-->
@@ -2762,17 +2762,15 @@ Layer         |TLS    |  |DTLS  |
 
             <t>If the message is of type "data", then the remainder of the PDU is
             as follows:
-            </t>
-            <t>
               <list style="hanging">
                 <t></t><t hangText="sequence "></t><t> the sequence number</t>
                 <t></t><t hangText="message "></t><t> the original message that is being transmitted.</t>
               </list>
             </t>
             <t>
-              Each association has it own sequence number. Initially the
+              Each connection has it own sequence number. Initially the
               value is zero and it increments by exactly one for each message
-              sent over that DTLS session.
+              sent over that connection.
             </t>
             <t>
               When the receiver receive a message, it SHOULD immediately send
@@ -2780,8 +2778,6 @@ Layer         |TLS    |  |DTLS  |
               sequence numbers received on this association in order to generate
               the appropriate ack.
 	      The contents of the ACK PDU are as follows:
-            </t>
-            <t>
               <list style="hanging">
                 <t></t><t hangText="ack_sequence "></t><t>
                   The sequence number of the message being acknowledged.
@@ -2807,7 +2803,7 @@ Layer         |TLS    |  |DTLS  |
              <t>Because the receiver's role is limited to providing packet
              acknowledgements, a wide variety of congestion control algorithms
              can be implemented on the sender side while using the same basic
-             wire protocol. It is RECOMMENDED that senders implement use
+             wire protocol. It is RECOMMENDED that senders implement
              TFRC-SP<xref target="RFC4828"></xref> and use the received bitmask
              to allow the sender to compute packer loss event rates. Senders
              MUST implement a retransmission and congestion control scheme no
@@ -2861,7 +2857,10 @@ Layer         |TLS    |  |DTLS  |
           fragments. [[TODO: Describe algorithm]]</t>
         </section>
       <section title="Connection Management">
-	<t>[TODO: EKR]</t>
+	<t>
+	  RELOAD provides a number of methods to establish and
+	  maintain connections between the nodes in the overlay.
+	</t>
         <section anchor="sec-connect-details" title="CONNECT">
           <t>A node sends a CONNECT request when it wishes to establish a
           direct TCP or UDP connection to another node for the purposes of
@@ -2896,15 +2895,14 @@ Layer         |TLS    |  |DTLS  |
         opaque                  fingerprint<0..255>;
         opaque                  role<0..255>;
         IceCandidate            candidates<0..2^16-1>;
-      } ConnectQ;
+      } ConnectQA;
 
 
 ]]></artwork>
             </figure>
 
-            <t>The values contained in ConnectQ are:</t>
-
-            <t><list style="hanging">
+            <t>The values contained in ConnectQA are:
+	    <list style="hanging">
                 <t></t><t hangText="ufrag "></t><t>The username fragment (from ICE)</t>
 
                 <t></t><t hangText="password "></t><t>The ICE password.</t>
@@ -2937,7 +2935,7 @@ Layer         |TLS    |  |DTLS  |
             <t>If a peer receives a CONNECT request, it SHOULD follow the
             procedures of [XREF] to process
             the request and generate its own response (a CONNECT_A) containing
-            a connect_data object. It should then begin ICE checks. When a
+            a ConnectQA. It should then begin ICE checks. When a
             peer receives a CONNECT response, it SHOULD parse the response and
             begin its own ICE checks.</t>
           </section>
@@ -2956,16 +2954,13 @@ Layer         |TLS    |  |DTLS  |
 
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
-
       enum { responsible_set(1), num_resources(2), (255)} 
            PingInformationType;
 
       struct {
         PingInformationType     requested_info<0..255>;
       } PingQ
-
 
 ]]></artwork>
             </figure>
@@ -2993,7 +2988,6 @@ Layer         |TLS    |  |DTLS  |
 
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
 
        struct {
@@ -3020,10 +3014,9 @@ Layer         |TLS    |  |DTLS  |
 ]]></artwork>
             </figure>
 
-            <t>A PING_A message contains the following elements:</t>
-
             <t>
-              <list style="hanging">
+	      A PING_A message contains the following elements:
+	      <list style="hanging">
                 <t></t><t hangText="response_id "></t><t>A randomly generated 64-bit
                 response ID. This is used to distinguish PING responses in
                 cases where the PING request is multicast.</t>
@@ -3043,7 +3036,8 @@ Layer         |TLS    |  |DTLS  |
 
             <t>The responding peer SHOULD include any values that the
             requesting peer requested and that it recognizes. They SHOULD be
-            returned in the requested order.</t>
+            returned in the requested order. Any other values MUST NOT
+	    be returned.</t>
           </section>
         </section>
 
@@ -3161,12 +3155,11 @@ Layer         |TLS    |  |DTLS  |
          No new protocol mechanisms are required.
       </t>
       <t>
-        The basic unit of stored is a single StoredData structure:
+        The basic unit of stored data is a single StoredData structure:
       </t>
            <figure>
               <!--begin-pdu-->
               <artwork><![CDATA[
-
 
       struct {
         uint32                  length;
@@ -3176,14 +3169,12 @@ Layer         |TLS    |  |DTLS  |
         Signature               signature;
       } StoredData;
 
-
       ]]>
       </artwork>
     </figure>
     <t>
       The contents of this structure are as follows:
-    </t>
-    <t><list style="hanging">
+      <list style="hanging">
       <t></t><t hangText="length "></t><t>The length of the rest of the
       structure.</t>
 
@@ -3241,9 +3232,8 @@ Layer         |TLS    |  |DTLS  |
       </list>
       </t>
 
-      <t>Where these values are:</t>
-
-      <t><list style="hanging">
+      <t>Where these values are:
+      <list style="hanging">
         <t></t><t hangText="resource "></t><t>The resource ID where this data is
         stored.</t>
 
@@ -3260,7 +3250,7 @@ Layer         |TLS    |  |DTLS  |
       target="sec-signature"></xref>.</t>
     </section>
 
-    <section title="Kinds and Data Models" anchor="sec-kind-model">
+    <section title="Data Models" anchor="sec-kind-model">
       <t>
         The protocol currently defines the following data
         models:
@@ -3280,8 +3270,7 @@ Layer         |TLS    |  |DTLS  |
         <figure>
           <!--begin-pdu-->
           <artwork><![CDATA[
-          
-          
+                    
       enum { single_value(0), array(1), dictionary(2), (255)} 
              DataModel;
       
@@ -3298,7 +3287,6 @@ Layer         |TLS    |  |DTLS  |
 
         /* This structure may be extended */
       } StoredDataValue;
-
 
       ]]>
           </artwork>           
@@ -3320,15 +3308,19 @@ Layer         |TLS    |  |DTLS  |
               <!--begin-pdu-->
               <artwork><![CDATA[
               
-              
        struct {
          opaque                        value<0..2^32-1>;
        } SingleValueEntry;
 
-
        ]]>
               </artwork>
             </figure>
+	    <t>
+	      The contents of this structure are:
+	      <list style="hanging">
+		<t hangText="value"></t><t>The stored data.</t>
+	      </list>
+	    </t>
          </section>
 
          <section title="Array">
@@ -3345,17 +3337,25 @@ Layer         |TLS    |  |DTLS  |
             <figure>
               <!--begin-pdu-->
               <artwork><![CDATA[
-              
-              
+            
        struct {
          int32                  index;
          opaque                 value<0..2^32-1>;
        } ArrayEntry;
 
-
        ]]>
               </artwork>
             </figure>
+	    <t>
+	      The contents of this structure are:
+	      <list style="hanging">
+		<t hangText="index"></t><t>The index of the data element in
+		the array. Must be nonnegative.</t>
+		<t hangText="value"></t><t>The stored data.</t>
+	      </list>
+	    </t>
+	    <!-- [TODO: EKR We can't sign the array index if we're also
+	    going to allow arrays to adjust themselves -->
          </section>
 
 
@@ -3384,48 +3384,36 @@ Layer         |TLS    |  |DTLS  |
        ]]>
               </artwork>
             </figure>
-
+	    <t>
+	      The contents of this structure are:
+	      <list style="hanging">
+		<t hangText="key"></t><t>The dictionary key for this value.</t>
+		<t hangText="value"></t><t>The stored data.</t>
+	      </list>
+	    </t>
          </section>
-
-           <section title="Defining New Kinds">
-             <t>
-               A new kind MUST define:
-             </t>
-               <t><list style="symbols">
-                  <t>The meaning of the data to be stored.</t>
-                  <t>The kind-id.</t>
-                  <t>The data model (single value, array,
-                  dictionary, etc.)</t>
-                  <t>Access control rules for indicating what credentials
-                  are allowed to read and write that kind-id at a given
-                  location.</t>
-
-                  <t>The minimum amounts of data that a conformant
-                  implementation MUST be willing to store.</t>
-               </list>
-               </t>
-
-               <t>While each kind MUST define what data model is used for its data,
-               that does not mean that it must define new data models. Where
-               practical, kinds SHOULD use the built-in data models. However, they MAY
-               define any new required data models. The intention is that the basic
-               data model set be sufficient for most applications/usages.</t>
-
-               <t><list style="hanging">
-                  <t></t><t hangText="Note:">New usages MAY reuse existing kind-ids. New
-                  kind-ids only need to be defined where different data is stored or
-                  different behavior is required.</t>
-               </list>
-               </t>
-           </section>
          </section>
          <section title="Data Storage Methods">
-             <section anchor="sec-store" title="STORE">
+	   <t>
+	     RELOAD provides several methods for storing and retrieving data:
+	     <list style="symbols">
+	       <t>STORE values in the overlay</t>
+	       <t>FETCH values from the overlay</t>
+	       <t>REMOVE values from the overlay</t>
+	       <t>FIND the values stored at an individual peer</t>
+	     </list>
+	   </t>
+	   <t>
+	     These methods are each described in the following sections.
+	   </t>
+
+          <section anchor="sec-store" title="STORE">
+	       
           <t>The STORE method is used to store data in the overlay.
           The format of the STORE request depends on the data model.</t>
 
           <section anchor="sec-store-req" title="Request Definition">
-            <t>A STORE_Q message is a sequence of kind-data pairs, each of
+            <t>A STORE_Q message is a sequence of StoreKindData values, each of
             which represents a sequence of stored values for a given kind. The
             same kind-id MUST NOT be used twice in a given store request. Each
             value is then processed in turn. These operations MUST be atomic.
@@ -3438,10 +3426,7 @@ Layer         |TLS    |  |DTLS  |
 
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
-
-
      struct {
          KindId                 kind;
          DataModel              data_model;
@@ -3459,9 +3444,7 @@ Layer         |TLS    |  |DTLS  |
             </figure>
 
             <t>A single STORE request stores data of a number of kinds to a
-            single resource location. The contents of the structure are:</t>
-
-            <t>
+            single resource location. The contents of the structure are:
               <list style="hanging">
                 <t></t><t hangText="resource "></t><t>The resource to store at.</t>
 
@@ -3471,9 +3454,8 @@ Layer         |TLS    |  |DTLS  |
             </t>
               
             <t>Each StoreKindData element represents the data to be stored
-            for a single kind-id. The contents of the element are:</t>
-
-            <t><list style="hanging">
+            for a single kind-id. The contents of the element are:
+	    <list style="hanging">
                 <t></t><t hangText="kind "></t><t>The kind-id. Implementations SHOULD
                 reject requests corresponding to unknown kinds unless
                 specifically configured otherwise.</t>
@@ -3526,8 +3508,6 @@ Layer         |TLS    |  |DTLS  |
 
 	    <t>
 	      The properties of stores for each data model are as follows:
-	    </t>
-	    <t>
 	      <list style="hanging">
 		<t></t><t hangText="Single-value:"></t><t>
 		A store of a new single-value element creates the element
@@ -3573,10 +3553,14 @@ Layer         |TLS    |  |DTLS  |
                          |                    /\
                          |                   /  \
                      StoredData             /    \
-                     value="abc"           /      \
-                                    StoredData  StoredData
-                                     index=0      index=1
-                                   value="foo"  value="bar"
+                         |                 /      \
+                         |           StoredData  StoredData
+                  StoredDataValue        |           |
+                   value="abc"           |           |
+                                         |           |
+                                StoredDataValue  StoredDataValue
+                                      index=0      index=1
+                                   value="foo"    value="bar"
 	      ]]>
 	    </artwork>
 	    </figure>
@@ -3592,9 +3576,7 @@ Layer         |TLS    |  |DTLS  |
 
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
-
       struct {
         KindId                  kind;
         uint64                  generation_counter;
@@ -3605,7 +3587,6 @@ Layer         |TLS    |  |DTLS  |
       struct {
         StoreKindResponse       kind_responses<0..2^16-1>;
       } StoreA;
-
 
               ]]></artwork>
             </figure>
@@ -3629,8 +3610,13 @@ Layer         |TLS    |  |DTLS  |
             packed end-to-end.</t>
 
             <t>
-	      [TODO: EKR How do we handle the case where the generation counter is
-	      out of date? The old text here didn't work][[TODO: The
+	      If any of the generation counters in the request precede
+	      the corresponding stored generation counter, then the 
+	      peer MUST fail the entire request and respond with a 412
+	      error. The error_info in the ErrorResponse MUST be a
+	      StoreA response containing the correct generation counter
+	      for each kind and empty replicas lists.
+	      [[TODO: The
             generation counter may need more thinking for uniqueness.]]</t>
           </section>
 
@@ -3644,10 +3630,7 @@ Layer         |TLS    |  |DTLS  |
           <section title="Request Definition">
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
-
-
       struct {
         KindId                  kind;
         DataModel               model;
@@ -3655,7 +3638,7 @@ Layer         |TLS    |  |DTLS  |
         uint16                  length;
         
         select (kind) {
-          case single_value: {};
+          case single_value: {};    /* Empty */
 
           case array:
                int32            first;
@@ -3673,7 +3656,6 @@ Layer         |TLS    |  |DTLS  |
         ResourceId              resource;
         StoredDataSpecifier     specifiers<0..2^16-1>;
       } FetchQ;
-
 
               ]]></artwork>
             </figure>
@@ -3760,9 +3742,7 @@ Layer         |TLS    |  |DTLS  |
 
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
-
        struct {
          KindId                 kind;
          uint64                 generation;
@@ -3814,9 +3794,7 @@ Layer         |TLS    |  |DTLS  |
           
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
-
       struct {
         ResourceId              resource;
         StoredDataSpecifier     specifiers<0..2^16-1>;
@@ -3826,11 +3804,10 @@ Layer         |TLS    |  |DTLS  |
               </artwork>
             </figure>
 
-
           <t>A remove-request has exactly the same syntax as a FETCH request
           except that each entry represents a set of values to be removed
           rather than returned. The same kind-id MUST NOT be used twice in a
-          given remove-request. Each fetch_kind_data is then processed in
+          given remove-request. Each specifier is then processed in
           turn. These operations MUST be atomic. If any operation fails, the
           state MUST be rolled back to before the request was received.</t>
 
@@ -3890,14 +3867,10 @@ Layer         |TLS    |  |DTLS  |
 
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
-
       struct {
         StoreKindResponse          kind_responses<0..2^16-1>;
       } RemoveA;
-
-
       ]]>
               </artwork>
             </figure>
@@ -3915,14 +3888,11 @@ Layer         |TLS    |  |DTLS  |
 
             <figure>
               <!--begin-pdu-->
-
               <artwork><![CDATA[
-
    struct {
      ResourceID                 resource;
      KindId                     kinds<0..255>;
    } FindQ;
-
 
               ]]></artwork>
             </figure>
@@ -3931,9 +3901,9 @@ Layer         |TLS    |  |DTLS  |
           </section>
 
           <t>The request contains a list of kind-ids which the FIND is for, as
-          indicated below.</t>
+          indicated below:
 
-          <t><list style="hanging">
+	  <list style="hanging">
               <t></t><t hangText="resource "></t><t>The desired resource-id</t>
 
               <t></t><t hangText="kinds "></t><t>The desired kind-ids. Each value MUST only
@@ -3949,7 +3919,6 @@ Layer         |TLS    |  |DTLS  |
               <!--begin-pdu-->
 
               <artwork><![CDATA[
-
   struct {
     KindId                      kind;
     ResourceID                  closest;
@@ -3996,7 +3965,40 @@ Layer         |TLS    |  |DTLS  |
             data stored at these resource-ids. If the requester wants this, it
             must retrieve it using FETCH.</t>
           </section>
+           <section title="Defining New Kinds">
+             <t>
+               A new kind MUST define:
+             </t>
+               <t><list style="symbols">
+                  <t>The meaning of the data to be stored.</t>
+                  <t>The kind-id.</t>
+                  <t>The data model (single value, array,
+                  dictionary, etc.)</t>
+                  <t>Access control rules for indicating what credentials
+                  are allowed to read and write that kind-id at a given
+                  location.</t>
+
+                  <t>The minimum amounts of data that a conformant
+                  implementation MUST be willing to store.</t>
+               </list>
+               </t>
+
+               <t>While each kind MUST define what data model is used for its data,
+               that does not mean that it must define new data models. Where
+               practical, kinds SHOULD use the built-in data models. However, they MAY
+               define any new required data models. The intention is that the basic
+               data model set be sufficient for most applications/usages.</t>
+
+               <t><list style="hanging">
+                  <t></t><t hangText="Note:">New usages MAY reuse existing kind-ids. New
+                  kind-ids only need to be defined where different data is stored or
+                  different behavior is required.</t>
+               </list>
+               </t>
+           </section>
+
         </section>
+
       </section>
     </section>
 
@@ -4009,11 +4011,11 @@ Layer         |TLS    |  |DTLS  |
 
       <t>In addition, a node may need to connect to another node for the
       purposes of an application connection. In the case of SIP, when a node
-      has looked up the target AOR in the DHT, it will obtain a Node-ID that
+      has looked up the target AOR in the DHT, it will obtain a peer-id that
       identifies that peer. The next step will be to establish a "direct"
       connection for the purposes of performing SIP signaling.</t>
 
-      <t>In both of these cases, the node starts with a destination Node-ID,
+      <t>In both of these cases, the node starts with a destination peer-id
       and its objective is to create a connection (ideally using TCP, but
       falling back to UDP when it is not available) to the node with that
       given Node-ID. The establishment of this connection is done using the
@@ -4058,6 +4060,8 @@ Layer         |TLS    |  |DTLS  |
         fingerprint mechanism of RFC 4572 <xref target="RFC4572"></xref>,
         which will reveal that the TLS and DTLS certificates do not match the
         ones used to sign the RELOAD messages.</t>
+
+	<!-- [TODO: EKR: remove fingerprint? Does this make sense? --> 
 
         <t>An agent follows the ICE specification as described in <xref
         target="I-D.ietf-mmusic-ice"></xref> and <xref
@@ -4292,7 +4296,7 @@ Layer         |TLS    |  |DTLS  |
          array.</t>
 
          <t></t><t hangText="Access Control">The CERTIFICATE MUST contain a
-         peer-id or user name which, when hashed, maps the resource-id at
+         peer-id or user name which, when hashed, maps to the resource-id at
          which the value is being stored.</t>
 
          <t></t><t hangText="Data Sizes">Peers MUST be prepared to store at least
@@ -4363,7 +4367,7 @@ Layer         |TLS    |  |DTLS  |
 	</t>
 	<t>
 	  <list style="symbols">
-	    <t>Registering a user AOR with the overlay.</t>
+	    <t>Registering one's own AOR with the overlay.</t>
 	    <t>Looking up a given AOR in the overlay.</t>
 	    <t>Forming a direct connection to a given peer.</t>
 	  </list>
@@ -4383,7 +4387,9 @@ Layer         |TLS    |  |DTLS  |
 	    if Alice's
 	    AOR were "sip:alice@dht.example.com" and her peer-id
 	    were "1234", she might store
-	    the mapping "sip:alice@example.org -> 1234".
+	    the mapping "sip:alice@example.org -> 1234". This
+	    would tell anyone who wanted to call Alice to contact
+	    node "1234".
 	  </t>
 	  <t>
 	    RELOAD peers are allowed to store two kinds of SIP mappings:
@@ -4402,7 +4408,7 @@ Layer         |TLS    |  |DTLS  |
 	  <t>
 	    The meaning of the first kind of mapping is "in order to contact
 	    me, form a connection with this peer." The meaning of the
-	    The second kind of mapping is "in order to contact me, 
+	    second kind of mapping is "in order to contact me, 
 	    dereference this AOR". This allows for forwarding. For instance,
 	    if Alice wants calls to her to be forwarded to her secretary,
 	    Sam, she might insert the following mapping 
@@ -4476,6 +4482,10 @@ Layer         |TLS    |  |DTLS  |
 	      <t>her cell phone (5678)</t>
 	    </list>
 	  </t>
+	  <t>
+	    Alice might store the following in the overlay.
+	  </t>
+
 	  <figure>
             <artwork><![CDATA[
 	    sip:alice@dht.example.com:    1234 -> 1234
@@ -4489,6 +4499,7 @@ Layer         |TLS    |  |DTLS  |
 	    set calls to her desk phone to ring at her cell phone.
 	    It's not clear that this is useful in this case, but
 	    may be useful if Alice has two AORs.
+	    [TODO: EKR: ??? ]
 	  </t>
 	  <t>
 	    In order to prevent call theft, registrations are subject
@@ -4520,14 +4531,14 @@ Layer         |TLS    |  |DTLS  |
 	    (GRUUs are discussed in [XREF]).
 	  </t>
 	  <t>
-	    <list style="symbols">
+	    <list style="numbers">
 	      <t>
 		Check to see if the domain part of the AOR matches
 		the domain name of an overlay of which he is a
 		member. If not, then this is an external AOR,
 		and he MUST do one of the following:
 		
-		<list style="numbers">
+		<list style="symbols">
 		  <t>Fail the call.</t>
 		  <t>Use ordinary SIP procedures.</t>
 		  <t>
@@ -4550,7 +4561,7 @@ Layer         |TLS    |  |DTLS  |
 	      </t>
 	      <t>
 		Once only GRUUs and destination
-		lists remain, the peer converts the peer
+		lists remain, the peer 
 		removes duplicate destination
 		lists and GRUUs from the list and forms a SIP
 		connection to the appropriate peers as described in
@@ -4572,15 +4583,13 @@ Layer         |TLS    |  |DTLS  |
 	    certificate-based authentication is in use, the responding peer MUST
 	    present a certificate with a peer-id matching the terminal entry in
 	    the route list.
-	  </t>
-	  <t>
-	    Once the CONNECT
-	    succeeds, the peer sends SIP messages over the
-	    connection as in normal SIP.
 	    Note that it is possible that the peers already
 	    have a RELOAD connection between them. This MUST NOT
 	    be used for SIP messages. However, if a SIP connection
-	    already exists, taht MAY be used.
+	    already exists, that MAY be used.
+	    Once the CONNECT
+	    succeeds, the peer sends SIP messages over the
+	    connection as in normal SIP.
 	  </t>
 	</section>
 	<section title="GRUUs">
@@ -4642,8 +4651,6 @@ Layer         |TLS    |  |DTLS  |
             <t>
               Data stored under the SIP-REGISTRATION kind is of type
               SipRegistration. This comes in two varieties:
-            </t>
-            <t>
               <list style="hanging">
                 <t></t><t hangText="sip_registration_uri "></t><t>a URI
                 which the user can be reached at.</t>
