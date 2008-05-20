@@ -527,9 +527,10 @@ Layer         |TLS    |  |DTLS  |
           peers, or gateways (for example, a SIP gateway between a traditional
           SIP and a P2P SIP network called "example.com").</t>
 
-          <t></t><t hangText="Resource-ID:">A value that is not human friendly to
-          read and identifies some resources and which is used as a key for
-          storing and retrieving the resource. One way to generate a
+          <t></t><t hangText="Resource-ID:">A value that
+	  identifies some resources and which is used as a key for
+          storing and retrieving the resource. Often this is not 
+	  human friendly/readable. One way to generate a
           Resource-ID is by applying a mapping function to some other unique
           name (e.g., user name or service name) for the resource. The
           Resource-ID is used by the distributed database algorithm to
@@ -543,8 +544,8 @@ Layer         |TLS    |  |DTLS  |
           virtue of its participation it can store data and is responsible for
           some portion of the overlay.</t>
 
-          <t></t><t hangText="Peer-ID:">A value that uniquely identifies a peer.
-          Peer-IDs 0 and 2^N - 1 are reserved and are invalid peer-IDs. A
+          <t></t><t hangText="Peer-ID:">A 128-bit value that uniquely identifies a peer.
+          Peer-IDs 0 and 2^128 - 1 are reserved and are invalid peer-IDs. A
           value of zero is not used in the wire protocol but can be used to
           indicate an invalid peer in implementations and APIs. The peer-id of
           2^N-1 is used on the wire protocol as a wildcard.</t>
@@ -552,8 +553,8 @@ Layer         |TLS    |  |DTLS  |
           <t></t><t hangText="Resource:">An object associated with a string
           identifier. In unstructured P2P networks, the identifier is used
           directly as a Resource-Id. In structured P2P networks the identifier
-          can be mapped into a Resource-ID by using the string as the input to
-          the hash function. A SIP resource, for example, is identified by its
+	  can be mapped into a Resource-ID by using the string as the input to
+          hash function. A SIP resource, for example, is often identified by its
           AOR.</t>
 
           <t></t><t hangText="User:">A human being.</t>
@@ -588,8 +589,7 @@ Layer         |TLS    |  |DTLS  |
           kinds.</t>
 
           <t></t><t hangText="Destination List:">A list of IDs through which a
-          message is to be routed. This allows for request/response source
-          routing. A single ID is a trivial form of destination list.</t>
+          message is to be routed. A single peer-id is a trivial form of destination list.</t>
         </list></t>
     </section>
 
@@ -632,13 +632,14 @@ Layer         |TLS    |  |DTLS  |
              static key which is used for admission control. Nodes choose their
              own peer-ids and there is no cryptographic mechanism from distinguishing
              one node from another. This model is only suitable for use in
-             closed environments where nodes are not mutually suspicious.
+             closed environments where nodes are mutually trusted.
            </t>
            <section anchor="sec-cert-security" title="Certificate-Based Security">
              <t>The certificate-based security model revolves around the
              enrollment process allocating a unique name to the user and issuing
              a certificate <xref target="RFC3280"></xref> for a public/private
-             key pair for the user. All peers in a particular DHT can verify
+             key pair for the user. All peers in a particular DHT instance
+	     can verify
              these certificates. A given peer acts on behalf of a user, and that
              user is responsible for its operation.</t>
 
@@ -648,10 +649,10 @@ Layer         |TLS    |  |DTLS  |
                <t>
                   It entitles the user to store data at specific locations in
                   the DHT. Each kind defines the specific rules for determining
-                  which certificates can access each Hashed-ID/kind-id pair. For
+                  which certificates can access each resource-ID/kind-id pair. For
                   instance, some kinds might allow anyone to write at a given
-                  location, whereas others might restrict writes to a single
-                  certificate.
+                  location, whereas others might restrict writes to the
+		  owner of a single certificate.
                </t>
 
                <t>
@@ -690,7 +691,7 @@ Layer         |TLS    |  |DTLS  |
                the enrollment server.</t>
 
                <t>A serial number that is unique to this certificate across all
-               the certificates issued for this DHT.</t>
+               the certificates issued for this DHT instance.</t>
 
                <t>
                   An expiration time for the certificate. At some point before the
@@ -710,7 +711,7 @@ Layer         |TLS    |  |DTLS  |
 
            <section anchor="sec-shared-key" title="Shared-Key Security">
              <t>RELOAD also defines a shared-key security model which can be used
-             in closed networks where the peers are not mutually suspicious. In
+             in closed networks where all peers are trusted. In
              this model, the peers all share a single key which is used to
              authenticate the peer-to-peer DTLS connections via TLS-PSK/TLS-SRP.
              If shared-key security mode is in use, a shared-key capable cipher
@@ -1283,7 +1284,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  Once the peer has connected to a bootstrap node, it
 	  then can use overlay routing to 
 	  contacts the peer which would have formerly been responsible for the
-	  peer's Resource-ID (since that is where in the DHT the peer will be
+	  peer's peer-id (since that is where in the DHT the peer will be
 	  joining), the Admitting Peer (AP). It copies the other peer's state,
 	  including the data values it is now responsible for and the
 	  identities of the peers with which the other peer has direct
@@ -1297,7 +1298,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  <t>JP sends a JOIN request to AP announcing its intention to
 	  join.</t>
 
-	  <t>AP sends an JOIN response.</t>
+	  <t>AP sends a JOIN response.</t>
 
 	  <t>AP does a sequence of STOREs to JP to give it the data it
 	  will need.</t>
@@ -1461,7 +1462,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         <t>[TODO: HGS; this needs bridge text to explain what application
          support is.]</t>
       <section title="Data Model">
-         <t>[TODO: HGS; hopefully the intro to the enclosing sxn will
+         <t>[TODO: HGS; hopefully the intro to the enclosing section will
           explain what a Data Storage Layer is.]</t>
          <t>The Data Storage Layer provides operations to STORE, FETCH, and
          REMOVE data. Each location in the DHT is referenced by a single
@@ -2011,25 +2012,18 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          There are three possible cases here:</t>
 
          <t><list style="symbols">
-           <t>The first entry on the destination list is a private id
-           which is being used for destination list compression.</t>
-
            <t>The first entry on the destination list is an id for which
            the peer is responsible.</t>
 
-           <t>The first entry on the destination list is for which
+           <t>The first entry on the destination list is a
+	   an id for which
            another peer is responsible.</t>
+
+           <t>The first entry on the destination list is a private id
+           which is being used for destination list compression.</t>
          </list></t>
 
          <t>These cases are handled as discussed below.</t>
-
-         <section anchor="sec-private-peer-id" title="Private ID">
-           <t>If the first entry on the destination list is a private id,
-           the peer replaces that entry with the stored local value that it
-           indexes and then re-examines the destination list to determine
-           which case now applies.</t>
-         </section>
-
          <section anchor="sec-responsible-id" title="Responsible ID">
            <t>If the first entry on the destination list is a Hashed-ID for
            which the peer is responsible, the peer strips the entry off the
@@ -2065,7 +2059,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            next node (E) with via list (A, B, C). Now, if E wants to
            respond to the message, it reverses the via list to produce the
            destination list, resulting in (D, C, B, A). When D forwards the
-           response to C, the destination list will contain (B, A).
+           response to C, the destination list will contain (C, B, A).
            However, node D could also list compression and send E the via
            list (X). E would then use the destination list (D, X). When D
            processes this destination list, it MUST detect that X is a
@@ -2075,9 +2069,16 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
            <t>Note that if a peer is using list compression and then exits
            the overlay, the message cannot be forwarded and will be
-           dropped. The ordinary timeout and retransmission networks
+           dropped. The ordinary timeout and retransmission mechanisms
            provide stability over this type of failure.</t>
           </section>
+
+         <section anchor="sec-private-peer-id" title="Private ID">
+           <t>If the first entry on the destination list is a private id,
+           the peer replaces that entry with the stored local value that it
+           indexes and then re-examines the destination list to determine
+           which case now applies.</t>
+         </section>
 
          </section>
 
@@ -2145,10 +2146,10 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            
            <section anchor="sec-presentation-language" title="Presentation Langauge">
              <t>
-               Most of the structures defined in this document (with the exception
-               of the forwarding header defined in the next section) are defined
-               using a C-like syntax based on the presentation language used to define TLS.
-	       Advantages of this style include:
+               Most of the structures defined in this document (with
+	       the exception of the forwarding header defined in the next section)
+	       are defined using a C-like syntax based on the presentation language
+	       used to define TLS.  Advantages of this style include:
              </t>
              <t>
                <list style="symbols">
@@ -2176,8 +2177,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
                </list>
              </t>
              <t>
-               For instance, "uint16 array&lt;0..256&gt;;" represents up to 256 bytes
-               but only up to 128 values of two bytes (16 bits) each..
+               For instance, "uint16 array&lt;0..2^8-2&gt;;" represents up to 254 bytes
+               but only up to 127 values of two bytes (16 bits) each..
              </t>
              <section anchor="sec-definitions" title="Common Definitions">
                <t>
@@ -2185,8 +2186,26 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
                  defined here. They also provide a convenient introduction to how
                  to read the presentation language.
                </t>
-	       
 	       <t>
+		 An enum represents an enumerated type. The values
+		 associated with each possibility are represented in
+		 parentheses and the maximum value is represented
+		 as a nameless value, for purposes of describing
+		 the width of the containing integral type. For 
+		 instance, Boolean represents a true or false:
+	       </t>
+	       <figure>
+		 <!--begin-pdu-->
+		 <artwork><![CDATA[
+       enum { false (0), true(1), (255)} Boolean;
+       ]]>
+		 </artwork>
+	       </figure>
+	       <t>
+		 A boolean value is either a 1 or a 0 and is represented
+		 as a single byte on the wire.
+	       </t>
+		<t>
 		 The PeerId, shown below, represents a single peer-id.
 	       </t>
          <figure>
@@ -2224,7 +2243,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	   03 46 4f 4f.
          </t>
          <t>
-           A more complicated example is Address,
+           A more complicated example is IpAddressPort,
 	   which represents a network address and
            can be used to carry either an IPv6 or IPv4 address:
          </t>
@@ -2233,7 +2252,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            <!--begin-pdu-->
            <artwork><![CDATA[
 
-      enum {ip4_address (1), ip6_address (2)} AddressType;
+      enum {reserved(0), ip4_address (1), ip6_address (2), (255)} 
+           AddressType;
       
       struct  {
         uint32                  addr;
@@ -2259,7 +2279,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
           /* This structure can be extended */
 
-       } Address;
+       } IpAddressPort;
 
        ]]></artwork>
          </figure>
@@ -2278,11 +2298,11 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            By having the type and the length appear at the beginning
            of the structure regardless of the kind of address being
            represented, an implementation which does not understand
-           new address type X can still parse the Address field 
+           new address type X can still parse the IpAddressPort field 
            and then discard it if it is not needed.
          </t>
          <t>
-           The rest of the Address structure is either an IPv4AddrPort
+           The rest of the IpAddressPort structure is either an IPv4AddrPort
            or an IPv6AddrPort. Both of these simply consist of an
            address represented as an integer and a 16-bit port.
            As an example, here is the wire representation of 
@@ -2457,7 +2477,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            
            <artwork><![CDATA[
 
-      enum {peer(0), resource(1), compressed(2), (255) }
+      enum {reserved(0), peer(2), resource(2), compressed(3), (255) }
            DestinationType;
       
      
@@ -2585,14 +2605,14 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
             <!-- begin-pdu-->
             <artwork><![CDATA[
 
-       enum { tcp_tls(0),  udp_dtls(1),  (255)}  Transport;
+       enum { reserved(0), tcp_tls(1),  udp_dtls(2),  (255)}  Transport;
 
        struct {
          opaque                 version<0..255>;    /* A string */
          Transport              transport;          /* TCP or UDP */
-         peer_id                id; 
+         PeerId                 id; 
          uint32                 uptime;
-         AddressPort            address;
+         IpAddressPortPort      address;
          opaque                 certificate<0..2^16-1>;
        } RouteLogEntry;
 
@@ -2641,7 +2661,6 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            <artwork><![CDATA[
        struct {
          MessageCode            message_code;
-         uint16                 reserved;
          opaque                 payload<0..2^24-1>;
        } MessageContents;
        
@@ -2666,8 +2685,6 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               corresponding response being the request code plus 1. Thus,
               PING_Q (the PING request) has value 1 and PING_A (the PING
               response) has value 2</t>
-
-              <t></t><t hangText="0x8000 .. 0xfffe">Reserved</t>
 
               <t></t><t hangText="0xffff">Error</t>
             </list></t>
@@ -2791,9 +2808,9 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
             <artwork><![CDATA[
 
 
-       enum {signer_identity_peer (1), signer_identity_name (2),
-          signer_identity_certificate (3)} SignerIdentityType;
-
+       enum {reserved(0), signer_identity_peer (1), 
+             signer_identity_name (2), signer_identity_certificate (3), 
+             (255)} SignerIdentityType;
 
        select (identity_type) {
          case signer_identity_peer:
@@ -2830,7 +2847,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
           <t><list style="hanging">
               <t></t><t hangText="algorithm "></t><t>The signature algorithm in use.
-              The definitions for this PDU come from [REF: TLS 1.2]</t>
+              The algorithm definitions are found in the IANA 
+	      TLS SignatureAlgorithm Registry.</t>
 
               <t></t><t hangText="identity "></t><t>The identity or certificate used to
               form the signature</t>
@@ -2917,13 +2935,26 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           peer wishes to assume. DHTs MAY specify other data to appear in
           this request.</t>
 
-          <t>The responding peer responds with success or failure. If
-          the request succeeds, the responding peer MUST follow up by
+          <t>If the request succeeds,
+	  the responding peer responds with a JOIN_A message, 
+	  as defined below:</t>
+          <figure>
+            <!--begin-pdu-->
+            <artwork><![CDATA[
+       struct {
+          opaque                dht_specific_data<0..2^16-1>;
+       } JoinQ;
+              ]]></artwork>
+          </figure>
+
+	<t>
+	  If the request succeeds, the responding peer MUST follow up by
 	  executing the right sequence of
           STOREs and UPDATEs to transfer the appropriate section of the
           overlay space to the joining peer. In addition, DHTs MAY define data
-          to appear in the response payload.</t>
+          to appear in the response payload that provides additional info.</t>
         </section>
+
 
         <section title="LEAVE">
 
@@ -3002,8 +3033,6 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               <!--begin-pdu-->
 
               <artwork><![CDATA[
-       enum { false (0), true(1), (255)} Boolean;
-
        struct {
          Boolean                send_update;
          Destination            destination;
@@ -3037,8 +3066,14 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               <!--begin-pdu-->
               <artwork><![CDATA[
       struct {
-        PeerId                  next_peer;
-        Address                 next_addr;
+        PeerId                  next_id;
+	
+	select (IterativeAllowed) {
+          case True:
+            IpAddressPort           next_addr;
+          
+          case False:               /* Empty*/
+        };
       } RouteQueryA;
 
               ]]></artwork>
@@ -3153,7 +3188,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
                 </t>
                 <t></t><t hangText="received "></t><t>
                   A bitmask indicating whether or not
-                  each of the previous 32 packets has been received. The high
+                  each of the previous 32 packets has been received before
+		  the sequence number in ack_sequence. The high
                   order bit represents the first packet in the sequence
                   space.
                 </t>
@@ -3221,7 +3257,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           <t>Upon receipt of a fragmented message by the intended peer, the
           peer holds the fragments in a holding buffer until the entire
           message has been received. The message is then reassembled into a
-          single unfragmented message and processed. In order to prevent
+          single unfragmented message and processed. In order to mitigate
           denial of service attacks, receivers SHOULD time out incomplete
           fragments. [[TODO: Describe algorithm]]</t>
         </section>
@@ -3545,7 +3581,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
       The contents of this structure are as follows:
       <list style="hanging">
       <t></t><t hangText="length "></t><t>The length of the rest of the
-      structure.</t>
+      structure in octets.</t>
 
       <t></t><t hangText="storage_time "></t><t>The time when the data was stored
       in absolute time, represented in seconds since the Unix epoch.
@@ -3640,8 +3676,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           <!--begin-pdu-->
           <artwork><![CDATA[
                     
-      enum { single_value(0), array(1), dictionary(2), (255)} 
-             DataModel;
+      enum { reserved(0), single_value(1), array(2), 
+             dictionary(3), (255)} DataModel;
       
       select (DataModel) {
         case single_value:
@@ -3745,7 +3781,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
        typedef opaque           DictionaryKey<0..2^16-1>;
               
        struct {
-         DictionaryKey          key<0..2^^16-1>;
+         DictionaryKey          key<0..2^16-1>;
          opaque                 value<0..2^32-1>;
        } DictionaryEntry;
 
@@ -4007,7 +4043,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         uint16                  length;
         
         select (kind) {
-          case single_value: {};    /* Empty */
+          case single_value: ;    /* Empty */
 
           case array:
                int32            first;
@@ -4057,7 +4093,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
                 <t></t><t hangText="model "></t><t>The data model of the data.</t>
 
                 <t></t><t hangText="generation "></t><t>The last generation counter that
-                the requesting peer saw. This is used to avoid unnecessary
+                the requesting peer saw. This may be used to avoid unnecessary
                 fetches.</t>
 
                 <t></t><t hangText="length "></t><t>The length of the rest of the structure,
@@ -4668,8 +4704,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          peer-id or user name which, when hashed, maps to the resource-id at
          which the value is being stored.</t>
 
-         <t></t><t hangText="Data Sizes">Peers MUST be prepared to store at least
-         10 certificates of sizes up to 1K each.</t>
+         <t></t><t hangText="Data Sizes">[TODO: EKR: Maximum size...]</t>
       </list></t>
     </section>
       <section title="SIP Usage">
@@ -4852,16 +4887,15 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	    </list>
 	  </t>
 	  <t>
-	    Alice might store the following in the overlay.
+	    Alice might store the following in the overlay at
+	    resource "sip:alice@dht.example.com".
+	    <list style="symbols">
+	      <t>A SipRegistration of type "sip_registration_route"
+	      with dictionary key "1234" and value "1234".</t>
+	      <t>A SipRegistration of type "sip_registration_route"
+	      with dictionary key "5678" and value "5678".</t>
+	    </list>
 	  </t>
-
-	  <figure>
-            <artwork><![CDATA[
-	    sip:alice@dht.example.com:    1234 -> 1234
-                                          5678 -> 5678
-	    ]]>
-	    </artwork>
-	  </figure>
 	  <t>
 	    Note that this structure explicitly allows one peer-id to
 	    forward to another peer-id. For instance, Alice could
@@ -4871,7 +4905,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	    [TODO: EKR: ??? ]
 	  </t>
 	  <t>
-	    In order to prevent call theft, registrations are subject
+	    In order to prevent hijacking, registrations are subject
 	    to access control rules. Before a STORE is permitted,
 	    the storing peer MUST check that:
 	  </t>
@@ -4926,7 +4960,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	      </t>
 	      <t>
 		If any of the results of the FETCH are non-GRUU
-		AORs, then repeat step 1.	    
+		AORs, then repeat step 1 for that AOR.
 	      </t>
 	      <t>
 		Once only GRUUs and destination
@@ -4975,8 +5009,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  <t>
 	    Because a GRUU contains a destination list, it MAY have the
 	    same contents as a destination list stored elsewhere in the
-	    resource dictionary. [[TODO: How to handle this? Omit
-	    one? use both?]]
+	    resource dictionary. 
 	  </t>
           <t>
 	    Anonymous GRUUs are done in roughly the same way but require
@@ -5166,9 +5199,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         <section title="State Acquisition Mechanisms">
           <t>The protocol provides a DIAGNOSTIC method [TODO] which queries
           the peer for its routing state, average bandwidth, CPU utilization,
-          and storage state. The DIAGNOSTIC request should typically be sent
-          over a reliable transport protocol as the response will likely
-          exceed UDP MTU size. The state acquisition mechanism can be used to
+          and storage state. The state acquisition mechanism can be used to
           construct a local view of the connectivity state of the system. It
           can also be used to construct a geographical map of the system.</t>
 
