@@ -38,7 +38,7 @@
     </author>
 
     <author fullname="Bruce B. Lowekamp" initials="B. B." surname="Lowekamp">
-      <organization>SIPeerior; William &amp; Mary</organization>
+      <organization>SIPeerior Technologies</organization>
 
       <address>
         <postal>
@@ -721,8 +721,139 @@ Layer         |TLS    |  |DTLS  |
            </section>
          </section>
       <section title="Nodes, Clients and Peers">
-         <t>[TODO: BBL]</t>
-      </section>
+ 	<t>RELOAD defines a single protocol that is used both as the
+ 	  peer protocol and client protocol for the overlay.  This
+ 	  simplifies implementation, particularly for devices that may
+ 	  act in either role, and allows clients to inject messages
+ 	  directly into the overlay.</t>
+ 
+         <t>TODO: this will have been covered in intro or prev section?  We use the
+           term peer to identify a node in the overlay routes messages
+           other than those to which it is directly connected.  Peers
+           typically also have storage responsibilities although some
+           overlays may also assign storage responsibilities to
+           non-routing nodes.  We use clients to refer to nodes that have
+           no routing responsibilities and typically connect only to a
+           single peer for access to the resources in the overlay.  When
+           text refers to either peers or clients, we will simply refer
+           to such a device as a node.</t>
+ 
+         <section title="Peer-capable Clients">
+           <t>Each peer in the overlay is provisioned with a
+             certificate that provides its Node-ID, joins the overlay,
+             and assumes routing responsibility for its portion of the
+             overlay.  However, there are many reasons why a capable node 
+             may not wish to serve as a full
+             peer <xref target="I-D.pascual-p2psip-clients"></xref>.
+             Perhaps two of the most important are:</t>
+ 
+           <t><list style="symbols">
+               <t>The node does not have appropriate network
+                 connectivity---typically because it is behind an overly
+                 restrictive NAT.</t>
+ 
+               <t>The node may not have sufficient resources, such as
+                 computing power, storage space, or battery power.</t>
+ 
+               <t>The overlay algorithm may dictate specific
+                 requirements for peer selection.  These may include
+                 participation in the overlay to determine
+                 trustworthiness or simply to control the number of peers
+                 in the overlay to reduce overly-long routing paths.</t>
+           </list></t>
+ 
+           <t>While there are many more reasons, the ultimate criteria
+             for an eligible peer is determined by the overlay algorithm
+             and specific deployment.</t>
+ 
+           <t>RELOAD's support for peer-capable clients allows nodes
+             that are not participating in the overlay as peers to
+             utilize the same implementation and to benefit from the same
+             security mechanisms as the peers.  Under this scenario a
+             client uses its Node-ID to identify itself and its requests
+             in the same manner as a peer.  There are two routing options
+             for such a client:</t>
+ 
+           <t><list style="symbols">
+               <t>Establish a connection to the peer responsibile for
+                 the client's Node-ID in the overlay. Then requests may
+                 be sent from/to the client using its Node-ID in the same
+                 manner as if it were a peer, because the responsible
+                 peer in the overlay will handle the final step of
+                 routing to the client.</t>
+ 
+               <t>Establish a connection with an arbitrary peer in the
+                 overlay (perhaps based on network proximity or an
+                 inability to establish a direct connection with the
+                 responsible peer).  In this case, the client will rely
+                 on RELOAD's Via List feature to ensure reachability.
+                 The client can initiate requests, and any node in the
+                 overlay that knows the Via List to its current location
+                 can reach it, but it is not arbitrarily reachable
+                 directly using only the client's Node-ID.  (Note that it
+                 may be possible to extend the protoocl by including a
+                 usage that would allow the client to store a resource at
+                 its Node-ID in the overlay redirecting to its current
+                 Via List.)</t>
+           </list></t>
+ 
+           <t>In all of these scenarios, the client speaks the same
+             protocol as the peers, knows how to calculate Resource-IDs,
+             and signs its requests in the same manner as peers.  While a
+             client does not necessarily require a full implementation of
+             the overlay algorithm, calculating the Resource-ID requires
+             an implementation of the appropriate algorithm for the
+             overlay.</t>
+ 
+         </section>
+ 
+         <section title="Clients with Limited Functionality">
+           <t>In order to exchange RELOAD messages with a peer, a
+             client must meet a minimum level of functionality.  Such a
+             client must:</t>
+           
+           <t><list style="symbols">
+               <t>Implement RELOAD's connection-management connections
+                 that are used to establish the connection with the
+                 peer.</t>
+               <t>Implement RELOAD's data storage and retrieval
+                 methods (with client functionality).</t>
+               <t>Be able to calculate Resource-IDs used by the
+                 overlay.</t>
+               <t>Possess security credentials required by the overlay
+                 it is implementing.</t>
+           </list></t>
+ 
+           <t>Such a client will be participating in the overlay as
+             described in the previous section, but be unable to be
+             promoted to a peer.</t>
+ 
+           <t>RELOAD does not support a separate protocol for clients
+             that do not meet these functionality requirements.  Any
+             such extension would either entail compromises on the
+             features of RELOAD or require an entirely new protocol to
+             reimplement the core features of RELOAD.  Furthermore, for
+             P2PSIP and many other applications, a native
+             application-level protocol already exists that is
+             sufficient for such a client, as described in the next
+             section.</t>
+ 
+         </section>
+ 
+         <section title="Clients as Application-level Agents">
+           <t>SIP defines an extensive protocol for registration and
+             security between a client and its registrar/proxy
+             server(s).  Any SIP device can act as a client of a
+             RELOAD-based P2PSIP overlay if it contacts a peer that
+             implements the server-side functionality required by the
+             SIP protocol.  TODO Such an overlay would also require a
+             security scheme that allows such a peer to authenticate a
+             registration of resources for such a client (or just
+             require the proxy to have its clients' keys).  </t>
+ 
+         </section>
+ 
+       </section>
       <section title="Connectivity Management">
 	<t>
 	  In order to provide efficient routing, a peer needs to maintain
@@ -764,86 +895,280 @@ Layer         |TLS    |  |DTLS  |
 	</t>
       </section>
       <section title="Routing">
-         <t>[TODO: BBL; this needs reflow]</t>
-          <t>The way routing works in a DHT is specified by the specific DHT
-          algorithm but the basic concepts are common to most systems. Each
-          peer maintains connections to some other set of peers N. There need
-          not be anything special about the peers in N, except that the peer
-          has a direct connection to them: it can reach them without going
-          through any other peer. When it wishes to deliver a message to some
-          peer P, it selects some member of N, N_i that is closer to P than
-          itself (as a degenerate case, P may be in N). The peer sends the
-          message to N_i. At this point two things can happen:</t>
 
-          <t><list style="hanging">
-              <t></t><t hangText="Recursive Routing:">N_i repeats the same process as
-              P, sending the message to one of its peers N_j. This same
-              process repeats until the message is delivered to N.</t>
+        <t>This section will discuss the requirements RELOAD's routing
+          capabilities must meet, then describe the routing features in
+          the protocol, and provide a brief overview of how they are
+          used.  The section will conclude by discussing some
+          alternative designs and the tradeoffs that would be
+          necessary to support them.</t>
 
-              <t></t><t hangText="Iterative Routing:">N_i consults its table of
-              direct connections and selects a new peer N_j which is closer to
-              N. It responds to the original sending peer with a redirect to
-              N_j. The original peer then sends the message to N_j, where the
-              process repeats until the sending peer is redirected to N.</t>
+        <t>RELOAD's routing capabilities must meet the following
+          requirements:</t>
+        
+        <t><list style="hanging">
+            <t hangText="NAT Traversal">RELOAD must support
+              establishing and using connections between nodes
+              separated by one or more NATs, including locating
+              peers behind NATs for those overlays
+              allowing/requiring it.</t>
+            <t hangText="Clients">RELOAD must support requests from
+              and to clients that do not participate in overlay
+              routing.</t>
+            <t hangText="Client promotion">RELOAD must support
+              clients that become peers at a later point as
+              determined by the overlay algorithm and
+              deployment.</t>
+            <t hangText="Low state">RELOAD's routing algorithms must
+              not require significant state to be stored on
+              intermediate peers.</t>
+        </list></t>
+        
+        <t>To meet these requirements, RELOAD's routing relies on two
+          basic mechanisms:</t>
+
+        <t><list style="hanging">
+            <t hangText="Via Lists">The forwarding header used by all
+              RELOAD messages contains both a Via List (built
+              hop-by-hop as the message is routed through the overlay)
+              and a Destination List (providing source-routing
+              capabilities for requests and return-path routing for
+              responses).</t>
+            <t hangText="ROUTE_QUERY">The ROUTE_QUERY method allows a
+              node to query a peer for the next hop it will use to
+              route a message.  This method is useful for diagnostics
+              and for iterative routing.</t>
+        </list></t>
+
+        <t>The basic routing mechanism used by RELOAD is symmetric
+          recursive.  We will first describe symmetric routing and
+          then discuss its advantages in terms of the requirements
+          discussed above.</t>
+
+        <t>Symmetric recursive routing requires a message follow the
+          path through the overlay to the destination without
+          returning to the originating node: each peer forwards the
+          message closer to its destination.  The return path of the
+          response is then the same path followed in
+          reverse. For example, a message following a route from A to
+          Z through B and X: </t>
+
+        <figure>
+          <artwork><![CDATA[
+INSERT LADDER DIAGRAM WITH VIA AND DST LISTS HERE
+              ]]></artwork>
+        </figure>
+
+        <t>Note that the preceding Figure does not indicate whether A
+          is a client or peer---A forwards its request to B and the
+          response is returned to A in the same manner regardless of
+          A's role in the overlay.</t>
+
+        <t>This Figure shows use of full via-lists by intermediate
+          peers B and X.  However, if B and X are willing to store
+          state, then they may elect to truncate the lists, save that
+          information internally, and return the response message
+          along the path from which it was received when the response
+          is received.  This option requires greater state on
+          intermediate peers but saves a small amount of bandwidth and
+          reduces the need for modifying the message enroute.
+          Selection of this mode of operation is a choice for the
+          individual peer---the techniques are mutually interoperable
+          even on a single message.</t>
+
+        <figure>
+          <artwork><![CDATA[
+INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
+              ]]></artwork>
+        </figure>
+
+        <t>For debugging purposes, a Route Log attribute is available
+          that stores information about each peer as the message is
+          forwarded.  </t>
+
+        <t>RELOAD also supports a basic iterative routing mode (where
+          the intermediate peers merely return a response indicating
+          the next hop, but do not actually forward the message to
+          that next hop themselves).  Iterative routing is implemented
+          using the ROUTE_QUERY method, which requests this behavior.
+          Note that iterative routing is selected only by the
+          initiating peer.  RELOAD does not support an intermediate
+          peer returning a response that it will not recursively route
+          the request---the willingness to perform that operation is
+          implicit in its role as a peer in the overlay.</t>
+
+        <section title="Routing Alternatives">
+
+          <t>Significant discussion has been focused on the selection
+            of a routing algorithm for P2PSIP.  This section discusses
+            the motivations for selection of symmetric recursive
+            routing for RELOAD and describes the extensions that would
+            be required to support additional routing algorithms.</t>
+
+          <section title="Iterative vs Recursive">
+            <t>Iterative routing has a number of advantages.  It is
+            easier to debug, consumes fewer resources on intermediate
+            peers, and allows the querying peer to identify and route
+            around misbehaving peers.  However, in the presence of
+            NATs iterative routing is intolerably expensive because a
+            new connection (using ICE) must be established for each
+            hop.</t>
+
+            <t>Iterative routing is supported through the ROUTE_QUERY
+            mechanism and is primarily intended for debugging.  It is
+            also the most reliable technique in the presence of
+            compromised peers or network transitivity because the
+            querying peer can evaluate the routing decisions made by
+            the peers at each hop and consider
+            alternatives [REF].</t>
+
+          </section>
+
+          <section title="Symmetric vs Forward response">
+            <t>An alternative to the symmetric recursive routing
+              method used by RELOAD is forward-only routing, where the 
+              response is routed to the requester as if it is a new
+              message initiating by the responder (in the previous
+              example, Z sends the response to A as if it was sending
+              a request).  Forward-only routing requires no state in
+              either the message or intermediate peers.</t>
+
+            <t>The drawback of forward-only routing is that it does
+              not work when the overlay is unstable.  For example, if
+              A is in the process of joining the overlay and is
+              sending a JOIN request to Z, it is not yet reachable via
+              forward routing.  Even if it is established in the
+              overlay, if network failures produce temporary
+              instablity, A may not be reachable (and may be trying to
+              stabilize its network connectivity via CONNECT
+              messages). </t>
+
+            <t>An extension to RELOAD that supports forward-only
+            routing but relies on symmetric responses as a fallback
+            would be possible, but due to the complexities of
+            determining when to use forward-only and when to fallback
+            to symmetric, we have chosen not to include it as an
+            option at this point.</t>
+          </section>
+
+          <section title="Direct Response">
+            <t>A highly desireable routing option is to return the
+              response directly to the querying node.  In the previous
+              example, if A encodes its IP address in the request,
+              then Z can simply deliver the response directly to A.
+              In the absence of NATs or other connectivity issues,
+              this is the optimal routing technique.</t>
+
+            <t>The challenge of implementing direct response is
+              implementing it in the presence of NATs.  There are a
+              number of complexities that must be addressed.  In this
+              discussion, we will continue our assumption that A
+              issued the request and Z is generating the response.</t>
+
+            <t><list style="symbols">
+                <t>The IP address listed by A may be unreachable,
+                  either due to NAT or firewall rules.  Therefore, a
+                  direct response technique must fallback to symmetric
+                  response.  The hop-by-hop ACKs used by RELOAD allow
+                  Z to determine when A has received the message (and
+                  the SSL negotiation will provide earlier
+                  confirmation that A is reachable), but this fallback
+                  requires a timeout that will increase the response
+                  latency whenever A is not reachable from Z.</t>
+
+                <t>Whenever A is behind a NAT it will have multiple
+                  candidate IP addresses, each of which must be
+                  advertised to ensure connectivity, therefore Z will
+                  need to attempt multiple connections to deliver the
+                  response.</t>
+                
+                <t>One (or all) of A's candidate addresses may route
+                  from Z to a different device on the Internet.  In
+                  the worst case these nodes may actually be running
+                  RELOAD on the same port.   Therefore, establishing a
+                  secure connection to authenticate A before
+                  delivering the response is absolutely necessary.
+                  This step diminishes the efficiency of direct
+                  response because TODO roundtrips are required before
+                  the message can be delivered.</t>
+
+                <t>If A is behind a NAT and does not have a connection
+                  already established with Z, there are only two ways
+                  the direct response will work.  The first is that A
+                  and Z are both behind the same NAT, in which case
+                  the NAT is not involved.  In the more common case,
+                  when Z is outside A's NAT, the response will only be
+                  received if A's NAT implements endpoint-independent
+                  filtering.  Because this is not the recommended
+                  filtering mode for
+                  NATs<xref target="RFC4787"></xref>, this ability
+                  is likely to become less common over time.</t>
             </list></t>
 
-          <t>The advantage of iterative routing is that it consumes less
-          resources for the intermediate peers; they only have to send
-          redirect messages rather than forwarding requests and responses. The
-          advantage of recursive routing is that it does not require the
-          sending or receiving peer to have a rich set of connections to other
-          nodes in the overlay. Thus, iterative routing is problematic in
-          NATed networks because there is no way to guarantee that a peer will
-          be able to form a connection to whatever peer it is redirected to.
-          In RELOAD, iterative routing is supported using the ROUTE-QUERY
-          request.</t>
+            <t>An extension to RELOAD that supports direct response
+            routing but relies on symmetric responses as a fallback
+            would be possible, but due to the complexities of
+            determining when to use forward-only and when to fallback
+            to symmetric, and the reduced performance for responses to
+            peers behind restrictive NATs, we have chosen not to
+            include it as an option at this point.</t>
 
-          <t>In most DHTs, the peers in N are selected in a particular way.
-          One common strategy is to have them arranged exponentially further
-          away from yourself so that any message can be routed in a O(log(N))
-          steps. The details of the routing structure depend on the DHT
-          algorithm, however, since it defines the distance metric and the
-          structure of the connection table.</t>
+          </section>
+          <section title="Relaying Peers">
+            <t><xref target="I-D.jiang-p2psip-sep">SEP</xref> has proposed
+              implementing a form of direct response by having A
+              identify a peer, Q, that will be directly reachable by
+              any other peer.  A uses CONNECT to establish a
+              connection with Q and advertises Q's IP address in the
+              request sent to Z.  Z sends the response to Q, which
+              relays it to A.  This then reduces the latency to two
+              hops, plus Z negotiating a secure connection to Q.</t>
+            
+            <t>This technique relies on the relative population of
+              nodes such as A that require relay peers and peers such
+              as Q that are capable of serving as a relay peer.  It
+              also requires nodes to be able to identify which
+              category they are in. </t>
+            
+            <t>An extension to RELOAD that supports relay peers is
+              possible, but due to the complexities of implementing
+              such an alternative, we have not added such a feature to
+              RELOAD at this point.  </t>
+          </section>
 
-          <t>In RELOAD, messages may either be REQUESTS or RESPONSES to
-          REQUESTS. Requests are routed as described above. In principle,
-          responses could be routed independently from requests. This is
-          called "Asymmetric" routing because requests and responses will
-          generally follow different paths through the network. Asymmetric
-          routing makes diagnosis of errors difficult because you need to be
-          able to acquire debugging information at multiple locations. In the
-          alternative strategy, called "Symmetric" routing, as requests travel
-          through the network they accumulate a history of the peers they
-          passed through and responses are routed in the opposite direction so
-          that they follow the same path in reverse. RELOAD supports both
-          flavors of routing.</t>
+          <section title="Symmetric Route Stability">
+            <t>A common concern about symmetric recursive routing has
+              been that one or more peers along the request path may
+              fail before the response is received.  The significance
+              of this problem essentially depends on the response
+              latency of the overlay---an overlay that produces slow
+              responses will be vulnerable to churn, whereas responses
+              that are delivered very quickly are vulnerable only to
+              failures that occur over that small interval.</t>
+            
+            <t>The other aspect of this issue is whether the request
+              itself can be successfully delivered.  Assuming typical
+              connection maintenance intervals, the time period
+              between the last maintenance and the request being sent
+              will be orders of magnitude greater than the delay
+              between the request being forwarded and the response
+              being received.  Therefore, if the path was stable
+              enough to be available to route the request, it is
+              almost certainly going to remain available to route the
+              response [REF: havethisneedtogetit].</t>
+            
+            <t>An overlay that is unstable enough to suffer this type
+              of failure frequently is unlikely to be able to support
+              reliable functionality regardless of the routing mechanism.</t>
 
-          <t>Symmetric routing is easier to debug. Symmetric routing is also
-          required when the overlay topology is changing. For example, when a
-          new peer is joining the overlay, asymmetric routing cannot work
-          because the response would not be able to reach the new peer until
-          it has completed the joining process. Symmetric routing solves this
-          situation because the response is routed from the admitting peer
-          through the bootstrap peer, thus relying on a path that is already
-          known and established. In order to implement symmetric routing,
-          RELOAD provides the Via List (<xref target="sec-via-list"></xref>)
-          feature. Asymmetric routing, however, requires no state to be stored
-          in the message (as a Via List) or in on-path peers.</t>
+            <t>Finally, because RELOAD retries the end-to-end request,
+              that retry will address the issues of churn that
+              remain.</t>
+          </section>
+        </section>
 
-          <t>[[TODO: again, this is a topic that needs WG discussion. It seems
-          like there are situations where symmetric is very desirable (e.g.,
-          startup). It's less clear that asymmetric will have a
-          performance/state difference that will be significant.]]</t>
-
-          <t>[[TODO: it's not clear that symmetric/asymmetric is really that
-          evocative a terminology. Henning suggested key-based/trace-based but
-          EKR doesn't like that. Other suggestions?]]</t>
-           
-           <t>[TODO: BBL; this is weirdly clumsy below. I'm not sure if we're
-           still talking about a forwarding layer, but this concept needs to be
-           introduced at the begining of this sxn, I think]</t>
-
-
+<!--
+            
         <t>The forwarding layer is responsible for looking at message and
         doing one of three things:</t>
 
@@ -859,13 +1184,14 @@ Layer         |TLS    |  |DTLS  |
             which peer the message needs to be forwarded to (based on the
             target peer-id or resource-id), and then sending the message.</t>
           </list></t>
+-->
 
-
+<!--
         <section anchor="sec-via-list" title="Via Lists">
-           <t>
-             [TODO: BBL; I would merge this into the symmetric section
-             and try to trim a bit.]
-           </t>
+	  <t>
+	    [TODO: BBL; I would merge this into the symmetric section
+	    and try to trim a bit.]
+	  </t>
           <t>In a general messaging system, messages need a source and a
           destination and peers need to be able to send a response to the peer
           that sent the request. This can be particularly tricky in overlay
@@ -917,28 +1243,7 @@ Layer         |TLS    |  |DTLS  |
           system when all peers see the response to any request they
           forward.</t>
         </section>
-
-        <section title="Clients">
-          <t>RELOAD also allows for the possibility of client nodes. A client
-          is a node with a peer-id which connects to an admitting peer (or
-          peers) like an ordinary peer but never sends a JOIN or an UPDATE. It
-          is therefore in the AP's connection table but not its routing table
-          and never is used to store any DHT data. However, because it is
-          reachable through the AP, it can still send and receive messages.
-          The client MUST still have the usual credentials. Also, because it
-          never sends JOINs it is never responsible for storing data.</t>
-
-          <t>Because the client may only have a connection to a single AP,
-          which, due to topology shifts may no longer be the responsible peer,
-          clients SHOULD use symmetric routing and should advertise route
-          lists that contain both the AP to which they are connected and
-          themselves. E.g., if the client has peer-id X and the AP has peer-id
-          Y, the client should advertise the destination list (Y, X). This
-          guarantees reachability.</t>
-
-          <t>Note that clients MAY also contact APs which are not in fact
-          responsible for the client's peer-id.</t>
-        </section>
+-->
       </section>
       <section title="Overlay Algorithm Support">
          <t>[TODO: UNKNOWN]</t>
@@ -1282,10 +1587,74 @@ Layer         |TLS    |  |DTLS  |
          <t>[TODO: UNKNOWN]</t>
       </section>
       <section title="Replication">
-         <t>[TODO: BBL]</t>
+	<t>Replication in P2P overlays can be used to provide:</t>
+
+        <t><list style="hanging">
+            <t hangText="persistence"> if the responsible peer crashes
+	      and/or if the storing peer leaves the overlay</t>
+            <t hangText="security"> to guard against DoS attacks by
+	      the responsible peer or routing attacks to that
+	      responsible peer</t>
+            <t hangText="load balancing"> to balance the load of
+	      queries for popular resources.</t>
+        </list></t>
+
+        <t>A variety of schemes are used in P2P overlays to achieve
+          some of these goals.  Common techniques include replicating
+          on neighbors of the responsible peer, randomly locating
+          replicas around the overlay, or replicating along the path
+          to the responsible peer.</t>
+
+        <t>The core RELOAD specification does not specify a particular
+          replication strategy.  Instead, the first level of
+          replication strategies are determined by the overlay
+          algorithm, which can base the replication strategy on the
+          its particular topology.  For example, Chord places replicas
+          on successor peers, which will take over responsibility
+          should the responsible peer fail.</t>
+        
+        <t>If additional replication is needed, for example if data
+          persistence is particularly important for a particular
+          usage, then that usage may specify additional replication,
+          such as implementing random replications by inserting a salt
+          into the keyword used to store a resource.  Such replication
+          strategies can be added independent of the underlying
+          algorithm, and their usage can be determined based on the
+          needs of the particular usage.</t>
+
       </section>
       <section title="Application Connectivity">
-         <t>[TODO: BBL]</t>
+        <t>There is no requirement that a RELOAD usage must use
+          RELOAD's primitives for establishing its own communication
+          if it already posesses its own means of establishing
+          connections.  For example, if a P2PSIP node registers a
+          simple SIP URI in an overlay, such as alice@example.com,
+          then conventional SIP resolution is applied to establish a
+          dialog.</t>
+        
+
+        <t>For more common situations, where the overlay itself is
+          used to establish a connection rather than an external
+          authority such as DNS, RELOAD provides connectivity to
+          applications using the same CONNECT method as is used for
+          the overlay maintenance.  For example, if a P2PSIP node
+          wishes to establish a SIP dialog with another P2PSIP node,
+          it will use CONNECT to establish a direct connection with
+          the other node. This new connection is separate from the
+          peer protocol connection, it is a dedicated UDP or TCP flow
+          used only for the SIP dialog. Each usage specifies which
+          types of connections can be initiated using CONNECT.</t>
+
+        <t>Previous versions of RELOAD specified a TUNNEL method by
+          which a usage could specify how to route
+          application-specific messages across the overlay without
+          establishing a new connection.  This version withdraws that
+          method because it is essentially an optimization that adds
+          additional complexity, particularly in specifying how an
+          application such as SIP will make use of the feature,
+          without adding additional functionality.  It may be
+          reintroduced in the future.</t>
+
       </section>
     </section>
 
@@ -7267,6 +7636,82 @@ Layer         |TLS    |  |DTLS  |
         <format target="http://www.ietf.org/internet-drafts/draft-camarillo-hip-bone-00.txt"
                 type="TXT" />
       </reference>
+
+      <reference anchor='I-D.pascual-p2psip-clients'>
+	<front>
+	  <title>P2PSIP Clients</title>
+
+	  <author initials='V' surname='Pascual' fullname='Victor Pascual'>
+	    <organization />
+	  </author>
+
+	  <author initials='M' surname='Matuszewski' fullname='Marchin Matuszewski'>
+	    <organization />
+	  </author>
+
+	  <author initials='E' surname='Shim' fullname='Eunsoo Shim'>
+	    <organization />
+	  </author>
+
+	  <author initials='H' surname='Zhang' fullname='Hewen  Zhang'>
+	    <organization />
+	  </author>
+
+	  <author initials='S' surname='Yongchao' fullname='Song Yongchao'>
+	    <organization />
+	  </author>
+
+	  <date month='February' day='25' year='2008' />
+
+	  <abstract><t>This document describes why and when some devices would better be a Client rather than a Peer.  The purpose of this document is to facilitate the discussion and understanding about the Client node type.</t></abstract>
+
+	</front>
+
+	<seriesInfo name='Internet-Draft' value='draft-pascual-p2psip-clients-01' />
+	<format type='TXT'
+		target='http://www.ietf.org/internet-drafts/draft-pascual-p2psip-clients-01.txt' />
+      </reference>
+
+      <reference anchor='RFC4787'>
+
+	<front>
+	  <title>Network Address Translation (NAT) Behavioral Requirements for Unicast UDP</title>
+	  <author initials='F.' surname='Audet' fullname='F. Audet'>
+	  <organization /></author>
+	  <author initials='C.' surname='Jennings' fullname='C. Jennings'>
+	  <organization /></author>
+	  <date year='2007' month='January' />
+	  <abstract>
+	<t>This document defines basic terminology for describing different types of Network Address Translation (NAT) behavior when handling Unicast UDP and also defines a set of requirements that would allow many applications, such as multimedia communications or online gaming, to work consistently.  Developing NATs that meet this set of requirements will greatly increase the likelihood that these applications will function properly.  This document specifies an Internet Best Current Practices for the Internet Community, and requests discussion and suggestions for improvements.</t></abstract></front>
+
+	<seriesInfo name='BCP' value='127' />
+	<seriesInfo name='RFC' value='4787' />
+	<format type='TXT' octets='68693' target='ftp://ftp.isi.edu/in-notes/rfc4787.txt' />
+      </reference>
+
+      <reference anchor='I-D.jiang-p2psip-sep'>
+	<front>
+	  <title>Service Extensible P2P Peer Protocol</title>
+
+	  <author initials='X' surname='Jiang' fullname='XingFeng Jiang'>
+	    <organization />
+	  </author>
+
+	  <author initials='H' surname='Zhang' fullname='Hewen Zhang'>
+	    <organization />
+	  </author>
+
+	  <date month='February' day='22' year='2008' />
+
+	  <abstract><t>This document describes the Service Extensible Protocol (SEP), which is the peer protocol spoken between P2PSIP Overlay peers to share information and organize the P2PSIP Overlay Network.  SEP uses a flexible forwarding mechanism to avoid congestion in the Overlay.  It also proposes a general service discovery method and a built-in NATtraversal mechanism. By using these methods, SEP tries to improve the success rate and reduce the latency of the transaction.</t></abstract>
+
+	</front>
+
+	<seriesInfo name='Internet-Draft' value='draft-jiang-p2psip-sep-01' />
+	<format type='TXT'
+		target='http://www.ietf.org/internet-drafts/draft-jiang-p2psip-sep-01.txt' />
+      </reference>
+
     </references>
   </back>
 </rfc>

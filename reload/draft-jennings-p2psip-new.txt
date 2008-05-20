@@ -4,7 +4,7 @@
 P2PSIP                                                       C. Jennings
 Internet-Draft                                                     Cisco
 Intended status:  Standards Track                            B. Lowekamp
-Expires:  November 19, 2008                    SIPeerior; William & Mary
+Expires:  November 21, 2008                       SIPeerior Technologies
                                                              E. Rescorla
                                                        Network Resonance
                                                             J. Rosenberg
@@ -12,7 +12,7 @@ Expires:  November 19, 2008                    SIPeerior; William & Mary
                                                                 S. Baset
                                                           H. Schulzrinne
                                                      Columbia University
-                                                            May 18, 2008
+                                                            May 20, 2008
 
 
                 REsource LOcation And Discovery (RELOAD)
@@ -41,7 +41,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on November 19, 2008.
+   This Internet-Draft will expire on November 21, 2008.
 
 Copyright Notice
 
@@ -52,7 +52,7 @@ Copyright Notice
 
 
 
-Jennings, et al.        Expires November 19, 2008               [Page 1]
+Jennings, et al.        Expires November 21, 2008               [Page 1]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -90,151 +90,153 @@ Table of Contents
        3.1.1.  Certificate-Based Security  . . . . . . . . . . . . .  14
        3.1.2.  Shared-Key Security . . . . . . . . . . . . . . . . .  15
      3.2.  Nodes, Clients and Peers  . . . . . . . . . . . . . . . .  15
-     3.3.  Connectivity Management . . . . . . . . . . . . . . . . .  15
-     3.4.  Routing . . . . . . . . . . . . . . . . . . . . . . . . .  16
-       3.4.1.  Via Lists . . . . . . . . . . . . . . . . . . . . . .  18
-       3.4.2.  Clients . . . . . . . . . . . . . . . . . . . . . . .  19
-     3.5.  Overlay Algorithm Support . . . . . . . . . . . . . . . .  20
-       3.5.1.  Joining, Leaving, and Maintenance . . . . . . . . . .  20
-     3.6.  Diagnostics . . . . . . . . . . . . . . . . . . . . . . .  21
-     3.7.  Enrollment  . . . . . . . . . . . . . . . . . . . . . . .  21
-       3.7.1.  Initial Configuration . . . . . . . . . . . . . . . .  21
-       3.7.2.  Enrollment  . . . . . . . . . . . . . . . . . . . . .  21
-   4.  Application Support Overview  . . . . . . . . . . . . . . . .  21
-     4.1.  Data Model  . . . . . . . . . . . . . . . . . . . . . . .  22
-       4.1.1.  Storage Permissions . . . . . . . . . . . . . . . . .  23
-     4.2.  Service Discovery . . . . . . . . . . . . . . . . . . . .  24
-     4.3.  Replication . . . . . . . . . . . . . . . . . . . . . . .  24
+       3.2.1.  Peer-capable Clients  . . . . . . . . . . . . . . . .  16
+       3.2.2.  Clients with Limited Functionality  . . . . . . . . .  17
+       3.2.3.  Clients as Application-level Agents . . . . . . . . .  17
+     3.3.  Connectivity Management . . . . . . . . . . . . . . . . .  18
+     3.4.  Routing . . . . . . . . . . . . . . . . . . . . . . . . .  18
+       3.4.1.  Routing Alternatives  . . . . . . . . . . . . . . . .  20
+     3.5.  Overlay Algorithm Support . . . . . . . . . . . . . . . .  23
+       3.5.1.  Joining, Leaving, and Maintenance . . . . . . . . . .  23
+     3.6.  Diagnostics . . . . . . . . . . . . . . . . . . . . . . .  24
+     3.7.  Enrollment  . . . . . . . . . . . . . . . . . . . . . . .  24
+       3.7.1.  Initial Configuration . . . . . . . . . . . . . . . .  24
+       3.7.2.  Enrollment  . . . . . . . . . . . . . . . . . . . . .  24
+   4.  Application Support Overview  . . . . . . . . . . . . . . . .  25
+     4.1.  Data Model  . . . . . . . . . . . . . . . . . . . . . . .  25
+       4.1.1.  Storage Permissions . . . . . . . . . . . . . . . . .  26
 
 
 
-Jennings, et al.        Expires November 19, 2008               [Page 2]
+Jennings, et al.        Expires November 21, 2008               [Page 2]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
-     4.4.  Application Connectivity  . . . . . . . . . . . . . . . .  24
-   5.  P2PSIP Integration Overview . . . . . . . . . . . . . . . . .  24
-   6.  Overlay Management Protocol . . . . . . . . . . . . . . . . .  25
-     6.1.  Message Routing . . . . . . . . . . . . . . . . . . . . .  25
-       6.1.1.  Request Origination . . . . . . . . . . . . . . . . .  26
-       6.1.2.  Message Receipt and Forwarding  . . . . . . . . . . .  27
-       6.1.3.  Response Origination  . . . . . . . . . . . . . . . .  28
-     6.2.  Message Structure . . . . . . . . . . . . . . . . . . . .  29
-       6.2.1.  Presentation Langauge . . . . . . . . . . . . . . . .  29
-       6.2.2.  Forwarding Header . . . . . . . . . . . . . . . . . .  32
-       6.2.3.  Message Contents Format . . . . . . . . . . . . . . .  38
-       6.2.4.  Signature . . . . . . . . . . . . . . . . . . . . . .  41
-     6.3.  Overlay Topology  . . . . . . . . . . . . . . . . . . . .  43
-       6.3.1.  Topology Plugin Overview  . . . . . . . . . . . . . .  43
-       6.3.2.  Topology Plugin Requirements  . . . . . . . . . . . .  43
-       6.3.3.  Methods and types for use by topology plugins . . . .  43
-     6.4.  Forwarding Layer  . . . . . . . . . . . . . . . . . . . .  46
-       6.4.1.  Reliability for Unreliable Transports . . . . . . . .  47
-       6.4.2.  Fragmentation and Reassembly  . . . . . . . . . . . .  48
-       6.4.3.  Connection Management . . . . . . . . . . . . . . . .  49
-     6.5.  Diagnostics . . . . . . . . . . . . . . . . . . . . . . .  52
-   7.  Data Storage Protocol . . . . . . . . . . . . . . . . . . . .  52
-     7.1.  Data Signature Computation  . . . . . . . . . . . . . . .  53
-     7.2.  Data Models . . . . . . . . . . . . . . . . . . . . . . .  54
-       7.2.1.  Single Value  . . . . . . . . . . . . . . . . . . . .  55
-       7.2.2.  Array . . . . . . . . . . . . . . . . . . . . . . . .  55
-       7.2.3.  Dictionary  . . . . . . . . . . . . . . . . . . . . .  56
-     7.3.  Data Storage Methods  . . . . . . . . . . . . . . . . . .  56
-       7.3.1.  STORE . . . . . . . . . . . . . . . . . . . . . . . .  56
-       7.3.2.  FETCH . . . . . . . . . . . . . . . . . . . . . . . .  60
-       7.3.3.  REMOVE  . . . . . . . . . . . . . . . . . . . . . . .  63
-       7.3.4.  FIND  . . . . . . . . . . . . . . . . . . . . . . . .  65
-   8.  ICE and Connection Formation  . . . . . . . . . . . . . . . .  67
-     8.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .  67
-     8.2.  Collecting STUN Servers . . . . . . . . . . . . . . . . .  68
-     8.3.  Gathering Candidates  . . . . . . . . . . . . . . . . . .  69
-     8.4.  Encoding the CONNECT Message  . . . . . . . . . . . . . .  70
-     8.5.  Verifying ICE Support . . . . . . . . . . . . . . . . . .  71
-     8.6.  Role Determination  . . . . . . . . . . . . . . . . . . .  71
-     8.7.  Connectivity Checks . . . . . . . . . . . . . . . . . . .  71
-     8.8.  Concluding ICE  . . . . . . . . . . . . . . . . . . . . .  71
-     8.9.  Subsequent Offers and Answers . . . . . . . . . . . . . .  71
-     8.10. Media Keepalives  . . . . . . . . . . . . . . . . . . . .  72
-     8.11. Sending Media . . . . . . . . . . . . . . . . . . . . . .  72
-     8.12. Receiving Media . . . . . . . . . . . . . . . . . . . . .  72
-   9.  Certificate Store Usage . . . . . . . . . . . . . . . . . . .  72
-   10. SIP Usage . . . . . . . . . . . . . . . . . . . . . . . . . .  73
-     10.1. Registering AORs  . . . . . . . . . . . . . . . . . . . .  73
+     4.2.  Service Discovery . . . . . . . . . . . . . . . . . . . .  27
+     4.3.  Replication . . . . . . . . . . . . . . . . . . . . . . .  27
+     4.4.  Application Connectivity  . . . . . . . . . . . . . . . .  28
+   5.  P2PSIP Integration Overview . . . . . . . . . . . . . . . . .  28
+   6.  Overlay Management Protocol . . . . . . . . . . . . . . . . .  29
+     6.1.  Message Routing . . . . . . . . . . . . . . . . . . . . .  30
+       6.1.1.  Request Origination . . . . . . . . . . . . . . . . .  30
+       6.1.2.  Message Receipt and Forwarding  . . . . . . . . . . .  31
+       6.1.3.  Response Origination  . . . . . . . . . . . . . . . .  32
+     6.2.  Message Structure . . . . . . . . . . . . . . . . . . . .  33
+       6.2.1.  Presentation Langauge . . . . . . . . . . . . . . . .  33
+       6.2.2.  Forwarding Header . . . . . . . . . . . . . . . . . .  36
+       6.2.3.  Message Contents Format . . . . . . . . . . . . . . .  42
+       6.2.4.  Signature . . . . . . . . . . . . . . . . . . . . . .  45
+     6.3.  Overlay Topology  . . . . . . . . . . . . . . . . . . . .  47
+       6.3.1.  Topology Plugin Overview  . . . . . . . . . . . . . .  47
+       6.3.2.  Topology Plugin Requirements  . . . . . . . . . . . .  47
+       6.3.3.  Methods and types for use by topology plugins . . . .  47
+     6.4.  Forwarding Layer  . . . . . . . . . . . . . . . . . . . .  50
+       6.4.1.  Reliability for Unreliable Transports . . . . . . . .  51
+       6.4.2.  Fragmentation and Reassembly  . . . . . . . . . . . .  52
+       6.4.3.  Connection Management . . . . . . . . . . . . . . . .  53
+     6.5.  Diagnostics . . . . . . . . . . . . . . . . . . . . . . .  56
+   7.  Data Storage Protocol . . . . . . . . . . . . . . . . . . . .  56
+     7.1.  Data Signature Computation  . . . . . . . . . . . . . . .  57
+     7.2.  Data Models . . . . . . . . . . . . . . . . . . . . . . .  58
+       7.2.1.  Single Value  . . . . . . . . . . . . . . . . . . . .  59
+       7.2.2.  Array . . . . . . . . . . . . . . . . . . . . . . . .  59
+       7.2.3.  Dictionary  . . . . . . . . . . . . . . . . . . . . .  60
+     7.3.  Data Storage Methods  . . . . . . . . . . . . . . . . . .  60
+       7.3.1.  STORE . . . . . . . . . . . . . . . . . . . . . . . .  60
+       7.3.2.  FETCH . . . . . . . . . . . . . . . . . . . . . . . .  64
+       7.3.3.  REMOVE  . . . . . . . . . . . . . . . . . . . . . . .  67
+       7.3.4.  FIND  . . . . . . . . . . . . . . . . . . . . . . . .  69
+   8.  ICE and Connection Formation  . . . . . . . . . . . . . . . .  71
+     8.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .  71
+     8.2.  Collecting STUN Servers . . . . . . . . . . . . . . . . .  72
+     8.3.  Gathering Candidates  . . . . . . . . . . . . . . . . . .  73
+     8.4.  Encoding the CONNECT Message  . . . . . . . . . . . . . .  74
+     8.5.  Verifying ICE Support . . . . . . . . . . . . . . . . . .  75
+     8.6.  Role Determination  . . . . . . . . . . . . . . . . . . .  75
+     8.7.  Connectivity Checks . . . . . . . . . . . . . . . . . . .  75
+     8.8.  Concluding ICE  . . . . . . . . . . . . . . . . . . . . .  75
+     8.9.  Subsequent Offers and Answers . . . . . . . . . . . . . .  75
+     8.10. Media Keepalives  . . . . . . . . . . . . . . . . . . . .  76
+     8.11. Sending Media . . . . . . . . . . . . . . . . . . . . . .  76
+     8.12. Receiving Media . . . . . . . . . . . . . . . . . . . . .  76
+   9.  Certificate Store Usage . . . . . . . . . . . . . . . . . . .  76
 
 
 
-Jennings, et al.        Expires November 19, 2008               [Page 3]
+Jennings, et al.        Expires November 21, 2008               [Page 3]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
-     10.2. Looking up an AOR . . . . . . . . . . . . . . . . . . . .  75
-     10.3. Forming a Direct Connection . . . . . . . . . . . . . . .  76
-     10.4. GRUUs . . . . . . . . . . . . . . . . . . . . . . . . . .  76
-     10.5. SIP-REGISTRATION Kind Definition  . . . . . . . . . . . .  77
-   11. Diagnostic Usage  . . . . . . . . . . . . . . . . . . . . . .  77
-     11.1. State Acquisition Mechanisms  . . . . . . . . . . . . . .  78
-     11.2. Black-box diagnostics . . . . . . . . . . . . . . . . . .  79
-     11.3. Diagnostic Metrics for a P2PSIP Deployment  . . . . . . .  81
-   12. Chord Algorithm . . . . . . . . . . . . . . . . . . . . . . .  82
-     12.1. Overview  . . . . . . . . . . . . . . . . . . . . . . . .  82
-     12.2. Routing . . . . . . . . . . . . . . . . . . . . . . . . .  83
-     12.3. Redundancy  . . . . . . . . . . . . . . . . . . . . . . .  83
-     12.4. Joining . . . . . . . . . . . . . . . . . . . . . . . . .  83
-     12.5. Routing CONNECTs  . . . . . . . . . . . . . . . . . . . .  84
-     12.6. UPDATEs . . . . . . . . . . . . . . . . . . . . . . . . .  84
-       12.6.1. Sending UPDATEs . . . . . . . . . . . . . . . . . . .  85
-       12.6.2. Receiving UPDATEs . . . . . . . . . . . . . . . . . .  85
-       12.6.3. Stabilization . . . . . . . . . . . . . . . . . . . .  86
-     12.7. Leaving . . . . . . . . . . . . . . . . . . . . . . . . .  88
-   13. Enrollment and Bootstrap  . . . . . . . . . . . . . . . . . .  88
-     13.1. Discovery . . . . . . . . . . . . . . . . . . . . . . . .  88
-     13.2. Overlay Configuration . . . . . . . . . . . . . . . . . .  89
-     13.3. Credentials . . . . . . . . . . . . . . . . . . . . . . .  90
-       13.3.1. Credentials for HIP . . . . . . . . . . . . . . . . .  91
-     13.4. Locating a Peer . . . . . . . . . . . . . . . . . . . . .  91
-   14. Message Flow Example  . . . . . . . . . . . . . . . . . . . .  92
-   15. Security Considerations . . . . . . . . . . . . . . . . . . .  92
-     15.1. Overview  . . . . . . . . . . . . . . . . . . . . . . . .  92
-     15.2. Attacks on P2P Overlays . . . . . . . . . . . . . . . . .  93
-     15.3. Certificate-based Security  . . . . . . . . . . . . . . .  93
-     15.4. Shared-Secret Security  . . . . . . . . . . . . . . . . .  94
-     15.5. Storage Security  . . . . . . . . . . . . . . . . . . . .  95
-       15.5.1. Authorization . . . . . . . . . . . . . . . . . . . .  95
-       15.5.2. Distributed Quota . . . . . . . . . . . . . . . . . .  96
-       15.5.3. Correctness . . . . . . . . . . . . . . . . . . . . .  96
-       15.5.4. Residual Attacks  . . . . . . . . . . . . . . . . . .  97
-     15.6. Routing Security  . . . . . . . . . . . . . . . . . . . .  97
-       15.6.1. Background  . . . . . . . . . . . . . . . . . . . . .  97
-       15.6.2. Admissions Control  . . . . . . . . . . . . . . . . .  98
-       15.6.3. Peer Identification and Authentication  . . . . . . .  98
-       15.6.4. Protecting the Signaling  . . . . . . . . . . . . . .  99
-       15.6.5. Residual Attacks  . . . . . . . . . . . . . . . . . .  99
-     15.7. SIP-Specific Issues . . . . . . . . . . . . . . . . . . . 100
-       15.7.1. Fork Explosion  . . . . . . . . . . . . . . . . . . . 100
-       15.7.2. Malicious Retargeting . . . . . . . . . . . . . . . . 100
-       15.7.3. Privacy Issues  . . . . . . . . . . . . . . . . . . . 100
-   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . . 100
-     16.1. Overlay Algorithm Types . . . . . . . . . . . . . . . . . 100
+   10. SIP Usage . . . . . . . . . . . . . . . . . . . . . . . . . .  77
+     10.1. Registering AORs  . . . . . . . . . . . . . . . . . . . .  77
+     10.2. Looking up an AOR . . . . . . . . . . . . . . . . . . . .  79
+     10.3. Forming a Direct Connection . . . . . . . . . . . . . . .  80
+     10.4. GRUUs . . . . . . . . . . . . . . . . . . . . . . . . . .  80
+     10.5. SIP-REGISTRATION Kind Definition  . . . . . . . . . . . .  81
+   11. Diagnostic Usage  . . . . . . . . . . . . . . . . . . . . . .  81
+     11.1. State Acquisition Mechanisms  . . . . . . . . . . . . . .  82
+     11.2. Black-box diagnostics . . . . . . . . . . . . . . . . . .  83
+     11.3. Diagnostic Metrics for a P2PSIP Deployment  . . . . . . .  85
+   12. Chord Algorithm . . . . . . . . . . . . . . . . . . . . . . .  86
+     12.1. Overview  . . . . . . . . . . . . . . . . . . . . . . . .  86
+     12.2. Routing . . . . . . . . . . . . . . . . . . . . . . . . .  87
+     12.3. Redundancy  . . . . . . . . . . . . . . . . . . . . . . .  87
+     12.4. Joining . . . . . . . . . . . . . . . . . . . . . . . . .  87
+     12.5. Routing CONNECTs  . . . . . . . . . . . . . . . . . . . .  88
+     12.6. UPDATEs . . . . . . . . . . . . . . . . . . . . . . . . .  88
+       12.6.1. Sending UPDATEs . . . . . . . . . . . . . . . . . . .  89
+       12.6.2. Receiving UPDATEs . . . . . . . . . . . . . . . . . .  89
+       12.6.3. Stabilization . . . . . . . . . . . . . . . . . . . .  90
+     12.7. Leaving . . . . . . . . . . . . . . . . . . . . . . . . .  92
+   13. Enrollment and Bootstrap  . . . . . . . . . . . . . . . . . .  92
+     13.1. Discovery . . . . . . . . . . . . . . . . . . . . . . . .  92
+     13.2. Overlay Configuration . . . . . . . . . . . . . . . . . .  93
+     13.3. Credentials . . . . . . . . . . . . . . . . . . . . . . .  94
+       13.3.1. Credentials for HIP . . . . . . . . . . . . . . . . .  95
+     13.4. Locating a Peer . . . . . . . . . . . . . . . . . . . . .  95
+   14. Message Flow Example  . . . . . . . . . . . . . . . . . . . .  96
+   15. Security Considerations . . . . . . . . . . . . . . . . . . .  96
+     15.1. Overview  . . . . . . . . . . . . . . . . . . . . . . . .  96
+     15.2. Attacks on P2P Overlays . . . . . . . . . . . . . . . . .  97
+     15.3. Certificate-based Security  . . . . . . . . . . . . . . .  97
+     15.4. Shared-Secret Security  . . . . . . . . . . . . . . . . .  98
+     15.5. Storage Security  . . . . . . . . . . . . . . . . . . . .  99
+       15.5.1. Authorization . . . . . . . . . . . . . . . . . . . .  99
+       15.5.2. Distributed Quota . . . . . . . . . . . . . . . . . . 100
+       15.5.3. Correctness . . . . . . . . . . . . . . . . . . . . . 100
+       15.5.4. Residual Attacks  . . . . . . . . . . . . . . . . . . 101
+     15.6. Routing Security  . . . . . . . . . . . . . . . . . . . . 101
+       15.6.1. Background  . . . . . . . . . . . . . . . . . . . . . 101
+       15.6.2. Admissions Control  . . . . . . . . . . . . . . . . . 102
+       15.6.3. Peer Identification and Authentication  . . . . . . . 102
+       15.6.4. Protecting the Signaling  . . . . . . . . . . . . . . 103
+       15.6.5. Residual Attacks  . . . . . . . . . . . . . . . . . . 103
+     15.7. SIP-Specific Issues . . . . . . . . . . . . . . . . . . . 104
+       15.7.1. Fork Explosion  . . . . . . . . . . . . . . . . . . . 104
+       15.7.2. Malicious Retargeting . . . . . . . . . . . . . . . . 104
+       15.7.3. Privacy Issues  . . . . . . . . . . . . . . . . . . . 104
 
 
 
-Jennings, et al.        Expires November 19, 2008               [Page 4]
+Jennings, et al.        Expires November 21, 2008               [Page 4]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
-     16.2. Data Kind-Id  . . . . . . . . . . . . . . . . . . . . . . 101
-     16.3. Data Model  . . . . . . . . . . . . . . . . . . . . . . . 101
-     16.4. Message Codes . . . . . . . . . . . . . . . . . . . . . . 101
-     16.5. Error Codes . . . . . . . . . . . . . . . . . . . . . . . 102
-   17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . 102
-   18. References  . . . . . . . . . . . . . . . . . . . . . . . . . 103
-     18.1. Normative References  . . . . . . . . . . . . . . . . . . 103
-     18.2. Informative References  . . . . . . . . . . . . . . . . . 104
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . 105
-   Intellectual Property and Copyright Statements  . . . . . . . . . 108
+   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . . 104
+     16.1. Overlay Algorithm Types . . . . . . . . . . . . . . . . . 104
+     16.2. Data Kind-Id  . . . . . . . . . . . . . . . . . . . . . . 105
+     16.3. Data Model  . . . . . . . . . . . . . . . . . . . . . . . 105
+     16.4. Message Codes . . . . . . . . . . . . . . . . . . . . . . 105
+     16.5. Error Codes . . . . . . . . . . . . . . . . . . . . . . . 106
+   17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . 106
+   18. References  . . . . . . . . . . . . . . . . . . . . . . . . . 107
+     18.1. Normative References  . . . . . . . . . . . . . . . . . . 107
+     18.2. Informative References  . . . . . . . . . . . . . . . . . 108
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . 110
+   Intellectual Property and Copyright Statements  . . . . . . . . . 112
 
 
 
@@ -274,9 +276,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-
-
-Jennings, et al.        Expires November 19, 2008               [Page 5]
+Jennings, et al.        Expires November 21, 2008               [Page 5]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -332,7 +332,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008               [Page 6]
+Jennings, et al.        Expires November 21, 2008               [Page 6]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -388,7 +388,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008               [Page 7]
+Jennings, et al.        Expires November 21, 2008               [Page 7]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -444,7 +444,7 @@ Layer         |TLS    |  |DTLS  |
 
 
 
-Jennings, et al.        Expires November 19, 2008               [Page 8]
+Jennings, et al.        Expires November 21, 2008               [Page 8]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -500,7 +500,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008               [Page 9]
+Jennings, et al.        Expires November 21, 2008               [Page 9]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -556,7 +556,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 10]
+Jennings, et al.        Expires November 21, 2008              [Page 10]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -612,7 +612,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 11]
+Jennings, et al.        Expires November 21, 2008              [Page 11]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -668,7 +668,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 12]
+Jennings, et al.        Expires November 21, 2008              [Page 12]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -724,7 +724,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 13]
+Jennings, et al.        Expires November 21, 2008              [Page 13]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -780,7 +780,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 14]
+Jennings, et al.        Expires November 21, 2008              [Page 14]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -824,7 +824,134 @@ Internet-Draft                   RELOAD                         May 2008
 
 3.2.  Nodes, Clients and Peers
 
-   [TODO:  BBL]
+   RELOAD defines a single protocol that is used both as the peer
+   protocol and client protocol for the overlay.  This simplifies
+   implementation, particularly for devices that may act in either role,
+   and allows clients to inject messages directly into the overlay.
+
+   TODO:  this will have been covered in intro or prev section?  We use
+   the term peer to identify a node in the overlay routes messages other
+   than those to which it is directly connected.  Peers typically also
+   have storage responsibilities although some overlays may also assign
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 15]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
+   storage responsibilities to non-routing nodes.  We use clients to
+   refer to nodes that have no routing responsibilities and typically
+   connect only to a single peer for access to the resources in the
+   overlay.  When text refers to either peers or clients, we will simply
+   refer to such a device as a node.
+
+3.2.1.  Peer-capable Clients
+
+   Each peer in the overlay is provisioned with a certificate that
+   provides its Node-ID, joins the overlay, and assumes routing
+   responsibility for its portion of the overlay.  However, there are
+   many reasons why a capable node may not wish to serve as a full peer
+   [I-D.pascual-p2psip-clients].  Perhaps two of the most important are:
+
+   o  The node does not have appropriate network connectivity---
+      typically because it is behind an overly restrictive NAT.
+   o  The node may not have sufficient resources, such as computing
+      power, storage space, or battery power.
+   o  The overlay algorithm may dictate specific requirements for peer
+      selection.  These may include participation in the overlay to
+      determine trustworthiness or simply to control the number of peers
+      in the overlay to reduce overly-long routing paths.
+
+   While there are many more reasons, the ultimate criteria for an
+   eligible peer is determined by the overlay algorithm and specific
+   deployment.
+
+   RELOAD's support for peer-capable clients allows nodes that are not
+   participating in the overlay as peers to utilize the same
+   implementation and to benefit from the same security mechanisms as
+   the peers.  Under this scenario a client uses its Node-ID to identify
+   itself and its requests in the same manner as a peer.  There are two
+   routing options for such a client:
+
+   o  Establish a connection to the peer responsibile for the client's
+      Node-ID in the overlay.  Then requests may be sent from/to the
+      client using its Node-ID in the same manner as if it were a peer,
+      because the responsible peer in the overlay will handle the final
+      step of routing to the client.
+   o  Establish a connection with an arbitrary peer in the overlay
+      (perhaps based on network proximity or an inability to establish a
+      direct connection with the responsible peer).  In this case, the
+      client will rely on RELOAD's Via List feature to ensure
+      reachability.  The client can initiate requests, and any node in
+      the overlay that knows the Via List to its current location can
+      reach it, but it is not arbitrarily reachable directly using only
+      the client's Node-ID.  (Note that it may be possible to extend the
+      protoocl by including a usage that would allow the client to store
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 16]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
+      a resource at its Node-ID in the overlay redirecting to its
+      current Via List.)
+
+   In all of these scenarios, the client speaks the same protocol as the
+   peers, knows how to calculate Resource-IDs, and signs its requests in
+   the same manner as peers.  While a client does not necessarily
+   require a full implementation of the overlay algorithm, calculating
+   the Resource-ID requires an implementation of the appropriate
+   algorithm for the overlay.
+
+3.2.2.  Clients with Limited Functionality
+
+   In order to exchange RELOAD messages with a peer, a client must meet
+   a minimum level of functionality.  Such a client must:
+
+   o  Implement RELOAD's connection-management connections that are used
+      to establish the connection with the peer.
+   o  Implement RELOAD's data storage and retrieval methods (with client
+      functionality).
+   o  Be able to calculate Resource-IDs used by the overlay.
+   o  Possess security credentials required by the overlay it is
+      implementing.
+
+   Such a client will be participating in the overlay as described in
+   the previous section, but be unable to be promoted to a peer.
+
+   RELOAD does not support a separate protocol for clients that do not
+   meet these functionality requirements.  Any such extension would
+   either entail compromises on the features of RELOAD or require an
+   entirely new protocol to reimplement the core features of RELOAD.
+   Furthermore, for P2PSIP and many other applications, a native
+   application-level protocol already exists that is sufficient for such
+   a client, as described in the next section.
+
+3.2.3.  Clients as Application-level Agents
+
+   SIP defines an extensive protocol for registration and security
+   between a client and its registrar/proxy server(s).  Any SIP device
+   can act as a client of a RELOAD-based P2PSIP overlay if it contacts a
+   peer that implements the server-side functionality required by the
+   SIP protocol.  TODO Such an overlay would also require a security
+   scheme that allows such a peer to authenticate a registration of
+   resources for such a client (or just require the proxy to have its
+   clients' keys).
+
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 17]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
 3.3.  Connectivity Management
 
@@ -832,14 +959,6 @@ Internet-Draft                   RELOAD                         May 2008
    of direct connections to other peers in the DHT.  Because of the
    presence of NATs, these connections often cannot be formed directly.
    Instead, we use the CONNECT request to establish a connection.
-
-
-
-
-Jennings, et al.        Expires November 19, 2008              [Page 15]
-
-Internet-Draft                   RELOAD                         May 2008
-
 
    Say that peer A wishes to form a direct connection to peer B. It
    gathers ICE candidates and packages them up in a CONNECT request
@@ -869,206 +988,259 @@ Internet-Draft                   RELOAD                         May 2008
 
 3.4.  Routing
 
-   [TODO:  BBL; this needs reflow]
+   This section will discuss the requirements RELOAD's routing
+   capabilities must meet, then describe the routing features in the
+   protocol, and provide a brief overview of how they are used.  The
+   section will conclude by discussing some alternative designs and the
+   tradeoffs that would be necessary to support them.
 
-   The way routing works in a DHT is specified by the specific DHT
-   algorithm but the basic concepts are common to most systems.  Each
-   peer maintains connections to some other set of peers N. There need
-   not be anything special about the peers in N, except that the peer
-   has a direct connection to them:  it can reach them without going
-   through any other peer.  When it wishes to deliver a message to some
-   peer P, it selects some member of N, N_i that is closer to P than
-   itself (as a degenerate case, P may be in N).  The peer sends the
-   message to N_i.  At this point two things can happen:
+   RELOAD's routing capabilities must meet the following requirements:
 
-
-   Recursive Routing:  N_i repeats the same process as P, sending the
-      message to one of its peers N_j.  This same process repeats until
-      the message is delivered to N.
+   NAT Traversal  RELOAD must support establishing and using connections
+      between nodes separated by one or more NATs, including locating
+      peers behind NATs for those overlays allowing/requiring it.
 
 
 
 
 
-
-
-Jennings, et al.        Expires November 19, 2008              [Page 16]
+Jennings, et al.        Expires November 21, 2008              [Page 18]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
+   Clients  RELOAD must support requests from and to clients that do not
+      participate in overlay routing.
+   Client promotion  RELOAD must support clients that become peers at a
+      later point as determined by the overlay algorithm and deployment.
+   Low state  RELOAD's routing algorithms must not require significant
+      state to be stored on intermediate peers.
 
-   Iterative Routing:  N_i consults its table of direct connections and
-      selects a new peer N_j which is closer to N. It responds to the
-      original sending peer with a redirect to N_j.  The original peer
-      then sends the message to N_j, where the process repeats until the
-      sending peer is redirected to N.
+   To meet these requirements, RELOAD's routing relies on two basic
+   mechanisms:
 
-   The advantage of iterative routing is that it consumes less resources
-   for the intermediate peers; they only have to send redirect messages
-   rather than forwarding requests and responses.  The advantage of
-   recursive routing is that it does not require the sending or
-   receiving peer to have a rich set of connections to other nodes in
-   the overlay.  Thus, iterative routing is problematic in NATed
-   networks because there is no way to guarantee that a peer will be
-   able to form a connection to whatever peer it is redirected to.  In
-   RELOAD, iterative routing is supported using the ROUTE-QUERY request.
+   Via Lists  The forwarding header used by all RELOAD messages contains
+      both a Via List (built hop-by-hop as the message is routed through
+      the overlay) and a Destination List (providing source-routing
+      capabilities for requests and return-path routing for responses).
+   ROUTE_QUERY  The ROUTE_QUERY method allows a node to query a peer for
+      the next hop it will use to route a message.  This method is
+      useful for diagnostics and for iterative routing.
 
-   In most DHTs, the peers in N are selected in a particular way.  One
-   common strategy is to have them arranged exponentially further away
-   from yourself so that any message can be routed in a O(log(N)) steps.
-   The details of the routing structure depend on the DHT algorithm,
-   however, since it defines the distance metric and the structure of
-   the connection table.
+   The basic routing mechanism used by RELOAD is symmetric recursive.
+   We will first describe symmetric routing and then discuss its
+   advantages in terms of the requirements discussed above.
 
-   In RELOAD, messages may either be REQUESTS or RESPONSES to REQUESTS.
-   Requests are routed as described above.  In principle, responses
-   could be routed independently from requests.  This is called
-   "Asymmetric" routing because requests and responses will generally
-   follow different paths through the network.  Asymmetric routing makes
-   diagnosis of errors difficult because you need to be able to acquire
-   debugging information at multiple locations.  In the alternative
-   strategy, called "Symmetric" routing, as requests travel through the
-   network they accumulate a history of the peers they passed through
-   and responses are routed in the opposite direction so that they
-   follow the same path in reverse.  RELOAD supports both flavors of
-   routing.
+   Symmetric recursive routing requires a message follow the path
+   through the overlay to the destination without returning to the
+   originating node:  each peer forwards the message closer to its
+   destination.  The return path of the response is then the same path
+   followed in reverse.  For example, a message following a route from A
+   to Z through B and X:
 
-   Symmetric routing is easier to debug.  Symmetric routing is also
-   required when the overlay topology is changing.  For example, when a
-   new peer is joining the overlay, asymmetric routing cannot work
-   because the response would not be able to reach the new peer until it
-   has completed the joining process.  Symmetric routing solves this
-   situation because the response is routed from the admitting peer
-   through the bootstrap peer, thus relying on a path that is already
-   known and established.  In order to implement symmetric routing,
-   RELOAD provides the Via List (Section 3.4.1) feature.  Asymmetric
-   routing, however, requires no state to be stored in the message (as a
-   Via List) or in on-path peers.
+   INSERT LADDER DIAGRAM WITH VIA AND DST LISTS HERE
 
+   Note that the preceding Figure does not indicate whether A is a
+   client or peer---A forwards its request to B and the response is
+   returned to A in the same manner regardless of A's role in the
+   overlay.
+
+   This Figure shows use of full via-lists by intermediate peers B and
+   X. However, if B and X are willing to store state, then they may
+   elect to truncate the lists, save that information internally, and
+   return the response message along the path from which it was received
+   when the response is received.  This option requires greater state on
+   intermediate peers but saves a small amount of bandwidth and reduces
+   the need for modifying the message enroute.  Selection of this mode
+   of operation is a choice for the individual peer---the techniques are
+   mutually interoperable even on a single message.
+
+   INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 17]
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 19]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
-   [[TODO:  again, this is a topic that needs WG discussion.  It seems
-   like there are situations where symmetric is very desirable (e.g.,
-   startup).  It's less clear that asymmetric will have a performance/
-   state difference that will be significant.]]
+   For debugging purposes, a Route Log attribute is available that
+   stores information about each peer as the message is forwarded.
 
-   [[TODO:  it's not clear that symmetric/asymmetric is really that
-   evocative a terminology.  Henning suggested key-based/trace-based but
-   EKR doesn't like that.  Other suggestions?]]
+   RELOAD also supports a basic iterative routing mode (where the
+   intermediate peers merely return a response indicating the next hop,
+   but do not actually forward the message to that next hop themselves).
+   Iterative routing is implemented using the ROUTE_QUERY method, which
+   requests this behavior.  Note that iterative routing is selected only
+   by the initiating peer.  RELOAD does not support an intermediate peer
+   returning a response that it will not recursively route the
+   request---the willingness to perform that operation is implicit in
+   its role as a peer in the overlay.
 
-   [TODO:  BBL; this is weirdly clumsy below.  I'm not sure if we're
-   still talking about a forwarding layer, but this concept needs to be
-   introduced at the begining of this sxn, I think]
+3.4.1.  Routing Alternatives
 
-   The forwarding layer is responsible for looking at message and doing
-   one of three things:
+   Significant discussion has been focused on the selection of a routing
+   algorithm for P2PSIP.  This section discusses the motivations for
+   selection of symmetric recursive routing for RELOAD and describes the
+   extensions that would be required to support additional routing
+   algorithms.
 
-   o  Deciding the message was destined for this peer and passing the
-      message up to the layer above this.
-   o  Looking at the peer-id that represents the next peer to send the
-      message too and if there is an existing connection, sending the
-      message over the connection.
-   o  Requesting the DHT Routing logic to tell the forwarding layer
-      which peer the message needs to be forwarded to (based on the
-      target peer-id or resource-id), and then sending the message.
+3.4.1.1.  Iterative vs Recursive
 
-3.4.1.  Via Lists
+   Iterative routing has a number of advantages.  It is easier to debug,
+   consumes fewer resources on intermediate peers, and allows the
+   querying peer to identify and route around misbehaving peers.
+   However, in the presence of NATs iterative routing is intolerably
+   expensive because a new connection (using ICE) must be established
+   for each hop.
 
-   [TODO:  BBL; I would merge this into the symmetric section and try to
-   trim a bit.]
+   Iterative routing is supported through the ROUTE_QUERY mechanism and
+   is primarily intended for debugging.  It is also the most reliable
+   technique in the presence of compromised peers or network
+   transitivity because the querying peer can evaluate the routing
+   decisions made by the peers at each hop and consider alternatives
+   [REF].
 
-   In a general messaging system, messages need a source and a
-   destination and peers need to be able to send a response to the peer
-   that sent the request.  This can be particularly tricky in overlay
-   networks when a new peer is joining, or the overlay network is
-   stabilizing and different peers have different ideas on what the
-   overlay topology is.  A simple and reliable way to make sure that a
-   response can reach the node that sent the request in these situations
-   is to have the response traverse the reverse path of the request.
+3.4.1.2.  Symmetric vs Forward response
 
-   The approach used here is to have each node the request traverses add
-   its peer-id to the "via list" in the request.  Then the response is
-   routed by looking at the list and using it as list of peers that the
-   response will be routed thorough.  To support this, each message has
-   a destination list of nodes it needs to be routed through as well as
-   a via list of what nodes it has traversed.
+   An alternative to the symmetric recursive routing method used by
+   RELOAD is forward-only routing, where the response is routed to the
+   requester as if it is a new message initiating by the responder (in
+   the previous example, Z sends the response to A as if it was sending
+   a request).  Forward-only routing requires no state in either the
+   message or intermediate peers.
 
-   When a peer receives a message from the Transport Layer, it adds the
-   peer-id of the node it received the message from to the end of the
+   The drawback of forward-only routing is that it does not work when
+   the overlay is unstable.  For example, if A is in the process of
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 18]
+Jennings, et al.        Expires November 21, 2008              [Page 20]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
-   via list.  When a peer goes to transmit a message to the Transport
-   Layer, it looks at the first entry on the destination list.  If the
-   entry is this peer, it removes this entry from the list and looks at
-   the next entry and if the entry is not this peer, it sends the
-   message to the first peer on the destination list.
+   joining the overlay and is sending a JOIN request to Z, it is not yet
+   reachable via forward routing.  Even if it is established in the
+   overlay, if network failures produce temporary instablity, A may not
+   be reachable (and may be trying to stabilize its network connectivity
+   via CONNECT messages).
 
-   When a peer goes to send a response to a request, it can simply copy
-   the via list in reverse to form the destination list for the response
-   if it wishes to route the response along the reverse path as the
-   request.
+   An extension to RELOAD that supports forward-only routing but relies
+   on symmetric responses as a fallback would be possible, but due to
+   the complexities of determining when to use forward-only and when to
+   fallback to symmetric, we have chosen not to include it as an option
+   at this point.
 
-   Peers that are willing to maintain state may do list compression for
-   privacy reason and to reduce the message size.  They do this by
-   taking some number of entries off the via list and replacing them
-   with a unique entry that this peer can later identify.  Later, if the
-   peer sees the unique entry in a destination list, it removes the
-   unique entry and replaces it with the all the entries removed from
-   the original via list (and reverses the order of these entries).
-   Note that this technique will generally require storing some per-
-   message state on the intermediate peer, so this is a bandwidth/
-   per-peer state tradeoff.  The exception is if the list is not
-   compressed but rather the peer-ids are simply encrypted.
+3.4.1.3.  Direct Response
 
-   The via list approach provides several features.  First it allows a
-   response to follow the same path as the request.  This is
-   particularly important for peers that are sending requests while they
-   are joining and before other peers can route to them as well as
-   situations where message are being exchanged to stabilize the overlay
-   network.  It also makes it easier to diagnose and manage the system
-   when all peers see the response to any request they forward.
+   A highly desireable routing option is to return the response directly
+   to the querying node.  In the previous example, if A encodes its IP
+   address in the request, then Z can simply deliver the response
+   directly to A. In the absence of NATs or other connectivity issues,
+   this is the optimal routing technique.
 
-3.4.2.  Clients
+   The challenge of implementing direct response is implementing it in
+   the presence of NATs.  There are a number of complexities that must
+   be addressed.  In this discussion, we will continue our assumption
+   that A issued the request and Z is generating the response.
 
-   RELOAD also allows for the possibility of client nodes.  A client is
-   a node with a peer-id which connects to an admitting peer (or peers)
-   like an ordinary peer but never sends a JOIN or an UPDATE.  It is
-   therefore in the AP's connection table but not its routing table and
-   never is used to store any DHT data.  However, because it is
-   reachable through the AP, it can still send and receive messages.
-   The client MUST still have the usual credentials.  Also, because it
-   never sends JOINs it is never responsible for storing data.
-
-   Because the client may only have a connection to a single AP, which,
-   due to topology shifts may no longer be the responsible peer, clients
-   SHOULD use symmetric routing and should advertise route lists that
-   contain both the AP to which they are connected and themselves.
-   E.g., if the client has peer-id X and the AP has peer-id Y, the
-   client should advertise the destination list (Y, X).  This guarantees
-
+   o  The IP address listed by A may be unreachable, either due to NAT
+      or firewall rules.  Therefore, a direct response technique must
+      fallback to symmetric response.  The hop-by-hop ACKs used by
+      RELOAD allow Z to determine when A has received the message (and
+      the SSL negotiation will provide earlier confirmation that A is
+      reachable), but this fallback requires a timeout that will
+      increase the response latency whenever A is not reachable from Z.
+   o  Whenever A is behind a NAT it will have multiple candidate IP
+      addresses, each of which must be advertised to ensure
+      connectivity, therefore Z will need to attempt multiple
+      connections to deliver the response.
+   o  One (or all) of A's candidate addresses may route from Z to a
+      different device on the Internet.  In the worst case these nodes
+      may actually be running RELOAD on the same port.  Therefore,
+      establishing a secure connection to authenticate A before
+      delivering the response is absolutely necessary.  This step
+      diminishes the efficiency of direct response because TODO
+      roundtrips are required before the message can be delivered.
+   o  If A is behind a NAT and does not have a connection already
+      established with Z, there are only two ways the direct response
+      will work.  The first is that A and Z are both behind the same
+      NAT, in which case the NAT is not involved.  In the more common
+      case, when Z is outside A's NAT, the response will only be
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 19]
+
+Jennings, et al.        Expires November 21, 2008              [Page 21]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
-   reachability.
+      received if A's NAT implements endpoint-independent filtering.
+      Because this is not the recommended filtering mode for
+      NATs[RFC4787], this ability is likely to become less common over
+      time.
 
-   Note that clients MAY also contact APs which are not in fact
-   responsible for the client's peer-id.
+   An extension to RELOAD that supports direct response routing but
+   relies on symmetric responses as a fallback would be possible, but
+   due to the complexities of determining when to use forward-only and
+   when to fallback to symmetric, and the reduced performance for
+   responses to peers behind restrictive NATs, we have chosen not to
+   include it as an option at this point.
+
+3.4.1.4.  Relaying Peers
+
+   SEP [I-D.jiang-p2psip-sep] has proposed implementing a form of direct
+   response by having A identify a peer, Q, that will be directly
+   reachable by any other peer.  A uses CONNECT to establish a
+   connection with Q and advertises Q's IP address in the request sent
+   to Z. Z sends the response to Q, which relays it to A. This then
+   reduces the latency to two hops, plus Z negotiating a secure
+   connection to Q.
+
+   This technique relies on the relative population of nodes such as A
+   that require relay peers and peers such as Q that are capable of
+   serving as a relay peer.  It also requires nodes to be able to
+   identify which category they are in.
+
+   An extension to RELOAD that supports relay peers is possible, but due
+   to the complexities of implementing such an alternative, we have not
+   added such a feature to RELOAD at this point.
+
+3.4.1.5.  Symmetric Route Stability
+
+   A common concern about symmetric recursive routing has been that one
+   or more peers along the request path may fail before the response is
+   received.  The significance of this problem essentially depends on
+   the response latency of the overlay---an overlay that produces slow
+   responses will be vulnerable to churn, whereas responses that are
+   delivered very quickly are vulnerable only to failures that occur
+   over that small interval.
+
+   The other aspect of this issue is whether the request itself can be
+   successfully delivered.  Assuming typical connection maintenance
+   intervals, the time period between the last maintenance and the
+   request being sent will be orders of magnitude greater than the delay
+   between the request being forwarded and the response being received.
+   Therefore, if the path was stable enough to be available to route the
+   request, it is almost certainly going to remain available to route
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 22]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
+   the response [REF:  havethisneedtogetit].
+
+   An overlay that is unstable enough to suffer this type of failure
+   frequently is unlikely to be able to support reliable functionality
+   regardless of the routing mechanism.
+
+   Finally, because RELOAD retries the end-to-end request, that retry
+   will address the issues of churn that remain.
 
 3.5.  Overlay Algorithm Support
 
@@ -1107,20 +1279,20 @@ Internet-Draft                   RELOAD                         May 2008
    The details of this operation depend mostly on the DHT involved, but
    a typical case would be:
 
-   1.  JP sends a JOIN request to AP announcing its intention to join.
-   2.  AP sends an JOIN response.
-   3.  AP does a sequence of STOREs to JP to give it the data it will
-       need.
 
 
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 20]
+Jennings, et al.        Expires November 21, 2008              [Page 23]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
+   1.  JP sends a JOIN request to AP announcing its intention to join.
+   2.  AP sends an JOIN response.
+   3.  AP does a sequence of STOREs to JP to give it the data it will
+       need.
    4.  AP does UPDATEs to JP and to other peers to tell it about its own
        routing table.  At this point, both JP and AP consider JP
        responsible for some section of the DHT.
@@ -1166,17 +1338,16 @@ Internet-Draft                   RELOAD                         May 2008
    username and password before issuing the certificate.
 
 
-4.  Application Support Overview
-
-   [TODO:  HGS; this needs bridge text to explain what application
 
 
-
-Jennings, et al.        Expires November 19, 2008              [Page 21]
+Jennings, et al.        Expires November 21, 2008              [Page 24]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
+4.  Application Support Overview
+
+   [TODO:  HGS; this needs bridge text to explain what application
    support is.]
 
 4.1.  Data Model
@@ -1225,10 +1396,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-
-
-
-Jennings, et al.        Expires November 19, 2008              [Page 22]
+Jennings, et al.        Expires November 21, 2008              [Page 25]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -1284,7 +1452,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 23]
+Jennings, et al.        Expires November 21, 2008              [Page 26]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -1308,11 +1476,70 @@ Internet-Draft                   RELOAD                         May 2008
 
 4.3.  Replication
 
-   [TODO:  BBL]
+   Replication in P2P overlays can be used to provide:
+
+   persistence  if the responsible peer crashes and/or if the storing
+      peer leaves the overlay
+   security  to guard against DoS attacks by the responsible peer or
+      routing attacks to that responsible peer
+   load balancing  to balance the load of queries for popular resources.
+
+   A variety of schemes are used in P2P overlays to achieve some of
+   these goals.  Common techniques include replicating on neighbors of
+   the responsible peer, randomly locating replicas around the overlay,
+   or replicating along the path to the responsible peer.
+
+   The core RELOAD specification does not specify a particular
+   replication strategy.  Instead, the first level of replication
+   strategies are determined by the overlay algorithm, which can base
+   the replication strategy on the its particular topology.  For
+   example, Chord places replicas on successor peers, which will take
+   over responsibility should the responsible peer fail.
+
+   If additional replication is needed, for example if data persistence
+   is particularly important for a particular usage, then that usage may
+   specify additional replication, such as implementing random
+   replications by inserting a salt into the keyword used to store a
+   resource.  Such replication strategies can be added independent of
+   the underlying algorithm, and their usage can be determined based on
+   the needs of the particular usage.
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 27]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
 4.4.  Application Connectivity
 
-   [TODO:  BBL]
+   There is no requirement that a RELOAD usage must use RELOAD's
+   primitives for establishing its own communication if it already
+   posesses its own means of establishing connections.  For example, if
+   a P2PSIP node registers a simple SIP URI in an overlay, such as
+   alice@example.com, then conventional SIP resolution is applied to
+   establish a dialog.
+
+   For more common situations, where the overlay itself is used to
+   establish a connection rather than an external authority such as DNS,
+   RELOAD provides connectivity to applications using the same CONNECT
+   method as is used for the overlay maintenance.  For example, if a
+   P2PSIP node wishes to establish a SIP dialog with another P2PSIP
+   node, it will use CONNECT to establish a direct connection with the
+   other node.  This new connection is separate from the peer protocol
+   connection, it is a dedicated UDP or TCP flow used only for the SIP
+   dialog.  Each usage specifies which types of connections can be
+   initiated using CONNECT.
+
+   Previous versions of RELOAD specified a TUNNEL method by which a
+   usage could specify how to route application-specific messages across
+   the overlay without establishing a new connection.  This version
+   withdraws that method because it is essentially an optimization that
+   adds additional complexity, particularly in specifying how an
+   application such as SIP will make use of the feature, without adding
+   additional functionality.  It may be reintroduced in the future.
 
 
 5.  P2PSIP Integration Overview
@@ -1332,18 +1559,19 @@ Internet-Draft                   RELOAD                         May 2008
        peer-id in the overlay.  I.e., "sip:bob@dht.example.com -> 1234".
    2.  Alice, operating peer-id 5678, decides to call Bob. She looks up
        "sip:bob@dht.example.com" in the overlay and retrieves "1234".
-   3.  Alice uses the overlay to route a CONNECT message to Bob's peer.
-       Bob responds with his own CONNECT and they set up a direct
-       connection, as shown below.
 
 
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 24]
+Jennings, et al.        Expires November 21, 2008              [Page 28]
 
 Internet-Draft                   RELOAD                         May 2008
 
+
+   3.  Alice uses the overlay to route a CONNECT message to Bob's peer.
+       Bob responds with his own CONNECT and they set up a direct
+       connection, as shown below.
 
              Alice       Peer1      Overlay     PeerN      Bob
              (5678)                                     (1234)
@@ -1387,20 +1615,22 @@ Internet-Draft                   RELOAD                         May 2008
    describe the message structure, and then finally describe the
    messages used to join and maintain the overlay.
 
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 29]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
 6.1.  Message Routing
 
    Regardless of which DHT algorithm is used, a RELOAD overlay is a
    partly connected (incomplete) graph of nodes, each identified by
    peer-id.  Each node maintains a set of connections to some other set
    of nodes in the overlay.  If a node is directly connected to the
-
-
-
-Jennings, et al.        Expires November 19, 2008              [Page 25]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    destination of a message, it can send it directly.  However, in
    general, any two nodes will probably not be directly connected; when
    node A wants to send a message to node B, the message must traverse
@@ -1443,20 +1673,20 @@ Internet-Draft                   RELOAD                         May 2008
    routed down that connection.  Otherwise, the topology plugin will be
    consulted to determine the appropriate next hop.
 
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 30]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    [[TODO:  Salman has suggested the originator doing parallel requests/
    responses.  This is an open issue.]
 
    Because messages may be lost in transit through the overlay, RELOAD
    incorporates an end-to-end reliability mechanism.  When an
    originating node transmits a request it sets a 3 second timer.  If a
-
-
-
-Jennings, et al.        Expires November 19, 2008              [Page 26]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    response has not been received when the timer fires, the request is
    retransmitted with the same transaction identifier.  The request may
    be retransmitted up to 4 times (for a total of 5 messages).  After
@@ -1499,19 +1729,18 @@ Internet-Draft                   RELOAD                         May 2008
    If the first entry on the destination list is a Hashed-ID for which
    the peer is responsible, the peer strips the entry off the
    destination list.  If there are remaining entries on the destination
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 31]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    list, the peer then re-examines the destination list to determine
    which case now applies.  If the destination list is now empty, then
    the message was destined for this peer and it MUST pass it to the
    next layer up.
-
-
-
-
-
-Jennings, et al.        Expires November 19, 2008              [Page 27]
-
-Internet-Draft                   RELOAD                         May 2008
-
 
 6.1.2.3.  Other Hashed-ID
 
@@ -1556,18 +1785,15 @@ Internet-Draft                   RELOAD                         May 2008
    list.  This has the result that the response traverses (at least) the
    same peers as the request traversed, except in reverse order
    (symmetric routing).  For asymmetric routing, the peer MAY simply use
-   the first entry on the via list.
 
 
 
-
-
-
-
-Jennings, et al.        Expires November 19, 2008              [Page 28]
+Jennings, et al.        Expires November 21, 2008              [Page 32]
 
 Internet-Draft                   RELOAD                         May 2008
 
+
+   the first entry on the via list.
 
 6.2.  Message Structure
 
@@ -1618,9 +1844,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-
-
-Jennings, et al.        Expires November 19, 2008              [Page 29]
+Jennings, et al.        Expires November 21, 2008              [Page 33]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -1676,7 +1900,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 30]
+Jennings, et al.        Expires November 21, 2008              [Page 34]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -1732,7 +1956,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 31]
+Jennings, et al.        Expires November 21, 2008              [Page 35]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -1788,7 +2012,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 32]
+Jennings, et al.        Expires November 21, 2008              [Page 36]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -1844,7 +2068,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 33]
+Jennings, et al.        Expires November 21, 2008              [Page 37]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -1900,7 +2124,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 34]
+Jennings, et al.        Expires November 21, 2008              [Page 38]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -1956,7 +2180,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 35]
+Jennings, et al.        Expires November 21, 2008              [Page 39]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2012,7 +2236,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 36]
+Jennings, et al.        Expires November 21, 2008              [Page 40]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2068,7 +2292,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 37]
+Jennings, et al.        Expires November 21, 2008              [Page 41]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2124,7 +2348,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 38]
+Jennings, et al.        Expires November 21, 2008              [Page 42]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2180,7 +2404,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 39]
+Jennings, et al.        Expires November 21, 2008              [Page 43]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2236,7 +2460,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 40]
+Jennings, et al.        Expires November 21, 2008              [Page 44]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2292,7 +2516,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 41]
+Jennings, et al.        Expires November 21, 2008              [Page 45]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2348,7 +2572,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 42]
+Jennings, et al.        Expires November 21, 2008              [Page 46]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2404,7 +2628,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 43]
+Jennings, et al.        Expires November 21, 2008              [Page 47]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2460,7 +2684,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 44]
+Jennings, et al.        Expires November 21, 2008              [Page 48]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2516,7 +2740,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 45]
+Jennings, et al.        Expires November 21, 2008              [Page 49]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2572,7 +2796,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 46]
+Jennings, et al.        Expires November 21, 2008              [Page 50]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2628,7 +2852,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 47]
+Jennings, et al.        Expires November 21, 2008              [Page 51]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2684,7 +2908,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 48]
+Jennings, et al.        Expires November 21, 2008              [Page 52]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2740,7 +2964,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 49]
+Jennings, et al.        Expires November 21, 2008              [Page 53]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2796,7 +3020,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 50]
+Jennings, et al.        Expires November 21, 2008              [Page 54]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2852,7 +3076,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 51]
+Jennings, et al.        Expires November 21, 2008              [Page 55]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2908,7 +3132,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 52]
+Jennings, et al.        Expires November 21, 2008              [Page 56]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -2964,7 +3188,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 53]
+Jennings, et al.        Expires November 21, 2008              [Page 57]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3020,7 +3244,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 54]
+Jennings, et al.        Expires November 21, 2008              [Page 58]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3076,7 +3300,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 55]
+Jennings, et al.        Expires November 21, 2008              [Page 59]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3132,7 +3356,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 56]
+Jennings, et al.        Expires November 21, 2008              [Page 60]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3188,7 +3412,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 57]
+Jennings, et al.        Expires November 21, 2008              [Page 61]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3244,7 +3468,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 58]
+Jennings, et al.        Expires November 21, 2008              [Page 62]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3300,7 +3524,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 59]
+Jennings, et al.        Expires November 21, 2008              [Page 63]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3356,7 +3580,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 60]
+Jennings, et al.        Expires November 21, 2008              [Page 64]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3412,7 +3636,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 61]
+Jennings, et al.        Expires November 21, 2008              [Page 65]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3468,7 +3692,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 62]
+Jennings, et al.        Expires November 21, 2008              [Page 66]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3524,7 +3748,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 63]
+Jennings, et al.        Expires November 21, 2008              [Page 67]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3580,7 +3804,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 64]
+Jennings, et al.        Expires November 21, 2008              [Page 68]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3636,7 +3860,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 65]
+Jennings, et al.        Expires November 21, 2008              [Page 69]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3692,7 +3916,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 66]
+Jennings, et al.        Expires November 21, 2008              [Page 70]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3748,7 +3972,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 67]
+Jennings, et al.        Expires November 21, 2008              [Page 71]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3804,7 +4028,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 68]
+Jennings, et al.        Expires November 21, 2008              [Page 72]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3860,7 +4084,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 69]
+Jennings, et al.        Expires November 21, 2008              [Page 73]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3916,7 +4140,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 70]
+Jennings, et al.        Expires November 21, 2008              [Page 74]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3972,7 +4196,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 71]
+Jennings, et al.        Expires November 21, 2008              [Page 75]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4028,7 +4252,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 72]
+Jennings, et al.        Expires November 21, 2008              [Page 76]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4084,7 +4308,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 73]
+Jennings, et al.        Expires November 21, 2008              [Page 77]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4140,7 +4364,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 74]
+Jennings, et al.        Expires November 21, 2008              [Page 78]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4196,7 +4420,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 75]
+Jennings, et al.        Expires November 21, 2008              [Page 79]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4252,7 +4476,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 76]
+Jennings, et al.        Expires November 21, 2008              [Page 80]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4308,7 +4532,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 77]
+Jennings, et al.        Expires November 21, 2008              [Page 81]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4364,7 +4588,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 78]
+Jennings, et al.        Expires November 21, 2008              [Page 82]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4420,7 +4644,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 79]
+Jennings, et al.        Expires November 21, 2008              [Page 83]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4476,7 +4700,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 80]
+Jennings, et al.        Expires November 21, 2008              [Page 84]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4532,7 +4756,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 81]
+Jennings, et al.        Expires November 21, 2008              [Page 85]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4588,7 +4812,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 82]
+Jennings, et al.        Expires November 21, 2008              [Page 86]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4644,7 +4868,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 83]
+Jennings, et al.        Expires November 21, 2008              [Page 87]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4700,7 +4924,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 84]
+Jennings, et al.        Expires November 21, 2008              [Page 88]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4756,7 +4980,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 85]
+Jennings, et al.        Expires November 21, 2008              [Page 89]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4812,7 +5036,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 86]
+Jennings, et al.        Expires November 21, 2008              [Page 90]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4868,7 +5092,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 87]
+Jennings, et al.        Expires November 21, 2008              [Page 91]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4924,7 +5148,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 88]
+Jennings, et al.        Expires November 21, 2008              [Page 92]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4980,7 +5204,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 89]
+Jennings, et al.        Expires November 21, 2008              [Page 93]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5036,7 +5260,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 90]
+Jennings, et al.        Expires November 21, 2008              [Page 94]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5092,7 +5316,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 91]
+Jennings, et al.        Expires November 21, 2008              [Page 95]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5148,7 +5372,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 92]
+Jennings, et al.        Expires November 21, 2008              [Page 96]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5204,7 +5428,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 93]
+Jennings, et al.        Expires November 21, 2008              [Page 97]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5260,7 +5484,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 94]
+Jennings, et al.        Expires November 21, 2008              [Page 98]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5316,7 +5540,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 95]
+Jennings, et al.        Expires November 21, 2008              [Page 99]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5372,7 +5596,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 96]
+Jennings, et al.        Expires November 21, 2008             [Page 100]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5428,7 +5652,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 97]
+Jennings, et al.        Expires November 21, 2008             [Page 101]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5484,7 +5708,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 98]
+Jennings, et al.        Expires November 21, 2008             [Page 102]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5540,7 +5764,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008              [Page 99]
+Jennings, et al.        Expires November 21, 2008             [Page 103]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5596,7 +5820,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008             [Page 100]
+Jennings, et al.        Expires November 21, 2008             [Page 104]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5652,7 +5876,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008             [Page 101]
+Jennings, et al.        Expires November 21, 2008             [Page 105]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5708,7 +5932,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008             [Page 102]
+Jennings, et al.        Expires November 21, 2008             [Page 106]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5764,7 +5988,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008             [Page 103]
+Jennings, et al.        Expires November 21, 2008             [Page 107]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5820,7 +6044,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008             [Page 104]
+Jennings, et al.        Expires November 21, 2008             [Page 108]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5862,23 +6086,28 @@ Internet-Draft                   RELOAD                         May 2008
               Environment", draft-camarillo-hip-bone-00 (work in
               progress), December 2007.
 
+   [I-D.pascual-p2psip-clients]
+              Pascual, V., Matuszewski, M., Shim, E., Zhang, H., and S.
+              Yongchao, "P2PSIP Clients",
+              draft-pascual-p2psip-clients-01 (work in progress),
+              February 2008.
+
+   [RFC4787]  Audet, F. and C. Jennings, "Network Address Translation
+              (NAT) Behavioral Requirements for Unicast UDP", BCP 127,
+              RFC 4787, January 2007.
+
+   [I-D.jiang-p2psip-sep]
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-Jennings, et al.        Expires November 19, 2008             [Page 105]
+Jennings, et al.        Expires November 21, 2008             [Page 109]
 
 Internet-Draft                   RELOAD                         May 2008
+
+
+              Jiang, X. and H. Zhang, "Service Extensible P2P Peer
+              Protocol", draft-jiang-p2psip-sep-01 (work in progress),
+              February 2008.
 
 
 Authors' Addresses
@@ -5895,7 +6124,7 @@ Authors' Addresses
 
 
    Bruce B. Lowekamp
-   SIPeerior; William & Mary
+   SIPeerior Technologies
    3000 Easter Circle
    Williamsburg, VA  23188
    USA
@@ -5927,12 +6156,7 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-Jennings, et al.        Expires November 19, 2008             [Page 106]
+Jennings, et al.        Expires November 21, 2008             [Page 110]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -5988,7 +6212,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 19, 2008             [Page 107]
+Jennings, et al.        Expires November 21, 2008             [Page 111]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -6044,5 +6268,5 @@ Acknowledgment
 
 
 
-Jennings, et al.        Expires November 19, 2008             [Page 108]
+Jennings, et al.        Expires November 21, 2008             [Page 112]
 
