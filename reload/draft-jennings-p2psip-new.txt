@@ -7,8 +7,6 @@ Intended status:  Standards Track                            B. Lowekamp
 Expires:  November 21, 2008                       SIPeerior Technologies
                                                              E. Rescorla
                                                        Network Resonance
-                                                            J. Rosenberg
-                                                                   Cisco
                                                                 S. Baset
                                                           H. Schulzrinne
                                                      Columbia University
@@ -43,12 +41,14 @@ Status of this Memo
 
    This Internet-Draft will expire on November 21, 2008.
 
+Copyright Notice
+
+   Copyright (C) The IETF Trust (2008).
+
 Abstract
 
    This document defines REsource LOcation And Discovery (RELOAD), a
    peer-to-peer (P2P) binary signaling protocol for use on the Internet.
-   A P2P signaling protocol provides its clients with an abstract hash
-   table service between a set of cooperating peers that form the
 
 
 
@@ -57,6 +57,8 @@ Jennings, et al.        Expires November 21, 2008               [Page 1]
 Internet-Draft                   RELOAD                         May 2008
 
 
+   A P2P signaling protocol provides its clients with an abstract hash
+   table service between a set of cooperating peers that form the
    overlay network.  RELOAD is designed to support a P2P Session
    Initiation Protocol (P2PSIP) network, but can be utilized by other
    applications with similar requirements by defining new usages that
@@ -103,8 +105,6 @@ Table of Contents
        4.1.1.  Storage Permissions . . . . . . . . . . . . . . . . .  26
      4.2.  Service Discovery . . . . . . . . . . . . . . . . . . . .  27
      4.3.  Replication . . . . . . . . . . . . . . . . . . . . . . .  27
-     4.4.  Application Connectivity  . . . . . . . . . . . . . . . .  28
-   5.  P2PSIP Integration Overview . . . . . . . . . . . . . . . . .  28
 
 
 
@@ -113,6 +113,8 @@ Jennings, et al.        Expires November 21, 2008               [Page 2]
 Internet-Draft                   RELOAD                         May 2008
 
 
+     4.4.  Application Connectivity  . . . . . . . . . . . . . . . .  28
+   5.  P2PSIP Integration Overview . . . . . . . . . . . . . . . . .  28
    6.  Overlay Management Protocol . . . . . . . . . . . . . . . . .  29
      6.1.  Message Routing . . . . . . . . . . . . . . . . . . . . .  30
        6.1.1.  Request Origination . . . . . . . . . . . . . . . . .  30
@@ -141,26 +143,24 @@ Internet-Draft                   RELOAD                         May 2008
      7.3.  Data Storage Methods  . . . . . . . . . . . . . . . . . .  61
        7.3.1.  STORE . . . . . . . . . . . . . . . . . . . . . . . .  61
        7.3.2.  FETCH . . . . . . . . . . . . . . . . . . . . . . . .  65
-       7.3.3.  REMOVE  . . . . . . . . . . . . . . . . . . . . . . .  67
-       7.3.4.  FIND  . . . . . . . . . . . . . . . . . . . . . . . .  69
-   8.  ICE and Connection Formation  . . . . . . . . . . . . . . . .  71
-     8.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .  71
-     8.2.  Collecting STUN Servers . . . . . . . . . . . . . . . . .  72
-     8.3.  Gathering Candidates  . . . . . . . . . . . . . . . . . .  73
-     8.4.  Encoding the CONNECT Message  . . . . . . . . . . . . . .  74
-     8.5.  Verifying ICE Support . . . . . . . . . . . . . . . . . .  75
-     8.6.  Role Determination  . . . . . . . . . . . . . . . . . . .  75
-     8.7.  Connectivity Checks . . . . . . . . . . . . . . . . . . .  75
-     8.8.  Concluding ICE  . . . . . . . . . . . . . . . . . . . . .  75
-     8.9.  Subsequent Offers and Answers . . . . . . . . . . . . . .  75
-     8.10. Media Keepalives  . . . . . . . . . . . . . . . . . . . .  76
-     8.11. Sending Media . . . . . . . . . . . . . . . . . . . . . .  76
-     8.12. Receiving Media . . . . . . . . . . . . . . . . . . . . .  76
-   9.  Certificate Store Usage . . . . . . . . . . . . . . . . . . .  76
-   10. SIP Usage . . . . . . . . . . . . . . . . . . . . . . . . . .  77
-     10.1. Registering AORs  . . . . . . . . . . . . . . . . . . . .  77
-     10.2. Looking up an AOR . . . . . . . . . . . . . . . . . . . .  79
-     10.3. Forming a Direct Connection . . . . . . . . . . . . . . .  80
+       7.3.3.  REMOVE  . . . . . . . . . . . . . . . . . . . . . . .  68
+       7.3.4.  FIND  . . . . . . . . . . . . . . . . . . . . . . . .  70
+   8.  ICE and Connection Formation  . . . . . . . . . . . . . . . .  72
+     8.1.  Overview  . . . . . . . . . . . . . . . . . . . . . . . .  72
+     8.2.  Collecting STUN Servers . . . . . . . . . . . . . . . . .  73
+     8.3.  Gathering Candidates  . . . . . . . . . . . . . . . . . .  74
+     8.4.  Encoding the CONNECT Message  . . . . . . . . . . . . . .  75
+     8.5.  Verifying ICE Support . . . . . . . . . . . . . . . . . .  76
+     8.6.  Role Determination  . . . . . . . . . . . . . . . . . . .  76
+     8.7.  Connectivity Checks . . . . . . . . . . . . . . . . . . .  76
+     8.8.  Concluding ICE  . . . . . . . . . . . . . . . . . . . . .  76
+     8.9.  Subsequent Offers and Answers . . . . . . . . . . . . . .  76
+     8.10. Media Keepalives  . . . . . . . . . . . . . . . . . . . .  77
+     8.11. Sending Media . . . . . . . . . . . . . . . . . . . . . .  77
+     8.12. Receiving Media . . . . . . . . . . . . . . . . . . . . .  77
+   9.  Certificate Store Usage . . . . . . . . . . . . . . . . . . .  77
+   10. SIP Usage . . . . . . . . . . . . . . . . . . . . . . . . . .  78
+     10.1. Registering AORs  . . . . . . . . . . . . . . . . . . . .  78
 
 
 
@@ -169,54 +169,54 @@ Jennings, et al.        Expires November 21, 2008               [Page 3]
 Internet-Draft                   RELOAD                         May 2008
 
 
-     10.4. GRUUs . . . . . . . . . . . . . . . . . . . . . . . . . .  80
-     10.5. SIP-REGISTRATION Kind Definition  . . . . . . . . . . . .  81
-   11. Diagnostic Usage  . . . . . . . . . . . . . . . . . . . . . .  81
-     11.1. State Acquisition Mechanisms  . . . . . . . . . . . . . .  82
-     11.2. Black-box diagnostics . . . . . . . . . . . . . . . . . .  83
-     11.3. Diagnostic Metrics for a P2PSIP Deployment  . . . . . . .  85
-   12. Chord Algorithm . . . . . . . . . . . . . . . . . . . . . . .  86
-     12.1. Overview  . . . . . . . . . . . . . . . . . . . . . . . .  86
-     12.2. Routing . . . . . . . . . . . . . . . . . . . . . . . . .  86
-     12.3. Redundancy  . . . . . . . . . . . . . . . . . . . . . . .  87
-     12.4. Joining . . . . . . . . . . . . . . . . . . . . . . . . .  87
-     12.5. Routing CONNECTs  . . . . . . . . . . . . . . . . . . . .  88
-     12.6. UPDATEs . . . . . . . . . . . . . . . . . . . . . . . . .  88
-       12.6.1. Sending UPDATEs . . . . . . . . . . . . . . . . . . .  89
-       12.6.2. Receiving UPDATEs . . . . . . . . . . . . . . . . . .  89
-       12.6.3. Stabilization . . . . . . . . . . . . . . . . . . . .  90
-     12.7. Leaving . . . . . . . . . . . . . . . . . . . . . . . . .  92
-   13. Enrollment and Bootstrap  . . . . . . . . . . . . . . . . . .  92
-     13.1. Discovery . . . . . . . . . . . . . . . . . . . . . . . .  92
-     13.2. Overlay Configuration . . . . . . . . . . . . . . . . . .  93
-     13.3. Credentials . . . . . . . . . . . . . . . . . . . . . . .  94
-       13.3.1. Credentials for HIP . . . . . . . . . . . . . . . . .  95
-     13.4. Locating a Peer . . . . . . . . . . . . . . . . . . . . .  95
-   14. Message Flow Example  . . . . . . . . . . . . . . . . . . . .  96
-   15. Security Considerations . . . . . . . . . . . . . . . . . . .  96
-     15.1. Overview  . . . . . . . . . . . . . . . . . . . . . . . .  96
-     15.2. Attacks on P2P Overlays . . . . . . . . . . . . . . . . .  97
-     15.3. Certificate-based Security  . . . . . . . . . . . . . . .  97
-     15.4. Shared-Secret Security  . . . . . . . . . . . . . . . . .  98
-     15.5. Storage Security  . . . . . . . . . . . . . . . . . . . .  99
-       15.5.1. Authorization . . . . . . . . . . . . . . . . . . . .  99
-       15.5.2. Distributed Quota . . . . . . . . . . . . . . . . . . 100
-       15.5.3. Correctness . . . . . . . . . . . . . . . . . . . . . 100
-       15.5.4. Residual Attacks  . . . . . . . . . . . . . . . . . . 101
-     15.6. Routing Security  . . . . . . . . . . . . . . . . . . . . 101
-       15.6.1. Background  . . . . . . . . . . . . . . . . . . . . . 101
-       15.6.2. Admissions Control  . . . . . . . . . . . . . . . . . 102
-       15.6.3. Peer Identification and Authentication  . . . . . . . 102
-       15.6.4. Protecting the Signaling  . . . . . . . . . . . . . . 103
-       15.6.5. Residual Attacks  . . . . . . . . . . . . . . . . . . 103
-     15.7. SIP-Specific Issues . . . . . . . . . . . . . . . . . . . 104
-       15.7.1. Fork Explosion  . . . . . . . . . . . . . . . . . . . 104
-       15.7.2. Malicious Retargeting . . . . . . . . . . . . . . . . 104
-       15.7.3. Privacy Issues  . . . . . . . . . . . . . . . . . . . 104
-   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . . 104
-     16.1. Overlay Algorithm Types . . . . . . . . . . . . . . . . . 104
-     16.2. Data Kind-Id  . . . . . . . . . . . . . . . . . . . . . . 105
-     16.3. Data Model  . . . . . . . . . . . . . . . . . . . . . . . 105
+     10.2. Looking up an AOR . . . . . . . . . . . . . . . . . . . .  80
+     10.3. Forming a Direct Connection . . . . . . . . . . . . . . .  81
+     10.4. GRUUs . . . . . . . . . . . . . . . . . . . . . . . . . .  81
+     10.5. SIP-REGISTRATION Kind Definition  . . . . . . . . . . . .  82
+   11. Diagnostic Usage  . . . . . . . . . . . . . . . . . . . . . .  82
+     11.1. State Acquisition Mechanisms  . . . . . . . . . . . . . .  83
+     11.2. Black-box diagnostics . . . . . . . . . . . . . . . . . .  84
+     11.3. Diagnostic Metrics for a P2PSIP Deployment  . . . . . . .  86
+   12. Chord Algorithm . . . . . . . . . . . . . . . . . . . . . . .  87
+     12.1. Overview  . . . . . . . . . . . . . . . . . . . . . . . .  87
+     12.2. Routing . . . . . . . . . . . . . . . . . . . . . . . . .  88
+     12.3. Redundancy  . . . . . . . . . . . . . . . . . . . . . . .  88
+     12.4. Joining . . . . . . . . . . . . . . . . . . . . . . . . .  88
+     12.5. Routing CONNECTs  . . . . . . . . . . . . . . . . . . . .  89
+     12.6. UPDATEs . . . . . . . . . . . . . . . . . . . . . . . . .  89
+       12.6.1. Sending UPDATEs . . . . . . . . . . . . . . . . . . .  90
+       12.6.2. Receiving UPDATEs . . . . . . . . . . . . . . . . . .  90
+       12.6.3. Stabilization . . . . . . . . . . . . . . . . . . . .  91
+     12.7. Leaving . . . . . . . . . . . . . . . . . . . . . . . . .  93
+   13. Enrollment and Bootstrap  . . . . . . . . . . . . . . . . . .  93
+     13.1. Discovery . . . . . . . . . . . . . . . . . . . . . . . .  93
+     13.2. Overlay Configuration . . . . . . . . . . . . . . . . . .  94
+     13.3. Credentials . . . . . . . . . . . . . . . . . . . . . . .  96
+       13.3.1. Credentials for HIP . . . . . . . . . . . . . . . . .  97
+     13.4. Locating a Peer . . . . . . . . . . . . . . . . . . . . .  97
+   14. Message Flow Example  . . . . . . . . . . . . . . . . . . . .  98
+   15. Security Considerations . . . . . . . . . . . . . . . . . . .  98
+     15.1. Overview  . . . . . . . . . . . . . . . . . . . . . . . .  98
+     15.2. Attacks on P2P Overlays . . . . . . . . . . . . . . . . .  98
+     15.3. Certificate-based Security  . . . . . . . . . . . . . . .  99
+     15.4. Shared-Secret Security  . . . . . . . . . . . . . . . . . 100
+     15.5. Storage Security  . . . . . . . . . . . . . . . . . . . . 100
+       15.5.1. Authorization . . . . . . . . . . . . . . . . . . . . 101
+       15.5.2. Distributed Quota . . . . . . . . . . . . . . . . . . 101
+       15.5.3. Correctness . . . . . . . . . . . . . . . . . . . . . 102
+       15.5.4. Residual Attacks  . . . . . . . . . . . . . . . . . . 102
+     15.6. Routing Security  . . . . . . . . . . . . . . . . . . . . 103
+       15.6.1. Background  . . . . . . . . . . . . . . . . . . . . . 103
+       15.6.2. Admissions Control  . . . . . . . . . . . . . . . . . 103
+       15.6.3. Peer Identification and Authentication  . . . . . . . 104
+       15.6.4. Protecting the Signaling  . . . . . . . . . . . . . . 104
+       15.6.5. Residual Attacks  . . . . . . . . . . . . . . . . . . 105
+     15.7. SIP-Specific Issues . . . . . . . . . . . . . . . . . . . 105
+       15.7.1. Fork Explosion  . . . . . . . . . . . . . . . . . . . 105
+       15.7.2. Malicious Retargeting . . . . . . . . . . . . . . . . 105
+       15.7.3. Privacy Issues  . . . . . . . . . . . . . . . . . . . 106
+   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . . 106
+     16.1. Overlay Algorithm Types . . . . . . . . . . . . . . . . . 106
 
 
 
@@ -225,16 +225,16 @@ Jennings, et al.        Expires November 21, 2008               [Page 4]
 Internet-Draft                   RELOAD                         May 2008
 
 
-     16.4. Message Codes . . . . . . . . . . . . . . . . . . . . . . 106
-     16.5. Error Codes . . . . . . . . . . . . . . . . . . . . . . . 106
-   17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . 107
-   18. References  . . . . . . . . . . . . . . . . . . . . . . . . . 107
-     18.1. Normative References  . . . . . . . . . . . . . . . . . . 107
-     18.2. Informative References  . . . . . . . . . . . . . . . . . 108
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . 110
-   Intellectual Property and Copyright Statements  . . . . . . . . . 112
-
-
+     16.2. Data Kind-Id  . . . . . . . . . . . . . . . . . . . . . . 106
+     16.3. Data Model  . . . . . . . . . . . . . . . . . . . . . . . 107
+     16.4. Message Codes . . . . . . . . . . . . . . . . . . . . . . 107
+     16.5. Error Codes . . . . . . . . . . . . . . . . . . . . . . . 108
+   17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . 108
+   18. References  . . . . . . . . . . . . . . . . . . . . . . . . . 109
+     18.1. Normative References  . . . . . . . . . . . . . . . . . . 109
+     18.2. Informative References  . . . . . . . . . . . . . . . . . 110
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . 112
+   Intellectual Property and Copyright Statements  . . . . . . . . . 114
 
 
 
@@ -3351,7 +3351,7 @@ Internet-Draft                   RELOAD                         May 2008
           typedef opaque           DictionaryKey<0..2^16-1>;
 
           struct {
-            DictionaryKey          key<0..2^16-1>;
+            DictionaryKey          key;
             opaque                 value<0..2^32-1>;
 
 
@@ -3434,7 +3434,9 @@ Internet-Draft                   RELOAD                         May 2008
       to unknown kinds unless specifically configured otherwise.
 
    data_model
-      The data model of the data.
+      The data model of the data.  The kind defines what this has to be
+      so this is redundant in the case where the software interpreting
+      the messages understands the kind.
 
    generation
       The expected current state of the generation counter
@@ -3463,8 +3465,6 @@ Internet-Draft                   RELOAD                         May 2008
       would be replaced by this STORE.  [[OPEN ISSUE:  do peers need to
       save the storage time of REMOVEs to prevent reinsertion?]]
 
-   If all these checks succeed, the peer MUST attempt to store the data
-   values.  If the store succeeds and the data is changed, then the peer
 
 
 
@@ -3473,6 +3473,8 @@ Jennings, et al.        Expires November 21, 2008              [Page 62]
 Internet-Draft                   RELOAD                         May 2008
 
 
+   If all these checks succeed, the peer MUST attempt to store the data
+   values.  If the store succeeds and the data is changed, then the peer
    must increase the generation counter by at least one.  If there are
    multiple stored values in a single store_kind_data, it is permissible
    for the peer to increase the generation counter by only 1 for the
@@ -3504,6 +3506,29 @@ Internet-Draft                   RELOAD                         May 2008
    o  The value "foo" at index 0 in the array for kind Y
    o  The value "bar" at index 1 in the array for kind Y
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 63]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
                                      StoreQ
                                  resource=1234
                                     /      \
@@ -3521,14 +3546,6 @@ Internet-Draft                   RELOAD                         May 2008
                                             |           |
                                    StoredDataValue  StoredDataValue
                                          index=0      index=1
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 63]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
                                       value="foo"    value="bar"
 
 
@@ -3556,6 +3573,18 @@ Internet-Draft                   RELOAD                         May 2008
 
 
    kind
+
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 64]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
       The kind-id being represented.
 
    generation
@@ -3578,17 +3607,39 @@ Internet-Draft                   RELOAD                         May 2008
    generation counter for each kind and empty replicas lists.  [[TODO:
    The generation counter may need more thinking for uniqueness.]]
 
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 64]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
 7.3.2.  FETCH
 
    The FETCH request retrieves one or more data elements stored at a
    given resource-id.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 65]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
 7.3.2.1.  Request Definition
 
@@ -3636,10 +3687,14 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 65]
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 66]
 
 Internet-Draft                   RELOAD                         May 2008
-
 
 
    kind
@@ -3692,7 +3747,8 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 66]
+
+Jennings, et al.        Expires November 21, 2008              [Page 67]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3748,7 +3804,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 67]
+Jennings, et al.        Expires November 21, 2008              [Page 68]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3804,7 +3860,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 68]
+Jennings, et al.        Expires November 21, 2008              [Page 69]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3860,7 +3916,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 69]
+Jennings, et al.        Expires November 21, 2008              [Page 70]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3916,7 +3972,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 70]
+Jennings, et al.        Expires November 21, 2008              [Page 71]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -3972,7 +4028,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 71]
+Jennings, et al.        Expires November 21, 2008              [Page 72]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4028,7 +4084,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 72]
+Jennings, et al.        Expires November 21, 2008              [Page 73]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4084,7 +4140,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 73]
+Jennings, et al.        Expires November 21, 2008              [Page 74]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4110,8 +4166,8 @@ Internet-Draft                   RELOAD                         May 2008
    encoding for CONNECT.  The CONNECT request and its response do not
    contain any default candidates or the ice-lite attribute, as these
    features of ICE are not used by RELOAD.  The CONNECT request and its
-   response also contain a Next-Protocol attribute, with a value of SIP
-   or RELOAD, which indicates what protocol is to be run over the
+   response also contain a application attribute, with a value of SIP or
+   RELOAD, which indicates what protocol is to be run over the
    connection.  The RELOAD CONNECT request MUST only be utilized to set
    up connections for application protocols that can be multiplexed with
    STUN and RELOAD itself.
@@ -4140,7 +4196,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 74]
+Jennings, et al.        Expires November 21, 2008              [Page 75]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4196,7 +4252,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 75]
+Jennings, et al.        Expires November 21, 2008              [Page 76]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4252,7 +4308,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 76]
+Jennings, et al.        Expires November 21, 2008              [Page 77]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4308,7 +4364,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 77]
+Jennings, et al.        Expires November 21, 2008              [Page 78]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4364,7 +4420,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 78]
+Jennings, et al.        Expires November 21, 2008              [Page 79]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4420,7 +4476,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 79]
+Jennings, et al.        Expires November 21, 2008              [Page 80]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4476,7 +4532,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 80]
+Jennings, et al.        Expires November 21, 2008              [Page 81]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4532,7 +4588,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 81]
+Jennings, et al.        Expires November 21, 2008              [Page 82]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4588,7 +4644,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 82]
+Jennings, et al.        Expires November 21, 2008              [Page 83]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4644,7 +4700,7 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 83]
+Jennings, et al.        Expires November 21, 2008              [Page 84]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -4679,7 +4735,11 @@ Internet-Draft                   RELOAD                         May 2008
       (OPEN ISSUES:  How to determine a AS number?  This metric is
       primarily used for advertising and locating STUN/TURN servers.  A
       TURN server is inserted and looked up under H(AS).  What if there
-      are no TURN servers in the same AS? )
+      are no TURN servers in the same AS? ) [[TODO:  I propose we remove
+      this unless we can say how to compute it.  I note most the
+      software I have seen just uses the table lookup on IP address - if
+      this is the case it is probably better just to return IP address
+      of NAT. ]]
 
    CPU_UTILIZATION  A single value element containing an unsigned 8-bit
       integer representing the percentage CPU load from 1 to 100.
@@ -4689,10 +4749,6 @@ Internet-Draft                   RELOAD                         May 2008
       integer representing the number of bytes of data being stored by
       this node.
 
-   MESSAGES_SENT  An array element containing the number of messages
-      sent and received.  The array is indexed by method code.  Each
-      entry in the array is a pair of unsigned 64-bit integers (packed
-      end to end) representing sent and received.
 
 
 
@@ -4700,11 +4756,15 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 84]
+Jennings, et al.        Expires November 21, 2008              [Page 85]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
+   MESSAGES_SENT  An array element containing the number of messages
+      sent and received.  The array is indexed by method code.  Each
+      entry in the array is a pair of unsigned 64-bit integers (packed
+      end to end) representing sent and received.
 
    INSTANCES_STORED  An array element containing the number of instances
       of each kind stored.  The array is index by kind-id.  Each entry
@@ -4721,6 +4781,7 @@ Internet-Draft                   RELOAD                         May 2008
    EWMA_BYTES_SENT  A single value element containing an unsigned 32-bit
       integer representing an exponential weighted average of bytes sent
       by this peer.
+      [[ TODO :  Bruce or SAB - say how to compute this ]]
 
    EWMA_BYTES_RCVD  A single value element containing an unsigned 32-bit
       integer representing an exponential weighted average of bytes
@@ -4748,18 +4809,19 @@ Internet-Draft                   RELOAD                         May 2008
    and classify them under 'resource' and 'peer' metrics.
 
    For 'resource' metric, we identify CPU_UTILIZATION, EWMA_BYTES_SENT,
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 86]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    EWMA_BYTES_RCVD, and MEMORY_FOOTPRINT as the key metrics and for
    'peer' metric we identify UPTIME, LAST_CONTACT, and RTT as the
    metrics that are crucial for a deployed P2PSIP system.
 
    (OPEN QUESTION:  any other metrics?)
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 85]
-
-Internet-Draft                   RELOAD                         May 2008
-
 
    (OPEN:  Below, we sketch how these metrics can be used.  A peer can
    use EWMA_BYTES_SENT and EWMA_BYTES_RCVD of another peer to infer
@@ -4803,21 +4865,21 @@ Internet-Draft                   RELOAD                         May 2008
    A peer, n, is responsible for a particular Resource-ID k if k is less
    than or equal to n and k is greater than p, where p is the peer id of
    the previous peer in the neighborhood table.  Care must be taken when
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 87]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    computing to note that all math is modulo 2^128.
 
 12.2.  Routing
 
    If a peer is not responsible for a Resource-ID k, then it routes a
    request to that location by routing it to the peer in either the
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 86]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
-   neighborhood or finger table that has the largest Peer-ID that is in
+   routing or connection table that has the largest Peer-ID that is in
    the interval between the peer and k.
 
 12.3.  Redundancy
@@ -4833,7 +4895,9 @@ Internet-Draft                   RELOAD                         May 2008
    responsible for.  The peers receiving these check they came from an
    appropriate predecessor in their neighborhood table and that they are
    in a range that this predecessor is responsible for, and then they
-   store the data.
+   store the data. [[ TODO - make it clear nodes storing look at
+   resource-ID and what they are responsible for to decide if they need
+   to the redudant stores since they are the "master" copy. ]]
 
    Note that a malicious node can return a success response but not
    store the data locally or in the replica set.  Requesting peers which
@@ -4855,6 +4919,16 @@ Internet-Draft                   RELOAD                         May 2008
        table entries.  Note that this does not populate their routing
        tables, but only their connection tables, so JP will not get
        messages that it is expected to route to other nodes.
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 88]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    4.  JP enters all the peers it contacted into its routing table.
    5.  JP sends a JOIN to its immediate successor, the admitting peer
        (AP) for Peer-ID n.  The AP sends the response to the JOIN.
@@ -4864,15 +4938,6 @@ Internet-Draft                   RELOAD                         May 2008
        At this point, JP is part of the ring and responsible for a
        section of the overlay.  AP can now forget any data which is
        assigned to JP and not AP.
-
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 87]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    8.  AP sends an UPDATE to all of its neighbors with the new values of
        its neighbor set (including JP).
    9.  JP sends UPDATES to all the peers in its routing table.
@@ -4912,22 +4977,20 @@ Internet-Draft                   RELOAD                         May 2008
 
          struct {
            PeerId                  predecessors<0..2^16-1>;
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 89]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
            PeerId                  successors<0..2^16-1>;
          } ChordUpdate;
 
 
 
    The contents of this message are:
-
-
-
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 88]
-
-Internet-Draft                   RELOAD                         May 2008
-
 
 
    predecessors
@@ -4971,20 +5034,17 @@ Internet-Draft                   RELOAD                         May 2008
    them to the peers in the update request.  There are three major
    cases:
 
-   o  The UPDATE_Q contains peers that would not change the neighbor set
-      because they match the neighborhood table.
-   o  The UPDATE_Q contains peers closer to N than those in its
-      neighborhood table.
 
 
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 89]
+Jennings, et al.        Expires November 21, 2008              [Page 90]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
+   o  The UPDATE_Q contains peers that would not change the neighbor set
+      because they match the neighborhood table.
+   o  The UPDATE_Q contains peers closer to N than those in its
+      neighborhood table.
    o  The UPDATE_Q defines peers that indicate a neighborhood table
       further away from N than some of its neighborhood table.  Note
       that merely receiving peers further away does not demonstrate
@@ -5027,19 +5087,21 @@ Internet-Draft                   RELOAD                         May 2008
    There are four components to stabilization:
    1.  exchange UPDATES will all peers in its routing table to exchange
        state
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 91]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    2.  search for better peers to place in its finger table
    3.  search to determine if the current finger table size is
        sufficiently large
    4.  search to determine if the overlay has partitioned and needs to
        recover
-
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 90]
-
-Internet-Draft                   RELOAD                         May 2008
-
 
    A peer MUST periodically send an UPDATE request to every peer in its
    routing table.  The purpose of this is to keep the predecessor and
@@ -5083,20 +5145,20 @@ Internet-Draft                   RELOAD                         May 2008
    simplicity.]]
 
    To detect that a partitioning has occurred and to heal the overlay, a
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 92]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    peer P MUST periodically repeat the discovery process used in the
    initial join for the overay to locate an appropriate bootstrap peer,
    B. If an overlay has multiple mechanisms for discovery it should
    randomly select a method to locate a bootstrap peer.  P should then
    send a PING for its own Peer-ID routed through B. If a response is
    received from a peer S', which is not P's successor, then the overlay
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 91]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    is partitioned and P should send a CONNECT to S' routed through B,
    followed by an UPDATE sent to S'.  (Note that S' may not be in P's
    neighborhood table once the overlay is healed, but the connection
@@ -5130,7 +5192,7 @@ Internet-Draft                   RELOAD                         May 2008
    If the overlay name ends in .local, then the DNS SRV lookup is done
    using implement [I-D.cheshire-dnsext-dns-sd] with a Service name of
    "p2p_menroll" can also be tried to find an enrollment server.  If
-   they implement this, the user name can be used as the Instance
+   they implement this, the user name MAY be used as the Instance
    Identifier label.
 
    Once an address for the enrollment servers is determined, the peer
@@ -5140,18 +5202,15 @@ Internet-Draft                   RELOAD                         May 2008
    enroll" to the overlay name.  For example, if the overlay name was
    example.com, the URL would be "https://example.com/p2psip/enroll".
 
-   The result is an XML configuration file with the syntax described in
-   the following section.
 
 
-
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 92]
+Jennings, et al.        Expires November 21, 2008              [Page 93]
 
 Internet-Draft                   RELOAD                         May 2008
 
+
+   The result is an XML configuration file with the syntax described in
+   the following section.
 
 13.2.  Overlay Configuration
 
@@ -5161,9 +5220,9 @@ Internet-Draft                   RELOAD                         May 2008
    as described above.  An example document is shown below.
 
       <?xml version="1.0" encoding="UTF-8"?>
-        <overlay name="chord.example.com" expiration="86400">
-          <dht name="chord-128-2-16+"/>
-          <root-cert>[DER certificate here]</root-cert>
+        <overlay instance-name="chord.example.com" expiration="86400">
+          <dht dht-algorithm="chord-128-2-16+"/>
+          <root-cert>[PEM encoded certificate here]</root-cert>
           <required-usage name="SIP"/>
           <credential-server url="https://www.example.com/csr"/>
           <bootstrap-peer address="192.0.2.2" port="5678"/>
@@ -5186,7 +5245,7 @@ Internet-Draft                   RELOAD                         May 2008
    "overlay" has the following attributes:
 
 
-   name:  name of the overlay
+   instance-name:  name of the overlay
 
    expiration:  time in future at which this overlay configuration is
       not longer valid and need to be retrieved again.  This is
@@ -5195,23 +5254,24 @@ Internet-Draft                   RELOAD                         May 2008
    Inside each overlay element, the following elements can occur:
 
 
-   dht
-      This element has an attribute called name that describes which DHT
-      algorithm is being used.
 
 
 
 
 
 
-Jennings, et al.        Expires November 21, 2008              [Page 93]
+Jennings, et al.        Expires November 21, 2008              [Page 94]
 
 Internet-Draft                   RELOAD                         May 2008
 
 
 
+   dht-algorithm
+      This element has an attribute called name that describes which DHT
+      algorithm is being used.
+
    root-cert
-      This element contains a DER encoded X.509v3 certificate that is
+      This element contains a PEM encoded X.509v3 certificate that is
       the root trust store used to sign all certificates in this
       overlay.  There can be more than one of these.
 
@@ -5246,6 +5306,36 @@ Internet-Draft                   RELOAD                         May 2008
       then this value MUST be set to "TRUE".  Otherwise, it SHOULD be
       absent, but MAY be set to "FALSE".
 
+   chord-128-2-16+-update-frequency
+
+
+
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 95]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
+   chord-128-2-16+-ping-frequency
+
+
+   credential-server
+      Base URL for credential server.
+
+   shared-secret
+      If shared secret mode is used, this contains the shared secret.
+
+
+
+
+
+
+
    [[TODO:  Do a RelaxNG grammar.]]
 
 13.3.  Credentials
@@ -5257,24 +5347,16 @@ Internet-Draft                   RELOAD                         May 2008
 
    In order to acquire credentials, the peer generates an asymmetric key
    pair and then generates a "Simple Enrollment Request" (as defined in
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 94]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    [I-D.ietf-pkix-2797-bis]) and sends this over HTTPS as defined in
    [I-D.ietf-pkix-cmc-trans] to the URL in the credential-server
    element.  The subjectAltName in the request MUST contain the required
-   user name(s).
+   user name.
 
-   The credential server MUST authenticate the request using HTTP digest
-   [RFC2617].  If the authentication succeeds and the requested user
-   name(s) is acceptable, the server and returns a certificate.  The
-   SubjectAltName field in the certificate contains the following
-   values:
+   The credential server MUST authenticate the request using the
+   proivded user name and password.  If the authentication succeeds and
+   the requested user name is acceptable, the server and returns a
+   certificate.  The SubjectAltName field in the certificate contains
+   the following values:
 
    o  One or more Peer-IDs which MUST be cryptographically random
       [RFC4086].  These MUST be chosen by the credential server in such
@@ -5282,10 +5364,19 @@ Internet-Draft                   RELOAD                         May 2008
    o  The names this user is allowed to use in the overlay
 
    The certificate is returned in a "Simple Enrollment Response".
+   [[TODO:  REF]]
 
    The client MUST check that the certificate returned was signed by one
    of the certificates received in the "root-cert" list of the overlay
    configuration data.  The peer then reads the certificate to find the
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 96]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    Peer-IDs it can use.
 
 13.3.1.  Credentials for HIP
@@ -5313,14 +5404,6 @@ Internet-Draft                   RELOAD                         May 2008
    guaranteed to have public IP addresses (the system should not
    advertise them as bootstrap peers otherwise).  If the peer has cached
    peers it SHOULD contact them first by sending a PING request to the
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 95]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    known peer address with the destination Peer-ID set to that peer's
    Peer-ID.
 
@@ -5342,6 +5425,14 @@ Internet-Draft                   RELOAD                         May 2008
 
    After a peer has successfully joined the overlay network, it SHOULD
    periodically look at any peers to which it has managed to form direct
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 97]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    connections.  Some of these peers MAY be added to the cached-peers
    list and used in future boots.  Peers that are not directly connected
    MUST NOT be cached.  The RECOMMENDED number of peers to cache is 10.
@@ -5369,14 +5460,6 @@ Internet-Draft                   RELOAD                         May 2008
    nodes are malicious.  The goal of security in RELOAD is to provide
    strong security guarantees of some properties even in the face of a
    large number of malicious nodes and to allow the DHT to function
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 96]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    correctly in the face of a modest number of malicious nodes.
 
    P2PSIP deployments require the ability to authenticate both peers and
@@ -5398,6 +5481,14 @@ Internet-Draft                   RELOAD                         May 2008
    P2P overlays are subject to attacks by subversive nodes that may
    attempt to disrupt routing, corrupt or remove user registrations, or
    eavesdrop on signaling.  The certificate-based security algorithms we
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 98]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    describe in this draft are intended to protect DHT routing and user
    registration information in RELOAD messages.
 
@@ -5425,14 +5516,6 @@ Internet-Draft                   RELOAD                         May 2008
    unique and are meant to be chosen and used by humans much like a SIP
    Address of Record (AOR) or an email address.  The user is also
    assigned one or more Peer-IDs by the central enrollment authority.
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 97]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    Both the name and the peer ID are placed in the certificate, along
    with the user's public key.
 
@@ -5454,6 +5537,14 @@ Internet-Draft                   RELOAD                         May 2008
    turn.
 
    Because all stored data is signed by the owner of the data the the
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 99]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    storing peer can verify that the storer is authorized to perform a
    store at that resource-id and also allows any consumer of the data to
    verify the provenance and integrity of the data when it retrieves it.
@@ -5482,13 +5573,6 @@ Internet-Draft                   RELOAD                         May 2008
    use TLS and check the other peer's knowledge of the shared secret, or
    message insertion is possible.
 
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 98]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    If the shared secret key for the shared-key security scheme is
    discovered by an attacker, then most of the security of the scheme is
    lost:  an attacker can impersonate any peer to any other peer.  Thus,
@@ -5509,6 +5593,14 @@ Internet-Draft                   RELOAD                         May 2008
    certificates.  In order to write data in a slot, the writer must
    prove possession of the private key for one of those certificates.
    Moreover, all data is stored signed by the certificate which
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 100]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    authorized its storage.  This set of rules makes questions of
    authorization and data integrity - which have historically been
    thorny for DHTs - relatively simple.
@@ -5537,14 +5629,6 @@ Internet-Draft                   RELOAD                         May 2008
 
    For example, consider the certificate with the following properties:
 
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 99]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
            User name: alice@dht.example.com
            Peer-ID:   013456789abcdef
            Serial:    1234
@@ -5565,6 +5649,14 @@ Internet-Draft                   RELOAD                         May 2008
    clients were allowed to store unlimited amounts of data, this would
    create unacceptable burdens on peers, as well as enabling trivial
    denial of service attacks.  RELOAD addresses this issue by requiring
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 101]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    each usage to define maximum sizes for each kind of stored data.
    Attempts to store values exceeding this size MUST be rejected (if
    peers are inconsistent about this, then strange artifacts will happen
@@ -5593,14 +5685,6 @@ Internet-Draft                   RELOAD                         May 2008
    with storage times smaller than or equal to those they are currently
    storing.  In addition, a fetching node which receives a data value
    with a storage time older than the result of the previous fetch knows
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 100]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    a rollback has occurred.
 
 15.5.4.  Residual Attacks
@@ -5621,6 +5705,14 @@ Internet-Draft                   RELOAD                         May 2008
    because it cannot provide authentication for such registrations.
    Therefore parallel searches for redundant registrations can mitigate
    most of the affects of a compromised peer.  The ultimate reliability
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 102]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    of such an overlay is a statistical question based on the replication
    factor and the percentage of compromised peers.
 
@@ -5649,14 +5741,6 @@ Internet-Draft                   RELOAD                         May 2008
    arranging to route traffic through or two nodes it controls.  In the
    Eclipse attack [Eclipse] the attacker tampers with messages to and
    from nodes for which it is on-path with respect to a given victim
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 101]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    node.  This allows it to pretend to be all the nodes that are
    reachable through it.  In the Sybil attack [Sybil], the attacker
    registers a large number of nodes and is therefore able to capture a
@@ -5677,6 +5761,14 @@ Internet-Draft                   RELOAD                         May 2008
    on each connection.  Thus, whenever a peer connects to another peer,
    each side automatically checks that the other has a suitable
    certificate.  These peer IDs are randomly assigned by the central
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 103]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    enrollment server.  This has two benefits:
 
    o  It allows the enrollment server to limit the number of peer IDs
@@ -5705,14 +5797,6 @@ Internet-Draft                   RELOAD                         May 2008
    therefore the peers can verify the data origin of the last hop peer
    for requests and responses without further cryptography.
 
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 102]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    In some situations, however, it is desirable to be able to establish
    the identity of a peer with whom one is not directly connected.  The
    most natural case is when a peer UPDATEs its state.  At this point,
@@ -5733,6 +5817,14 @@ Internet-Draft                   RELOAD                         May 2008
 
    The goal here is to stop an attacker from knowing who is signaling
    what to whom.  An attacker being able to observe the activities of a
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 104]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    specific individual is unlikely given the randomization of IDs and
    routing based on the present peers discussed above.  Furthermore,
    because messages can be routed using only the header information, the
@@ -5761,14 +5853,6 @@ Internet-Draft                   RELOAD                         May 2008
    certificate from the CA, then a number of subversive peers can still
    appear in the overlay.  While these peers cannot falsify responses to
    resource queries, they can respond with error messages, effecting a
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 103]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    DoS attack on the resource registration.  They can also subvert
    routing to other compromised peers.  To defend against such attacks,
    a resource search must still consist of parallel searches for
@@ -5789,6 +5873,14 @@ Internet-Draft                   RELOAD                         May 2008
 
    Another potential DoS attack is for the owner of an attractive number
    to retarget all calls to some victim.  This attack is difficult to
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 105]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    ameliorate without requiring the target of a SIP registration to
    authorize all stores.  The overhead of that requirement would be
    excessive and in addition there are good use cases for retargeting to
@@ -5814,18 +5906,6 @@ Internet-Draft                   RELOAD                         May 2008
    The initial contents of this registry are:
 
 
-
-
-
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 104]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
-
    chord-128-2-16+
       The algorithm defined in Section 12 of this document.
 
@@ -5837,6 +5917,25 @@ Internet-Draft                   RELOAD                         May 2008
    TBD.
 
    The initial contents of this registry are:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 106]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
                      +---------------------+---------+
                      | Kind                | Kind-Id |
@@ -5870,17 +5969,6 @@ Internet-Draft                   RELOAD                         May 2008
                        | DICTIONARY   |        TBD |
                        +--------------+------------+
 
-
-
-
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 105]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
 16.4.  Message Codes
 
    IANA SHALL create/(has created) a "RELOAD Message Code" Registry.
@@ -5888,6 +5976,22 @@ Internet-Draft                   RELOAD                         May 2008
    described in [XREF] The registration policy for this registry is TBD.
 
    The initial contents of this registry are:
+
+
+
+
+
+
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 107]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
                    +-------------------+--------------+
                    | Message Code Name |   Code Value |
@@ -5928,15 +6032,6 @@ Internet-Draft                   RELOAD                         May 2008
    [[TODO:  Complete this once we decide on error code strategy.
 
 
-
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 106]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
 17.  Acknowledgments
 
    This draft is a merge of the "REsource LOcation And Discovery
@@ -5946,6 +6041,14 @@ Internet-Draft                   RELOAD                         May 2008
    Extensions for RELOAD" draft by Bruce B. Lowekamp and James Deverick,
    the "A Chord-based DHT for Resource Lookup in P2PSIP" by Marcia
    Zangrilli and David A. Bryan, and the Peer-to-Peer Protocol (P2PP)
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 108]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    draft by Salman A. Baset, Henning Schulzrinne, and Marcin
    Matuszewski.
 
@@ -5986,13 +6089,6 @@ Internet-Draft                   RELOAD                         May 2008
               over CMS", draft-ietf-pkix-2797-bis-04 (work in progress),
               March 2006.
 
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 107]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    [RFC4279]  Eronen, P. and H. Tschofenig, "Pre-Shared Key Ciphersuites
               for Transport Layer Security (TLS)", RFC 4279,
               December 2005.
@@ -6000,6 +6096,14 @@ Internet-Draft                   RELOAD                         May 2008
    [I-D.ietf-tls-srp]
               Taylor, D., "Using SRP for TLS Authentication",
               draft-ietf-tls-srp-14 (work in progress), June 2007.
+
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 109]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
    [I-D.ietf-mmusic-ice-tcp]
               Rosenberg, J., "TCP Candidates with Interactive
@@ -6041,14 +6145,6 @@ Internet-Draft                   RELOAD                         May 2008
               Transport Layer Security (TLS) Protocol in the Session
               Description Protocol (SDP)", RFC 4572, July 2006.
 
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 108]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    [RFC2617]  Franks, J., Hallam-Baker, P., Hostetler, J., Lawrence, S.,
               and P. Leach, "HTTP Authentication: Basic and Digest
               Access Authentication", RFC 2617, June 1999.
@@ -6057,6 +6153,13 @@ Internet-Draft                   RELOAD                         May 2008
 
    [RFC4086]  Eastlake, D., Schiller, J., and S. Crocker, "Randomness
               Requirements for Security", BCP 106, RFC 4086, June 2005.
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 110]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
    [RFC3280]  Housley, R., Polk, W., Ford, W., and D. Solo, "Internet
               X.509 Public Key Infrastructure Certificate and
@@ -6097,14 +6200,6 @@ Internet-Draft                   RELOAD                         May 2008
 
    [I-D.pascual-p2psip-clients]
               Pascual, V., Matuszewski, M., Shim, E., Zhang, H., and S.
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 109]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
               Yongchao, "P2PSIP Clients",
               draft-pascual-p2psip-clients-01 (work in progress),
               February 2008.
@@ -6114,6 +6209,14 @@ Internet-Draft                   RELOAD                         May 2008
               RFC 4787, January 2007.
 
    [I-D.jiang-p2psip-sep]
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 111]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
               Jiang, X. and H. Zhang, "Service Extensible P2P Peer
               Protocol", draft-jiang-p2psip-sep-01 (work in progress),
               February 2008.
@@ -6152,23 +6255,6 @@ Authors' Addresses
    Email:  ekr@networkresonance.com
 
 
-
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 110]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
-   Jonathan Rosenberg
-   Cisco
-   Edison, NJ
-   USA
-
-   Email:  jdrosen@cisco.com
-
-
    Salman A. Baset
    Columbia University
    1214 Amsterdam Avenue
@@ -6176,6 +6262,15 @@ Internet-Draft                   RELOAD                         May 2008
    USA
 
    Email:  salman@cs.columbia.edu
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 112]
+
+Internet-Draft                   RELOAD                         May 2008
 
 
    Henning Schulzrinne
@@ -6212,7 +6307,24 @@ Internet-Draft                   RELOAD                         May 2008
 
 
 
-Jennings, et al.        Expires November 21, 2008             [Page 111]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008             [Page 113]
 
 Internet-Draft                   RELOAD                         May 2008
 
@@ -6259,14 +6371,14 @@ Intellectual Property
    ietf-ipr@ietf.org.
 
 
+Acknowledgment
+
+   Funding for the RFC Editor function is provided by the IETF
+   Administrative Support Activity (IASA).
 
 
 
 
 
-
-
-
-
-Jennings, et al.        Expires November 21, 2008             [Page 112]
+Jennings, et al.        Expires November 21, 2008             [Page 114]
 

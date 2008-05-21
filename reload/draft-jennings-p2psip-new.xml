@@ -81,24 +81,7 @@
       </address>
     </author>
 
-    <author fullname="Jonathan Rosenberg" initials="J.D." surname="Rosenberg">
-      <organization>Cisco</organization>
-
-      <address>
-        <postal>
-          <street></street>
-
-          <city>Edison</city>
-
-          <region>NJ</region>
-
-          <country>USA</country>
-        </postal>
-
-        <email>jdrosen@cisco.com</email>
-      </address>
-    </author>
-
+ 
     <author fullname="Salman A. Baset" initials="S.A." surname="Baset">
       <organization>Columbia University</organization>
 
@@ -3864,7 +3847,7 @@ ACK --------------------------------------------->
        typedef opaque           DictionaryKey<0..2^16-1>;
               
        struct {
-         DictionaryKey          key<0..2^16-1>;
+         DictionaryKey          key;
          opaque                 value<0..2^32-1>;
        } DictionaryEntry;
 
@@ -3948,7 +3931,10 @@ ACK --------------------------------------------->
                 reject requests corresponding to unknown kinds unless
                 specifically configured otherwise.</t>
 
-                <t></t><t hangText="data_model "></t><t>The data model of the data.</t>
+                <t></t><t hangText="data_model "></t><t>The data model of the
+                data. The kind defines what this has to be so this is redundant
+                in the case where the software interpreting the messages
+                understands the kind. </t>
 
                 <t></t><t hangText="generation "></t><t>The expected current state of the
                 generation counter (approximately the number of times this
@@ -4644,7 +4630,7 @@ ACK --------------------------------------------->
         detailed attribute encoding for CONNECT. The CONNECT request and its
         response do not contain any default candidates or the ice-lite
         attribute, as these features of ICE are not used by RELOAD. The
-        CONNECT request and its response also contain a Next-Protocol
+        CONNECT request and its response also contain a application
         attribute, with a value of SIP or RELOAD, which indicates what
         protocol is to be run over the connection. The RELOAD CONNECT request
         MUST only be utilized to set up connections for application protocols
@@ -5379,8 +5365,11 @@ ACK --------------------------------------------->
 
             <t>(OPEN ISSUES: How to determine a AS number? This metric is
             primarily used for advertising and locating STUN/TURN servers. A
-            TURN server is inserted and looked up under H(AS). What if there
-            are no TURN servers in the same AS? )</t>
+            TURN server is inserted and looked up under H(AS). What if there are
+            no TURN servers in the same AS? ) [[TODO: I propose we remove this
+            unless we can say how to compute it. I note most the software I have
+            seen just uses the table lookup on IP address - if this is the case
+            it is probably better just to return IP address of NAT. ]]</t>
 
             <t></t><t hangText="CPU_UTILIZATION">A single value element containing an
             unsigned 8-bit integer representing the percentage CPU load from 1
@@ -5412,6 +5401,7 @@ ACK --------------------------------------------->
             <t></t><t hangText="EWMA_BYTES_SENT">A single value element containing an
             unsigned 32-bit integer representing an exponential weighted
             average of bytes sent by this peer.</t>
+            <t> [[ TODO : Bruce or SAB - say how to compute this ]] </t>
 
             <t></t><t hangText="EWMA_BYTES_RCVD">A single value element containing an
             unsigned 32-bit integer representing an exponential weighted
@@ -5497,7 +5487,7 @@ ACK --------------------------------------------->
         <section title="Routing">
           <t>If a peer is not responsible for a Resource-ID k, then it routes
           a request to that location by routing it to the peer in either the
-          neighborhood or finger table that has the largest Peer-ID that is in
+          routing or connection table that has the largest Peer-ID that is in
           the interval between the peer and k.</t>
         </section>
 
@@ -5513,7 +5503,7 @@ ACK --------------------------------------------->
           responsible for. The peers receiving these check they came from an
           appropriate predecessor in their neighborhood table and that they
           are in a range that this predecessor is responsible for, and then
-          they store the data.</t>
+          they store the data. [[ TODO - make it clear nodes storing look at resource-ID and what they are responsible for to decide if they need to the redudant stores since they are the "master" copy. ]]</t>
 
           <t>Note that a malicious node can return a success response but not
           store the data locally or in the replica set. Requesting peers which
@@ -5800,7 +5790,7 @@ ACK --------------------------------------------->
         <t>If the overlay name ends in .local, then the DNS SRV lookup is done
         using implement <xref target="I-D.cheshire-dnsext-dns-sd"></xref> with
         a Service name of "p2p_menroll" can also be tried to find an
-        enrollment server. If they implement this, the user name can be used
+        enrollment server. If they implement this, the user name MAY be used
         as the Instance Identifier label.</t>
 
         <t>Once an address for the enrollment servers is determined, the peer
@@ -5824,9 +5814,9 @@ ACK --------------------------------------------->
         <figure>
           <artwork><![CDATA[
    <?xml version="1.0" encoding="UTF-8"?>
-     <overlay name="chord.example.com" expiration="86400">
-       <dht name="chord-128-2-16+"/>
-       <root-cert>[DER certificate here]</root-cert>
+     <overlay instance-name="chord.example.com" expiration="86400">
+       <dht dht-algorithm="chord-128-2-16+"/>
+       <root-cert>[PEM encoded certificate here]</root-cert>
        <required-usage name="SIP"/>
        <credential-server url="https://www.example.com/csr"/>
        <bootstrap-peer address="192.0.2.2" port="5678"/>
@@ -5851,7 +5841,7 @@ ACK --------------------------------------------->
         "overlay" has the following attributes:</t>
 
         <t><list style="hanging">
-            <t></t><t hangText="name:">name of the overlay</t>
+            <t></t><t hangText="instance-name:">name of the overlay</t>
 
             <t></t><t hangText="expiration:">time in future at which this overlay
             configuration is not longer valid and need to be retrieved again.
@@ -5861,10 +5851,10 @@ ACK --------------------------------------------->
         <t>Inside each overlay element, the following elements can occur:</t>
 
         <t><list style="hanging">
-            <t></t><t hangText="dht "></t><t>This element has an attribute called name that
+            <t></t><t hangText="dht-algorithm"></t><t>This element has an attribute called name that
             describes which DHT algorithm is being used.</t>
 
-            <t></t><t hangText="root-cert "></t><t>This element contains a DER encoded
+            <t></t><t hangText="root-cert "></t><t>This element contains a PEM encoded
             X.509v3 certificate that is the root trust store used to sign all
             certificates in this overlay. There can be more than one of
             these.</t>
@@ -5898,6 +5888,19 @@ ACK --------------------------------------------->
             be used. If iterative routing is permitted, then this value MUST
             be set to "TRUE". Otherwise, it SHOULD be absent, but MAY be set
             to "FALSE".</t>
+
+           <t></t><t hangText="chord-128-2-16+-update-frequency "></t><t></t>
+
+           <t></t><t hangText="chord-128-2-16+-ping-frequency "></t><t></t>
+
+           <t></t><t hangText="credential-server"></t><t>Base URL for credential server.</t>
+
+           <t></t><t hangText="shared-secret"></t><t>If shared secret mode is used, this contains the shared secret.</t>
+
+           <t></t><t hangText=" "></t><t></t>
+
+           <t></t><t hangText=" "></t><t></t>
+
           </list></t>
 
         <t>[[TODO: Do a RelaxNG grammar.]]</t>
@@ -5914,11 +5917,11 @@ ACK --------------------------------------------->
         in <xref target="I-D.ietf-pkix-2797-bis"></xref>) and sends this over
         HTTPS as defined in <xref target="I-D.ietf-pkix-cmc-trans"></xref> to
         the URL in the credential-server element. The subjectAltName in the
-        request MUST contain the required user name(s).</t>
+        request MUST contain the required user name.</t>
 
-        <t>The credential server MUST authenticate the request using HTTP
-        digest <xref target="RFC2617"></xref>. If the authentication succeeds
-        and the requested user name(s) is acceptable, the server and returns a
+        <t>The credential server MUST authenticate the request using the
+        proivded user name and password. If the authentication succeeds and the
+        requested user name is acceptable, the server and returns a
         certificate. The SubjectAltName field in the certificate contains the
         following values:</t>
 
@@ -5931,7 +5934,7 @@ ACK --------------------------------------------->
             <t>The names this user is allowed to use in the overlay</t>
           </list></t>
 
-        <t>The certificate is returned in a "Simple Enrollment Response".</t>
+        <t>The certificate is returned in a "Simple Enrollment Response". [[TODO: REF]]</t>
 
         <t>The client MUST check that the certificate returned was signed by
         one of the certificates received in the "root-cert" list of the
