@@ -3822,10 +3822,15 @@ ACK --------------------------------------------->
                     
       enum { reserved(0), single_value(1), array(2), 
              dictionary(3), (255)} DataModel;
+
+      struct {
+        Boolean                exists;
+        opaque                 value<0..2^32-1>;
+      } DataValue;
       
       select (DataModel) {
         case single_value:
-          SingleValueEntry      single_value_entry;
+          DataValue             single_value_entry;
  
         case array:
           ArrayEntry            array_entry;
@@ -3837,6 +3842,7 @@ ACK --------------------------------------------->
         /* This structure may be extended */
       } StoredDataValue;
 
+      
       ]]>
           </artwork>           
         </figure>
@@ -3850,26 +3856,19 @@ ACK --------------------------------------------->
 	     resource-id, kind-id pair.
            </t>
            <t>
-             A single value element is represented as a SingleValueEntry:
-           </t>
-
-            <figure>
-              <!--begin-pdu-->
-              <artwork><![CDATA[
-              
-       struct {
-         opaque                        value<0..2^32-1>;
-       } SingleValueEntry;
-
-       ]]>
-              </artwork>
-            </figure>
-	    <t>
-	      The contents of this structure are:
-	      <list style="hanging">
-		<t hangText="value"></t><t>The stored data.</t>
-	      </list>
-	    </t>
+             A single value element is represented as a DataValue,
+	     which contains the following two values:
+	     <list style="hanging">
+	       <t hangText="exists"></t><t>This value indicates
+	       whether the value exists at all. If it is set to
+	       False, it means that no value is present. If it
+	       is True, that means that a value is present. This
+	       gives the protocol a mechanism for indicating 
+	       nonexistence as opposed to emptiness.
+	       </t>
+	       <t hangText="value"></t><t>The stored data.</t>
+	     </list>
+	   </t>
          </section>
 
          <section title="Array">
@@ -3877,7 +3876,8 @@ ACK --------------------------------------------->
 	   integer index. Arrays are zero based. Note that arrays can be sparse. 
 	   For instance, a store of "X" at index 2 in an empty array produces an array with the values [
            NA, NA, "X"]. Future attempts to fetch elements at index 0 or 1
-           will return empty strings.</t>
+           will return values with "exists" set to False.
+	   </t>
 
            <t>
              A array element is represented as an ArrayEntry:
@@ -3889,7 +3889,7 @@ ACK --------------------------------------------->
             
        struct {
          int32                  index;
-         opaque                 value<0..2^32-1>;
+	 DataValue              value;
        } ArrayEntry;
 
        ]]>
@@ -3899,15 +3899,17 @@ ACK --------------------------------------------->
 	      The contents of this structure are:
 	      <list style="hanging">
 		<t hangText="index"></t><t>The index of the data element in
-		the array. Must be nonnegative.</t>
+		the array. Must be nonnegative or -1.</t>
 		<t hangText="value"></t><t>The stored data.</t>
 	      </list>
 	    </t>
-	    <!-- [TODO: EKR We can't sign the array index if we're also
-	    going to allow arrays to adjust themselves -->
-         </section>
-
-
+	    <t>
+	      <!-- 
+	      TODO: EKR, clean up the story about the indices and
+	      appending (-1)
+	      -->
+	    </t>
+	 </section>
          <section title="Dictionary">
            <t>A dictionary is a set of opaque values indexed by an 
 	   opaque key with one value for each key.
@@ -3926,7 +3928,7 @@ ACK --------------------------------------------->
               
        struct {
          DictionaryKey          key;
-         opaque                 value<0..2^32-1>;
+	 DataValue		value;
        } DictionaryEntry;
 
 
@@ -4068,8 +4070,8 @@ ACK --------------------------------------------->
 		<t></t><t hangText="Array:"></t><t>A store of an array entry replaces
 		(or inserts) the given value at the location specified
 		by the index. Because arrays are sparse, a store 
-		past the end of the array extends it with empty values
-		as required.
+		past the end of the array extends it with nonexistent
+		values (exists=False) as required.
 		A store at index -1, places the new value is placed at
 		the end of the array regardless of the length of the
 		the array.
@@ -4327,12 +4329,11 @@ ACK --------------------------------------------->
 		for this kind.</t>
 		<t></t><t hangText="values "></t><t>the relevant values. 
 		If the generation counter in the request matches the
-            generation-counter in the stored data, then no StoredData values are
-	    returned. Otherwise, all relevant data values
-            MUST be returned. A nonexistent value is represented as a value
-            with an empty data value portion and no signature. In particular,
-            if a dictionary key that does not exist is requested, then there
-            must be a dictionary entry with that key but an empty value.</t>
+		generation-counter in the stored data, then no StoredData
+		values are returned. Otherwise, all relevant data values
+		MUST be returned. A nonexistent value is represented 
+		with "exists" set to False.
+	      </t>
 	      </list>
 	    </t>
           </section>
@@ -4394,7 +4395,7 @@ ACK --------------------------------------------->
 
           <section title="Array">
             <t>A REMOVE of an array element (or element range) replaces those
-            elements with empty elements. Note that this does not cause the
+            elements with null elements. Note that this does not cause the
             array to be packed. An array which contains ["A", "B", "C"] and
             then has element 0 removed produces an array containing [NA, "B",
             "C"]. Note, however, that the removal of the final element of the
@@ -4404,7 +4405,7 @@ ACK --------------------------------------------->
 
           <section title="Dictionary">
             <t>A REMOVE of a dictionary element (or elements) replaces those
-            elements with empty elements. If no such elements exist, then this
+            elements with null elements. If no such elements exist, then this
             is a silent success.</t>
           </section>
 
