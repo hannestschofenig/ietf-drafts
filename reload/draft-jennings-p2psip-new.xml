@@ -2330,7 +2330,7 @@ ACK --------------------------------------------->
            <!--begin-pdu-->
            <artwork><![CDATA[
 
-           typedef opaque       ResourceId<0..255>;
+           typedef opaque       ResourceId<0..2^8-1>;
 
        ]]></artwork>
          </figure>
@@ -2708,7 +2708,7 @@ ACK --------------------------------------------->
     enum { reserved(0), tcp_tls(1),  udp_dtls(2),  (255)}  Transport;
 
     struct {
-      opaque                 version<0..255>;    /* A string */
+      opaque                 version<0..2^8-1>;    /* A string */
       Transport              transport;          /* TCP or UDP */
       PeerId                 id; 
       uint32                 uptime;
@@ -2829,7 +2829,7 @@ ACK --------------------------------------------->
 
        public struct {
          uint16             error_code;
-         opaque             reason_phrase<0..255>;  /* String*/
+         opaque             reason_phrase<0..2^8-1>;  /* String*/
          opaque             error_info<0..65000>;
        } ErrorResponse;
 
@@ -3423,11 +3423,11 @@ ACK --------------------------------------------->
       typedef opaque            IceCandidate<0..2^16-1>;
 
       struct  {
-        opaque                  ufrag<0..255>;
-        opaque                  password<0..255>;                
+        opaque                  ufrag<0..2^8-1>;
+        opaque                  password<0..2^8-1>;                
         uint16                  application;
-        opaque                  fingerprint<0..255>;
-        opaque                  role<0..255>;
+        opaque                  fingerprint<0..2^8-1>;
+        opaque                  role<0..2^8-1>;
         IceCandidate            candidates<0..2^16-1>;
       } ConnectQA;
 
@@ -3493,7 +3493,7 @@ ACK --------------------------------------------->
            PingInformationType;
 
       struct {
-        PingInformationType     requested_info<0..255>;
+        PingInformationType     requested_info<0..2^8-1>;
       } PingQ
 
 ]]></artwork>
@@ -4431,7 +4431,7 @@ ACK --------------------------------------------->
               <artwork><![CDATA[
    struct {
      ResourceID                 resource;
-     KindId                     kinds<0..255>;
+     KindId                     kinds<0..2^8-1>;
    } FindQ;
 
               ]]></artwork>
