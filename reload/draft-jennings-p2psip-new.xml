@@ -196,7 +196,8 @@ typedef uint64 generation_counter;
   <middle>
     <section title="Introduction">
     
-      <t>[TODO: HGS]</t>
+<!--      <t>[TODO: HGS]</t> -->
+
       <t>This document defines REsource LOcation And Discovery (RELOAD), a
       peer-to-peer (P2P) signaling protocol for use on the Internet. It
       provides a generic, self-organizing overlay network service, allowing nodes 
@@ -273,7 +274,8 @@ typedef uint64 generation_counter;
         </list></t>
 
       <t>These properties were designed specifically to meet the requirements
-      for a P2P protocol to support SIP. However, RELOAD is not limited to
+      for a P2P protocol to support SIP, and this document defines a
+      SIP Usage of RELOAD. However, RELOAD is not limited to
       usage by SIP and could serve as a tool for supporting other P2P
       applications with similar needs. RELOAD is also based on the concepts
       introduced in <xref target="I-D.ietf-p2psip-concepts"></xref>.</t>
@@ -499,6 +501,42 @@ typedef uint64 generation_counter;
 	    traversal.
 	  </t>
         </section>
+	<section title="SIP Usage">
+	  <t>
+	    The SIP Usage of RELOAD allows SIP user agents to provide
+	    a peer-to-peer telephony service without the requirement
+	    for permanent proxy or registration servers. In such
+	    a network, the RELOAD overlay itself performs the registration
+	    and rendezvous functions ordinarily associated with such
+	    servers.
+	  </t>
+	  <t>
+	    The SIP Usage involves two basic functions:
+	    <list style="hanging">
+	      <t hangText="Registration: ">
+		SIP UAs can use the RELOAD data storage functionality
+		to store a mapping from their AOR to their Peer-Id
+		in the overlay, and to retrieve the Peer-Id of 
+		other UAs.
+	      </t>
+	      <t hangText="Rendezvous: ">
+		Once a SIP UA has identified the Peer-Id for an 
+		AOR it wishes to call, it can use the RELOAD message
+		routing system to set up a direct connection
+		which can be used to exchange SIP messages.
+	      </t>
+	    </list>
+	  </t>
+	  <t>
+	    For instance, Bob could register his Peer-Id, "1234",
+	    under his AOR, "sip:bob@dht.example.com". When Alice
+	    wants to call Bob, she queries the overlay for
+	    "sip:bob@dht.example.com" and gets back Peer-Id
+	    1234. She then uses the overlay to establish
+	    a direct connection with Bob and can use that 
+	    direct connection to perform a standard SIP INVITE.
+	  </t>
+	</section>
       </section>
 
 <!-- EKR removed. I don't know if these make sense
