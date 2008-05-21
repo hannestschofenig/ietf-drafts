@@ -43,12 +43,12 @@ Status of this Memo
 
    This Internet-Draft will expire on November 21, 2008.
 
-Copyright Notice
+Abstract
 
-   Copyright (C) The IETF Trust (2008).
-
-
-
+   This document defines REsource LOcation And Discovery (RELOAD), a
+   peer-to-peer (P2P) binary signaling protocol for use on the Internet.
+   A P2P signaling protocol provides its clients with an abstract hash
+   table service between a set of cooperating peers that form the
 
 
 
@@ -57,12 +57,6 @@ Jennings, et al.        Expires November 21, 2008               [Page 1]
 Internet-Draft                   RELOAD                         May 2008
 
 
-Abstract
-
-   This document defines REsource LOcation And Discovery (RELOAD), a
-   peer-to-peer (P2P) binary signaling protocol for use on the Internet.
-   A P2P signaling protocol provides its clients with an abstract hash
-   table service between a set of cooperating peers that form the
    overlay network.  RELOAD is designed to support a P2P Session
    Initiation Protocol (P2PSIP) network, but can be utilized by other
    applications with similar requirements by defining new usages that
@@ -77,23 +71,25 @@ Abstract
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   6
-     1.1.  Architecture  . . . . . . . . . . . . . . . . . . . . . .   8
+     1.1.  Architecture  . . . . . . . . . . . . . . . . . . . . . .   7
        1.1.1.  Usage Layer . . . . . . . . . . . . . . . . . . . . .   8
-       1.1.2.  Overlay Routing and Storage Layer . . . . . . . . . .   9
-       1.1.3.  Forwarding Layer  . . . . . . . . . . . . . . . . . .  10
+       1.1.2.  Routing Layer . . . . . . . . . . . . . . . . . . . .   9
+       1.1.3.  Storage . . . . . . . . . . . . . . . . . . . . . . .   9
+       1.1.4.  Topology Plugin . . . . . . . . . . . . . . . . . . .  10
+       1.1.5.  Forwarding Layer  . . . . . . . . . . . . . . . . . .  10
      1.2.  Overlays  . . . . . . . . . . . . . . . . . . . . . . . .  10
      1.3.  Data Model  . . . . . . . . . . . . . . . . . . . . . . .  10
      1.4.  Security  . . . . . . . . . . . . . . . . . . . . . . . .  10
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .  11
    3.  Overlay Management Overview . . . . . . . . . . . . . . . . .  13
-     3.1.  Security and Identification . . . . . . . . . . . . . . .  13
+     3.1.  Security and Identification . . . . . . . . . . . . . . .  14
        3.1.1.  Certificate-Based Security  . . . . . . . . . . . . .  14
        3.1.2.  Shared-Key Security . . . . . . . . . . . . . . . . .  15
      3.2.  Nodes, Clients and Peers  . . . . . . . . . . . . . . . .  15
        3.2.1.  Peer-capable Clients  . . . . . . . . . . . . . . . .  16
        3.2.2.  Clients with Limited Functionality  . . . . . . . . .  17
        3.2.3.  Clients as Application-level Agents . . . . . . . . .  17
-     3.3.  Connectivity Management . . . . . . . . . . . . . . . . .  17
+     3.3.  Connectivity Management . . . . . . . . . . . . . . . . .  18
      3.4.  Routing . . . . . . . . . . . . . . . . . . . . . . . . .  18
        3.4.1.  Routing Alternatives  . . . . . . . . . . . . . . . .  20
      3.5.  Overlay Algorithm Support . . . . . . . . . . . . . . . .  23
@@ -105,6 +101,10 @@ Table of Contents
    4.  Application Support Overview  . . . . . . . . . . . . . . . .  25
      4.1.  Data Model  . . . . . . . . . . . . . . . . . . . . . . .  25
        4.1.1.  Storage Permissions . . . . . . . . . . . . . . . . .  26
+     4.2.  Service Discovery . . . . . . . . . . . . . . . . . . . .  27
+     4.3.  Replication . . . . . . . . . . . . . . . . . . . . . . .  27
+     4.4.  Application Connectivity  . . . . . . . . . . . . . . . .  28
+   5.  P2PSIP Integration Overview . . . . . . . . . . . . . . . . .  28
 
 
 
@@ -113,10 +113,6 @@ Jennings, et al.        Expires November 21, 2008               [Page 2]
 Internet-Draft                   RELOAD                         May 2008
 
 
-     4.2.  Service Discovery . . . . . . . . . . . . . . . . . . . .  27
-     4.3.  Replication . . . . . . . . . . . . . . . . . . . . . . .  27
-     4.4.  Application Connectivity  . . . . . . . . . . . . . . . .  28
-   5.  P2PSIP Integration Overview . . . . . . . . . . . . . . . . .  28
    6.  Overlay Management Protocol . . . . . . . . . . . . . . . . .  29
      6.1.  Message Routing . . . . . . . . . . . . . . . . . . . . .  30
        6.1.1.  Request Origination . . . . . . . . . . . . . . . . .  30
@@ -161,6 +157,10 @@ Internet-Draft                   RELOAD                         May 2008
      8.11. Sending Media . . . . . . . . . . . . . . . . . . . . . .  76
      8.12. Receiving Media . . . . . . . . . . . . . . . . . . . . .  76
    9.  Certificate Store Usage . . . . . . . . . . . . . . . . . . .  76
+   10. SIP Usage . . . . . . . . . . . . . . . . . . . . . . . . . .  77
+     10.1. Registering AORs  . . . . . . . . . . . . . . . . . . . .  77
+     10.2. Looking up an AOR . . . . . . . . . . . . . . . . . . . .  79
+     10.3. Forming a Direct Connection . . . . . . . . . . . . . . .  80
 
 
 
@@ -169,10 +169,6 @@ Jennings, et al.        Expires November 21, 2008               [Page 3]
 Internet-Draft                   RELOAD                         May 2008
 
 
-   10. SIP Usage . . . . . . . . . . . . . . . . . . . . . . . . . .  77
-     10.1. Registering AORs  . . . . . . . . . . . . . . . . . . . .  77
-     10.2. Looking up an AOR . . . . . . . . . . . . . . . . . . . .  79
-     10.3. Forming a Direct Connection . . . . . . . . . . . . . . .  80
      10.4. GRUUs . . . . . . . . . . . . . . . . . . . . . . . . . .  80
      10.5. SIP-REGISTRATION Kind Definition  . . . . . . . . . . . .  81
    11. Diagnostic Usage  . . . . . . . . . . . . . . . . . . . . . .  81
@@ -217,6 +213,10 @@ Internet-Draft                   RELOAD                         May 2008
        15.7.1. Fork Explosion  . . . . . . . . . . . . . . . . . . . 104
        15.7.2. Malicious Retargeting . . . . . . . . . . . . . . . . 104
        15.7.3. Privacy Issues  . . . . . . . . . . . . . . . . . . . 104
+   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . . 104
+     16.1. Overlay Algorithm Types . . . . . . . . . . . . . . . . . 104
+     16.2. Data Kind-Id  . . . . . . . . . . . . . . . . . . . . . . 105
+     16.3. Data Model  . . . . . . . . . . . . . . . . . . . . . . . 105
 
 
 
@@ -225,10 +225,6 @@ Jennings, et al.        Expires November 21, 2008               [Page 4]
 Internet-Draft                   RELOAD                         May 2008
 
 
-   16. IANA Considerations . . . . . . . . . . . . . . . . . . . . . 104
-     16.1. Overlay Algorithm Types . . . . . . . . . . . . . . . . . 104
-     16.2. Data Kind-Id  . . . . . . . . . . . . . . . . . . . . . . 105
-     16.3. Data Model  . . . . . . . . . . . . . . . . . . . . . . . 105
      16.4. Message Codes . . . . . . . . . . . . . . . . . . . . . . 106
      16.5. Error Codes . . . . . . . . . . . . . . . . . . . . . . . 106
    17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . 107
@@ -237,6 +233,10 @@ Internet-Draft                   RELOAD                         May 2008
      18.2. Informative References  . . . . . . . . . . . . . . . . . 108
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . 110
    Intellectual Property and Copyright Statements  . . . . . . . . . 112
+
+
+
+
 
 
 
@@ -287,48 +287,48 @@ Internet-Draft                   RELOAD                         May 2008
 
    This document defines REsource LOcation And Discovery (RELOAD), a
    peer-to-peer (P2P) signaling protocol for use on the Internet.  It
-   provides a Distributed Hash Table (DHT) service, which allows
-   participating nodes to read and write entries into a hash table that
-   is stored collectively among the participants.  RELOAD is a
-   lightweight, binary protocol.  It provides several functions that are
-   critical for a successful P2P protocol for the Internet.  These are:
+   provides a generic, self-organizing overlay network service, allowing
+   nodes to efficiently route messages to other nodes based on node-id
+   and to efficiently store and retrieve data in the overlay.  RELOAD is
+   a lightweight, binary protocol.  It provides several functions that
+   are critical for a successful P2P protocol for the Internet:
 
 
-   Security Framework:  Security is one of the most challenging problems
-      in a P2P protocol.  A P2P network will often be established among
-      a set of peers that do not trust each other.  Yet, despite this
-      lack of trust, the network must operate reliably to allow storage
-      and retrieval of data.  RELOAD defines an abstract enrollment
-      server, which all entities trust to generate unique identifiers
-      for each user.  Using that small amount of trust as an anchor,
-      RELOAD defines a security framework that allows for authorization
-      of P2P protocol functions and authentication of data stored in the
-      overlay.  This does not remove all attacks but greatly reduces the
-      possible attack space.
+   Security Framework:  A P2P network will often be established among a
+      set of peers that do not trust each other.  RELOAD leverages a
+      central enrollment to provide credentials for each peer which can
+      then be used to authenticate each operation.  This greatly reduces
+      the possible attack surface.
 
    Usage Model:  RELOAD is designed to support a variety of
       applications, including P2P multimedia communications with the
-      Session Initiation Protocol [I-D.ietf-p2psip-concepts].
-      Consequently, RELOAD has the notion of a usage, one of which is
-      defined to support each application (this document also defines
-      the SIP usage for multimedia communications).  Each usage
-      identifies a set of data kind that need to be stored and retrieved
-      from the DHT.  Each kind defines a data structure, authorization
-      policies, size quota, and information required for storage and
-      retrieval in the DHT.  The usage concept allows RELOAD to be used
-      with new applications through a simple documentation process that
-      supplies the details for each application.
+      Session Initiation Protocol [I-D.ietf-p2psip-concepts].  RELOAD
+      allows the definition of new application usages, each of which can
+      define its own data types, along with the rules for their use.
+      This allows RELOAD to be used with new applications through a
+      simple documentation process that supplies the details for each
+      application.
 
-   NAT Traversal:  Operations for NAT traversal are part of the base
-      design, including establishing new RELOAD connections and
-      tunneling SIP or other application protocols required by P2PSIP.
-      RELOAD makes use of Interactive Connectivity Establishment (ICE)
-      [I-D.ietf-mmusic-ice] to facilitate the creation of the P2P
-      network and the establishment of channels for use by the
-      application protocol (SIP and RTP, for example).  RELOAD also
-      defines how peers in the P2P network act as STUN and TURN servers
-      and how those resources can be discovered through the DHT.  With
-      these features, RELOAD can run in modes in which nearly all the
+   NAT Traversal:  RELOAD is designed to function in environments where
+      many if not most of the nodes are behind NATs or firewalls.
+      Operations for NAT traversal are part of the base design,
+      including establishing new RELOAD connections and tunneling SIP or
+      other application protocols required by P2PSIP.
+
+   High Performance Routing:  The very nature of DHT algorithms
+      introduces a requirement that peers participating in the P2P
+      network route requests on behalf of other peers in the network.
+      This introduces a load on those other peers, in the form of
+      bandwidth and processing power.  RELOAD has been defined with a
+      simple, lightweight forwarding header, thus minimizing the amount
+      of effort required by intermediate peers.
+
+   Pluggable DHT Algorithms:  RELOAD has been designed with an abstract
+      interface to the overlay layer to simplify implementing a variety
+      of structured (DHT) and unstructured overlay algorithms.  This
+      specification also defines how RELOAD is used with Chord, which is
+      mandatory to implement.  Specifying a default "must implement" DHT
+      will allow interoperability, while the extensibility allows
 
 
 
@@ -337,45 +337,6 @@ Jennings, et al.        Expires November 21, 2008               [Page 6]
 Internet-Draft                   RELOAD                         May 2008
 
 
-      peers are behind NATs, yet are able to fully participate without
-      imposing any constraints on the actual DHT algorithm.
-
-   High Performance Routing:  The very nature of DHT algorithms
-      introduces a requirement that peers participating in the P2P
-      network route requests on behalf of other peers in the network.
-      This introduces a load on those other peers, in the form of
-      bandwidth and processing power.  RELOAD has been defined to reduce
-      the amount of bandwidth and processing required of peers.  It does
-      so by using a very lightweight binary protocol, and furthermore,
-      by defining a packet structure that facilitates low-complexity
-      forwarding, including hardware-based forwarding.  In particular, a
-      generic transport header is used for routing the message through
-      the overlay without the contents needing to be parsed by (or even
-      visible to) intermediate peers.  The header includes no
-      information about specific IP addresses because none are needed to
-      route along an overlay.  The header only includes lists of peers
-      which the message should be routed through/too, as well as some
-      minor options and version flags.  Clearly separating the header
-      components necessary for routing from the message contents
-      simplifies processing and increases security.
-
-   Transport Flexibility:  RELOAD has native support for both DTLS and
-      TLS for the underlying transport protocol, with support for DTLS
-      over UDP as mandatory to implement.  TLS over TCP is preferred
-      because it has better bulk data performance and connection
-      stability, but UDP is more likely to provide direct connections
-      between peers in the presence of NATs.  Explicit support for
-      fragmentation is provided and required when using UDP.  Because
-      there is no single universally available and suitable transport
-      protocol, the peer protocol must be flexible in this regard.  New
-      transports can be supported trivially.
-
-   Pluggable DHT Algorithms:  RELOAD has been designed with an abstract
-      interface to the overlay layer to simplify implementing a variety
-      of structured (DHT) and unstructured overlay algorithms.  This
-      specification also defines how RELOAD is used with Chord, which is
-      mandatory to implement.  Specifying a default "must implement" DHT
-      will allow interoperability, while the extensibility allows
       selection of DHTs optimized for a particular application.
 
    These properties were designed specifically to meet the requirements
@@ -384,6 +345,45 @@ Internet-Draft                   RELOAD                         May 2008
    applications with similar needs.  RELOAD is also based on the
    concepts introduced in [I-D.ietf-p2psip-concepts].
 
+1.1.  Architecture
+
+   Architecturally this specification is divided into several layers, as
+   shown in the following figure.
+
+                    Application
+
+               +-------+  +-------+
+               | SIP   |  | XMPP  |  ...
+               | Usage |  | Usage |
+               +-------+  +-------+
+             -------------------------------------- Message Routing API
+               +------------------+   +---------+
+               |                  |<->| Storage |
+               |                  |   +---------+
+               |      Routing     |        ^
+               |       Layer      |        v
+               |                  |   +---------+
+               |                  |<->|Topology |
+               |                  |   | Plugin  |
+               +------------------+   +---------+
+                         ^                 ^
+                         v                 |
+               +------------------+ <------+
+               |    Forwarding    |
+               |       Layer      |
+               +------------------+
+             -------------------------------------- Transport API
+                +-------+  +------+
+                |TLS    |  |DTLS  |
+                +-------+  +------+
+
+   The major components of RELOAD are:
+
+
+   Usage Layer:  Each application defines reload usage:  a set of data
+      kinds and behaviors which describe how to use the services
+      provided by RELOAD.  These usages all talk to RELOAD through a
+      common message routing API.
 
 
 
@@ -393,68 +393,37 @@ Jennings, et al.        Expires November 21, 2008               [Page 7]
 Internet-Draft                   RELOAD                         May 2008
 
 
-1.1.  Architecture
 
-   Architecturally this specification is divided into several layers, as
-   shown in the following figure.
+   Routing Layer:  The Routing Layer is responsible for routing messages
+      through the overlay.  It talks directly to the topology plugin,
+      which is responsible for implementing the specific topology
+      defined by the DHT being used.
 
-                 Application
+   Storage:  The Storage component is responsible for processing
+      messages relating to the storage and retrieval of data.  It talks
+      directly to the topology plugin and the routing layer in order to
+      send and receive messages and manage data replication.
 
-          -------------------------------------- Usage-defined API
-            +-------+  +-------+
-Usage       | SIP   |  | XMPP  |  ...
-Layer       | Usage |  | Usage |
-            +-------+  +-------+
-          -------------------------------------- Distributed Storage API
+   Topology Plugin:  The Topology Plugin is responsible for implementing
+      the specific topology defined by the DHT being used.  It talks
+      directly to the Routing Layer to send and receive overlay
+      management messages and to the Storage component to manage data
+      replication.
 
-Overlay     Overlay              +-------------+
-Routing &   Routing &    +----+  | +-----+     |
-Storage     Replication  | DB |  | |Chord| ... | Topology
-Layer       Logic        +----+  | |     |     | Plugins
-                                 | +-----+     |
-                                 +-------------+
-          --------------------------------------
-                               +------+ +-----+
-Forwarding     Forwarding &    | STUN | | ICE |
-Layer          Encoding Logic  +------+ +-----+
-          -------------------------------------- Common Packet Encoding
-Transport     +-------+  +------+
-Layer         |TLS    |  |DTLS  |
-              +-------+  +------+
-
-   The three layers defined by RELOAD include:
-
-
-   Usage Layer:  Provides an application-specific interface that maps an
-      application's requirements onto the generic services of the DHT.
-
-   Overlay Routing & Storage Layer:  Implements the overlay.  Chooses
-      what links to establish to form the DHT's overlay network, manages
-      the storage and migration of data for this peer and on behalf of
-      other peers, and performs searches for requested data across the
-      DHT.
-
-   Forwarding Layer:  Provides packet forwarding services between nodes.
-      Also handles setting up connections across NATs using ICE.
+   Forwarding Layer:  The Forwarding Layer provides packet forwarding
+      services between nodes.  It also handles setting up connections
+      across NATs using ICE.
 
 1.1.1.  Usage Layer
 
    The top layer, called the Usage Layer, has application usages, such
-   as the SIP Location Usage, that use the abstract distributed storage
-
-
-
-Jennings, et al.        Expires November 21, 2008               [Page 8]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
-   API to store and retrieve data from the DHT.  The goal of this layer
-   is to implement application-specific usages of the Overlay Routing
-   and Storage Layer below it.  The Usage defines how a specific
-   application maps its data into something that can be stored in the
-   DHT, where to store the data, how to secure the data, and finally how
-   applications can retrieve and use the data.
+   as the SIP Location Usage, that use the abstract Message Routing API
+   provided by RELOAD.  The goal of this layer is to implement
+   application-specific usages of the overlay services provided by
+   RELOAD.  The Usage defines how a specific application maps its data
+   into something that can be stored in the DHT, where to store the
+   data, how to secure the data, and finally how applications can
+   retrieve and use the data.
 
    The architecture diagram shows both a SIP usage and an XMPP usage.  A
    single application may require multiple usages.  A usage may define
@@ -472,31 +441,62 @@ Internet-Draft                   RELOAD                         May 2008
    are stored in standard X.509 form, there is no reason for each usage
    to specify this service independently.
 
-1.1.2.  Overlay Routing and Storage Layer
 
-   The Overlay Routing and Storage Layer stores and retrieves
-   information, performs maintenance of the DHT as peers join and leave
-   the DHT, and routes messages on the overlay.  The DHT implementation
-   is provided by a pluggable component so that each overlay can select
-   an appropriate DHT that relies on the common RELOAD core code.
 
-   The Overlay Routing and Replication Logic provides a fairly generic
-   interface that allows the DHT implementation to control the overlay
-   and resource operations and messages.  Since each DHT is defined and
-   functions differently, we generically refer to the table of other
-   peers that the DHT maintains and uses to route requests (neighbors)
-   as a Routing Table.  The Logic component makes queries to the DHT's
-   Routing Table to determine the next hop, then encodes and sends the
-   message itself.  Similarly, the DHT issues periodic update requests
-   through the logic component to maintain and update its Routing Table.
 
-   The DHT shown in the illustration is Chord, but a variety of DHT
-   algorithms are possible through a pluggable interface.  A single node
-   could be functioning in multiple overlays simultaneously, each using
-   its own DHT algorithm.  Each peer is identified by and its location
-   in the overlay determined by its Peer-ID that is assigned by the
-   enrollment server when the user or peer first enrolls in the overlay.
-   The Peer-ID also determines the set of resources which it will be
+Jennings, et al.        Expires November 21, 2008               [Page 8]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
+1.1.2.  Routing Layer
+
+   The Routing Layer provides a generic message routing service for the
+   overlay.  Each peer is identified by and its location in the overlay
+   determined by its Peer-ID that is assigned by the enrollment server
+   when the user or peer first enrolls in the overlay.  A component
+   which is a client of the Routing Layer can perform two basic
+   functions:
+
+   o  Send a message to a given peer, described by Peer-Id or
+      Resource-Id.
+   o  Receive messages that other peers sent to this peer's PeerId.
+
+   All Usages are clients of the Routing Layer and use Reload's services
+   by sending and receiving messages from peers.  For instance, when a
+   usage wants to store data, it does so by sending STORE requests.
+   Note that the Storage component and the Topology Plugin are
+   themselves clients of the Routing Layer, because they need to send
+   and receive messages from other peers.
+
+   The Routing Layer provides a fairly generic interface that allows the
+   topology plugin control the overlay and resource operations and
+   messages.  Since each DHT is defined and functions differently, we
+   generically refer to the table of other peers that the DHT maintains
+   and uses to route requests (neighbors) as a Routing Table.  The
+   Routing Layer component makes queries to the DHT's Routing Table to
+   determine the next hop, then encodes and sends the message itself.
+   Similarly, the DHT issues periodic update requests through the logic
+   component to maintain and update its Routing Table.
+
+1.1.3.  Storage
+
+   One of the major functions of RELOAD is to allow peers to store data
+   in the overlay and to retrieve data stored by other peers or by
+   themselves.  The Storage component is responsible for processing data
+   storage and retrieval messages from other peers.  For instance, the
+   Storage component might receive a STORE request for a given resource
+   from the Routing Layer.  It would then store the data value(s) in its
+   local data store and sends a response to the Routing Layer for
+   delivery to the requesting peer.
+
+   The node's Peer-ID determines the set of resources which it will be
+   responsible for storing.  However, the exact mapping between these is
+   determined by the DHT algorithm used by the overlay, therefore the
+   Storage component always the queries the topology plugin to determine
+   where a particular resource should be stored.
+
+
 
 
 
@@ -505,27 +505,38 @@ Jennings, et al.        Expires November 21, 2008               [Page 9]
 Internet-Draft                   RELOAD                         May 2008
 
 
-   responsible for storing.  The exact mapping between these is
-   determined by the DHT algorithm used by the overlay, therefore the
-   logic component always queries the DHT to determine where a
-   particular resource should be stored.
+1.1.4.  Topology Plugin
+
+   RELOAD is explicitly designed to work with a variety of DHTs.  In
+   order to facilitate this, the DHT implementation is provided by a
+   pluggable Topology Plugin so that each overlay can select an
+   appropriate DHT that relies on the common RELOAD core code.
+
+   The Topology Plugin is responsible for maintaining the DHT Routing
+   Table, which is consulted by the Routing Layer before routing a
+   message.  When connections are made or broken, the Forwarding Layer
+   notifies the Topology Plugin, which adjusts the routing table as
+   appropriate.  The Topology Plugin will also instruct the Forwarding
+   Layer to form new connections as dictated by the requirements of the
+   DHT Topology.
 
    As peers enter and leave, resources may be stored on different peers,
-   so the information related to them is exchanged as peers enter and
-   leave.  Redundancy is used to protect against loss of information in
+   so Topology Plugin also keeps track of which peers are responsible
+   for which resources.  As peers join and leave, the Topology Plugin
+   issues resource migration requests as appropriate, in order to ensure
+   that other peers have whatever resources they are now responsible
+   for.  Redundancy is used to protect against loss of information in
    the event of a peer failure and to protect against compromised or
-   subversive peers.  The Logic component notifies the DHT as neighbors
-   join and leave, and the DHT updates its Routing Table and issues
-   resource migration requests as appropriate.
+   subversive peers.
 
-1.1.3.  Forwarding Layer
+1.1.5.  Forwarding Layer
 
-   This layer is responsible for getting a packet to the next peer, as
-   determined by the Routing and Storage Layer.  The Forwarding Layer
-   establishes and maintains the network connections required by the
-   DHT's Routing Table.  This layer is also responsible for setting up
-   connections to other peers through NATs and firewalls using ICE, and
-   it can elect to forward traffic using relays for NAT and firewall
+   The Forwarding Layer is responsible for getting a packet to the next
+   peer, as determined by the Routing and Storage Layer.  The Forwarding
+   Layer establishes and maintains the network connections as required
+   by the Topology Plugin.  This layer is also responsible for setting
+   up connections to other peers through NATs and firewalls using ICE,
+   and it can elect to forward traffic using relays for NAT and firewall
    traversal.
 
 1.2.  Overlays
@@ -542,6 +553,14 @@ Internet-Draft                   RELOAD                         May 2008
    certificates and one based on a globally shared key.
 
    RELOAD's preferred security framework is built upon an enrollment
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 10]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    server.  The enrollment server issues each new peer a certificate
    that assigns it a Peer-ID.  By generating the Peer-IDs randomly and
    controlling what peers are issued certificates, the enrollment server
@@ -553,13 +572,6 @@ Internet-Draft                   RELOAD                         May 2008
    required to join the overlay (and perhaps to refresh an expired
    certificate).  The peers and users do not need to have real-time
    access to the enrollment server.
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 10]
-
-Internet-Draft                   RELOAD                         May 2008
-
 
    TLS or DTLS are used for communication between peers.  In combination
    with the certificates, this provides both confidentiality and
@@ -598,6 +610,14 @@ Internet-Draft                   RELOAD                         May 2008
    below for reference.
 
 
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 11]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
+
    DHT:  A distributed hash table.  A DHT is an abstract hash table
       service realized by storing the contents of the hash table across
       a set of peers.
@@ -606,17 +626,6 @@ Internet-Draft                   RELOAD                         May 2008
       which peers in a DHT store a particular piece of data and for
       determining a topology of interconnections amongst peers in order
       to find a piece of data.
-
-
-
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 11]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
 
    DHT Instance:  A specific hash table and the collection of peers that
       are collaborating to provide read and write access to it.  There
@@ -654,15 +663,6 @@ Internet-Draft                   RELOAD                         May 2008
       an invalid peer in implementations and APIs.  The Peer-ID of 2^N-1
       is used on the wire protocol as a wildcard.
 
-   Resource:  An object associated with a string identifier.  In
-      unstructured P2P networks, the identifier is used directly as a
-      Resource-Id.  In structured P2P networks the identifier can be
-      mapped into a Resource-ID by using the string as the input to hash
-      function.  A SIP resource, for example, is often identified by its
-      AOR.
-
-
-
 
 
 
@@ -672,6 +672,14 @@ Jennings, et al.        Expires November 21, 2008              [Page 12]
 
 Internet-Draft                   RELOAD                         May 2008
 
+
+
+   Resource:  An object associated with a string identifier.  In
+      unstructured P2P networks, the identifier is used directly as a
+      Resource-Id.  In structured P2P networks the identifier can be
+      mapped into a Resource-ID by using the string as the input to hash
+      function.  A SIP resource, for example, is often identified by its
+      AOR.
 
    User:  A human being.
    >
@@ -713,14 +721,6 @@ Internet-Draft                   RELOAD                         May 2008
    Nodes need to be able to join the overlay, form connections to other
    nodes, and route messages through the overlay to nodes to which they
    are not directly connected.  This section provides an overview of the
-   mechanisms that perform these functions.
-
-3.1.  Security and Identification
-
-   Every node in the RELOAD overlay is identified by one or more Peer-
-   IDs.  The Peer-ID is used for three major purposes:
-
-
 
 
 
@@ -728,6 +728,13 @@ Jennings, et al.        Expires November 21, 2008              [Page 13]
 
 Internet-Draft                   RELOAD                         May 2008
 
+
+   mechanisms that perform these functions.
+
+3.1.  Security and Identification
+
+   Every node in the RELOAD overlay is identified by one or more Peer-
+   IDs.  The Peer-ID is used for three major purposes:
 
    o  To address the node itself.
    o  To determine its position in the overlay topology.
@@ -770,13 +777,6 @@ Internet-Draft                   RELOAD                         May 2008
       the certificate.  When the peer is acting as a DTLS or TLS server,
       it can use this certificate so that a client connecting to it
       knows it is connected to the correct server.  In addition, the
-      peer can sign messages, thus providing integrity and
-      authentication for messages which are sent from the peer.
-
-   When a user enrolls, or enrolls a device with no keying material, the
-   user is given a certificate.  This certificate contains information
-   that identifies the user and the device they are using.  If a user
-   has more than one device, typically they would get one certificate
 
 
 
@@ -785,6 +785,13 @@ Jennings, et al.        Expires November 21, 2008              [Page 14]
 Internet-Draft                   RELOAD                         May 2008
 
 
+      peer can sign messages, thus providing integrity and
+      authentication for messages which are sent from the peer.
+
+   When a user enrolls, or enrolls a device with no keying material, the
+   user is given a certificate.  This certificate contains information
+   that identifies the user and the device they are using.  If a user
+   has more than one device, typically they would get one certificate
    for each device.  This allows each device to act as a separate peer.
 
    The contents of the certificate include:
@@ -827,13 +834,6 @@ Internet-Draft                   RELOAD                         May 2008
    implementation, particularly for devices that may act in either role,
    and allows clients to inject messages directly into the overlay.
 
-   TODO:  this will have been covered in intro or prev section?  We use
-   the term peer to identify a node in the overlay routes messages other
-   than those to which it is directly connected.  Peers typically also
-   have storage responsibilities although some overlays may also assign
-   storage responsibilities to non-routing nodes.  We use clients to
-   refer to nodes that have no routing responsibilities and typically
-
 
 
 Jennings, et al.        Expires November 21, 2008              [Page 15]
@@ -841,6 +841,12 @@ Jennings, et al.        Expires November 21, 2008              [Page 15]
 Internet-Draft                   RELOAD                         May 2008
 
 
+   TODO:  this will have been covered in intro or prev section?  We use
+   the term peer to identify a node in the overlay routes messages other
+   than those to which it is directly connected.  Peers typically also
+   have storage responsibilities although some overlays may also assign
+   storage responsibilities to non-routing nodes.  We use clients to
+   refer to nodes that have no routing responsibilities and typically
    connect only to a single peer for access to the resources in the
    overlay.  When text refers to either peers or clients, we will simply
    refer to such a device as a node.
@@ -883,12 +889,6 @@ Internet-Draft                   RELOAD                         May 2008
       direct connection with the responsible peer).  In this case, the
       client will rely on RELOAD's Via List feature to ensure
       reachability.  The client can initiate requests, and any node in
-      the overlay that knows the Via List to its current location can
-      reach it, but it is not arbitrarily reachable directly using only
-      the client's Node-ID.  (Note that it may be possible to extend the
-      protoocl by including a usage that would allow the client to store
-      a resource at its Node-ID in the overlay redirecting to its
-      current Via List.)
 
 
 
@@ -896,6 +896,13 @@ Jennings, et al.        Expires November 21, 2008              [Page 16]
 
 Internet-Draft                   RELOAD                         May 2008
 
+
+      the overlay that knows the Via List to its current location can
+      reach it, but it is not arbitrarily reachable directly using only
+      the client's Node-ID.  (Note that it may be possible to extend the
+      protoocl by including a usage that would allow the client to store
+      a resource at its Node-ID in the overlay redirecting to its
+      current Via List.)
 
    In all of these scenarios, the client speaks the same protocol as the
    peers, knows how to calculate Resource-IDs, and signs its requests in
@@ -939,13 +946,6 @@ Internet-Draft                   RELOAD                         May 2008
    resources for such a client (or just require the proxy to have its
    clients' keys).
 
-3.3.  Connectivity Management
-
-   [TODO:  This section requires an understanding of ICE to make any
-   sense]
-
-   In order to provide efficient routing, a peer needs to maintain a set
-
 
 
 Jennings, et al.        Expires November 21, 2008              [Page 17]
@@ -953,6 +953,12 @@ Jennings, et al.        Expires November 21, 2008              [Page 17]
 Internet-Draft                   RELOAD                         May 2008
 
 
+3.3.  Connectivity Management
+
+   [TODO:  This section requires an understanding of ICE to make any
+   sense]
+
+   In order to provide efficient routing, a peer needs to maintain a set
    of direct connections to other peers in the DHT Instance.  Because of
    the presence of NATs, these connections often cannot be formed
    directly.  Instead, we use the CONNECT request to establish a
@@ -995,12 +1001,6 @@ Internet-Draft                   RELOAD                         May 2008
 
    RELOAD's routing capabilities must meet the following requirements:
 
-   NAT Traversal  RELOAD must support establishing and using connections
-      between nodes separated by one or more NATs, including locating
-      peers behind NATs for those overlays allowing/requiring it.
-
-
-
 
 
 
@@ -1009,6 +1009,9 @@ Jennings, et al.        Expires November 21, 2008              [Page 18]
 Internet-Draft                   RELOAD                         May 2008
 
 
+   NAT Traversal  RELOAD must support establishing and using connections
+      between nodes separated by one or more NATs, including locating
+      peers behind NATs for those overlays allowing/requiring it.
    Clients  RELOAD must support requests from and to clients that do not
       participate in overlay routing.
    Client promotion  RELOAD must support clients that become peers at a
@@ -1055,15 +1058,14 @@ Internet-Draft                   RELOAD                         May 2008
    of operation is a choice for the individual peer---the techniques are
    mutually interoperable even on a single message.
 
-   INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
-
-
 
 
 Jennings, et al.        Expires November 21, 2008              [Page 19]
 
 Internet-Draft                   RELOAD                         May 2008
 
+
+   INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
    For debugging purposes, a Route Log attribute is available that
    stores information about each peer as the message is forwarded.
@@ -1111,8 +1113,6 @@ Internet-Draft                   RELOAD                         May 2008
    a request).  Forward-only routing requires no state in either the
    message or intermediate peers.
 
-   The drawback of forward-only routing is that it does not work when
-   the overlay is unstable.  For example, if A is in the process of
 
 
 
@@ -1121,6 +1121,8 @@ Jennings, et al.        Expires November 21, 2008              [Page 20]
 Internet-Draft                   RELOAD                         May 2008
 
 
+   The drawback of forward-only routing is that it does not work when
+   the overlay is unstable.  For example, if A is in the process of
    joining the overlay and is sending a JOIN request to Z, it is not yet
    reachable via forward routing.  Even if it is established in the
    overlay, if network failures produce temporary instablity, A may not
@@ -1167,8 +1169,6 @@ Internet-Draft                   RELOAD                         May 2008
    o  If A is behind a NAT and does not have a connection already
       established with Z, there are only two ways the direct response
       will work.  The first is that A and Z are both behind the same
-      NAT, in which case the NAT is not involved.  In the more common
-      case, when Z is outside A's NAT, the response will only be
 
 
 
@@ -1177,6 +1177,8 @@ Jennings, et al.        Expires November 21, 2008              [Page 21]
 Internet-Draft                   RELOAD                         May 2008
 
 
+      NAT, in which case the NAT is not involved.  In the more common
+      case, when Z is outside A's NAT, the response will only be
       received if A's NAT implements endpoint-independent filtering.
       Because this is not the recommended filtering mode for
       NATs[RFC4787], this ability is likely to become less common over
@@ -1223,8 +1225,6 @@ Internet-Draft                   RELOAD                         May 2008
    intervals, the time period between the last maintenance and the
    request being sent will be orders of magnitude greater than the delay
    between the request being forwarded and the response being received.
-   Therefore, if the path was stable enough to be available to route the
-   request, it is almost certainly going to remain available to route
 
 
 
@@ -1233,6 +1233,8 @@ Jennings, et al.        Expires November 21, 2008              [Page 22]
 Internet-Draft                   RELOAD                         May 2008
 
 
+   Therefore, if the path was stable enough to be available to route the
+   request, it is almost certainly going to remain available to route
    the response [REF:  havethisneedtogetit].
 
    An overlay that is unstable enough to suffer this type of failure
@@ -1278,8 +1280,6 @@ Internet-Draft                   RELOAD                         May 2008
 
    The details of this operation depend mostly on the DHT involved, but
    a typical case would be:
-
-
 
 
 
@@ -6259,10 +6259,10 @@ Intellectual Property
    ietf-ipr@ietf.org.
 
 
-Acknowledgment
 
-   Funding for the RFC Editor function is provided by the IETF
-   Administrative Support Activity (IASA).
+
+
+
 
 
 
