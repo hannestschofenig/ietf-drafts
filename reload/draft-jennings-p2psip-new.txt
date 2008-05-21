@@ -41,14 +41,14 @@ Status of this Memo
 
    This Internet-Draft will expire on November 21, 2008.
 
-Copyright Notice
-
-   Copyright (C) The IETF Trust (2008).
-
 Abstract
 
    This document defines REsource LOcation And Discovery (RELOAD), a
    peer-to-peer (P2P) binary signaling protocol for use on the Internet.
+   A P2P signaling protocol provides its clients with an abstract hash
+   table service between a set of cooperating peers that form the
+   overlay network.  RELOAD is designed to support a P2P Session
+   Initiation Protocol (P2PSIP) network, but can be utilized by other
 
 
 
@@ -57,10 +57,6 @@ Jennings, et al.        Expires November 21, 2008               [Page 1]
 Internet-Draft                   RELOAD                         May 2008
 
 
-   A P2P signaling protocol provides its clients with an abstract hash
-   table service between a set of cooperating peers that form the
-   overlay network.  RELOAD is designed to support a P2P Session
-   Initiation Protocol (P2PSIP) network, but can be utilized by other
    applications with similar requirements by defining new usages that
    specify the data kinds that must be stored for a particular
    application.  RELOAD defines a security model based on a certificate
@@ -79,19 +75,17 @@ Table of Contents
        1.1.3.  Storage . . . . . . . . . . . . . . . . . . . . . . .   9
        1.1.4.  Topology Plugin . . . . . . . . . . . . . . . . . . .  10
        1.1.5.  Forwarding Layer  . . . . . . . . . . . . . . . . . .  10
-     1.2.  Overlays  . . . . . . . . . . . . . . . . . . . . . . . .  10
-     1.3.  Data Model  . . . . . . . . . . . . . . . . . . . . . . .  10
-     1.4.  Security  . . . . . . . . . . . . . . . . . . . . . . . .  10
+     1.2.  Security  . . . . . . . . . . . . . . . . . . . . . . . .  10
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .  11
    3.  Overlay Management Overview . . . . . . . . . . . . . . . . .  13
-     3.1.  Security and Identification . . . . . . . . . . . . . . .  14
+     3.1.  Security and Identification . . . . . . . . . . . . . . .  13
        3.1.1.  Certificate-Based Security  . . . . . . . . . . . . .  14
        3.1.2.  Shared-Key Security . . . . . . . . . . . . . . . . .  15
      3.2.  Nodes, Clients and Peers  . . . . . . . . . . . . . . . .  15
        3.2.1.  Peer-capable Clients  . . . . . . . . . . . . . . . .  16
        3.2.2.  Clients with Limited Functionality  . . . . . . . . .  17
        3.2.3.  Clients as Application-level Agents . . . . . . . . .  17
-     3.3.  Connectivity Management . . . . . . . . . . . . . . . . .  18
+     3.3.  Connectivity Management . . . . . . . . . . . . . . . . .  17
      3.4.  Routing . . . . . . . . . . . . . . . . . . . . . . . . .  18
        3.4.1.  Routing Alternatives  . . . . . . . . . . . . . . . .  20
      3.5.  Overlay Algorithm Support . . . . . . . . . . . . . . . .  23
@@ -105,6 +99,12 @@ Table of Contents
        4.1.1.  Storage Permissions . . . . . . . . . . . . . . . . .  26
      4.2.  Service Discovery . . . . . . . . . . . . . . . . . . . .  27
      4.3.  Replication . . . . . . . . . . . . . . . . . . . . . . .  27
+     4.4.  Application Connectivity  . . . . . . . . . . . . . . . .  28
+   5.  P2PSIP Integration Overview . . . . . . . . . . . . . . . . .  28
+   6.  Overlay Management Protocol . . . . . . . . . . . . . . . . .  29
+     6.1.  Message Routing . . . . . . . . . . . . . . . . . . . . .  30
+       6.1.1.  Request Origination . . . . . . . . . . . . . . . . .  30
+       6.1.2.  Message Receipt and Forwarding  . . . . . . . . . . .  31
 
 
 
@@ -113,12 +113,6 @@ Jennings, et al.        Expires November 21, 2008               [Page 2]
 Internet-Draft                   RELOAD                         May 2008
 
 
-     4.4.  Application Connectivity  . . . . . . . . . . . . . . . .  28
-   5.  P2PSIP Integration Overview . . . . . . . . . . . . . . . . .  28
-   6.  Overlay Management Protocol . . . . . . . . . . . . . . . . .  29
-     6.1.  Message Routing . . . . . . . . . . . . . . . . . . . . .  30
-       6.1.1.  Request Origination . . . . . . . . . . . . . . . . .  30
-       6.1.2.  Message Receipt and Forwarding  . . . . . . . . . . .  31
        6.1.3.  Response Origination  . . . . . . . . . . . . . . . .  32
      6.2.  Message Structure . . . . . . . . . . . . . . . . . . . .  33
        6.2.1.  Presentation Langauge . . . . . . . . . . . . . . . .  33
@@ -161,6 +155,12 @@ Internet-Draft                   RELOAD                         May 2008
    9.  Certificate Store Usage . . . . . . . . . . . . . . . . . . .  77
    10. SIP Usage . . . . . . . . . . . . . . . . . . . . . . . . . .  78
      10.1. Registering AORs  . . . . . . . . . . . . . . . . . . . .  78
+     10.2. Looking up an AOR . . . . . . . . . . . . . . . . . . . .  80
+     10.3. Forming a Direct Connection . . . . . . . . . . . . . . .  81
+     10.4. GRUUs . . . . . . . . . . . . . . . . . . . . . . . . . .  81
+     10.5. SIP-REGISTRATION Kind Definition  . . . . . . . . . . . .  82
+   11. Diagnostic Usage  . . . . . . . . . . . . . . . . . . . . . .  82
+     11.1. State Acquisition Mechanisms  . . . . . . . . . . . . . .  83
 
 
 
@@ -169,12 +169,6 @@ Jennings, et al.        Expires November 21, 2008               [Page 3]
 Internet-Draft                   RELOAD                         May 2008
 
 
-     10.2. Looking up an AOR . . . . . . . . . . . . . . . . . . . .  80
-     10.3. Forming a Direct Connection . . . . . . . . . . . . . . .  81
-     10.4. GRUUs . . . . . . . . . . . . . . . . . . . . . . . . . .  81
-     10.5. SIP-REGISTRATION Kind Definition  . . . . . . . . . . . .  82
-   11. Diagnostic Usage  . . . . . . . . . . . . . . . . . . . . . .  82
-     11.1. State Acquisition Mechanisms  . . . . . . . . . . . . . .  83
      11.2. Black-box diagnostics . . . . . . . . . . . . . . . . . .  84
      11.3. Diagnostic Metrics for a P2PSIP Deployment  . . . . . . .  86
    12. Chord Algorithm . . . . . . . . . . . . . . . . . . . . . . .  87
@@ -217,6 +211,12 @@ Internet-Draft                   RELOAD                         May 2008
        15.7.3. Privacy Issues  . . . . . . . . . . . . . . . . . . . 106
    16. IANA Considerations . . . . . . . . . . . . . . . . . . . . . 106
      16.1. Overlay Algorithm Types . . . . . . . . . . . . . . . . . 106
+     16.2. Data Kind-Id  . . . . . . . . . . . . . . . . . . . . . . 106
+     16.3. Data Model  . . . . . . . . . . . . . . . . . . . . . . . 107
+     16.4. Message Codes . . . . . . . . . . . . . . . . . . . . . . 107
+     16.5. Error Codes . . . . . . . . . . . . . . . . . . . . . . . 108
+   17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . 108
+   18. References  . . . . . . . . . . . . . . . . . . . . . . . . . 109
 
 
 
@@ -225,16 +225,16 @@ Jennings, et al.        Expires November 21, 2008               [Page 4]
 Internet-Draft                   RELOAD                         May 2008
 
 
-     16.2. Data Kind-Id  . . . . . . . . . . . . . . . . . . . . . . 106
-     16.3. Data Model  . . . . . . . . . . . . . . . . . . . . . . . 107
-     16.4. Message Codes . . . . . . . . . . . . . . . . . . . . . . 107
-     16.5. Error Codes . . . . . . . . . . . . . . . . . . . . . . . 108
-   17. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . . 108
-   18. References  . . . . . . . . . . . . . . . . . . . . . . . . . 109
      18.1. Normative References  . . . . . . . . . . . . . . . . . . 109
      18.2. Informative References  . . . . . . . . . . . . . . . . . 110
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . 112
    Intellectual Property and Copyright Statements  . . . . . . . . . 114
+
+
+
+
+
+
 
 
 
@@ -539,20 +539,20 @@ Internet-Draft                   RELOAD                         May 2008
    and it can elect to forward traffic using relays for NAT and firewall
    traversal.
 
-1.2.  Overlays
+1.2.  Security
 
-   [TODO:  HGS]
+   RELOAD provides two security models, one based on certificates
+   assigned by a central server and one based on a shared key known to
+   all members of the overlay.  These credentials can be leveraged to
+   provide communications security for RELOAD messages.  RELOAD provides
+   communications security at three levels:
 
-1.3.  Data Model
+   Connection Level:    Connections between peers are secured with TLS
+      or DTLS.
 
-   [TODO:  HGS]
 
-1.4.  Security
 
-   RELOAD provides two security mechanisms, one based on public key
-   certificates and one based on a globally shared key.
 
-   RELOAD's preferred security framework is built upon an enrollment
 
 
 
@@ -561,36 +561,19 @@ Jennings, et al.        Expires November 21, 2008              [Page 10]
 Internet-Draft                   RELOAD                         May 2008
 
 
-   server.  The enrollment server issues each new peer a certificate
-   that assigns it a Peer-ID.  By generating the Peer-IDs randomly and
-   controlling what peers are issued certificates, the enrollment server
-   protects against many of the attacks on the overlay network.
-   Similarly, all users are issued certificates for their identities by
-   the enrollment server.  All resources stored on the overlay must be
-   signed by their creator, thus ensuring that an attacker cannot forge
-   data belonging to another user.  The enrollment process is only
-   required to join the overlay (and perhaps to refresh an expired
-   certificate).  The peers and users do not need to have real-time
-   access to the enrollment server.
+   Message Level:    Each RELOAD message can be signed (this is only
+      possible with the certificate model.)
+   Object Level:    Stored objects can be signed by the storing peer
+      (this is only possible with the certificate model.)
 
-   TLS or DTLS are used for communication between peers.  In combination
-   with the certificates, this provides both confidentiality and
-   authentication for communication across the overlay.  Applications
-   such as P2PSIP can also make use of the users' certificates to
-   achieve secure end-to-end connections at the application layer.
+   These three levels of security work together to allow peers to verify
+   the origin and correctness of data they receive from other peers,
+   even in the face of malicious activity by other peers in the overlay.
 
-   RELOAD also provides for an authorization framework based on
-   certificates.  Each usage defines the access control rules for which
-   users/peers are allowed to read/write each Resource-ID.  This
-   protects data belonging to one user from being written by another, as
-   well as allowing for a distributed quota mechanism based on the
-   maximum size of each kind of data.
-
-   In addition to the enrollment server model, RELOAD offers a security
-   model using a pre-shared-key.  Although this provides significantly
-   less security than is provided through an enrollment server, it
-   allows ad hoc or ephemeral overlays to be set up with minimal effort
-   on the part of the users.
+   RELOAD also provides access control built on top of these
+   communications security features.  Because the node responsible for
+   storing a piece of data can verify the identity of the storing node,
+   it can determine whether a given operation is permitted or not.
 
 
 2.  Terminology
@@ -610,14 +593,6 @@ Internet-Draft                   RELOAD                         May 2008
    below for reference.
 
 
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 11]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
-
    DHT:  A distributed hash table.  A DHT is an abstract hash table
       service realized by storing the contents of the hash table across
       a set of peers.
@@ -631,6 +606,17 @@ Internet-Draft                   RELOAD                         May 2008
       are collaborating to provide read and write access to it.  There
       can be any number of DHT instances running in an IP network at a
       time, and each operates in isolation of the others.
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 11]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
 
    P2P Network:  Another name for a DHT instance.
 
@@ -663,17 +649,6 @@ Internet-Draft                   RELOAD                         May 2008
       an invalid peer in implementations and APIs.  The Peer-ID of 2^N-1
       is used on the wire protocol as a wildcard.
 
-
-
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 12]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
-
    Resource:  An object associated with a string identifier.  In
       unstructured P2P networks, the identifier is used directly as a
       Resource-Id.  In structured P2P networks the identifier can be
@@ -685,6 +660,18 @@ Internet-Draft                   RELOAD                         May 2008
    >
 
    We also introduce the following important new terms.
+
+
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 12]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
 
    Connection Table:  The set of peers to which a peer is directly
@@ -721,14 +708,6 @@ Internet-Draft                   RELOAD                         May 2008
    Nodes need to be able to join the overlay, form connections to other
    nodes, and route messages through the overlay to nodes to which they
    are not directly connected.  This section provides an overview of the
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 13]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    mechanisms that perform these functions.
 
 3.1.  Security and Identification
@@ -742,6 +721,14 @@ Internet-Draft                   RELOAD                         May 2008
       responsible.
 
    RELOAD supports two Peer-ID assignment models:  certificate-based and
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 13]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    shared-key.
 
    In the certificate based model, Peer-IDs are centrally assigned by an
@@ -777,14 +764,6 @@ Internet-Draft                   RELOAD                         May 2008
       the certificate.  When the peer is acting as a DTLS or TLS server,
       it can use this certificate so that a client connecting to it
       knows it is connected to the correct server.  In addition, the
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 14]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
       peer can sign messages, thus providing integrity and
       authentication for messages which are sent from the peer.
 
@@ -795,6 +774,16 @@ Internet-Draft                   RELOAD                         May 2008
    for each device.  This allows each device to act as a separate peer.
 
    The contents of the certificate include:
+
+
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 14]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
    o  A public key provided by the user.
    o  Zero or more user names that the DHT Instance is allowing this
@@ -834,13 +823,6 @@ Internet-Draft                   RELOAD                         May 2008
    implementation, particularly for devices that may act in either role,
    and allows clients to inject messages directly into the overlay.
 
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 15]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
    TODO:  this will have been covered in intro or prev section?  We use
    the term peer to identify a node in the overlay routes messages other
    than those to which it is directly connected.  Peers typically also
@@ -850,6 +832,14 @@ Internet-Draft                   RELOAD                         May 2008
    connect only to a single peer for access to the resources in the
    overlay.  When text refers to either peers or clients, we will simply
    refer to such a device as a node.
+
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 15]
+
+Internet-Draft                   RELOAD                         May 2008
+
 
 3.2.1.  Peer-capable Clients
 
@@ -889,14 +879,6 @@ Internet-Draft                   RELOAD                         May 2008
       direct connection with the responsible peer).  In this case, the
       client will rely on RELOAD's Via List feature to ensure
       reachability.  The client can initiate requests, and any node in
-
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 16]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
       the overlay that knows the Via List to its current location can
       reach it, but it is not arbitrarily reachable directly using only
       the client's Node-ID.  (Note that it may be possible to extend the
@@ -907,6 +889,14 @@ Internet-Draft                   RELOAD                         May 2008
    In all of these scenarios, the client speaks the same protocol as the
    peers, knows how to calculate Resource-IDs, and signs its requests in
    the same manner as peers.  While a client does not necessarily
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 16]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    require a full implementation of the overlay algorithm, calculating
    the Resource-ID requires an implementation of the appropriate
    algorithm for the overlay.
@@ -946,13 +936,6 @@ Internet-Draft                   RELOAD                         May 2008
    resources for such a client (or just require the proxy to have its
    clients' keys).
 
-
-
-Jennings, et al.        Expires November 21, 2008              [Page 17]
-
-Internet-Draft                   RELOAD                         May 2008
-
-
 3.3.  Connectivity Management
 
    [TODO:  This section requires an understanding of ICE to make any
@@ -962,6 +945,14 @@ Internet-Draft                   RELOAD                         May 2008
    of direct connections to other peers in the DHT Instance.  Because of
    the presence of NATs, these connections often cannot be formed
    directly.  Instead, we use the CONNECT request to establish a
+
+
+
+Jennings, et al.        Expires November 21, 2008              [Page 17]
+
+Internet-Draft                   RELOAD                         May 2008
+
+
    connection.
 
    Say that peer A wishes to form a direct connection to peer B. It
@@ -1001,6 +992,15 @@ Internet-Draft                   RELOAD                         May 2008
 
    RELOAD's routing capabilities must meet the following requirements:
 
+   NAT Traversal  RELOAD must support establishing and using connections
+      between nodes separated by one or more NATs, including locating
+      peers behind NATs for those overlays allowing/requiring it.
+   Clients  RELOAD must support requests from and to clients that do not
+      participate in overlay routing.
+
+
+
+
 
 
 
@@ -1009,11 +1009,6 @@ Jennings, et al.        Expires November 21, 2008              [Page 18]
 Internet-Draft                   RELOAD                         May 2008
 
 
-   NAT Traversal  RELOAD must support establishing and using connections
-      between nodes separated by one or more NATs, including locating
-      peers behind NATs for those overlays allowing/requiring it.
-   Clients  RELOAD must support requests from and to clients that do not
-      participate in overlay routing.
    Client promotion  RELOAD must support clients that become peers at a
       later point as determined by the overlay algorithm and deployment.
    Low state  RELOAD's routing algorithms must not require significant
@@ -1058,17 +1053,17 @@ Internet-Draft                   RELOAD                         May 2008
    of operation is a choice for the individual peer---the techniques are
    mutually interoperable even on a single message.
 
+   INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
+
+   For debugging purposes, a Route Log attribute is available that
+   stores information about each peer as the message is forwarded.
+
 
 
 Jennings, et al.        Expires November 21, 2008              [Page 19]
 
 Internet-Draft                   RELOAD                         May 2008
 
-
-   INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
-
-   For debugging purposes, a Route Log attribute is available that
-   stores information about each peer as the message is forwarded.
 
    RELOAD also supports a basic iterative routing mode (where the
    intermediate peers merely return a response indicating the next hop,
@@ -1113,6 +1108,11 @@ Internet-Draft                   RELOAD                         May 2008
    a request).  Forward-only routing requires no state in either the
    message or intermediate peers.
 
+   The drawback of forward-only routing is that it does not work when
+   the overlay is unstable.  For example, if A is in the process of
+   joining the overlay and is sending a JOIN request to Z, it is not yet
+   reachable via forward routing.  Even if it is established in the
+   overlay, if network failures produce temporary instablity, A may not
 
 
 
@@ -1121,11 +1121,6 @@ Jennings, et al.        Expires November 21, 2008              [Page 20]
 Internet-Draft                   RELOAD                         May 2008
 
 
-   The drawback of forward-only routing is that it does not work when
-   the overlay is unstable.  For example, if A is in the process of
-   joining the overlay and is sending a JOIN request to Z, it is not yet
-   reachable via forward routing.  Even if it is established in the
-   overlay, if network failures produce temporary instablity, A may not
    be reachable (and may be trying to stabilize its network connectivity
    via CONNECT messages).
 
@@ -1169,6 +1164,11 @@ Internet-Draft                   RELOAD                         May 2008
    o  If A is behind a NAT and does not have a connection already
       established with Z, there are only two ways the direct response
       will work.  The first is that A and Z are both behind the same
+      NAT, in which case the NAT is not involved.  In the more common
+      case, when Z is outside A's NAT, the response will only be
+      received if A's NAT implements endpoint-independent filtering.
+      Because this is not the recommended filtering mode for
+      NATs[RFC4787], this ability is likely to become less common over
 
 
 
@@ -1177,11 +1177,6 @@ Jennings, et al.        Expires November 21, 2008              [Page 21]
 Internet-Draft                   RELOAD                         May 2008
 
 
-      NAT, in which case the NAT is not involved.  In the more common
-      case, when Z is outside A's NAT, the response will only be
-      received if A's NAT implements endpoint-independent filtering.
-      Because this is not the recommended filtering mode for
-      NATs[RFC4787], this ability is likely to become less common over
       time.
 
    An extension to RELOAD that supports direct response routing but
@@ -1225,6 +1220,11 @@ Internet-Draft                   RELOAD                         May 2008
    intervals, the time period between the last maintenance and the
    request being sent will be orders of magnitude greater than the delay
    between the request being forwarded and the response being received.
+   Therefore, if the path was stable enough to be available to route the
+   request, it is almost certainly going to remain available to route
+   the response [REF:  havethisneedtogetit].
+
+   An overlay that is unstable enough to suffer this type of failure
 
 
 
@@ -1233,11 +1233,6 @@ Jennings, et al.        Expires November 21, 2008              [Page 22]
 Internet-Draft                   RELOAD                         May 2008
 
 
-   Therefore, if the path was stable enough to be available to route the
-   request, it is almost certainly going to remain available to route
-   the response [REF:  havethisneedtogetit].
-
-   An overlay that is unstable enough to suffer this type of failure
    frequently is unlikely to be able to support reliable functionality
    regardless of the routing mechanism.
 
@@ -1281,6 +1276,11 @@ Internet-Draft                   RELOAD                         May 2008
    The details of this operation depend mostly on the DHT involved, but
    a typical case would be:
 
+   1.  JP sends a JOIN request to AP announcing its intention to join.
+   2.  AP sends a JOIN response.
+   3.  AP does a sequence of STOREs to JP to give it the data it will
+       need.
+
 
 
 
@@ -1289,10 +1289,6 @@ Jennings, et al.        Expires November 21, 2008              [Page 23]
 Internet-Draft                   RELOAD                         May 2008
 
 
-   1.  JP sends a JOIN request to AP announcing its intention to join.
-   2.  AP sends a JOIN response.
-   3.  AP does a sequence of STOREs to JP to give it the data it will
-       need.
    4.  AP does UPDATEs to JP and to other peers to tell it about its own
        routing table.  At this point, both JP and AP consider JP
        responsible for some section of the DHT Instance.
@@ -1337,6 +1333,10 @@ Internet-Draft                   RELOAD                         May 2008
    enrollment server which can be used to obtain such a certificate.
    The enrollment server may (and probably will) require some sort of
    username and password before issuing the certificate.
+
+
+
+
 
 
 
@@ -6371,10 +6371,10 @@ Intellectual Property
    ietf-ipr@ietf.org.
 
 
-Acknowledgment
 
-   Funding for the RFC Editor function is provided by the IETF
-   Administrative Support Activity (IASA).
+
+
+
 
 
 

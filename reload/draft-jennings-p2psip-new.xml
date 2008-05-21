@@ -500,6 +500,8 @@ typedef uint64 generation_counter;
 	  </t>
         </section>
       </section>
+
+<!-- EKR removed. I don't know if these make sense
       
       <section title="Overlays">
          <t>[TODO: HGS]</t>
@@ -508,6 +510,10 @@ typedef uint64 generation_counter;
       <section title="Data Model">
          <t>[TODO: HGS]</t>
       </section>
+-->
+
+<!-- EKR: removed. I don't think this is illuminating.
+
       <section title="Security">
         <t>RELOAD provides two security mechanisms, one based on public key
         certificates and one based on a globally shared key.</t>
@@ -538,17 +544,51 @@ typedef uint64 generation_counter;
         allowing for a distributed quota mechanism based on the maximum size
         of each kind of data.</t>
 
-        <!-- <t>Further security is provided by replicating the resources stored
-             on the overlay.  Even if an attacker can compromise a single peer
-             (either directly or through the routing), by locating replicas
-             randomly around the overlay, a valid copy of the data is likely to
-             be obtained.  </t>-->
-
         <t>In addition to the enrollment server model, RELOAD offers a
         security model using a pre-shared-key. Although this provides
         significantly less security than is provided through an enrollment
         server, it allows ad hoc or ephemeral overlays to be set up with
         minimal effort on the part of the users.</t>
+      </section>
+-->
+
+      <section title="Security">
+	<t>
+	  RELOAD provides two security models, one based on
+	  certificates assigned by a central server and one
+	  based on a shared key known to all members of the 
+	  overlay. These credentials can be leveraged to
+	  provide communications security for RELOAD messages.
+	  RELOAD provides communications security at three levels:
+	</t>
+	<t>
+	  <list style="hanging">
+	    <t hangText="Connection Level: ">
+	      Connections between peers are secured with TLS or 
+	      DTLS. 
+	    </t>
+	    <t hangText="Message Level: ">
+	      Each RELOAD message can be signed (this is only
+	      possible with the certificate model.)
+	    </t>
+	    <t hangText="Object Level: ">
+	      Stored objects can be signed by the storing peer
+	      (this is only possible with the certificate model.)
+	    </t>
+	  </list>
+	</t>
+	<t>
+          These three levels of security work together to allow peers
+          to verify the origin and correctness of data they receive from other
+          peers, even in the face of malicious activity by other peers in the
+          overlay.
+	</t>
+	<t>
+	  RELOAD also provides access control built on top of these
+	  communications security features. Because the node responsible for
+	  storing a piece of data can verify the identity of the storing node,
+	  it can determine whether a given operation is permitted or not.
+	</t>
       </section>
     </section>
 
