@@ -141,58 +141,6 @@
     </abstract>
   </front>
 
-    <!-- This prologue contains the basic definitions for the struct language -->
-
-          <!-- begin-prologue 
-                EKR commented out
-
-        <figure>
-
-          <artwork><![CDATA[
-primitive uint8 8;
-primitive uint16 16;
-primitive uint24 24;
-primitive uint32 32;
-primitive int32 32;
-primitive uint64 64;
-primitive uint128 128;
-primitive char 8;
-primitive opaque 8;
-primitive blob 0;
-typedef char string<65000>;
-
-primitive peer_id 128;
-typedef  opaque resource_id<255>;
-typedef uint32 overlay;
-typedef uint64 transaction_id;
-typedef uint32 kind_id;
-typedef uint64 generation_counter;
-
-           struct  {
-                   uint32 addr;
-                   uint16 port;
-           } ip4_addr_port;
-
-           struct  {
-                   uint128 addr;
-                   uint16 port;
-           } ip6_addr_port;
-
-           enum {ip4_address_type (1), ip6_address_type (2)} address_type;
-           
-           select {
-             case ip4_address_type:
-               ip4_addr_port v4;
-             case ip6_address_type:
-              ip6_addr_port v6;           
-           } ip_address_and_port;
-
-              ]]></artwork>
-
-        </figure>
-      
-           end-prologue -->
-
   <middle>
     <section title="Introduction">
     
@@ -311,7 +259,7 @@ typedef uint64 generation_counter;
             +------------------+
           -------------------------------------- Transport API
              +-------+  +------+                              
-             |TLS    |  |DTLS  |                           
+             |TLS    |  |DTLS  |  ...                       
              +-------+  +------+  
               ]]></artwork>
         </figure>
@@ -499,8 +447,13 @@ typedef uint64 generation_counter;
 	    connections to other peers through NATs and firewalls using ICE, and
 	    it can elect to forward traffic using relays for NAT and firewall
 	    traversal.
-	  </t>
-        </section>
+	    </t>
+	    <t>
+	      The Forwarding Layer sits on top of transport layer protocols
+	      which carry the actual traffic. This specification defines
+	      how to use DTLS, TLS, and HIP to carry RELOAD messages.
+	    </t>
+	</section>
 	<section title="SIP Usage">
 	  <t>
 	    The SIP Usage of RELOAD allows SIP user agents to provide
@@ -768,7 +721,7 @@ typedef uint64 generation_counter;
              model, Peer-IDs are centrally assigned by an enrollment server which
              also issues the nodes with a PKI certificate attesting to its ownership
              of its assigned Peer-ID. This certificate can be used to authenticate
-             DTLS/TLS connections to and from the node as well as to sign messages
+             connections to and from the node as well as to sign messages
              from the node.
            </t>
            <t>
@@ -801,8 +754,8 @@ typedef uint64 generation_counter;
 
                <t>
                   It entitles the user to operate a peer that has a Peer-ID
-                  found in the certificate. When the peer is acting as a DTLS or
-                  TLS server, it can use this certificate so that a client
+                  found in the certificate. When the peer forms a 
+		  connection to another peer, it can use this certificate so that a client
                   connecting to it knows it is connected to the correct
                   server. In addition, the peer can sign messages, thus providing
                   integrity and authentication for messages which are sent
@@ -857,7 +810,7 @@ typedef uint64 generation_counter;
              <t>RELOAD also defines a shared-key security model which can be used
              in closed networks where all peers are trusted. In
              this model, the peers all share a single key which is used to
-             authenticate the peer-to-peer DTLS connections via TLS-PSK/TLS-SRP.
+             authenticate the peer-to-peer connections via TLS-PSK/TLS-SRP.
              If shared-key security mode is in use, a shared-key capable cipher
              suite such as TLS-PSK or TLS-SRP MUST be used. This is useful for
              admission control, but is completely unsafe in any setting where
@@ -3245,19 +3198,51 @@ ACK --------------------------------------------->
          by the topology plugin. For instance, in the Chord topology
          described in [XREF], node would maintain
          connections to 16 nodes in its finger table and to 6 neighbors.
-         RELOAD currently supports two transport protocols: TLS 
-         [REF]
-         over TCP and DTLS <xref target="RFC4347"/> over UDP.
-         RELOAD messages are transported directly over the transport
-         protoccol with no framing other than that described in [XREF].
       </t>
-      <t>
-         Note that
-         although UDP does not properly have "connections", DTLS provides
-         a similar stateful construct and we simply refer to "connections"
-         in this document.
-      </t>
-      
+      <section title="Transports">
+	<t>
+	  RELOAD can use multiple transports to send its messages.
+	  Because ICE is used to establish connections (see 
+	  <xref target="sec-connect-ice"/>), RELOAD nodes are
+	  able to detect which transports are offered by other
+	  nodes and establish connections between each other.
+	  Any transport protocol needs to be able to establish
+	  a secure, authenticated connection, and provide 
+	  data origin authentication and message integrity 
+	  for individual data elements. 
+	  RELOAD currently supports two transport protocols:
+	  <list style="symbols">
+	    <t>TLS [REF] over TCP</t>
+	    <t>DTLS <xref target="RFC4347"/> over UDP</t>
+	  </list>
+	</t>
+	<t>
+	  Note that although UDP does not properly have "connections",
+	  DTLS both have handshake which establishes a stateful
+	  association a similar stateful construct and we simply refer to these
+	  as "connections" for the purposes of this document.
+	</t>
+	<section title="Future Support for HIP">
+	  <t>
+	    The P2PSIP Working Group has expressed interest in supporting
+	    a HIP-based transport. Such support would require
+	    specifying such details as:
+	  </t>
+	  <t>
+	    <list style="symbols">
+	      <t>How to issue certificates which provided identities
+	      meaningful to the HIP base exchange. We anticipate that
+	      this would require a mapping between ORCHIDs and
+	      PeerIds.</t>
+	      <t>How to carry the HIP I1 and I2 messages. We anticipate
+	      that this would require defining a HIP Tunnel usage.</t>
+	      <t>How to carry RELOAD messages over HIP.</t>
+	    </list>
+	  </t>
+	  <t>
+	    We leave this work as a topic for another draft.
+	  </t>
+	</section>
       <section title="Reliability for Unreliable Transports">
           <t>When RELOAD is carried over DTLS or another unreliable transport,
           it needs to be used with a reliability and flow control mechanism,
@@ -3590,14 +3575,15 @@ ACK --------------------------------------------->
           </section>
         </section>
 
-<!-- EKR: REMOVED 
         <section anchor="sec-tunnel-details" title="TUNNEL">
-          <t>A node sends a TUNNEL request when it wishes to exchange
-          application-layer protocol messages without the expense of
-          establishing a direct connection via CONNECT or when ICE is unable
-          to establish a direct connection via CONNECT and a TURN relay is not
-          available. The application-level protocols that are routed via the
-          TUNNEL request are defined by that application's usage.</t>
+          <t>
+	    A node sends a TUNNEL request when it wishes to exchange
+	    application-layer protocol messages without the expense of
+	    establishing a direct connection via CONNECT or when ICE is unable
+	    to establish a direct connection via CONNECT and a TURN relay is not
+	    available. The application-level protocols that are routed via the
+	    TUNNEL request are defined by that application's usage.
+	  </t>
 
           <t><list style="hanging">
               <t></t><t hangText="Note:">The decision of whether to route
@@ -3615,9 +3601,11 @@ ACK --------------------------------------------->
               packet routing.</t>
             </list></t>
 
-          <t>When a usage requires the TUNNEL method, it must specify the
-          specific application protocol(s) that will be TUNNELed and for each
-          protocol, specify:</t>
+          <t>
+	    When a usage requires the TUNNEL method, it must specify the
+	    specific application protocol(s) that will be TUNNELed and for each
+	    protocol, specify:
+	  </t>
 
           <t><list style="symbols">
               <t>An application attribute that indicates the protocol being
@@ -3644,25 +3632,24 @@ ACK --------------------------------------------->
             <t>The TUNNEL_Q message contains the application PDU that the
             requesting peer wishes to transmit, along with some control
             information identifying the handling of the PDU.</t>
-             -->
 
-<!--            <figure>
+	    <figure>
+	      <!-- begin-pdu -->
               <artwork><![CDATA[
 
-   public struct  {
-       uint16 application;
-       string dialog_id;
-       string application_pdu;
-   } tunnel_q;
+       struct  {
+         uint16                 application;
+         opaque                 dialog_id<0..2^8-1>;
+         opaque                 application_pdu<0..2^24-1>;
+       } TunnelQ;
 
 ]]></artwork>
             </figure>
--->
-<!--
+
             <t>The values contained in the TUNNEL_Q are:</t>
 
             <t><list style="hanging">
-                <t></t><t hangText="Application "></t><t>A 16-bit port number. This port
+                <t></t><t hangText="application "></t><t>A 16-bit port number. This port
                 number represents the IANA registered port of the protocol
                 that is going to be sent on this connection. For SIP, this is
                 5060 or 5061, and for RELOAD is TBD. By using the IANA
@@ -3670,12 +3657,12 @@ ACK --------------------------------------------->
                 and allow RELOAD to be used to set up connections for any
                 existing or future application protocol.</t>
 
-                <t></t><t hangText="Dialog ID "></t><t>An arbitrary string providing an
+                <t></t><t hangText="dialog_id "></t><t>An arbitrary string providing an
                 application-defined way of associating related TUNNELed
                 messages. This attribute may also encode sequence information
                 as required by the application protocol.</t>
 
-                <t></t><t hangText="Application PDU "></t><t>An application PDU in the
+                <t></t><t hangText="application_pdu "></t><t>An application PDU in the
                 format specified by the application.</t>
               </list></t>
           </section>
@@ -3685,10 +3672,10 @@ ACK --------------------------------------------->
             received by the destination peer. It implies nothing about the
             processing of the application. If the application protocol
             specifies an acknowledgement or confirmation, that must be sent
-            with a separate TUNNEL request</t>
+            with a separate TUNNEL request. The TUNNEL_A message is empty
+	    (has a zero length payload)</t>
           </section>
         </section>
--->
 
       </section>
       </section>
@@ -5211,8 +5198,6 @@ ACK --------------------------------------------->
             </t>
 	</section>
 	</section>
-         <!-- EKR REMOVED
-
         <section title="SIP Tunnel">
           <t>This usage allows two peers to exchange SIP messages across the
           overlay using the TUNNEL method. TUNNEL is provided as an
@@ -5275,6 +5260,7 @@ ACK --------------------------------------------->
         </section>
       </section>
 
+<!--
       <section title="HIP Tunnel">
         <t>This usage allows two peers to exchange HIP messages across the
         overlay using the TUNNEL method. This is meant to be used as part of
@@ -6020,7 +6006,7 @@ ACK --------------------------------------------->
         overlay configuration data. The peer then reads the certificate to
         find the Peer-IDs it can use.</t>
 
-        <section title="Credentials for HIP">
+<!--        <section title="Credentials for HIP">
           <t>When RELOAD is used with HIP, the certificates MUST be generated
           so that: <list style="symbols">
               <t>Each node is assigned a unique ORCHID.</t>
@@ -6037,7 +6023,7 @@ ACK --------------------------------------------->
           certificates MUST contain a subjectAltName with an iPAddress value
           containing the HIP ORCHID. This allows these certificates to be used
           by the HIP peers during the HIP base exchange.</t>
-        </section>
+        </section>-->
       </section>
 
       <section title="Locating a Peer">
@@ -6120,8 +6106,9 @@ ACK --------------------------------------------->
         <t>To protect the signaling from attackers pretending to be valid
         peers (or peers other than themselves), the first requirement is to
         ensure that all messages are received from authorized members of the
-        overlay. For this reason, RELOAD transports all messages over DTLS or
-        TLS, which provides message integrity and authentication of the
+        overlay. For this reason, RELOAD transports all messages over a
+	secure channel (TLS and DTLS are defined in this document)
+	which provides message integrity and authentication of the
         directly communicating peer. In addition, when the certificate-based
         security system is used, messages and data are digitally signed with
         the sender's private key, providing end-to-end security for
@@ -6363,7 +6350,8 @@ ACK --------------------------------------------->
         <section title="Admissions Control">
           <t>Admission to an RELOAD DHT Instance is controlled by requiring that each
           peer have a certificate containing its peer ID. The requirement to
-          have a certificate is enforced by using TLS mutual authentication on
+          have a certificate is enforced by using certificate-based
+	  mutual authentication on
           each connection. Thus, whenever a peer connects to another peer,
           each side automatically checks that the other has a suitable
           certificate. These peer IDs are randomly assigned by the central
@@ -6393,7 +6381,8 @@ ACK --------------------------------------------->
           <t>In general, whenever a peer engages in DHT activity that might
           affect the routing table it must establish its identity. This
           happens in two ways. First, whenever a peer establishes a direct
-          connection to another peer it authenticates via TLS mutual
+          connection to another peer it authenticates via certificate-based
+	  mutual
           authentication. All messages between peers are sent over this
           protected channel and therefore the peers can verify the data origin
           of the last hop peer for requests and responses without further
