@@ -3921,7 +3921,7 @@ ACK --------------------------------------------->
           <section anchor="sec-store" title="STORE">
 	       
           <t>The STORE method is used to store data in the overlay.
-          The format of the STORE request depends on the data model.</t>
+          The format of the STORE request depends on the data model which is determined by the kind.</t>
 
           <section anchor="sec-store-req" title="Request Definition">
             <t>A STORE_Q message is a sequence of StoreKindData values, each of
@@ -4138,7 +4138,7 @@ ACK --------------------------------------------->
         <section title="FETCH">
           <t>
             The FETCH request retrieves one or more data elements stored at a
-            given resource-id.
+            given resource-id. A single FETCH request can retrieve multiple differnt kinds. 
           </t>
 
           <section title="Request Definition">
@@ -4151,7 +4151,7 @@ ACK --------------------------------------------->
         uint64                  generation;
         uint16                  length;
         
-        select (kind) {
+        select (model) {
           case single_value: ;    /* Empty */
 
           case array:
@@ -4203,7 +4203,7 @@ ACK --------------------------------------------->
 
                 <t></t><t hangText="generation "></t><t>The last generation counter that
                 the requesting peer saw. This may be used to avoid unnecessary
-                fetches.</t>
+                fetches or it may be set to zero. </t>
 
                 <t></t><t hangText="length "></t><t>The length of the rest of the structure,
                 thus allowing extensibility.</t>
@@ -4240,7 +4240,7 @@ ACK --------------------------------------------->
             <t>The generation-counter is used to indicate the requester's
             expected state of the storing peer. If the generation-counter in
             the request matches the stored counter, then the storing peer
-            returns a cache hit indicator rather than the stored data.
+            returns a resone with no StoredData values rather than the stored data.
             </t>
 
             <t>Note that because the certificate for a user is typically
@@ -4289,7 +4289,7 @@ ACK --------------------------------------------->
 		for this kind.</t>
 		<t></t><t hangText="values "></t><t>the relevant values. 
 		If the generation counter in the request matches the
-            generation-counter in the stored data, then no values are
+            generation-counter in the stored data, then no StoredData values are
 	    returned. Otherwise, all relevant data values
             MUST be returned. A nonexistent value is represented as a value
             with an empty data value portion and no signature. In particular,
@@ -5492,7 +5492,7 @@ ACK --------------------------------------------->
         <t>[TODO: BBL]</t>
 
         <t>This algorithm is assigned the name chord-128-2-16+ to indicate it
-        is based on Chord, uses a 128 bit hash function, stores 2 redundant
+        is based on Chord, uses a SHA-1 then truncates that to 128 bit for the hash function, stores 2 redundant
         copies of all data, and has finger tables with at least 16
         entries.</t>
 
@@ -6478,51 +6478,51 @@ ACK --------------------------------------------->
 
           <c>SIP-REGISTRATION</c>
 
-          <c>TBD</c>
+          <c>1</c>
 
           <c>TURN_SERVICE</c>
 
-          <c>TBD</c>
+          <c>2</c>
 
           <c>CERTIFICATE</c>
 
-          <c>TBD</c>
+          <c>3</c>
 
           <c>SOFTWARE_VERSION</c>
 
-          <c>TBD</c>
+          <c>4</c>
 
           <c>UPTIME</c>
 
-          <c>TBD</c>
+          <c>5</c>
 
           <c>AS_NUMBER</c>
 
-          <c>TBD</c>
+          <c>6</c>
 
           <c>CPU_UTILIZATION</c>
 
-          <c>TBD</c>
+          <c>7</c>
 
           <c>DATA_STORED</c>
 
-          <c>TBD</c>
+          <c>8</c>
 
           <c>MESSAGES_SENT</c>
 
-          <c>TBD</c>
+          <c>9</c>
 
           <c>INSTANCES_STORED</c>
 
-          <c>TBD</c>
+          <c>10</c>
 
           <c>ROUTING_TABLE_SIZE</c>
 
-          <c>TBD</c>
+          <c>11</c>
 
           <c>NEIGHBOR_TABLE_SIZE</c>
 
-          <c>TBD</c>
+          <c>12</c>
         </texttable>
       </section>
 
@@ -6541,15 +6541,15 @@ ACK --------------------------------------------->
 
           <c>SINGLE_VALUE</c>
 
-          <c>TBD</c>
+          <c>1</c>
 
           <c>ARRAY</c>
 
-          <c>TBD</c>
+          <c>2</c>
 
           <c>DICTIONARY</c>
 
-          <c>TBD</c>
+          <c>3</c>
         </texttable>
       </section>
 
@@ -6574,95 +6574,95 @@ ACK --------------------------------------------->
 
           <c>PING_Q</c>
 
-          <c>TBD</c>
+          <c>1</c>
 
           <c>PING_A</c>
 
-          <c>TBD</c>
+          <c>2</c>
 
           <c>CONNECT_Q</c>
 
-          <c>TBD</c>
+          <c>3</c>
 
           <c>CONNECT_A</c>
 
-          <c>TBD</c>
+          <c>4</c>
 
           <c>TUNNEL_Q</c>
 
-          <c>TBD</c>
+          <c>5</c>
 
           <c>TUNNEL_A</c>
 
-          <c>TBD</c>
+          <c>6</c>
 
           <c>STORE_Q</c>
 
-          <c>TBD</c>
+          <c>7</c>
 
           <c>STORE_A</c>
 
-          <c>TBD</c>
+          <c>8</c>
 
           <c>FETCH_Q</c>
 
-          <c>TBD</c>
+          <c>9</c>
 
           <c>FETCH_A</c>
 
-          <c>TBD</c>
+          <c>10</c>
 
           <c>REMOVE_Q</c>
 
-          <c>TBD</c>
+          <c>11</c>
 
           <c>REMOVE_A</c>
 
-          <c>TBD</c>
+          <c>12</c>
 
           <c>FIND_Q</c>
 
-          <c>TBD</c>
+          <c>13</c>
 
           <c>FIND_A</c>
 
-          <c>TBD</c>
+          <c>14</c>
 
           <c>JOIN_Q</c>
 
-          <c>TBD</c>
+          <c>15</c>
 
           <c>JOIN_A</c>
 
-          <c>TBD</c>
+          <c>16</c>
 
           <c>LEAVE_Q</c>
 
-          <c>TBD</c>
+          <c>17</c>
 
           <c>LEAVE_A</c>
 
-          <c>TBD</c>
+          <c>18</c>
 
           <c>UPDATE_Q</c>
 
-          <c>TBD</c>
+          <c>19</c>
 
           <c>UPDATE_A</c>
 
-          <c>TBD</c>
+          <c>20</c>
 
           <c>ROUTE_QUERY_Q</c>
 
-          <c>TBD</c>
+          <c>21</c>
 
           <c>ROUTE_QUERY_A</c>
 
-          <c>TBD</c>
+          <c>22</c>
 
           <c>RESERVED</c>
 
-          <c>0x800..0xffe</c>
+          <c>0x8000..0xfffe</c>
 
           <c>ERROR</c>
 
