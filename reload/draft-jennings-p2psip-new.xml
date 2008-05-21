@@ -545,9 +545,9 @@ Layer         |TLS    |  |DTLS  |
           some portion of the overlay.</t>
 
           <t></t><t hangText="Peer-ID:">A 128-bit value that uniquely identifies a peer.
-          Peer-IDs 0 and 2^128 - 1 are reserved and are invalid peer-IDs. A
+          Peer-IDs 0 and 2^128 - 1 are reserved and are invalid Peer-IDs. A
           value of zero is not used in the wire protocol but can be used to
-          indicate an invalid peer in implementations and APIs. The peer-id of
+          indicate an invalid peer in implementations and APIs. The Peer-ID of
           2^N-1 is used on the wire protocol as a wildcard.</t>
 
           <t></t><t hangText="Resource:">An object associated with a string
@@ -589,7 +589,7 @@ Layer         |TLS    |  |DTLS  |
           kinds.</t>
 
           <t></t><t hangText="Destination List:">A list of IDs through which a
-          message is to be routed. A single peer-id is a trivial form of destination list.</t>
+          message is to be routed. A single Peer-ID is a trivial form of destination list.</t>
         </list></t>
     </section>
 
@@ -606,8 +606,8 @@ Layer         |TLS    |  |DTLS  |
       
       <section title="Security and Identification">
          <t>
-           Every node in the RELOAD overlay is identified by one or more peer-ids.
-           The peer-id is used for three major purposes:
+           Every node in the RELOAD overlay is identified by one or more Peer-IDs.
+           The Peer-ID is used for three major purposes:
            </t><t>
            <list style="symbols">
              <t>To address the node itself.</t>
@@ -616,21 +616,21 @@ Layer         |TLS    |  |DTLS  |
            </list>
            </t>
            <t>
-             RELOAD supports two peer-id assignment models: certificate-based and
+             RELOAD supports two Peer-ID assignment models: certificate-based and
              shared-key.
            </t>
            <t>
              In the certificate based
-             model, peer-ids are centrally assigned by an enrollment server which
+             model, Peer-IDs are centrally assigned by an enrollment server which
              also issues the nodes with a PKI certificate attesting to its ownership
-             of its assigned peer-id. This certificate can be used to authenticate
+             of its assigned Peer-ID. This certificate can be used to authenticate
              DTLS/TLS connections to and from the node as well as to sign messages
              from the node.
            </t>
            <t>
              In the shared-key model, all the nodes in the overlay share a single
              static key which is used for admission control. Nodes choose their
-             own peer-ids and there is no cryptographic mechanism from distinguishing
+             own Peer-IDs and there is no cryptographic mechanism from distinguishing
              one node from another. This model is only suitable for use in
              closed environments where nodes are mutually trusted.
            </t>
@@ -648,7 +648,7 @@ Layer         |TLS    |  |DTLS  |
              <t><list style="symbols">
                <t>
                   It entitles the user to store data at specific locations in
-                  the DHT. Each kind defines the specific rules for determining
+                  the DHT Instance. Each kind defines the specific rules for determining
                   which certificates can access each resource-ID/kind-id pair. For
                   instance, some kinds might allow anyone to write at a given
                   location, whereas others might restrict writes to the
@@ -656,7 +656,7 @@ Layer         |TLS    |  |DTLS  |
                </t>
 
                <t>
-                  It entitles the user to operate a peer that has a peer-id
+                  It entitles the user to operate a peer that has a Peer-ID
                   found in the certificate. When the peer is acting as a DTLS or
                   TLS server, it can use this certificate so that a client
                   connecting to it knows it is connected to the correct
@@ -680,13 +680,13 @@ Layer         |TLS    |  |DTLS  |
              <t><list style="symbols">
                <t>A public key provided by the user.</t>
 
-               <t>Zero or more user names that the DHT is allowing this user to
+               <t>Zero or more user names that the DHT Instance is allowing this user to
                use. For example, "alice@example.org". Typically a certificate
                will have one name. In the SIP usage, this name corresponds to
                the AOR.</t>
 
-               <t>Zero or more peer-ids. Typically there will be one peer-id.
-               Each device will use a different peer-id, even if two devices
+               <t>Zero or more Peer-IDs. Typically there will be one Peer-ID.
+               Each device will use a different Peer-ID, even if two devices
                belong to the same user. Peer-IDs should be chosen randomly by
                the enrollment server.</t>
 
@@ -701,7 +701,7 @@ Layer         |TLS    |  |DTLS  |
              </list></t>
              
              <t>
-               Note that because peer-IDs are chosen randomly, they will be
+               Note that because Peer-IDs are chosen randomly, they will be
                randomly distributed with respect to the user name. This has the
                result that any given peer is highly unlikely to be responsible for
                storing data corresponding to its own user, which promotes high
@@ -856,9 +856,11 @@ Layer         |TLS    |  |DTLS  |
  
        </section>
       <section title="Connectivity Management">
+<t> [TODO: This section requires an understanding of ICE to make any sense] </t>
+
 	<t>
 	  In order to provide efficient routing, a peer needs to maintain
-	  a set of direct connections to other peers in the DHT. Because
+	  a set of direct connections to other peers in the DHT Instance. Because
 	  of the presence of NATs, these connections often cannot be
 	  formed directly. Instead, we use the CONNECT request to
           establish a connection.
@@ -884,7 +886,7 @@ Layer         |TLS    |  |DTLS  |
 	</t>
 	<t>
 	  In general, a peer needs to maintain connections to all of the
-          peers near it in the DHT and to enough other peers to have efficient
+          peers near it in the DHT Instance and to enough other peers to have efficient
           routing (the details depend on the specific DHT). If a peer cannot
           form a connection to some other peer, this isn't necessarily a
           disaster; DHTs can route correctly even without fully connected
@@ -1177,13 +1179,13 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
             <t>Deciding the message was destined for this peer and passing the
             message up to the layer above this.</t>
 
-            <t>Looking at the peer-id that represents the next peer to send
+            <t>Looking at the Peer-ID that represents the next peer to send
             the message too and if there is an existing connection, sending
             the message over the connection.</t>
 
             <t>Requesting the DHT Routing logic to tell the forwarding layer
             which peer the message needs to be forwarded to (based on the
-            target peer-id or resource-id), and then sending the message.</t>
+            target Peer-ID or resource-id), and then sending the message.</t>
           </list></t>
 -->
 
@@ -1204,14 +1206,14 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           request.</t>
 
           <t>The approach used here is to have each node the request traverses
-          add its peer-id to the "via list" in the request. Then the response
+          add its Peer-ID to the "via list" in the request. Then the response
           is routed by looking at the list and using it as list of peers that
           the response will be routed thorough. To support this, each message
           has a destination list of nodes it needs to be routed through as
           well as a via list of what nodes it has traversed.</t>
 
           <t>When a peer receives a message from the Transport Layer, it adds
-          the peer-id of the node it received the message from to the end of
+          the Peer-ID of the node it received the message from to the end of
           the via list. When a peer goes to transmit a message to the
           Transport Layer, it looks at the first entry on the destination
           list. If the entry is this peer, it removes this entry from the list
@@ -1233,7 +1235,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           Note that this technique will generally require storing some
           per-message state on the intermediate peer, so this is a
           bandwidth/per-peer state tradeoff. The exception is if the list is
-          not compressed but rather the peer-ids are simply encrypted.</t>
+          not compressed but rather the Peer-IDs are simply encrypted.</t>
 
           <t>The via list approach provides several features. First it allows
           a response to follow the same path as the request. This is
@@ -1251,10 +1253,10 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          <!-- EKR: not sure if this goes here -->
         <section anchor="sec-join-leave-maint"
                  title="Joining, Leaving, and Maintenance">
-          <t>When a new peer wishes to join the DHT, it must have a peer-id
-          that it is allowed to use. It uses one of the peer-ids in the
+          <t>When a new peer wishes to join the DHT Instance, it must have a Peer-ID
+          that it is allowed to use. It uses one of the Peer-IDs in the
           certificate it received from the enrollment server. The main steps
-          in joining the DHT are:</t>
+          in joining the DHT Instance are:</t>
 
           <t><list style="symbols">
               <t>Forming connections to some other peers.</t>
@@ -1284,7 +1286,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  Once the peer has connected to a bootstrap node, it
 	  then can use overlay routing to 
 	  contacts the peer which would have formerly been responsible for the
-	  peer's peer-id (since that is where in the DHT the peer will be
+	  peer's Peer-ID (since that is where in the DHT Instance the peer will be
 	  joining), the Admitting Peer (AP). It copies the other peer's state,
 	  including the data values it is now responsible for and the
 	  identities of the peers with which the other peer has direct
@@ -1305,13 +1307,13 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
 	  <t>AP does UPDATEs to JP and to other peers to tell it about its
 	  own routing table. At this point, both JP and AP consider JP
-	  responsible for some section of the DHT.</t>
+	  responsible for some section of the DHT Instance.</t>
 
 	  <t>JP makes its own connections to the appropriate peers in the
-	  DHT.</t>
+	  DHT Instance.</t>
 	</list></t>
 
-	<t>After this process is completed, JP is a full member of the DHT
+	<t>After this process is completed, JP is a full member of the DHT Instance
 	and can process STORE/FETCH requests.</t>
 	</section>
       </section>
@@ -1382,8 +1384,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 <!-- EKR: REMOVED: TMI
      
          <section title="Enrollment">
-           <t>Before a new user can join the DHT for the first time, they must
-           enroll in the P2P Network for the DHT they want to join. Enrollment
+           <t>Before a new user can join the DHT Instance for the first time, they must
+           enroll in the P2P Network for the DHT Instance they want to join. Enrollment
            will typically be done by contacting a centralized enrollment server.
            Other approaches (for instance static out of band configuration) are
            possible but are outside the scope of this specification. During
@@ -1407,9 +1409,9 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            things such as: what algorithms the overlay uses, overlay parameters,
            what usages are a peer on this overlay is required to support, the
            type of credentials required, addresses of credentials servers, the
-           root certificate for the DHT, information about the DHT algorithm that
+           root certificate for the DHT Instance, information about the DHT algorithm that
            is being used, a P2P-Network-Id that uniquely identifies this ring,
-           and any other parameters it may need to connect to the DHT. The DHT
+           and any other parameters it may need to connect to the DHT Instance. The DHT
            also informs the peers what Usages it is required to support to be a
            peer on this P2P Network. It also provides an initial list of
            bootstrap nodes that consists of multiple bootstrap entries that each
@@ -1465,7 +1467,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          <t>[TODO: HGS; hopefully the intro to the enclosing section will
           explain what a Data Storage Layer is.]</t>
          <t>The Data Storage Layer provides operations to STORE, FETCH, and
-         REMOVE data. Each location in the DHT is referenced by a single
+         REMOVE data. Each location in the DHT Instance is referenced by a single
          integer Resource-ID. However, each location may contain data
          elements corresponding to multiple kinds (e.g., certificate, SIP
          registration). Similarly, there may be multiple elements of a given
@@ -1678,12 +1680,12 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  <t>
 	    <list style="numbers">
 	      <t>
-		Bob, operating peer-id 1234, stores a mapping from
-		his URI to his peer-id in the overlay. I.e.,
+		Bob, operating Peer-ID 1234, stores a mapping from
+		his URI to his Peer-ID in the overlay. I.e.,
 		"sip:bob@dht.example.com -> 1234".
 	      </t>
 	      <t>
-		Alice, operating peer-id 5678, decides to call
+		Alice, operating Peer-ID 5678, decides to call
 		Bob. She looks up "sip:bob@dht.example.com"
 		in the overlay and retrieves "1234".
 	      </t>
@@ -1697,24 +1699,25 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  </t>
 	  
         <figure>
-          <artwork><![CDATA[
-	  Alice       Peer1      Overlay     PeerN      Bob
-          (5678)                                     (1234)
-	  -------------------------------------------------
+<artwork>
+<![CDATA[
+Alice       Peer1      Overlay     PeerN      Bob
+(5678)                                     (1234)
+-------------------------------------------------
+CONNECT ->
           CONNECT ->
-                      CONNECT ->
-                                 CONNECT -> 
-                                            CONNECT ->
-                                                <- CONNECT
-                                       <- CONNECT
-                              <- CONNECT
-                  <- CONNECT
+                      CONNECT -> 
+                                   CONNECT ->
+                                          <- CONNECT
+                                <- CONNECT
+                   <- CONNECT
+         <- CONNECT
 
-          <------------------- ICE Checks ----------------->
-          INVITE ------------------------------------------>
-          <---------------------------------------------- OK
-          ACK --------------------------------------------->
-	  ]]>
+<------------------- ICE Checks ----------------->
+INVITE ------------------------------------------>
+<---------------------------------------------- OK
+ACK --------------------------------------------->
+]]>
 	  </artwork>
 	</figure>
 	<t>
@@ -1728,13 +1731,13 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  the overlay.
 	</t>
 	<t>
-	  As well as allowing mappings from AORs to peer-ids,
+	  As well as allowing mappings from AORs to Peer-IDs,
 	  the SIP Usage also allows mappings from AORs to other
 	  AORs. For instance, if Bob wanted his phone calls
 	  temporarily forwarded to Charlie, he could store
 	  the mapping "sip:bob@dht.example.com -> sip:charlie@dht.example.com".
 	  When Alice wants to call Bob, she retrieves this mapping and can
-	  then fetch Charlie's AOR to retrieve his peer-id.
+	  then fetch Charlie's AOR to retrieve his Peer-ID.
 	</t>
 <!-- EKR REMOVED: Too much information here
             
@@ -1757,7 +1760,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
              simply forming a GRUU, where the value of gr URI parameter
              contains a base64 encoded version of the destination list that
              will reach the peer. Typically the destination list is just a
-             single entry with the peer-id of peer.</t>
+             single entry with the Peer-ID of peer.</t>
            </section>
 -->
 
@@ -1922,7 +1925,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          <t>
            Regardless of which DHT algorithm is used, a RELOAD overlay
            is a partly connected (incomplete) graph of nodes, each identified by
-           peer-id. Each node maintains a set of connections to some 
+           Peer-ID. Each node maintains a set of connections to some 
            other set of nodes in the overlay. If a node is directly
            connected to the destination of a message, it can send it
            directly. However, in general, any two nodes will probably not be
@@ -1937,7 +1940,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            The topology
            plugin (see [XREF]) should be thought of as providing a
            routing table. When a node wishes to transmit a message to
-           a given peer-id to which it is not connected, it consults
+           a given Peer-ID to which it is not connected, it consults
            the routing table which tells
            it which of its existing connections to forward the message
            down. However, the procedures for sending, receiving, and
@@ -1947,7 +1950,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          <t>
            RELOAD also incorporates a loose source routing feature using
            DESTINATION LISTS. When a node transmits a message it
-           can provide a set of peer-ids which it wishes the message
+           can provide a set of Peer-IDs which it wishes the message
            to be routed through. Each intermediate node examines
            the first entry on the destination list and routes 
            the message to that node. When that node is reached,
@@ -1963,7 +1966,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
                    title="Request Origination">
                                              
            <t>
-             In order to originate a message to a given peer-id or resource-id, a
+             In order to originate a message to a given Peer-ID or resource-id, a
              peer must first construct an appropriate destination list. The most
              common such destination list is a single entry containing the
              peer/resource-id. This simply uses the normal DHT routing
@@ -2004,8 +2007,9 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          version, and other header fields to determine whether the message
          is one it can process. If any of these are incorrect (e.g., the
          message is for an overlay in which the peer does not participate)
-         it is an error. The peer SHOULD generate an appropriate error but
-         MAY simply drop the message.</t>
+         it is an error. The peer SHOULD generate an appropriate error but 
+         if local policy can override this in which case the messages is 
+         silently dropped. </t>
 
          <t>Once the peer has determined that the message is correctly
          formatted, it examines the first entry on the destination list.
@@ -2048,7 +2052,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            that the message has traversed. When a peer forwards a message
            it MUST update the via list.
            The natural way to update the via list is simply to add the
-           peer-id of the peer from which the message was received to the
+           Peer-ID of the peer from which the message was received to the
            end of the list. However, peers may use any algorithm of their
            choice provided that if the peer received a destination list
            constructed by reversing the via list it would be able to route
@@ -2073,7 +2077,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
            provide stability over this type of failure.</t>
           </section>
 
-         <section anchor="sec-private-peer-id" title="Private ID">
+         <section anchor="sec-private-Peer-ID" title="Private ID">
            <t>If the first entry on the destination list is a private id,
            the peer replaces that entry with the stored local value that it
            indexes and then re-examines the destination list to determine
@@ -2089,8 +2093,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
              the destination list by reversing the order of the entries on the
              via list. This has the result that the response traverses (at
              least) the same peers as the request traversed, except in reverse
-             order (symmetric routing). For asymmetric routing, the peer MAY
-             simply use the first entry on the via list.
+             order (symmetric routing).
            </t>
          </section>
          </section>
@@ -2206,7 +2209,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 		 as a single byte on the wire.
 	       </t>
 		<t>
-		 The PeerId, shown below, represents a single peer-id.
+		 The PeerId, shown below, represents a single Peer-ID.
 	       </t>
          <figure>
            <!--begin-pdu-->
@@ -2236,7 +2239,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          </figure>
          <t>
 	   Like a PeerId, a resource-id is an opaque string of bytes,
-	   but unlike peer-ids, resource ids are variable length, up to 255
+	   but unlike Peer-IDs, resource ids are variable length, up to 255
            bytes (2048 bits) in length. On the wire, each ResourceId
 	   is preceded by a single length byte (allowing lengths up to 
 	   255). Thus, the 3-byte value "Foo" would be encoded as:
@@ -2433,7 +2436,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          lengths of the route and via lists respectively, in the number of
          objects.</t>
 
-         <t>[[Open Issue: How should we handle peer-id lengths? This basically
+         <t>[[Open Issue: How should we handle Peer-ID lengths? This basically
          assumes they're fixed length per DHT algorithm (but not fixed-length
          for RELOAD) so that you can unambiguously parse things. Should we have
          a length byte?]]</t>
@@ -2531,9 +2534,9 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          <t>A DestinationData can be one of three types:</t>
 
          <t><list style="hanging">
-           <t></t><t hangText="peer"></t><t>A peer-id.</t>
+           <t></t><t hangText="peer"></t><t>A Peer-ID.</t>
 
-           <t></t><t hangText="compressed"></t><t>A compressed list of peer-ids and/or
+           <t></t><t hangText="compressed"></t><t>A compressed list of Peer-IDs and/or
            resources. Because this value was
            compressed by one of the peers, it is only meaningful to that peer
            and cannot be decoded by other peers. Thus, it is represented
@@ -2603,25 +2606,24 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
           <figure>
             <!-- begin-pdu-->
-            <artwork><![CDATA[
+            <artwork>
+<![CDATA[
+    enum { reserved(0), tcp_tls(1),  udp_dtls(2),  (255)}  Transport;
 
-       enum { reserved(0), tcp_tls(1),  udp_dtls(2),  (255)}  Transport;
+    struct {
+      opaque                 version<0..255>;    /* A string */
+      Transport              transport;          /* TCP or UDP */
+      PeerId                 id; 
+      uint32                 uptime;
+      IpAddressPortPort      address;
+      opaque                 certificate<0..2^16-1>;
+    } RouteLogEntry;
 
-       struct {
-         opaque                 version<0..255>;    /* A string */
-         Transport              transport;          /* TCP or UDP */
-         PeerId                 id; 
-         uint32                 uptime;
-         IpAddressPortPort      address;
-         opaque                 certificate<0..2^16-1>;
-       } RouteLogEntry;
+    struct {
+       RouteLogEntry         entries<0..2^16-1>;
+    } RouteLog;
 
-
-       struct {
-          RouteLogEntry         entries<0..2^16-1>;
-       } RouteLog;
-
-              ]]></artwork>
+]]></artwork>
           </figure>
           
           <t>The route log consists of an
@@ -2637,7 +2639,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               <t></t><t hangText="transport "></t><t>The transport type, currently
               either "tcp_tls" or "udp_dtls".</t>
 
-              <t></t><t hangText="id "></t><t>The peer-id of the peer.</t>
+              <t></t><t hangText="id "></t><t>The Peer-ID of the peer.</t>
 
               <t></t><t hangText="uptime "></t><t>The uptime of the peer in seconds.</t>
 
@@ -2857,10 +2859,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               
             </list></t>
 
-          <t>[[TODO: Should we convert all of this to CMS?]]</t>
-
           <t>A number of possible identity formats are permitted. The current
-	  possibilities are: a peer-id, a user name, and a certificate.</t>
+	  possibilities are: a Peer-ID, a user name, and a certificate.</t>
 
           <t>For signatures over messages the input to the signature is computed
 	  over: 
@@ -2915,7 +2915,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           <t>A new peer (but which already has credentials) uses the JOIN_Q
           message to join the DHT. The JOIN_Q is sent to the peer which
           previously was responsible for the resource-id corresponding to the
-          peer-id which the new peer has. This notifies the responsible peer
+          Peer-ID which the new peer has. This notifies the responsible peer
           that the new peer is taking over some of the overlay and it needs to
           synchronize its state.</t>
           <figure>
@@ -2929,9 +2929,9 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               ]]></artwork>
           </figure>
 
-          <!--    join-request = peer-id -->
+          <!--    join-request = Peer-ID -->
 
-          <t>The minimal JOIN_Q contains only the peer-id which the sending
+          <t>The minimal JOIN_Q contains only the Peer-ID which the sending
           peer wishes to assume. DHTs MAY specify other data to appear in
           this request.</t>
 
@@ -2974,9 +2974,9 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               ]]></artwork>
           </figure>
 
-          <!--    leave-request = peer-id -->
+          <!--    leave-request = Peer-ID -->
 
-          <t>The default LEAVE_Q contains only the peer-id of the leaving
+          <t>The default LEAVE_Q contains only the Peer-ID of the leaving
           peer. DHTs MAY other specify data to appear in this request.</t>
 
           <t>Upon receiving a LEAVE request, a peer MUST update its own
@@ -3000,7 +3000,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         <section anchor="sec-route-query" title="ROUTE_QUERY">
           <t>The ROUTE_QUERY request allows the sender to ask a peer where
           they would route a message directed to a given destination. In other
-          words, a ROUTE-QUERY for destination X requests the peer-id where
+          words, a ROUTE-QUERY for destination X requests the Peer-ID where
           the receiving peer would next route to get to X. A ROUTE-QUERY can
           also request that the receiving peer initiate an UPDATE request to
           transfer his routing table.</t>
@@ -3008,11 +3008,11 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           <t>One important use of the ROUTE-QUERY request is to support
           iterative routing. The way that this works is that the sender selects
           one of the peers in its neighbor table and sends it a ROUTE-QUERY
-          message with the destination_object set to the peer-id/resource-id
-          it wishes to route to. The neighbor responds with the next peer-id
+          message with the destination_object set to the Peer-ID/resource-id
+          it wishes to route to. The neighbor responds with the next Peer-ID
           to send to. The sending peer then CONNECTs to that peer and repeats
           the ROUTE-QUERY. Eventually, the sender gets a response from a peer
-          containing a peer-id that is the same as the responding peer, which
+          containing a Peer-ID that is the same as the responding peer, which
 	  means that the responding peer is the closest. At that point,
           the sender can send whatever request is needed directly to that
           peer.</t>
@@ -3051,7 +3051,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
                 <t></t><t hangText="destination "></t><t>The destination which the
                 requester is interested in. This may be any valid destination
-                object, including a peer-id, compressed ids, or
+                object, including a Peer-ID, compressed ids, or
                 resource-id</t>
               </list></t>
           </section>
@@ -3064,19 +3064,19 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
             <figure>
               <!--begin-pdu-->
-              <artwork><![CDATA[
-      struct {
-        PeerId                  next_id;
-	
-	select (IterativeAllowed) {
+              <artwork>
+<![CDATA[
+    struct {
+       PeerId                  next_id;
+
+       select (IterativeAllowed) {
           case True:
-            IpAddressPort           next_addr;
+             IpAddressPort           next_addr;
           
-          case False:               /* Empty*/
+           case False:               /* Empty*/
         };
       } RouteQueryA;
-
-              ]]></artwork>
+]]></artwork>
             </figure>
 
             <t>The contents of the ROUTE_QUERY_A are as follows:
@@ -3230,11 +3230,11 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               effectively disable ICE at the p2p layer.</t>
 
               <t>For overlays that use HIP, the enrollment server MUST provide each
-              peer with a unique ORCHID and use that ORCHID to generate the peer-id
+              peer with a unique ORCHID and use that ORCHID to generate the Peer-ID
               for the peer (see <xref target="sec-credentials"></xref>. Later when
               the HIP layer wishes to tunnel a message (such as an I1 message)
               through the overlay, the HIP layer can use the ORCHID to generate the
-              peer-id, and then use the TUNNEL message with the HIP to route the
+              Peer-ID, and then use the TUNNEL message with the HIP to route the
               message to that the peer that owns that ORCHID.</t>
               </section>
               
@@ -3348,8 +3348,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
         <section title="PING">
           <t>PING is used to test connectivity along a path. A ping can be
-          addressed to a specific peer-id or to the broadcast peer-id (all
-          1s). In either case, the target peer-ids respond with a simple
+          addressed to a specific Peer-ID or to the broadcast Peer-ID (all
+          1s). In either case, the target Peer-IDs respond with a simple
           response containing some status information.</t>
 
           <section title="Request Definition">
@@ -3555,7 +3555,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
     <section title="Data Storage Protocol">
       <t>
          RELOAD provides a set of generic mechanisms for storing and retrieving
-         data in the DHT. These mechanisms can be used for new applications
+         data in the DHT Instance. These mechanisms can be used for new applications
          simply by defining new code points and a small set of rules.
          No new protocol mechanisms are required.
       </t>
@@ -3610,7 +3610,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
       more self-contained, though.]
     </t>
     <t>
-      Each resource-id specifies a single location in the DHT.
+      Each resource-id specifies a single location in the DHT Instance.
       However, each location may contain multiple StoredData values
       distinguished by kind-id. 
       The definition of a kind describes
@@ -4281,10 +4281,10 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
             </figure>
         </section>
         <section title="FIND">
-          <t>The FIND request can be used to explore the DHT. A FIND request for a
+          <t>The FIND request can be used to explore the DHT Instance. A FIND request for a
           resource-id R and a kind-id T retrieves the resource-id (if any) of
           the resource of kind T known to the target peer which is closes to
-          R. This method can be used to walk the DHT by interactively fetching
+          R. This method can be used to walk the DHT Instance by interactively fetching
           R_n+1=nearest(1 + R_n).</t>
 
           <section title="Request Definition">
@@ -4416,11 +4416,11 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
       <t>In addition, a node may need to connect to another node for the
       purposes of an application connection. In the case of SIP, when a node
-      has looked up the target AOR in the DHT, it will obtain a peer-id that
+      has looked up the target AOR in the DHT Instance, it will obtain a Peer-ID that
       identifies that peer. The next step will be to establish a "direct"
       connection for the purposes of performing SIP signaling.</t>
 
-      <t>In both of these cases, the node starts with a destination peer-id
+      <t>In both of these cases, the node starts with a destination Peer-ID
       and its objective is to create a connection (ideally using TCP, but
       falling back to UDP when it is not available) to the node with that
       given Node-ID. The establishment of this connection is done using the
@@ -4677,16 +4677,16 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
       <t><list style="symbols">
          <t>The user names in the certificate.</t>
 
-         <t>The peer-ids in the certificate.</t>
+         <t>The Peer-IDs in the certificate.</t>
       </list></t>
 
       <t>Note that in the second case the certificate is not stored at the
-      peer's peer-id but rather at a hash of the peer's peer-id. The
+      peer's Peer-ID but rather at a hash of the peer's Peer-ID. The
       intention here (as is common throughout RELOAD) is to avoid making a
       peer responsible for its own data.</t>
 
       <t>A peer MUST ensure that the user's certificates are stored in the
-      DHT when joining and redo the check about every 24 hours after that.
+      DHT Instance when joining and redo the check about every 24 hours after that.
       Certificate data should be stored with an expiry time of 60 days. When
       a client is checking the existence of data, if the expiry is less than
       30 days, it should be refreshed to have an expiry of 60 days. The
@@ -4701,7 +4701,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
          array.</t>
 
          <t></t><t hangText="Access Control">The CERTIFICATE MUST contain a
-         peer-id or user name which, when hashed, maps to the resource-id at
+         Peer-ID or user name which, when hashed, maps to the resource-id at
          which the value is being stored.</t>
 
          <t></t><t hangText="Data Sizes">[TODO: EKR: Maximum size...]</t>
@@ -4789,7 +4789,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  <t>
 	    As a simple example,
 	    if Alice's
-	    AOR were "sip:alice@dht.example.com" and her peer-id
+	    AOR were "sip:alice@dht.example.com" and her Peer-ID
 	    were "1234", she might store
 	    the mapping "sip:alice@example.org -> 1234". This
 	    would tell anyone who wanted to call Alice to contact
@@ -4801,7 +4801,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  <t>
 	    <list style="symbols">
 	      <t>
-		From AORs to destination lists (a single peer-id is just
+		From AORs to destination lists (a single Peer-ID is just
 		a trivial destination list.
 	      </t>
 	      <t>
@@ -4877,7 +4877,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  <t>
 	    RELOAD explicitly supports multiple registrations for a single
 	    AOR. The registrations are stored in a Dictionary with the
-	    dictionary keys being peer-ids. Consider, for instance, the
+	    dictionary keys being Peer-IDs. Consider, for instance, the
 	    case where Alice has two peers:
 	  </t>
 	  <t>
@@ -4897,8 +4897,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	    </list>
 	  </t>
 	  <t>
-	    Note that this structure explicitly allows one peer-id to
-	    forward to another peer-id. For instance, Alice could
+	    Note that this structure explicitly allows one Peer-ID to
+	    forward to another Peer-ID. For instance, Alice could
 	    set calls to her desk phone to ring at her cell phone.
 	    It's not clear that this is useful in this case, but
 	    may be useful if Alice has two AORs.
@@ -4916,7 +4916,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 		SIP AOR that hashes to the resource-id being stored at.
 	      </t>
 	      <t>
-		The certificate contains a peer-id that is the
+		The certificate contains a Peer-ID that is the
 		same as the dictionary key being stored at.
 	      </t>
 	    </list>
@@ -4984,7 +4984,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	    field MUST be 5160 to indicate SIP. 
 	    If
 	    certificate-based authentication is in use, the responding peer MUST
-	    present a certificate with a peer-id matching the terminal entry in
+	    present a certificate with a Peer-ID matching the terminal entry in
 	    the route list.
 	    Note that it is possible that the peers already
 	    have a RELOAD connection between them. This MUST NOT
@@ -4997,7 +4997,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	</section>
 	<section title="GRUUs">
           <t>
-	    GRUUs do not require storing data in the DHT. Rather, they are
+	    GRUUs do not require storing data in the DHT Instance. Rather, they are
 	    constructed by embedding a base64-encoded destination list in the gr
 	    URI parameter of the GRUU. The base64 encoding is done with the
 	    alphabet specified in table 1 of RFC 4648 with the exception that ~
@@ -5013,10 +5013,10 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 	  </t>
           <t>
 	    Anonymous GRUUs are done in roughly the same way but require
-	    either that the enrollment server issue a different peer-id for each
+	    either that the enrollment server issue a different Peer-ID for each
 	    anonymous GRUU required or that a destination list be used that
 	    includes a peer that compresses the destination list to stop the
-	    peer-id from being revealed.
+	    Peer-ID from being revealed.
 	  </t>
 
 
@@ -5035,7 +5035,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               for the user.</t>
 
               <t></t><t hangText="Data Model">The data model for the SIP-REGISTRATION
-              kind-id is dictionary. The dictionary key is the peer-id of the
+              kind-id is dictionary. The dictionary key is the Peer-ID of the
               storing peer. This allows each peer (presumably corresponding to
               a single device) to store a single route mapping.</t>
 
@@ -5043,7 +5043,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               is being used, stored data of kind-id SIP-REGISTRATION must be
               signed by a certificate which (1) contains user name matching
               the storing URI used as the Unhashed-ID for the resource-id and
-              (2) contains a peer-id matching the storing dictionary key.</t>
+              (2) contains a Peer-ID matching the storing dictionary key.</t>
 
               <t></t><t hangText="Data Sizes">Peers MUST be prepared to store
               SIP-REGISTRATION values of up to 10 kilobytes and must be
@@ -5145,11 +5145,11 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
         <t>In order to route HIP messages correctly, there needs to be an
         unambiguous mapping between the ORCHID assigned to each HIP node and
-        the peer-id assigned to that node. The ORCHID MUST be used as the
-        Unhashed-ID to generate the peer-id. [TODO: We need a general scheme
+        the Peer-ID assigned to that node. The ORCHID MUST be used as the
+        Unhashed-ID to generate the Peer-ID. [TODO: We need a general scheme
         for mapping Unhashed-IDs to IDs so they don't collide. This isn't the
         place to define it.] Messages to a given ORCHID are then routed to the
-        mapped peer-id. <xref target="sec-credentials"></xref> describes more
+        mapped Peer-ID. <xref target="sec-credentials"></xref> describes more
         considerations for the generation of ORCHIDs for use with RELOAD.</t>
 
         <t>TODO - should discuss interaction of HIP and P2P retransmission
@@ -5270,7 +5270,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         management. It can be used to discover information such as the
         software version, uptime, and performance statistics of a peer. The
         usage defines several new kinds which can be retrieved to get the
-        statistics. The peer-id is directly used when retrieving data so no
+        statistics. The Peer-ID is directly used when retrieving data so no
         Unhashed-ID is defined. The access control model for all of these is
         local policy defined by the peer. The peer MAY have a list of users
         (such as "admin") that it is willing to return the information for and
@@ -5394,7 +5394,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           that is 1/8th of the way around, and so on. Fundamentally, the chord
           data structure can be thought of a doubly-linked list formed by
           knowing the successors and predecessor peers in the neighborhood
-          table, sorted by the peer-id. As long as the successor peers are
+          table, sorted by the Peer-ID. As long as the successor peers are
           correct, the DHT will return the correct result. The pointers to the
           prior peers are kept to enable inserting of new peers into the list
           structure. Keeping multiple predecessor and successor pointers makes
@@ -5414,7 +5414,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         <section title="Routing">
           <t>If a peer is not responsible for a Resource-ID k, then it routes
           a request to that location by routing it to the peer in either the
-          neighborhood or finger table that has the largest peer-id that is in
+          neighborhood or finger table that has the largest Peer-ID that is in
           the interval between the peer and k.</t>
         </section>
 
@@ -5442,7 +5442,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         </section>
 
         <section title="Joining">
-          <t>The join process for a joining party (JP) with peer-id n is as
+          <t>The join process for a joining party (JP) with Peer-ID n is as
           follows.</t>
 
           <t><list style="numbers">
@@ -5460,7 +5460,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
               table.</t>
 
               <t>JP sends a JOIN to its immediate successor, the admitting
-              peer (AP) for peer-id n. The AP sends the response to the
+              peer (AP) for Peer-ID n. The AP sends the response to the
               JOIN.</t>
 
               <t>AP does a series of STORE requests to JP to store the data
@@ -5494,7 +5494,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         <section title="Routing CONNECTs">
           <t>When a peer needs to CONNECT with a new peer in its neighborhood
           table, it MUST source-route the CONNECT request through the peer
-          from which it learned the new peer's peer-id. Source-routing these
+          from which it learned the new peer's Peer-ID. Source-routing these
           requests allows the overlay to recover from instability.</t>
 
           <t>All other CONNECT requests, such as those for new finger table
@@ -5545,7 +5545,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
             request), the peer should remove the entry from its neighborhood
             table and replace it with the best match it has from the other
             peers in its routing table. It then sends an UPDATE to all its
-            remaining neighbors. The update will contain all the peer-ids of
+            remaining neighbors. The update will contain all the Peer-IDs of
             the current entries of the table (after the failed one has been
             removed). Note that when replacing a successor the peer SHOULD
             delay the creation of new replicas for 30 seconds after removing
@@ -5564,7 +5564,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
           <section title="Receiving UPDATEs">
             <t>When a peer, N, receives an UPDATE request, it examines the
-            peer-ids in the UPDATE_Q and at its neighborhood table and decides
+            Peer-IDs in the UPDATE_Q and at its neighborhood table and decides
             if this UPDATE_Q would change its neighborhood table. This is done
             by taking the set of peers currently in the neighborhood table and
             comparing them to the peers in the update request. There are three
@@ -5680,7 +5680,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
             used in the initial join for the overay to locate an appropriate
             bootstrap peer, B. If an overlay has multiple mechanisms for
             discovery it should randomly select a method to locate a bootstrap
-            peer. P should then send a PING for its own peer-ID routed through
+            peer. P should then send a PING for its own Peer-ID routed through
             B. If a response is received from a peer S', which is not P's
             successor, then the overlay is partitioned and P should send a
             CONNECT to S' routed through B, followed by an UPDATE sent to S'.
@@ -5692,7 +5692,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         </section>
 
         <section title="Leaving">
-          <t>Peers SHOULD send a LEAVE request prior to exiting the DHT. Any
+          <t>Peers SHOULD send a LEAVE request prior to exiting the DHT Instance. Any
           peer which receives a LEAVE for a peer n in its neighbor set must
           remove it from the neighbor set, update its replica sets as
           appropriate (including STOREs of data to new members of the replica
@@ -5822,7 +5822,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
 
       <section anchor="sec-credentials" title="Credentials">
         <t>If the configuration document contains a credential-server element,
-        credentials are required to use the DHT. A peer which does not yet
+        credentials are required to use the DHT Instance. A peer which does not yet
         have credentials MUST contact the credential server to acquire
         them.</t>
 
@@ -5860,12 +5860,12 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           so that: <list style="symbols">
               <t>Each node is assigned a unique ORCHID.</t>
 
-              <t>The peer-id can be uniquely determined from the ORCHID.</t>
-            </list> Because in general, ORCHIDs are shorter than peer-ids,
+              <t>The Peer-ID can be uniquely determined from the ORCHID.</t>
+            </list> Because in general, ORCHIDs are shorter than Peer-IDs,
           this means that the ORCHIDS MUST be generated first and MUST be
-          cryptographically random in order to make the peer-ids
+          cryptographically random in order to make the Peer-IDs
           cryptographically random. The mapping function used to produce the
-          peer-id from the ORCHID MUST be the same as that used by the DHT to
+          Peer-ID from the ORCHID MUST be the same as that used by the DHT Instance to
           produce resource-ids from Unhashed-IDs.</t>
 
           <t>In addition to the usual attributes, when HIP is in use
@@ -5881,14 +5881,14 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         guaranteed to have public IP addresses (the system should not
         advertise them as bootstrap peers otherwise). If the peer has cached
         peers it SHOULD contact them first by sending a PING request to the
-        known peer address with the destination peer-id set to that peer's
-        peer-id.</t>
+        known peer address with the destination Peer-ID set to that peer's
+        Peer-ID.</t>
 
         <t>If no cached peers are available, then the peer SHOULD send a PING
         request to the address and port found in the broadcast-peers element
         in the configuration document. This MAY be a multicast or anycast
-        address. The PING should use the wildcard peer-id as the destination
-        peer-id.</t>
+        address. The PING should use the wildcard Peer-ID as the destination
+        Peer-ID.</t>
 
         <t>The responder peer that receives the PING request SHOULD check that
         the overlay name is correct and that the requester peer sending the
@@ -5896,8 +5896,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         to the PING request even if the response is only an error.</t>
 
         <t>When the requester peer finally does receive a response from some
-        responding peer, it can note the peer-id in the response and use this
-        peer-id to start sending requests to join the DHT as described in
+        responding peer, it can note the Peer-ID in the response and use this
+        Peer-ID to start sending requests to join the DHT Instance as described in
         <xref target="sec-join-leave-maint"></xref> and [XREF].</t>
 
         <t>After a peer has successfully joined the overlay network, it SHOULD
@@ -5920,9 +5920,9 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         target="section.sip-issues"></xref> we describe issues that are
         specific to SIP.</t>
 
-        <t>In any DHT, any given user depends on a number of peers with which
+        <t>In any DHT Instance, any given user depends on a number of peers with which
         they have no well-defined relationship except that they are fellow
-        members of the DHT. In practice, these other nodes may be friendly,
+        members of the DHT Instance. In practice, these other nodes may be friendly,
         lazy, curious, or outright malicious. No security system can provide
         complete protection in an environment where most nodes are malicious.
         The goal of security in RELOAD is to provide strong security
@@ -5972,11 +5972,11 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         cryptographically using an asymmetric key pair tied to a
         certificate.</t>
 
-        <t>When a user enrolls in the DHT, they request or are assigned a
+        <t>When a user enrolls in the DHT Instance, they request or are assigned a
         unique name, such as "alice@dht.example.net". These names are unique
         and are meant to be chosen and used by humans much like a SIP Address
         of Record (AOR) or an email address. The user is also assigned one or
-        more peer-IDs by the central enrollment authority. Both the name and
+        more Peer-IDs by the central enrollment authority. Both the name and
         the peer ID are placed in the certificate, along with the user's
         public key.</t>
 
@@ -5984,17 +5984,17 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         roles:</t>
 
         <t><list style="symbols">
-            <t>As a user, storing data at specific Resource-IDs in the DHT
+            <t>As a user, storing data at specific Resource-IDs in the DHT Instance
             corresponding to the user name.</t>
 
             <t>As a DHT peer with the peer ID(s) listed in the
             certificate.</t>
           </list></t>
 
-        <t>Note that since only users of this DHT need to validate a
+        <t>Note that since only users of this DHT Instance need to validate a
         certificate, this usage does not require a global PKI. It does,
         however, require a central enrollment authority which acts as the
-        certificate authority for the DHT. This authority signs each peer's
+        certificate authority for the DHT Instance. This authority signs each peer's
         certificate. Because each peer possesses the CA's certificate (which
         they receive on enrollment) they can verify the certificates of the
         other entities in the overlay without further communication. Because
@@ -6083,7 +6083,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           <figure>
             <artwork><![CDATA[
         User name: alice@dht.example.com
-        Peer-Id:   013456789abcdef
+        Peer-ID:   013456789abcdef
         Serial:    1234
         ]]></artwork>
           </figure>
@@ -6099,8 +6099,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         </section>
 
         <section title="Distributed Quota">
-          <t>Being a peer in a DHT carries with it the responsibility to store
-          data for a given region of the DHT. However, if clients were allowed
+          <t>Being a peer in a DHT Instance carries with it the responsibility to store
+          data for a given region of the DHT Instance. However, if clients were allowed
           to store unlimited amounts of data, this would create unacceptable
           burdens on peers, as well as enabling trivial denial of service
           attacks. RELOAD addresses this issue by requiring each usage to
@@ -6171,8 +6171,8 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         attacker from performing a DOS attack on the system by misrouting
         requests in the DHT. There are a few obvious observations to make
         about this. First, it is easy to ensure that an attacker is at least a
-        valid peer in the DHT. Second, this is a DOS attack only. Third, if a
-        large percentage of the peers on the DHT are controlled by the
+        valid peer in the DHT Instance. Second, this is a DOS attack only. Third, if a
+        large percentage of the peers on the DHT Instance are controlled by the
         attacker, it is probably impossible to perfectly secure against
         this.</t>
 
@@ -6196,7 +6196,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
         </section>
 
         <section title="Admissions Control">
-          <t>Admission to an RELOAD DHT is controlled by requiring that each
+          <t>Admission to an RELOAD DHT Instance is controlled by requiring that each
           peer have a certificate containing its peer ID. The requirement to
           have a certificate is enforced by using TLS mutual authentication on
           each connection. Thus, whenever a peer connects to another peer,
@@ -6219,7 +6219,7 @@ INSERT LADDER DIAGRAM WITH truncated VIA AND DST LISTS HERE
           peer IDs, which requires him to repeatedly query the enrollment
           server for new certificates which only will match by chance. From
           the attacker's perspective, the difficulty is that if he only has a
-          small number of certificates the region of the DHT he is
+          small number of certificates the region of the DHT Instance he is
           impersonating appears to be very sparsely populated by comparison to
           the victim's local region.</t>
         </section>
