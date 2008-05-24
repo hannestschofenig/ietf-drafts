@@ -181,7 +181,7 @@
          </t>
 	 <t>
 	   RTP and RTCP traffic MAY be multiplexed on a single UDP port 
-	   <xref target="I-D.ietf.avt-rtp-and-rtcp-mux" norm="TRUE"/>
+	   <xref target="I-D.ietf-avt-rtp-and-rtcp-mux" norm="TRUE"/>
 	   In this case, both RTP and RTCP packets may be sent over the same
 	   DTLS-SRTP session, halving the number of DTLS-SRTP sessions needed
 	   This improves the cryptographic performance of DTLS, but 
@@ -562,16 +562,16 @@
               <t>The Key Derivation Rate (KDR) is equal to zero. Thus, keys
               are not re-derived based on the SRTP sequence number.</t>
 
-              <t>For all other parameters, the default values are used.</t>
-            </list></t><t> All SRTP parameters that are not determined by the SRTP
-          Protection Profile SHOULD be established via the signaling system. In
-          particular, the relative order of Forward Error Correction and SRTP
-          processing, and a suggested SRTP replay window size SHOULD be
-          established in this manner.  If they are not otherwise signalled,
-	  they take on their default values from <xref target="RFC3711"/>.
-	  Note: future specifications MAY need to 
-	  define additional SDP syntax to indicate some of these values.
-	</t>
+              <t>For all other parameters, (in particular, SRTP replay window size and FEC order)
+	      the default values are used.</t>
+	      
+            </list></t>
+
+	    <t>
+	      If values other than the defaults for these parameters
+	      are required, they can be enabled by writing a separate
+	      specification specifying SDP syntax to signal them. 
+	    </t>
 	<t>
 	  Applications using DTLS-SRTP SHOULD coordinate the SRTP
 	  Protection Profiles between the DTLS-SRTP session that
@@ -1192,7 +1192,7 @@ to SRTPparameters?
 	    The "fmt" parameter SHALL be as defined for RTP/SAVP.
 	    </t>
 	    <t>
-	      See <xref target="I-D.sip-dtls-framework"/> for how to use
+	      See <xref target="I-D.ietf-sip-dtls-srtp-framework"/> for how to use
 	      offer/answer with DTLS-SRTP.
 	    </t>
 	      
