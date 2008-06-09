@@ -16,7 +16,7 @@
 INTERNET-DRAFT                                               E. Rescorla
 Obsoletes (if approved): RFC 4347                             RTFM, Inc.
 Intended Status: Proposed Standard                           N. Modadugu
-<draft-ietf-tls-rfc4347-bis-00.txt>                               Google
+<draft-ietf-tls-rfc4347-bis-00.txt>                  Stanford University
                                         May 2008 (Expires November 2008)
 
 
@@ -152,7 +152,7 @@ lost or re-ordered data traffic.
 3. Overview of DTLS
 
 The basic design philosophy of DTLS is to construct "TLS over
-datagram".  The reason that TLS cannot be used directly in
+datagram transport."  The reason that TLS cannot be used directly in
 datagram environments is simply that packets may be lost or
 reordered.  TLS has no internal facilities to handle this kind
 of unreliability, and therefore TLS implementations break when
@@ -367,9 +367,8 @@ reordering.
 Each DTLS record MUST fit within a single datagram.
 In order to avoid fragmentation,
 that clients of the DTLS record layer SHOULD attempt
-to size records so that they fit within the PMTU.
-The record layer provides some facilities to assist
-with this (see section 4.1.1.1). 
+to size records so that they fit within any PMTU
+estimates obtained from the record layer.
 
 .ne 4
 Note that unlike IPsec, DTLS records do not contain any
@@ -422,16 +421,16 @@ three reasons:
  - The DTLS handshake messages can exceed the PMTU.
 .fi
 
-In order to deal with the first two issues, the TLS 
-record layer SHOULD behave as follows:
-
+In order to deal with the first two issues, the DTLS 
+record layer SHOULD behave as described below.
+       
 If PMTU estimates are available from the underlying transport
 protocol, they should be made available to upper layer protocols.
 In particular:
 
 .nf
 - For DTLS over UDP, the upper layer protocol SHOULD be allowed
-  to obtain the PMTU estimate maintained in IP layer.
+  to obtain the PMTU estimate maintained in the IP layer.
 
 - For DTLS over DCCP, the upper layer protocol
   SHOULD be allowed to obtain the current estimate of the 
@@ -439,12 +438,12 @@ In particular:
 
 - For DTLS over TCP or SCTP, which automatically fragment
   and reassemble datagrams, the upper layer protocol
-  SHOULD be informed that the PMTU is effectively
+  SHOULD be informed that the PMTU is effectively infinite.
 .fi
 
 The DTLS record layer SHOULD allow the upper layer protocol
 to discover the amount of record expansion expected by the
-DTLS processing. Note that this number is not constant
+DTLS processing. Note that this number is only an estimate
 because of block padding and the potential use of 
 DTLS compression. 
 
@@ -461,12 +460,13 @@ protocols performing PMTU discovery, whether via
 - Where allowed by the underlying transport protocol,
   the upper layer protocol SHOULD be allowed to set
   the state of the DF bit (in IPv4) or prohibit local
-  fragmentation (in IPv6)"
+  fragmentation (in IPv6).
 
 - If the underlying transport protocol allows the application
   to request PMTU probing (e.g., DCCP), the DTLS record
   layer should honor this request.
 
+.fi
 The final issue is the DTLS handshake protocol. From the
 perspective of the DTLS record layer, this is merely
 another upper layer protocol. However, DTLS handshakes
@@ -523,7 +523,7 @@ on each other in the way that TLS records are.
 In general, DTLS implementations SHOULD silently discard
 data with bad MACs.  If a DTLS implementation chooses to
 generate an alert when it receives a message with an invalid
-MAC, it MUST generate bad_record_mac alert with level fatal
+MAC, it MUST generate a bad_record_mac alert with level fatal
 and terminate its connection state.
 
 .ti 0
@@ -540,7 +540,7 @@ cannot be randomly accessed.  RC4 MUST NOT be used with DTLS.
 4.1.2.3. Block Cipher
 
 DTLS block cipher encryption and decryption are performed
-exactly as with TLS 1.2.
+exactly as with TLS 1.2. 
 
 .ti 0
 4.1.2.3. AEAD Ciphers
@@ -566,7 +566,7 @@ must be made.
 DTLS records contain a sequence number to provide replay
 protection.  Sequence number verification SHOULD be performed
 using the following sliding window procedure, borrowed from
-Section 3.4.3 of [AH].
+Section 3.4.3 of [ESP].
 
 The receiver packet counter for this session MUST be
 initialized to zero when the session is established.  For each
@@ -592,8 +592,8 @@ Records that contain Sequence Numbers lower than the "left"
 edge of the window are rejected.  Packets falling within the
 window are checked against a list of received packets within
 the window.  An efficient means for performing this check,
-based on the use of a bit mask, is described in Appendix C of
-[RFC4301].[TODO: NO]
+based on the use of a bit mask, is described in Section 3.4.3 of
+[ESP].
 
 If the received record falls within the window and is new, or
 if the packet is to the right of the window, then the receiver
@@ -679,7 +679,7 @@ cookie value.
      ProtocolVersion client_version;
      Random random;
      SessionID session_id;
-     opaque cookie<0..255>;                             // New field
+     opaque cookie<0..2^8-1>;                             // New field
      CipherSuite cipher_suites<2..2^16-1>;
      CompressionMethod compression_methods<1..2^8-1>;
    } ClientHello;
@@ -694,7 +694,7 @@ The definition of HelloVerifyRequest is as follows:
 .nf
    struct {
      ProtocolVersion server_version;
-     opaque cookie<0..255>;
+     opaque cookie<0..2^8-1>;
    } HelloVerifyRequest;
 
 .fi
@@ -855,8 +855,8 @@ When a DTLS implementation receives a handshake message
 fragment, it MUST buffer it until it has the entire handshake
 message.  DTLS implementations MUST be able to handle
 overlapping fragment ranges.  This allows senders to retransmit
-handshake messages with smaller fragment sizes during path MTU
-discovery.
+handshake messages with smaller fragment sizes if the PMTU
+estimate changes.
 
 Note that as with TLS, multiple handshake messages may be
 placed in the same DTLS record, provided that there is room
@@ -1151,14 +1151,14 @@ that have changed between TLS 1.2 and DTLS.
      ProtocolVersion client_version;
      Random random;
      SessionID session_id;
-     opaque cookie<0..255>;                             // New field     
+     opaque cookie<0..2^8-1>;                             // New field     
      CipherSuite cipher_suites<2..2^16-1>;
      CompressionMethod compression_methods<1..2^8-1>;
    } ClientHello;
 
    struct {
      ProtocolVersion server_version;
-     opaque cookie<0..255>;
+     opaque cookie<0..2^8-1>;
    } HelloVerifyRequest;
 
 .fi
