@@ -1062,7 +1062,8 @@ fragment_length.  However, in order to remove sensitivity to
 fragmentation, the Finished MAC MUST be computed as if each handshake
 message had been sent as a single fragment.  Note that in cases where
 the cookie exchange is used, the initial ClientHello and
-HelloVerifyRequest MUST NOT be included in the Finished MAC.
+HelloVerifyRequest MUST NOT be included in the CertificateVerify 
+or Finished MAC computations.
 
 .ti 0
 4.2.7. Alert Messages
