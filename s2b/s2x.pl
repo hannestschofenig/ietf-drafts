@@ -6,9 +6,9 @@
 use Getopt::Std;
 my %opts;
 
-getopts("n",\%opts);
+getopts("ne",\%opts);
 
-$NO_REWRITE=1 if $opts{'n'};
+$EXTRACT=1 if $opts{'e'};
 
 use File::Temp qw/ :mktemp  /;
 
@@ -18,80 +18,48 @@ $S2B = "/users/ekr/doc/ietf-drafts/ekr/s2b/s2b";
 
 open(IN,$ARGV[0]) || die("Couldn't open input file");
 open(OUT,">$ARGV[1]") || die("Couldn't open output file");
+open(S2C,">$ARGV[0].s2c")||die("Couldn't open s2c file") if $EXTRACT;
 
+$output=0;
+$in_pdu=0;
 
 while(<IN>){
-    if($NO_REWRITE){
-	print OUT;
+    print OUT;
+
+    next unless $EXTRACT;
+
+    if(/<!--\s*begin-prologue\s*-->/){
+	$in_pdu=1;
+	next;
+    }
+    if(/<!--\s*end-prologue\s*-->/){
+	$in_pdu=0;
+	$output=0;
+	next;
+    }
+    if(/<!--\s*begin-pdu\s*-->/){
+	$in_pdu=1;
+	next;
+    }
+    if(/<!--\s*end-pdu\s*-->/){
+	$in_pdu=0;
+	$output=0;
 	next;
     }
 
-    print OUT;
-   
-    next if $NO_REWRITE;
-
-    if(/<!--\s*begin-prologue\s*-->/){
-	while(!/artwork/){
-	    print OUT;
-	    $_=<IN>;
-	}
-
-	print OUT;
-
-	while(<IN>){
-	    last if /artwork/;
-	    $PROLOGUE .= $_;
-	}
-
-	print OUT;
+    if(m!/artwork!){
+	$in_pdu=0;
+	$output=0;
+	next;
     }
     
-    if(/<!--\s*begin-pdu\s*-->/){
-	($fh, $file) = mkstemp( "tmpfileXXXXX" );
-
-	print $fh $PROLOGUE;
-	$PDU="";
-
-	while(!/artwork/){
-	    print OUT;
-	    $_=<IN>;
-	}
-	print OUT;
-
-	while(<IN>){
-	    if(/<\/artwork>/){
-		$last_line=$_;
-		last;
-	    }
-	    
-	    $PDU.=$_;
-	    print $fh $_;
-	}
-
-	close($fh);
-	$result = `$S2B $file`;
-	
-	if($?){
-	    print OUT "PARSE ERROR: $result\n";
-	    print OUT "PDU WAS: \n";
-	    print OUT "---------------------------------------------\n";
-	    print OUT "$PDU\n";
-	    print OUT "---------------------------------------------\n";
-
-	    print STDERR "Parse error in line $@, file=$file\n";
-	    print STDERR "PDU WAS: \n";
-	    print STDERR "---------------------------------------------\n";
-	    print STDERR "$PDU\n";
-	    print STDERR "---------------------------------------------\n";
-	}
-	else{
-	    print OUT $result;
-	    
-	    unlink($file);
-	}
-
-
-	print OUT $last_line;
+    if($in_pdu && /artwork/){
+	$output=1;
+	next;
+    }
+    
+    if($output){
+	print S2C;
     }
 }
 
