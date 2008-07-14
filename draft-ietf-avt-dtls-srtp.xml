@@ -14,7 +14,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-avt-dtls-srtp-02.txt" ipr="full3978">
+<rfc category="std" docName="draft-ietf-avt-dtls-srtp-03.txt" ipr="full3978">
   <front>
     <title abbrev="SRTP Extension for DTLS">Datagram Transport Layer Security
     (DTLS) Extension to Establish Keys for Secure Real-time Transport Protocol
@@ -60,7 +60,7 @@
       </address>
     </author>
 
-    <date day="25" month="February" year="2008" />
+    <date day="12" month="July" year="2008" />
 
     <abstract>
     <t>
@@ -907,16 +907,17 @@ to SRTPparameters?
    maintains a table listing all the SSRCs it knows about 
    and the DTLS-SRTP associations they correspond to.
    Initially, this table is empty. When an SRTP 
-   packet is received, the following procedure is used:
+   packet is received for a given RTP endpoint
+   (destination IP/port pair), the following procedure is used:
    </t>
    <t>
    <list style="numbers">
-   <t>If the SSRC is already known, then the corresponding
+   <t>If the SSRC is already known for that endpoint, then the corresponding
       DTLS-SRTP association and its keying material is used
       to decrypt and verify the packet.</t>
    <t>If the SSRC is not known, then the receiver tries to
       decrypt it with the keying material corresponding
-      to each DTLS-SRTP association.</t>
+      to each DTLS-SRTP association for that endpoint.</t>
    <t>If the decryption and verification succeeds (the authentication tag
       verifies) then an entry is placed in the table
       mapping the SSRC to that association.</t>

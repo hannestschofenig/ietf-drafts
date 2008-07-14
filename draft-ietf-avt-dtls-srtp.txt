@@ -4,13 +4,13 @@
 Network Working Group                                          D. McGrew
 Internet-Draft                                             Cisco Systems
 Intended status:  Standards Track                            E. Rescorla
-Expires:  August 28, 2008                              Network Resonance
-                                                       February 25, 2008
+Expires:  January 13, 2009                             Network Resonance
+                                                           July 12, 2008
 
 
 Datagram Transport Layer Security (DTLS) Extension to Establish Keys for
                Secure Real-time Transport Protocol (SRTP)
-                    draft-ietf-avt-dtls-srtp-02.txt
+                    draft-ietf-avt-dtls-srtp-03.txt
 
 Status of this Memo
 
@@ -35,7 +35,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on August 28, 2008.
+   This Internet-Draft will expire on January 13, 2009.
 
 Copyright Notice
 
@@ -52,9 +52,9 @@ Abstract
 
 
 
-McGrew & Rescorla        Expires August 28, 2008                [Page 1]
+McGrew & Rescorla       Expires January 13, 2009                [Page 1]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
 Table of Contents
@@ -108,9 +108,9 @@ Table of Contents
 
 
 
-McGrew & Rescorla        Expires August 28, 2008                [Page 2]
+McGrew & Rescorla       Expires January 13, 2009                [Page 2]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
 1.  Introduction
@@ -164,9 +164,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008                [Page 3]
+McGrew & Rescorla       Expires January 13, 2009                [Page 3]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
 3.  Overview of DTLS-SRTP Operation
@@ -220,9 +220,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008                [Page 4]
+McGrew & Rescorla       Expires January 13, 2009                [Page 4]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    authenticate the endpoints using fingerprints can be found in [9].
@@ -276,9 +276,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008                [Page 5]
+McGrew & Rescorla       Expires January 13, 2009                [Page 5]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
          Client                                               Server
@@ -332,9 +332,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008                [Page 6]
+McGrew & Rescorla       Expires January 13, 2009                [Page 6]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
       uint8 SRTPProtectionProfile[2];
@@ -388,9 +388,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008                [Page 7]
+McGrew & Rescorla       Expires January 13, 2009                [Page 7]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    that can be protected with each single set of keys when the parameter
@@ -444,9 +444,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008                [Page 8]
+McGrew & Rescorla       Expires January 13, 2009                [Page 8]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
          cipher_salt_length:  0
@@ -500,9 +500,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008                [Page 9]
+McGrew & Rescorla       Expires January 13, 2009                [Page 9]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    that it is distinct from the last MKI value that was used, and it
@@ -556,9 +556,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 10]
+McGrew & Rescorla       Expires January 13, 2009               [Page 10]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    sent by the server.  The client MUST only use these keys to decrypt
@@ -612,9 +612,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 11]
+McGrew & Rescorla       Expires January 13, 2009               [Page 11]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
 4.3.  Key Scope
@@ -668,9 +668,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 12]
+McGrew & Rescorla       Expires January 13, 2009               [Page 12]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    sequence number rather than the DTLS sequence number is used for
@@ -724,9 +724,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 13]
+McGrew & Rescorla       Expires January 13, 2009               [Page 13]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
                                           Bob (192.0.2.1:6666)
@@ -758,14 +758,15 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
    For each local host/port pair, the DTLS-SRTP implementation maintains
    a table listing all the SSRCs it knows about and the DTLS-SRTP
    associations they correspond to.  Initially, this table is empty.
-   When an SRTP packet is received, the following procedure is used:
+   When an SRTP packet is received for a given RTP endpoint (destination
+   IP/port pair), the following procedure is used:
 
-   1.  If the SSRC is already known, then the corresponding DTLS-SRTP
-       association and its keying material is used to decrypt and verify
-       the packet.
+   1.  If the SSRC is already known for that endpoint, then the
+       corresponding DTLS-SRTP association and its keying material is
+       used to decrypt and verify the packet.
    2.  If the SSRC is not known, then the receiver tries to decrypt it
        with the keying material corresponding to each DTLS-SRTP
-       association.
+       association for that endpoint.
    3.  If the decryption and verification succeeds (the authentication
        tag verifies) then an entry is placed in the table mapping the
        SSRC to that association.
@@ -776,15 +777,15 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
        table.
 
    The average cost of this algorithm for a single SSRC is the
-   decryption and verification time of a single packet times the number
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 14]
+McGrew & Rescorla       Expires January 13, 2009               [Page 14]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
+   decryption and verification time of a single packet times the number
    valid DTLS-SRTP associations corresponding to a single receiving port
    on the host.  In practice, this means the number of forks, so in the
    case shown in Figure 8, that would be two.  This cost is only
@@ -832,15 +833,15 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
    Rekeying in DTLS is accomplished by performing a new handshake over
    the existing DTLS channel.  This handshake can be performed in
-   parallel with data transport, so no interruption of the data flow is
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 15]
+McGrew & Rescorla       Expires January 13, 2009               [Page 15]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
+   parallel with data transport, so no interruption of the data flow is
    required.  Once the handshake is finished, the newly derived set of
    keys is used to protect all outbound packets, both DTLS and SRTP.
 
@@ -891,10 +892,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-
-McGrew & Rescorla        Expires August 28, 2008               [Page 16]
+McGrew & Rescorla       Expires January 13, 2009               [Page 16]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
 7.  Security Considerations
@@ -948,9 +948,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 17]
+McGrew & Rescorla       Expires January 13, 2009               [Page 17]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    stream.  Such implementations MUST check for alert retransmission and
@@ -1004,9 +1004,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 18]
+McGrew & Rescorla       Expires January 13, 2009               [Page 18]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    in SDP media descriptions ('m' lines and their associated
@@ -1060,9 +1060,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 19]
+McGrew & Rescorla       Expires January 13, 2009               [Page 19]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
            Type            SDP Name                     Reference
@@ -1116,9 +1116,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 20]
+McGrew & Rescorla       Expires January 13, 2009               [Page 20]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
          BCP 131, RFC 4961, July 2007.
@@ -1172,9 +1172,9 @@ Appendix A.  Overview of DTLS
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 21]
+McGrew & Rescorla       Expires January 13, 2009               [Page 21]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    transports such as UDP.  Otherwise, DTLS is nearly identical to TLS
@@ -1228,9 +1228,9 @@ Appendix B.  Performance of Multiple DTLS Handshakes
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 22]
+McGrew & Rescorla       Expires January 13, 2009               [Page 22]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    each channel.  The conventional procedure here (used in TLS and DTLS)
@@ -1284,9 +1284,9 @@ Internet-Draft           SRTP Extension for DTLS           February 2008
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 23]
+McGrew & Rescorla       Expires January 13, 2009               [Page 23]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
    Alice                                   Bob
@@ -1340,9 +1340,9 @@ Authors' Addresses
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 24]
+McGrew & Rescorla       Expires January 13, 2009               [Page 24]
 
-Internet-Draft           SRTP Extension for DTLS           February 2008
+Internet-Draft           SRTP Extension for DTLS               July 2008
 
 
 Full Copyright Statement
@@ -1396,5 +1396,5 @@ Acknowledgment
 
 
 
-McGrew & Rescorla        Expires August 28, 2008               [Page 25]
+McGrew & Rescorla       Expires January 13, 2009               [Page 25]
 
