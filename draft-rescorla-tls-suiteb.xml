@@ -156,11 +156,53 @@ curve size of 384 bits, AES-256, and SHA-384.
 </section>
 <section title="Suite B Compliance Requirements">
 <t>
-To be considered "Suite B compatible" at least one of the Galois
-Counter Mode (GCM) CipherSuites defined in <xref
-target="I-D.ietf-tls-ecc-new-mac"/> MUST be negotiated.  In compliance
-with the guidance in the Suite B Fact Sheet every TLS implementation
-of Suite B SHOULD implement TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.
+  Galois Counter Mode (GCM) cipher suites <xref target="I-D.ietf-tls-ecc-new-mac"/> are preferred for Suite B
+  implementations. However, TLS 1.1 did not support GCM. Therefore, when
+  TLS 1.1 implementations are used in Suite B mode, they support Cipher
+  Block Chaining (CBC) mode.
+</t>
+<t>
+  Therefore, in order for a connection
+  to be Suite B compliant, the following rules apply:
+</t>
+<t>
+<list style="symbols">
+  <t>
+    TLS 1.1 or earlier connections MUST use either
+    TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 or
+    TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384.
+    A compliant TLS 1.1 or earlier client MUST offer at least one of these cipher suites.
+    A compliant TLS 1.1 or earlier server MUST select one of them if offered. 
+  </t>
+  <t>
+    TLS 1.2 or greater connections connections MUST use one of
+    TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
+    TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 or TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384.
+    A compliant TLS 1.2 or greater client MUST offer one of the two GCM cipher suites.
+    If backward compatibility with TLS 1.1 or earlier is desired, it MAY offer 
+    the CBC cipher suites as well.
+    A compliant TLS 1.2 server MUST select one of these cipher suites if
+    offered and MUST select a GCM cipher suite in TLS 1.2 mode if one is
+    offered.
+  </t>
+</list>
+</t>
+<t>
+  Note that these rules explicitly permit the use of CBC cipher suites in
+  TLS 1.2 connections in order to permit operation between Suite B and
+  non Suite B implementations. For instance, a Suite B compliant TLS 1.2 client might
+  offer TLS 1.2 with both CBC and GCM cipher suites when communicating with
+  a non-Suite B TLS 1.2 server which then selected the CBC cipher suites.
+  This connection would nevertheless meet the requirements of this specification.
+  However, any two Suite B implementations will negotiate a GCM cipher suite
+  when doing TLS 1.2.
+</t>
+<t>
+  In compliance
+  with the guidance in the Suite B Fact Sheet every TLS 1.1 or earlier implementation
+  of Suite B SHOULD implement TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256.
+  Every TLS 1.2 or greater implementation of Suite B SHOULD implement
+  TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
 </t>
 <section title="Security Levels">
 <t>
@@ -170,10 +212,10 @@ security levels for each cipher suite:
 <texttable>
 <ttcol>Cipher Suite</ttcol>
 <ttcol>Security Level</ttcol>
+<c>TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256</c><c>128</c>
 <c>TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</c><c>128</c>
-<c>TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256</c><c>128</c>
+<c>TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384</c><c>192</c>
 <c>TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384</c><c>192</c>
-<c>TLS_ECDH_ECDSA_WITH_AES_256_GCM_SHA384</c><c>192</c>
 </texttable>
 </t>
 </section>
