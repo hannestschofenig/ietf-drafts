@@ -1168,11 +1168,6 @@ TLS master
                     
                     <t> When a RTP/SAVP or RTP/SAVPF stream is transported over DTLS with UDP, the
                         token SHALL be UDP/TLS/RTP/SAVP or UDP/TLS/RTP/SAVPF respectively.</t>
-
-                    <t> When a RTP/SAVP or RTP/SAVPF stream is transported over DTLS with TCP, the token
-                        SHALL be TCP/TLS/RTP/SAVP or TCP/TLS/RTP/SAVPF respectively. Note that even though TCP is being
-			used, the PDUs carried over the TCP connection are the
-			same as would be carried over DCCP or UDP.</t>
                 </list>
 	    </t>
 	    <t>
@@ -1182,7 +1177,18 @@ TLS master
 	      See <xref target="I-D.ietf-sip-dtls-srtp-framework"/> for how to use
 	      offer/answer with DTLS-SRTP.
 	    </t>
-	      
+	    <t>
+	      This document does not specify how to protect RTP data transported
+	      over TCP. Potential approaches include carrying the RTP over
+	      TLS over TCP (see <xref target="I-D.ietf-avt-srtp-not-mandatory"/>)
+	      or using a mechanism similar to that in this document 
+	      over TCP, either via TLS or DTLS, with DTLS being used for
+	      consistency between reliable and unreliable transports.
+	      In the latter case, it would be
+	      necessary to profile DTLS so that fragmentation and retransmissions
+	      no longer occurred. In either case, a new document would be 
+	      required.
+	    </t>
     </section>
 
     <section anchor="section.iana" title="IANA Considerations">
@@ -1216,12 +1222,10 @@ TLS master
 	<artwork><![CDATA[
         Type            SDP Name                     Reference
         ----            ------------------           ---------
-        proto           TCP/TLS/RTP/SAVP             [RFC-XXXX]
         proto           UDP/TLS/RTP/SAVP             [RFC-XXXX]
         proto           DCCP/TLS/RTP/SAVP            [RFC-XXXX]
 
-        proto           TCP/TLS/RTP/SAVPF            [RFC-XXXX]
-        proto           UDP/TLS/RTP/SAVPF             [RFC-XXXX]
+        proto           UDP/TLS/RTP/SAVPF            [RFC-XXXX]
         proto           DCCP/TLS/RTP/SAVPF           [RFC-XXXX]
 	]]></artwork>
       </figure>
