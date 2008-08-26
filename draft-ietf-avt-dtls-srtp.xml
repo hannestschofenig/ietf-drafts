@@ -8,7 +8,7 @@
 <!-- $Id -->
 <?rfc inline="yes"?>
 <?rfc toc="yes" ?>
-<?rfc symrefs="no" ?>
+<?rfc symrefs="yes" ?>
 <?rfc iprnotified="no" ?>
 <!--<?rfc strict="yes" ?> -->
 <?rfc compact="yes" ?>
@@ -41,7 +41,7 @@
     </author>
 
     <author fullname="Eric Rescorla" initials="E." surname="Rescorla">
-      <organization>Network Resonance</organization>
+      <organization>RTFM, Inc.</organization>
 
       <address>
         <postal>
@@ -56,11 +56,15 @@
           <country>USA</country>
         </postal>
 
-        <email>ekr@networkresonance.com</email>
+        <email>ekr@rtfm.com</email>
       </address>
     </author>
 
+<<<<<<< .mine
+    <date day="25" month="August" year="2008" />
+=======
     <date day="12" month="July" year="2008" />
+>>>>>>> .r3106
 
     <abstract>
     <t>
@@ -150,7 +154,12 @@
         DTLS-SRTP is defined for point-to-point media sessions, in
         which there are exactly two participants.  Each DTLS-SRTP
         session contains a single DTLS association (called a
-        "connection" in TLS jargon), and an SRTP context.  
+        "connection" in TLS jargon), and either two SRTP contexts
+	(if media traffic is flowing in both directions on the same 
+	host/port quartet) or one SRTP context (if media traffic is only
+	flowing in one direction).
+	All SRTP traffic flowing over that pair in a given direction
+	uses a single SRTP context.
         A single DTLS-SRTP session only protects data 
         carried over a single UDP source and destination port pair.
         </t>
@@ -158,6 +167,9 @@
 	The general pattern of DTLS-SRTP is as follows. For each
 	RTP or RTCP flow the peers do a DTLS handshake on the same source
 	and destination port pair to establish a DTLS association.
+	Which side is the DTLS client and which side is the 
+	DTLS server must be established via some out of band
+	mechanism such as SDP.
 	The keying material from that handshake is fed into the
 	SRTP stack. Once that association is established, RTP packets
 	are protected (becoming SRTP) using that keying material.</t>
@@ -290,7 +302,7 @@
          multiplexing <xref target="I-D.ietf-avt-rtp-and-rtcp-mux"/>
          is in use, this means that RTP and RTCP packets may both be
          passed to the DTLS stack. Because the DTLS layer
-	 does not process the packets, it does need to distinguish
+	 does not process the packets, it does not need to distinguish
 	 them. The SRTP stack can use the procedures of 
 	 <xref	
          target="I-D.ietf-avt-rtp-and-rtcp-mux"/> to
@@ -304,7 +316,8 @@
          DTLS because SRTP is inherently oriented towards one payload
          per packet, but is stated purely for clarification.)</t>
 	 <t>Records of type other than "application_data" MUST
-         use ordinary DTLS framing.</t>
+         use ordinary DTLS framing and must be placed in separate
+	 datagrams from SRTP data.</t>
 	 
         <section title="use_srtp Extension Definition">
           <t>The client MUST fill the extension_data field of the "use_srtp"
@@ -319,7 +332,7 @@
       opaque srtp_mki<0..255>;
    } UseSRTPData;
 
-   SRTPProtectionProfile SRTPProtectionProfiles<2^16-1>;
+   SRTPProtectionProfile SRTPProtectionProfiles<2..2^16-1>;
    ]]></artwork>
           </figure>
 
@@ -340,7 +353,7 @@
           UseSRTPData value with a single SRTPProtectionProfile value which
           the server has chosen for use with this connection. The server MUST
           NOT select a value which the client has not offered. If there is no
-          shared profile, the server SHOULD not return the use_srtp extension
+          shared profile, the server SHOULD NOT return the use_srtp extension
           at which point the connection falls back to the negotiated DTLS
           cipher suite. If that is not acceptable the server SHOULD return an
           appropriate DTLS alert.</t>
@@ -355,8 +368,6 @@
             <artwork>
    SRTPProtectionProfile SRTP_AES128_CM_SHA1_80 = {0x00, 0x01};
    SRTPProtectionProfile SRTP_AES128_CM_SHA1_32 = {0x00, 0x02};
-   SRTPProtectionProfile SRTP_AES256_CM_SHA1_80 = {0x00, 0x03};
-   SRTPProtectionProfile SRTP_AES256_CM_SHA1_32 = {0x00, 0x04};
    SRTPProtectionProfile SRTP_NULL_SHA1_80      = {0x00, 0x05};
    SRTPProtectionProfile SRTP_NULL_SHA1_32      = {0x00, 0x06};
    </artwork>
@@ -378,9 +389,7 @@
 	  </t>
 	  <t>
 	    All of the crypto algorithms in these profiles are from
-	    <xref target="RFC3711"/>, except for the AES256_CM cipher,
-	    which is specified in
-	    <xref target="I-D.mcgrew-srtp-big-aes"/>.
+	    <xref target="RFC3711" norm="TRUE"/>.
 	    </t>
 
           <!--   
@@ -439,41 +448,6 @@
                   <t>cipher: AES_128_CM</t>
 
                   <t>cipher_key_length: 128</t>
-
-                  <t>cipher_salt_length: 112</t>
-
-                  <t>maximum_lifetime: 2^31</t>
-
-                  <t>auth_function: HMAC-SHA1</t>
-
-                  <t>auth_key_length: 160</t>
-
-                  <t>auth_tag_length: 32</t>
-
-                  <t>RTCP auth_tag_length: 80</t>
-                </list></t>
-
-              <t hangText="SRTP_AES256_CM_HMAC_SHA1_80"><list>
-                  <t>cipher: AES_256_CM</t>
-
-                  <t>cipher_key_length: 256</t>
-
-                  <t>cipher_salt_length: 112</t>
-
-                  <t>maximum_lifetime: 2^31</t>
-
-                  <t>auth_function: HMAC-SHA1</t>
-
-                  <t>auth_key_length: 160</t>
-
-                  <t>auth_tag_length: 80</t>
-                </list></t>
-
-              <t hangText="SRTP_AES256_CM_HMAC_SHA1_32">
-		<list>
-                  <t>cipher: AES_256_CM</t>
-
-                  <t>cipher_key_length: 256</t>
 
                   <t>cipher_salt_length: 112</t>
 
@@ -556,11 +530,15 @@
           SRTP options are in effect:
 	  </t>
 	  <t><list style="symbols">
-              <t>The TLS Key Derivation Function (KDF) is used to generate
-              keys to feed into the SRTP KDF.</t>
+              <t>The TLS PseudoRandom Function (PRF) is used to generate
+              keys to feed into the SRTP KDF. When DTLS 1.2 is in use,
+	      the PRF is the one associated with the cipher suite.</t>
 
               <t>The Key Derivation Rate (KDR) is equal to zero. Thus, keys
               are not re-derived based on the SRTP sequence number.</t>
+	      
+	      <t>The key derivation procedures from Section 4.3 with the
+	      AES-CM PRF from RFC 3711 is used.</t>
 
               <t>For all other parameters, (in particular, SRTP replay window size and FEC order)
 	      the default values are used.</t>
@@ -581,8 +559,8 @@
 	  In particular, identical ciphers SHOULD be used.
 	</t>
 
-          <t>New SRTPProtectionProfile values must be defined by RFC 2434
-          Standards Action. See  <xref target="section.iana" norm="TRUE"></xref>
+          <t>New SRTPProtectionProfile values must be defined by RFC 5226
+          Specification Required. See  <xref target="section.iana" norm="TRUE"></xref>
           for IANA Considerations.</t>
         </section>
 
@@ -623,7 +601,8 @@
         <t>When SRTP mode is in effect, different keys are used for ordinary
         DTLS record protection and SRTP packet protection. These keys are
         generated using a TLS extractor <xref target="I-D.ietf-tls-extractor" norm="TRUE"/> to generate 
-	2 * (SRTPSecurityParams.master_key_len + SRTPSecurityParams.master_salt_len) bytes of data, which are assigned as shown below.</t>
+	2 * (SRTPSecurityParams.master_key_len + SRTPSecurityParams.master_salt_len) bytes of data, which are assigned as shown below. The per-association context
+	value is empty.</t>
 
         <figure>
           <artwork><![CDATA[
@@ -662,24 +641,33 @@ to SRTPparameters?
 
         <figure anchor="KeyFig" title="The derivation of the SRTP keys.">
           <artwork><![CDATA[
-    +------- TLS master secret   
-    |                                
-    v    +-> client_write_MAC_secret          
-+-----+  |                           
-| TLS |--+-> server_write_MAC_secret         
-| KDF |  |        
-+-----+  +-> client_write_key                
-         |                           
-         +-> server_write_key             
-         |                                       +------+   SRTP 
-         +-> client_write_SRTP_master_key  ----->| SRTP |-> client
-         |                                  +--->|  KDF |   write 
-         +-> server_write_SRTP_master_key --|-+  +------+   keys
-         |                                  | |  
-         +-> client_write_SRTP_master_salt -+ |  +------+   SRTP
-         |                                    +->| SRTP |-> server
-         +-> server_write_SRTP_master_salt ----->|  KDF |   write
-                                                 +------+   keys  
+TLS master 
+  secret   label
+   |         |
+   v         v
++---------------+
+| TLS extractor |
++---------------+
+       |                                         +------+   SRTP
+       +-> client_write_SRTP_master_key ----+--->| SRTP |-> client
+       |                                    | +->| KDF  |   write
+       |                                    | |  +------+   keys
+       |                                    | |
+       +-> server_write_SRTP_master_key --  | |  +------+   SRTCP
+       |                                  \ \--->|SRTCP |-> client
+       |                                   \  +->| KDF  |   write
+       |                                    | |  +------+   keys
+       +-> client_write_SRTP_master_salt ---|-+
+       |                                    |
+       |                                    |    +------+   SRTP
+       |                                    +--->| SRTP |-> server
+       +-> server_write_SRTP_master_salt -+-|--->| KDF  |   write
+                                          | |    +------+   keys
+                                          | |  
+                                          | |    +------+   SRTCP
+                                          | +--->|SRTCP |-> server
+                                          +----->| KDF  |   write
+                                                 +------+   keys
 ]]></artwork>
         </figure>
 
@@ -889,7 +877,7 @@ to SRTPparameters?
                                     \ DTLS-SRTP=YYY
                                      \ 
                                       \
-                                       Charlie (192.0.2.1:6666)   	 
+                                       Charlie (192.0.2.2:6666)   	 
 ]]></artwork>
           </figure>
    <t>
@@ -990,7 +978,9 @@ to SRTPparameters?
       
       <section anchor="section.rehandshake" title="Rehandshake and Re-key">
         <t>Rekeying in DTLS is accomplished by performing a new handshake over
-        the existing DTLS channel. This handshake can be performed in parallel
+        the existing DTLS channel. I.e., the handshake messages are
+	protected by the existing DTLS cipher suite. 
+	This handshake can be performed in parallel
         with data transport, so no interruption of the data flow is required.
         Once the handshake is finished, the newly derived set of keys is used
         to protect all outbound packets, both DTLS and SRTP.</t>
@@ -1215,11 +1205,13 @@ to SRTPparameters?
       address TCP for RTP/SAVP.</t>
 
       <t> <xref target="section.propro"></xref> requires that all
-      SRTPProtectionProfile values be defined by RFC 2434 Standards Action.
+      SRTPProtectionProfile values be defined by RFC 5226 Specification
+      Required.
       IANA SHOULD create a DTLS SRTPProtectionProfile registry initially
       populated with values from  <xref target="section.propro"></xref>
-      of this document. Future values MUST be allocated via Standards Action
-      as described in <xref target="RFC2434"></xref></t>
+      of this document. Future values MUST be allocated via Specification
+      Required
+      as described in <xref target="RFC5226"></xref></t>
 
       <t>This specification updates the "Session Description Protocol (SDP) Parameters"
       registry as defined in Appendix B of <xref target="RFC4566" norm="TRUE">RFC 4566</xref>.
@@ -1239,6 +1231,10 @@ to SRTPparameters?
       </figure>
       <t> Note to RFC Editor: Please replace RFC-XXXX with the RFC number of this specification.</t>
 
+      <t>IANA should register/has registered 
+      the "EXTRACTOR-dtls_srtp". value in the TLS Extractor Label
+      Registry to correspond to this specification.</t>
+      
     </section>
 
     <section title="Acknowledgments">
