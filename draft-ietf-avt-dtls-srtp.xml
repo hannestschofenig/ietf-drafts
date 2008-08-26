@@ -14,7 +14,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-avt-dtls-srtp-03.txt" ipr="full3978">
+<rfc category="std" docName="draft-ietf-avt-dtls-srtp-04.txt" ipr="full3978">
   <front>
     <title abbrev="SRTP Extension for DTLS">Datagram Transport Layer Security
     (DTLS) Extension to Establish Keys for Secure Real-time Transport Protocol
@@ -1239,9 +1239,12 @@ TLS master
 
     <section title="Acknowledgments">
       <t>Special thanks to Flemming Andreasen, Francois Audet,
+      Pasi Eronen, 
       Jason Fischl, Cullen
       Jennings, Colin Perkins, and Dan Wing, 
-      for input, discussions, and guidance.</t>
+      for input, discussions, and guidance. Pasi Eronen
+      provided Figure 1.</t>
+      
     </section>
   </middle>
 

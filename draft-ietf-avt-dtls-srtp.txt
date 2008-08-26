@@ -10,7 +10,7 @@ Expires:  February 26, 2009                                   RTFM, Inc.
 
 Datagram Transport Layer Security (DTLS) Extension to Establish Keys for
                Secure Real-time Transport Protocol (SRTP)
-                    draft-ietf-avt-dtls-srtp-03.txt
+                    draft-ietf-avt-dtls-srtp-04.txt
 
 Status of this Memo
 
@@ -1091,9 +1091,9 @@ Internet-Draft           SRTP Extension for DTLS             August 2008
 
 10.  Acknowledgments
 
-   Special thanks to Flemming Andreasen, Francois Audet, Jason Fischl,
-   Cullen Jennings, Colin Perkins, and Dan Wing, for input, discussions,
-   and guidance.
+   Special thanks to Flemming Andreasen, Francois Audet, Pasi Eronen,
+   Jason Fischl, Cullen Jennings, Colin Perkins, and Dan Wing, for
+   input, discussions, and guidance.  Pasi Eronen provided Figure 1.
 
 
 11.  References
