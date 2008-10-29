@@ -4,13 +4,13 @@
 Network Working Group                                          D. McGrew
 Internet-Draft                                             Cisco Systems
 Intended status:  Standards Track                            E. Rescorla
-Expires:  March 15, 2009                                      RTFM, Inc.
-                                                      September 11, 2008
+Expires:  May 2, 2009                                         RTFM, Inc.
+                                                        October 29, 2008
 
 
 Datagram Transport Layer Security (DTLS) Extension to Establish Keys for
                Secure Real-time Transport Protocol (SRTP)
-                    draft-ietf-avt-dtls-srtp-05.txt
+                    draft-ietf-avt-dtls-srtp--06.txt
 
 Status of this Memo
 
@@ -35,7 +35,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on March 15, 2009.
+   This Internet-Draft will expire on May 2, 2009.
 
 Abstract
 
@@ -52,9 +52,9 @@ Abstract
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                 [Page 1]
+McGrew & Rescorla          Expires May 2, 2009                  [Page 1]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
 Table of Contents
@@ -108,9 +108,9 @@ Table of Contents
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                 [Page 2]
+McGrew & Rescorla          Expires May 2, 2009                  [Page 2]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
 1.  Introduction
@@ -164,9 +164,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                 [Page 3]
+McGrew & Rescorla          Expires May 2, 2009                  [Page 3]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
 3.  Overview of DTLS-SRTP Operation
@@ -220,9 +220,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                 [Page 4]
+McGrew & Rescorla          Expires May 2, 2009                  [Page 4]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    A DTLS-SRTP session may be indicated by an external signaling
@@ -276,9 +276,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                 [Page 5]
+McGrew & Rescorla          Expires May 2, 2009                  [Page 5]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    extension can agree to use SRTP by including an extension of type
@@ -332,9 +332,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                 [Page 6]
+McGrew & Rescorla          Expires May 2, 2009                  [Page 6]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
 4.1.1.  use_srtp Extension Definition
@@ -388,9 +388,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                 [Page 7]
+McGrew & Rescorla          Expires May 2, 2009                  [Page 7]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    protection profile.  The parameters cipher_key_length,
@@ -444,9 +444,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                 [Page 8]
+McGrew & Rescorla          Expires May 2, 2009                  [Page 8]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    o  The TLS PseudoRandom Function (PRF) is used to generate keys to
@@ -500,9 +500,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                 [Page 9]
+McGrew & Rescorla          Expires May 2, 2009                  [Page 9]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    that is different than the one the client offered then the client
@@ -556,9 +556,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 10]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 10]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    TLS master
@@ -612,9 +612,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 11]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 11]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
       Client            Server
@@ -668,9 +668,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 12]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 12]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    mechanisms.  When the mechanism described in this document is in
@@ -724,9 +724,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 13]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 13]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    given SRTP endpoint.  For instance, if Alice makes a call which is
@@ -780,9 +780,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 14]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 14]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    4.  If the decryption and verification fails, then the packet is
@@ -836,9 +836,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 15]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 15]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    allow for the possibility that the peer implementation has been
@@ -892,9 +892,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 16]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 16]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    A future specification may describe methods for sharing a single key
@@ -948,9 +948,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 17]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 17]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
 7.3.1.  Alerts
@@ -1004,9 +1004,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 18]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 18]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    the number of SRTP packets observed with unknown SSRCs which fail the
@@ -1060,9 +1060,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 19]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 19]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    created) a DTLS SRTPProtectionProfile registry initially populated
@@ -1116,9 +1116,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 20]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 20]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -1172,9 +1172,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 21]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 21]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    [RFC4572]  Lennox, J., "Connection-Oriented Media Transport over the
@@ -1228,9 +1228,9 @@ Appendix A.  Overview of DTLS
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 22]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 22]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
                '*' indicates messages which are not always sent.
@@ -1284,9 +1284,9 @@ Appendix B.  Performance of Multiple DTLS Handshakes
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 23]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 23]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    Alice                                   Bob
@@ -1340,9 +1340,9 @@ Internet-Draft           SRTP Extension for DTLS          September 2008
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 24]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 24]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
    attempt until the first handshake completes.  Note that just dropping
@@ -1396,9 +1396,9 @@ Authors' Addresses
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 25]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 25]
 
-Internet-Draft           SRTP Extension for DTLS          September 2008
+Internet-Draft           SRTP Extension for DTLS            October 2008
 
 
 Full Copyright Statement
@@ -1452,5 +1452,5 @@ Intellectual Property
 
 
 
-McGrew & Rescorla        Expires March 15, 2009                [Page 26]
+McGrew & Rescorla          Expires May 2, 2009                 [Page 26]
 
