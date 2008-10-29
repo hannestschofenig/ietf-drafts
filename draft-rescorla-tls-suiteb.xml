@@ -18,7 +18,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="info" ipr="full3978" docName="draft-rescorla-tls-suiteb-02.txt">
+<rfc category="info" ipr="full3978" docName="draft-rescorla-tls-suiteb-03.txt">
 
 <front>
      <title abbrev="Suite B for TLS">Suite B Cipher Suites for TLS</title>
@@ -58,11 +58,11 @@
 
            </author>
 
-           <date month="April" year="2008" />
+           <date month="August" year="2008" />
 
            <abstract>
                <t>The United States Government has published
-               guidelines for "NSA Suite B Cryptography" dated July, 2005,
+               guidelines for "NSA Suite B Cryptography"
 	       which defines cryptographic algorithm polcy
 	       for national security applications. This document
 	       defines a profile of TLS which is conformant with

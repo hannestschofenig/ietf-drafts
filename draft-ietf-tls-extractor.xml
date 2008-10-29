@@ -18,7 +18,7 @@ o]>
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-tls-extractor-01.txt" ipr="full3978">
+<rfc category="std" docName="draft-ietf-tls-extractor-02.txt" ipr="full3978">
   <front>
     <title abbrev="TLS Extractors">Keying Material Extractors for Transport Layer Security (TLS)</title>
 
@@ -42,7 +42,7 @@ o]>
       </address>
     </author>
 
-    <date day="20" month="February" year="2008" />
+    <date day="11" month="September" year="2008" />
 
     <abstract>
       <t>A number of protocols wish to leverage Transport Layer Security (TLS)
