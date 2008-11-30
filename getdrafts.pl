@@ -7,7 +7,7 @@
 use Getopt::Std;
 use File::Path;
 
-getopts("vVpncd:P:s",\%opts);
+getopts("vVpncd:P:sf:",\%opts);
 
 # Untaint env (this is perl fodder)
 $env=$ENV{"PATH"};
@@ -28,15 +28,33 @@ $PRINTDRAFTS=1 if $opts{"p"};
 $PRINT_COMMAND=$opts{P} if $opts{"P"};
 $CLEAN=1 if $opts{"c"};
 $SEARCH=1 if $opts{"s"};
+$FILE=$opts{'f'} if $opts{'f'};
 
 $stat_found=0;
 $stat_total=0;
 
-&usage() unless $#ARGV>=1;
 
+&usage() unless $#ARGV>=0;
 $mtg_tmp=shift @ARGV;
+
 die("Bad meeting name $mtg_tmp: try YY<monthname> like 07mar") unless $mtg_tmp=~/^(\d\d[a-z][a-z][a-z])$/;
 $mtg=$1;
+
+if(!$FILE){
+    &usage() unless $#ARGV>=0;
+    
+    @WGLIST = @ARGV;
+}
+else{
+    &usage() unless $#ARGV==-1;
+    
+    open(LIST,"$FILE")||die("Couldn't open file list $FILE");
+    while(<LIST>){
+	chop;
+	
+	push(@WGLIST,$_);
+    }
+}
 
 $AGENDA_URL="http://www3.ietf.org/proceedings/$mtg/agenda/";
 $DRAFT_URL="http://www.ietf.org/internet-drafts/";
@@ -62,7 +80,7 @@ use LWP::UserAgent;
 $ua=LWP::UserAgent->new;
 $ua->agent("DraftScraper");
 
-while ($wg_tmp=shift @ARGV){
+while ($wg_tmp=shift @WGLIST){
 
   die("Bad wg name") unless $wg_tmp=~/^(\w+)$/;  # untaint wg
   $wg=$1;

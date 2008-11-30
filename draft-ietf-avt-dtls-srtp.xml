@@ -317,7 +317,21 @@ two bidirectional DTLS-SRTP
 	 <t>Data other than RTP/RTCP (i.e., TLS control messages)
 	 MUST use ordinary DTLS framing and MUST be placed in separate
 	 datagrams from SRTP data.</t>
-	 
+
+	 <t>
+	   A DTLS-SRTP handshake establishes one or more SRTP crypto
+	   contexts, however they all have the same SRTP Protection Profile and
+	   MKI (if any). MKIs are used solely to distinguish the keying material
+	   and protection profiles between distinct handshakes, for instance
+	   due to rekeying. When an MKI is
+	   established in a DTLS-SRTP session, it MUST apply for all of the SSRCs
+	   within that session---though a single endpoint may negotiate multiple
+	   DTLS-SRTP sessions due, for instance, to forking. (Note that RFC 3711
+	   allows packets within the same session but with different SSRCs to use
+	   MKIs differently; in contrast, DTLS-SRTP requires that MKIs and the
+	   keys that they are associated with have the same meaning and are
+	   uniform across the entire SRTP session.)
+	 </t>
         <section title="use_srtp Extension Definition">
           <t>The client MUST fill the extension_data field of the "use_srtp"
           extension with an UseSRTPData value (see <xref target="section.iana"/>  for the registration):</t>
@@ -600,7 +614,15 @@ two bidirectional DTLS-SRTP
           abort the handshake and SHOULD send an invalid_parameter alert. If
           the client and server agree on an MKI, all SRTP packets protected
           under the new security parameters MUST contain that MKI.</t>
+
+	  <t>
+	    Note that any given DTLS-SRTP session only has a single active
+	    MKI (if any). Thus, at any given time, a set of endpoints will
+	    generally only be using one MKI (the major exception is during
+	    rehandshakes). 
+	  </t>
         </section>
+
       </section>
 
       <section anchor="keyDeriv" title="Key Derivation">
@@ -685,7 +707,8 @@ TLS master
 	  packets; each DTLS-SRTP session protects the part of an SRTP
 	  session that passes over a single source/destination
 	  transport address pair, as shown in
-	  <xref target="SessionFig"/>.  When a DTLS-SRTP session is
+	  <xref target="SessionFig"/>, independent of which SSRCs are
+	  used on that pair.  When a DTLS-SRTP session is
 	  protecting RTP, the SRTCP keys derived from the DTLS
 	  handshake are not needed and are discarded.  When a
 	  DTLS-SRTP session is protecting RTCP, the SRTP keys derived
@@ -1030,15 +1053,13 @@ TLS master
 	
         <t>If an MKI is used, then the receiver should use the
         corresponding set of keys to process an incoming
-        packet. Otherwise, when a packet arrives after the handshake
+        packet. If no matching MKI is present, the packet MUST
+	be rejected. Otherwise, when a packet arrives after the handshake
         completed, a receiver SHOULD use the newly derived set of keys
         to process that packet unless there is an MKI (If the packet
         was protected with the older set of keys, this fact will
         become apparent to the receiver as an authentication failure
-        will occur.) <!--
-      <t>[DAM]  But what about the case where no SRTP authentication is used?
-         [EKR] Doesn't apply here since we only specify ones that have auth.
---> 
+        will occur.) 
 	If the authentication check on the packet fails and no MKI is being
 	used, then the receiver MAY
         process the packet with the older set of keys. If that authentication

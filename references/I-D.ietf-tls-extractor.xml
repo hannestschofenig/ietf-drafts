@@ -8,13 +8,13 @@
     <organization />
 </author>
 
-<date month='September' day='11' year='2008' />
+<date month='November' day='2' year='2008' />
 
 <abstract><t>A number of protocols wish to leverage Transport Layer Security (TLS) to perform key establishment but then use some of the keying material for their own purposes.  This document describes a general mechanism for allowing that.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-tls-extractor-02' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-tls-extractor-03' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-tls-extractor-02.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-tls-extractor-03.txt' />
 </reference>
