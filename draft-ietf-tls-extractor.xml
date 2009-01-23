@@ -4,6 +4,7 @@
 <!ENTITY RFC2434 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2434.xml">
 <!ENTITY RFC3711 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
 <!ENTITY RFC4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
+<!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 
 <!ENTITY I-D.ietf-avt-dtls-srtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avt-dtls-srtp">
@@ -18,9 +19,9 @@ o]>
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-tls-extractor-02.txt" ipr="full3978">
+<rfc category="std" docName="draft-ietf-tls-extractor-03.txt" ipr="full3978">
   <front>
-    <title abbrev="TLS Extractors">Keying Material Extractors for Transport Layer Security (TLS)</title>
+    <title abbrev="TLS Exporters">Keying Material Exporters for Transport Layer Security (TLS)</title>
 
     <author fullname="Eric Rescorla" initials="E." surname="Rescorla">
       <organization>Network Resonance</organization>
@@ -42,7 +43,7 @@ o]>
       </address>
     </author>
 
-    <date day="11" month="September" year="2008" />
+    <date day="23" month="January" year="2009" />
 
     <abstract>
       <t>A number of protocols wish to leverage Transport Layer Security (TLS)
@@ -55,7 +56,15 @@ o]>
 
   <middle>
     <section title="Introduction">
-    <t>A number of protocols wish to leverage Transport Layer Security (TLS) <xref target="RFC4346"/> or Datagram TLS (DTLS) <xref target="RFC4347"/>
+    <t>
+      <list style="hanging">
+	<t hangText="Note:">The mechanism described in this document was previously
+	  known as "TLS Extractors" but was changed to avoid a name conflict with
+	  the use of the term "Extractor" in the cryptographic community.
+	</t>
+      </list>
+    </t>
+    <t>A number of protocols wish to leverage Transport Layer Security (TLS) <xref target="RFC5246"/> or Datagram TLS (DTLS) <xref target="RFC4347"/>
       to perform key establishment but then use some of the keying material
       for their own purposes. A typical example is DTLS-SRTP <xref target="I-D.ietf-avt-dtls-srtp"/>, which uses DTLS to perform a key exchange and 
       negotiate the SRTP <xref target="RFC3711"/> protection suite and
@@ -63,17 +72,17 @@ o]>
     </t>
     <t>
       These applications imply a need to be
-      able to extract keying material (later called Exported Keying Material
+      able to export keying material (later called Exported Keying Material
       or EKM) from TLS/DTLS, and securely agree on the upper-layer context
-      where the keying material will be used. The mechanism for extracting
+      where the keying material will be used. The mechanism for exporting
       the keying material has the following requirements:
       </t>
       <t>
       <list style="symbols">
-      <t>Both client and server need to be able to extract the same EKM value.</t>
+      <t>Both client and server need to be able to export the same EKM value.</t>
       <t>EKM values should be indistinguishable from random 
          by attackers who don't know the master_secret.</t>
-      <t>It should be possible to extract multiple EKM values
+      <t>It should be possible to export multiple EKM values
 	 from the same TLS/DTLS association.</t>
       <t>Knowing one EKM value should not reveal any 
          information about the master_secret or about other EKM values.</t>
@@ -92,7 +101,7 @@ o]>
     </section>
     <section title="Binding to Application Contexts" anchor="sec.binding">
      <t>
-     In addition to extracting keying material, an application using the
+     In addition to exporting keying material, an application using the
      keying material has to securely establish the upper-layer layer
      context where the keying material will be used.  The details of this
      context depend on the application, but it could include things such as
@@ -100,7 +109,7 @@ o]>
      identifier(s) for the endpoint(s) who will use the keys, identifier(s)
      for the session(s) where the keys will be used, and the lifetime(s)
      for the context and/or keys. At minimum, there should be some
-     mechanism for signalling that an extractor will be used.
+     mechanism for signalling that an exporter will be used.
      </t>
      <t>
      This specification does not mandate a single mechanism for agreeing
@@ -110,11 +119,11 @@ o]>
      <t>
      <list style="symbols">
      <t>One important part of the context -- which application will
-        use the extracted keys -- is given by the disambiguating label 
+        use the exported keys -- is given by the disambiguating label 
 	string (see Section 4).
      </t>
      <t>Information about the upper-layer context can be included in
-     the optional data after the extractor label (see Section 4).
+     the optional data after the exporter label (see Section 4).
      </t>
      <t>Information about the upper-layer context can be exchanged in TLS
      extensions included in the ClientHello and ServerHello messages.  
@@ -126,7 +135,7 @@ o]>
      some context parameters, and TLS server could select one of them.
      </t>
      <t>The upper-layer protocol can include its own handshake which can
-      be protected using the keys extracted from TLS.
+      be protected using the keys exported from TLS.
      </t>
      </list>
      </t>
@@ -137,15 +146,15 @@ o]>
      TLS Finished messages.
     </t>
     </section>
-    <section title="Extractor Definition" anchor="extractor.def">
+    <section title="Exporter Definition" anchor="exporter.def">
     <t>
-    An extractor takes as input three values:
+    An exporter takes as input three values:
     </t>
     <t>
     <list style="symbols">
     <t>A disambiguating label string</t>
     <t>A per-association context value provided by the
-       extractor using application</t>
+       exporter using application</t>
     <t>A length value</t>
     </list>
     </t>
@@ -172,15 +181,15 @@ o]>
     for private use without registration. All other
     label values MUST be registered via Specification Required as
     described by RFC 2434 <xref target="RFC2434"/>.
-    Note that extractor labels have the potential to collide with 
+    Note that exporter labels have the potential to collide with 
     existing PRF labels. In order to prevent this, labels SHOULD
-    begin with "EXTRACTOR". This is not a MUST because there are
+    begin with "EXPORTER". This is not a MUST because there are
     existing uses which have labels which do not begin with
     this prefix.
     </t>
     <t>
-    The context value allows the application using the extractor
-    to mix its own data with the TLS PRF for the extractor
+    The context value allows the application using the exporter
+    to mix its own data with the TLS PRF for the exporter
     output. The context value length is encoded as an unsigned
     16-bit quantity (uint16) representing the length of the
     context value.
@@ -188,29 +197,29 @@ o]>
     </section>
     <section anchor="section.sec" title="Security Considerations">
     <t>
-    Because an extractor produces the same value if applied twice
+    Because an exporter produces the same value if applied twice
     with the same label to the same master_secret, it is critical
     that two EKM values generated with the same label be used
     for two different purposes--hence the requirement for IANA
     registration. 
-    However, because extractors depend on the TLS PRF, it is not a
+    However, because exporters depend on the TLS PRF, it is not a
     threat to the use of an EKM value generated from one label to reveal an
     EKM value generated from another label.
     </t>
     </section>
     <section anchor="section.iana" title="IANA Considerations">
     <t>
-   IANA is requested to create (has created) a TLS Extractor Label 
+   IANA is requested to create (has created) a TLS Exporter Label 
    registry for this purpose. The initial contents of the registry 
    are given below:
     </t>
 <figure><artwork>
    Value                          Reference
    -----                          ------------
-   client finished                [RFC4346]
-   server finished                [RFC4346]
-   master secret                  [RFC4346]
-   key expansion                  [RFC4346]
+   client finished                [RFC5246]
+   server finished                [RFC5246]
+   master secret                  [RFC5246]
+   key expansion                  [RFC5246]
    client EAP encryption          [RFC2716]
    ttls keying material           [draft-funk-eap-ttls-v0-01]
 </artwork></figure>
@@ -225,7 +234,7 @@ are forbidden.
     <section title="Acknowledgments">
     <t>
     Thanks to Pasi Eronen for valuable comments and the contents of the IANA section
-    and <xref target="sec.binding"/>.
+    and <xref target="sec.binding"/>. 
     </t>
     </section>
   </middle>
@@ -234,7 +243,7 @@ are forbidden.
     <references title="Normative References">
       &RFC2119;
       &RFC2434;
-      &RFC4346;
+      &RFC5246;
     </references>
     <references title="Informational References">
       &RFC4347;
