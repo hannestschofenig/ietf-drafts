@@ -13,7 +13,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="info" ipr="full3978" docName="draft-rescorla-tls-extended-random-00.txt">
+<rfc category="info" ipr="full3978" docName="draft-rescorla-tls-extended-random-01.txt">
 
 <front>
      <title abbrev="Extended TLS Random">Extended Random Values for TLS</title>
@@ -53,7 +53,7 @@
                </address>
            </author>
 
-           <date month="April" year="2008" />
+           <date month="February" year="2009" />
 
            <abstract>
                <t>This document describes an extension for using
@@ -199,24 +199,6 @@ entropy extented random values. TLS is designed
 to function correctly even when fed low-entropy random values
 because they are primarily used to generate distinct keying
 material for each connection. 
-</t>
-</section>
-<section title="Scope of Randomness">
-<t>
-TLS specifies that when a session is resumed the extensions from
-the original connection are used:
-<artwork>
-      If, on the other hand, the older session is resumed, then the
-      server MUST ignore the extensions and send a server hello
-      containing none of the extension types.  In this case, the
-      functionality of these extensions negotiated during the original
-      session initiation is applied to the resumed session.
-</artwork>
-This motivates why the the extended randomness does not get mixed into the PRF
-when generating the keying material from the master secret. Because
-the same values would be used for every connection in 
-a session, they would not provide any differentiation in the
-keying material between the connections.
 </t>
 </section>
 </section>

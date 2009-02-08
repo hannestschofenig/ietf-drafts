@@ -4,12 +4,12 @@
 Network Working Group                                        E. Rescorla
 Internet-Draft                                                RTFM, Inc.
 Intended status:  Informational                                M. Salter
-Expires:  October 31, 2008                      National Security Agency
-                                                          April 29, 2008
+Expires:  August 11, 2009                       National Security Agency
+                                                        February 7, 2009
 
 
                      Extended Random Values for TLS
-               draft-rescorla-tls-extended-random-00.txt
+               draft-rescorla-tls-extended-random-01.txt
 
 Status of this Memo
 
@@ -34,11 +34,7 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on October 31, 2008.
-
-Copyright Notice
-
-   Copyright (C) The IETF Trust (2008).
+   This Internet-Draft will expire on August 11, 2009.
 
 Abstract
 
@@ -52,9 +48,13 @@ Abstract
 
 
 
-Rescorla & Salter       Expires October 31, 2008                [Page 1]
+
+
+
+
+Rescorla & Salter        Expires August 11, 2009                [Page 1]
 
-Internet-Draft             Extended TLS Random                April 2008
+Internet-Draft             Extended TLS Random             February 2009
 
 
 Table of Contents
@@ -66,14 +66,13 @@ Table of Contents
      3.2.  PRF Modifications . . . . . . . . . . . . . . . . . . . . . 4
    4.  Security Considerations . . . . . . . . . . . . . . . . . . . . 5
      4.1.  Threats to TLS  . . . . . . . . . . . . . . . . . . . . . . 5
-     4.2.  Scope of Randomness . . . . . . . . . . . . . . . . . . . . 5
    5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 5
-   6.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 6
-   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 6
-     7.1.  Normative References  . . . . . . . . . . . . . . . . . . . 6
+   6.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 5
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . . . 5
      7.2.  Informative References  . . . . . . . . . . . . . . . . . . 6
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . . 6
-   Intellectual Property and Copyright Statements  . . . . . . . . . . 8
+   Intellectual Property and Copyright Statements  . . . . . . . . . . 7
 
 
 
@@ -108,9 +107,10 @@ Table of Contents
 
 
 
-Rescorla & Salter       Expires October 31, 2008                [Page 2]
+
+Rescorla & Salter        Expires August 11, 2009                [Page 2]
 
-Internet-Draft             Extended TLS Random                April 2008
+Internet-Draft             Extended TLS Random             February 2009
 
 
 1.  Introduction
@@ -164,9 +164,9 @@ Internet-Draft             Extended TLS Random                April 2008
 
 
 
-Rescorla & Salter       Expires October 31, 2008                [Page 3]
+Rescorla & Salter        Expires August 11, 2009                [Page 3]
 
-Internet-Draft             Extended TLS Random                April 2008
+Internet-Draft             Extended TLS Random             February 2009
 
 
 3.1.  Negotiating the ExtendedRandom Extension
@@ -220,9 +220,9 @@ Internet-Draft             Extended TLS Random                April 2008
 
 
 
-Rescorla & Salter       Expires October 31, 2008                [Page 4]
+Rescorla & Salter        Expires August 11, 2009                [Page 4]
 
-Internet-Draft             Extended TLS Random                April 2008
+Internet-Draft             Extended TLS Random             February 2009
 
 
 4.  Security Considerations
@@ -244,23 +244,6 @@ Internet-Draft             Extended TLS Random                April 2008
    primarily used to generate distinct keying material for each
    connection.
 
-4.2.  Scope of Randomness
-
-   TLS specifies that when a session is resumed the extensions from the
-   original connection are used:
-
-        If, on the other hand, the older session is resumed, then the
-        server MUST ignore the extensions and send a server hello
-        containing none of the extension types.  In this case, the
-        functionality of these extensions negotiated during the original
-        session initiation is applied to the resumed session.
-
-   This motivates why the the extended randomness does not get mixed
-   into the PRF when generating the keying material from the master
-   secret.  Because the same values would be used for every connection
-   in a session, they would not provide any differentiation in the
-   keying material between the connections.
-
 
 5.  IANA Considerations
 
@@ -270,15 +253,6 @@ Internet-Draft             Extended TLS Random                April 2008
      enum { extended_random (??) } ExtensionType;
 
    [[ NOTE:  These values need to be assigned by IANA ]]
-
-
-
-
-
-
-Rescorla & Salter       Expires October 31, 2008                [Page 5]
-
-Internet-Draft             Extended TLS Random                April 2008
 
 
 6.  Acknowledgements
@@ -298,17 +272,27 @@ Internet-Draft             Extended TLS Random                April 2008
    [RFC4086]  Eastlake, D., Schiller, J., and S. Crocker, "Randomness
               Requirements for Security", BCP 106, RFC 4086, June 2005.
 
+
+
+
+
+Rescorla & Salter        Expires August 11, 2009                [Page 5]
+
+Internet-Draft             Extended TLS Random             February 2009
+
+
 7.2.  Informative References
 
    [I-D.ietf-tls-rfc4366-bis]
               3rd, D., "Transport Layer Security (TLS) Extensions:
-              Extension Definitions", draft-ietf-tls-rfc4366-bis-02
-              (work in progress), February 2008.
+              Extension Definitions", draft-ietf-tls-rfc4366-bis-03
+              (work in progress), October 2008.
 
    [I-D.rescorla-tls-suiteb]
-              Salter, M. and E. Rescorla, "Suite B Cipher Suites for
-              TLS", draft-rescorla-tls-suiteb-02 (work in progress),
-              April 2008.
+              Salter, M., Rescorla, E., and R. Housley, "Suite B Profile
+              for Transport Layer Security (TLS)",
+              draft-rescorla-tls-suiteb-11 (work in progress),
+              November 2008.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
@@ -326,15 +310,6 @@ Authors' Addresses
    USA
 
    Email:  ekr@rtfm.com
-
-
-
-
-
-
-Rescorla & Salter       Expires October 31, 2008                [Page 6]
-
-Internet-Draft             Extended TLS Random                April 2008
 
 
    Margaret Salter
@@ -357,45 +332,14 @@ Internet-Draft             Extended TLS Random                April 2008
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla & Salter       Expires October 31, 2008                [Page 7]
+Rescorla & Salter        Expires August 11, 2009                [Page 6]
 
-Internet-Draft             Extended TLS Random                April 2008
+Internet-Draft             Extended TLS Random             February 2009
 
 
 Full Copyright Statement
 
-   Copyright (C) The IETF Trust (2008).
+   Copyright (C) The IETF Trust (2009).
 
    This document is subject to the rights, licenses and restrictions
    contained in BCP 78, and except as set forth therein, the authors
@@ -435,14 +379,14 @@ Intellectual Property
    ietf-ipr@ietf.org.
 
 
-Acknowledgment
-
-   Funding for the RFC Editor function is provided by the IETF
-   Administrative Support Activity (IASA).
 
 
 
 
 
-Rescorla & Salter       Expires October 31, 2008                [Page 8]
+
+
+
+
+Rescorla & Salter        Expires August 11, 2009                [Page 7]
 
