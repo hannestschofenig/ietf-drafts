@@ -399,10 +399,10 @@ Internet-Draft           SRTP Extension for DTLS           February 2009
    options that are in effect for the SRTP processing.  This document
    defines the following SRTP protection profiles.
 
-      SRTPProtectionProfile SRTP_AES128_CM_SHA1_80 = {0x00, 0x01};
-      SRTPProtectionProfile SRTP_AES128_CM_SHA1_32 = {0x00, 0x02};
-      SRTPProtectionProfile SRTP_NULL_SHA1_80      = {0x00, 0x05};
-      SRTPProtectionProfile SRTP_NULL_SHA1_32      = {0x00, 0x06};
+      SRTPProtectionProfile SRTP_AES128_CM_HMAC_SHA1_80 = {0x00, 0x01};
+      SRTPProtectionProfile SRTP_AES128_CM_HMAC_SHA1_32 = {0x00, 0x02};
+      SRTPProtectionProfile SRTP_NULL_HMAC_SHA1_80      = {0x00, 0x05};
+      SRTPProtectionProfile SRTP_NULL_HMAC_SHA1_32      = {0x00, 0x06};
 
    The following list indicates the SRTP transform parameters for each
    protection profile.  The parameters cipher_key_length,

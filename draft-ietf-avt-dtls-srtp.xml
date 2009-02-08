@@ -379,10 +379,10 @@ two bidirectional DTLS-SRTP
 
           <figure>
             <artwork>
-   SRTPProtectionProfile SRTP_AES128_CM_SHA1_80 = {0x00, 0x01};
-   SRTPProtectionProfile SRTP_AES128_CM_SHA1_32 = {0x00, 0x02};
-   SRTPProtectionProfile SRTP_NULL_SHA1_80      = {0x00, 0x05};
-   SRTPProtectionProfile SRTP_NULL_SHA1_32      = {0x00, 0x06};
+   SRTPProtectionProfile SRTP_AES128_CM_HMAC_SHA1_80 = {0x00, 0x01};
+   SRTPProtectionProfile SRTP_AES128_CM_HMAC_SHA1_32 = {0x00, 0x02};
+   SRTPProtectionProfile SRTP_NULL_HMAC_SHA1_80      = {0x00, 0x05};
+   SRTPProtectionProfile SRTP_NULL_HMAC_SHA1_32      = {0x00, 0x06};
    </artwork>
           </figure>
 <!--
