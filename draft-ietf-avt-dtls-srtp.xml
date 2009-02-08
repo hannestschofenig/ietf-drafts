@@ -14,7 +14,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-avt-dtls-srtp--06.txt" ipr="full3978">
+<rfc category="std" docName="draft-ietf-avt-dtls-srtp-07.txt" ipr="full3978">
   <front>
     <title abbrev="SRTP Extension for DTLS">Datagram Transport Layer Security
     (DTLS) Extension to Establish Keys for Secure Real-time Transport Protocol
@@ -60,7 +60,7 @@
       </address>
     </author>
 
-    <date day="29" month="October" year="2008" />
+    <date day="05" month="February" year="2009" />
 
     <abstract>
     <t>
@@ -88,7 +88,7 @@
       highly optimized for use with RTP than is SRTP, which has been
       specifically tuned for that purpose.</t>
 
-      <t>This document describes DTLS-SRTP, an SRTP extension for DTLS which
+      <t>This document describes DTLS-SRTP, a SRTP extension for DTLS which
       combines the performance and encryption flexibility benefits of SRTP with
       the flexibility and convenience of DTLS integrated key and association
       management. DTLS-SRTP can be viewed in two equivalent ways: as a new key
@@ -628,7 +628,7 @@ two bidirectional DTLS-SRTP
       <section anchor="keyDeriv" title="Key Derivation">
         <t>When SRTP mode is in effect, different keys are used for ordinary
         DTLS record protection and SRTP packet protection. These keys are
-        generated using a TLS extractor <xref target="I-D.ietf-tls-extractor" norm="TRUE"/> to generate 
+        generated using a TLS exporter <xref target="I-D.ietf-tls-extractor" norm="TRUE"/> to generate 
 	2 * (SRTPSecurityParams.master_key_len + SRTPSecurityParams.master_salt_len) bytes of data, which are assigned as shown below. The per-association context
 	value is empty.</t>
 
@@ -646,9 +646,11 @@ to SRTPparameters?
 -->
         </figure>
 	
-	<t>The extractor label for this usage is "EXTRACTOR-dtls_srtp".
+	<t>The exporter label for this usage is "EXTRACTOR-dtls_srtp". 
+	[The "EXTRACTOR" prefix is for historical compatibility.]
 	</t>
-        <t>The four keying material values
+        <t>The four keying material values (the master key and master
+	  salt for each direction)
 	are provided as inputs to the SRTP key
         derivation mechanism, as shown in <xref target="KeyFig"></xref> and
         detailed below. By default, the mechanism defined in Section 4.3 of
