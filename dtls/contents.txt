@@ -11,7 +11,7 @@
 4.        Differences from TLS                                     6
 4.1.      Record Layer                                             6
 4.1.1.    Transport Layer Mapping                                  8
-4.1.1.1.  PMTU Issues                                              8
+4.1.1.1.  PMTU Issues                                              9
 4.1.2.    Record Payload Protection                                10
 4.1.2.1.  MAC                                                      10
 4.1.2.2.  Null or Standard Stream Cipher                           11
@@ -24,16 +24,16 @@
 4.2.2.    Handshake Message Format                                 15
 4.2.3.    Message Fragmentation and Reassembly                     16
 4.2.4.    Timeout and Retransmission                               17
-4.2.4.1.  Timer Values                                             20
+4.2.4.1.  Timer Values                                             21
 4.2.5.    ChangeCipherSpec                                         21
 4.2.6.    CertificateVerify and Finished Messages                  21
 4.2.7.    Alert Messages                                           21
-4.3.      Summary of new syntax                                    21
-4.3.1.    Record Layer                                             22
-4.3.2.    Handshake Protocol                                       22
-5.        Security Considerations                                  23
-6.        Acknowledgements                                         24
-7.        IANA Considerations                                      24
-8.        References                                               24
-8.1.      Normative References                                     24
-8.2.      Informative References                                   25
+4.3.      Summary of new syntax                                    22
+4.3.1.    Record Layer                                             23
+4.3.2.    Handshake Protocol                                       23
+5.        Security Considerations                                  24
+6.        Acknowledgements                                         25
+7.        IANA Considerations                                      25
+8.        References                                               25
+8.1.      Normative References                                     25
+8.2.      Informative References                                   26

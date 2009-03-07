@@ -16,8 +16,8 @@
 INTERNET-DRAFT                                               E. Rescorla
 Obsoletes (if approved): RFC 4347                             RTFM, Inc.
 Intended Status: Proposed Standard                           N. Modadugu
-<draft-ietf-tls-rfc4347-bis-00.txt>                  Stanford University
-                                       June 2008 (Expires December 2008)
+<draft-ietf-tls-rfc4347-bis-01.txt>                  Stanford University
+                                        November 2008 (Expires May 2009)
 
 
 .ce
@@ -285,7 +285,7 @@ their data transmission strategy.
 As mentioned in Section 3, DTLS is intentionally very similar
 to TLS.  Therefore, instead of presenting DTLS as a new
 protocol, we present it as a series of deltas from TLS
-1.1 [TLS12].  Where we do not explicitly call out differences,
+1.2 [TLS12].  Where we do not explicitly call out differences,
 DTLS is the same as in [TLS12].
 
 .ti 0
@@ -360,6 +360,19 @@ to retain keying material from previous epochs for up
 to 120 seconds (the default TCP MSL) to allow for packet
 reordering.
 
+Conversely, it is possible for records that are protected
+by the newly negotiated context to be received prior
+to the completion of a handshake. For instance, the server
+may send its Finished and then start transmitting data.
+Implementations MAY either buffer or discard such packets,
+though when DTLS is used over reliable transports (e.g., SCTP),
+they SHOULD be buffered and processed once the handshake completes.
+Note that TLS's restrictions on when packets may be sent still
+apply, and the receiver treats the packets as if they were
+sent in the right order.
+In particular, it is still impermissible to send data
+prior to completion of the first handshake. 
+
 
 .ti 0
 4.1.1. Transport Layer Mapping
@@ -416,7 +429,7 @@ three reasons:
 
  - In some implementations the application may not directly
    talk to the network, in which case the DTLS stack may
-   absorb ICMP [RFC 1191] Datagram Too Big indications.
+   absorb ICMP [RFC1191] Datagram Too Big indications.
 
  - The DTLS handshake messages can exceed the PMTU.
 .fi
@@ -454,7 +467,7 @@ upper layer protocol of the error.
 
 The DTLS record layer SHOULD not interfere with upper layer
 protocols performing PMTU discovery, whether via 
-[RFC 1191] or [RFC 4821] mechanisms. In particular:
+[RFC1191] or [RFC4821] mechanisms. In particular:
 
 .nf
 - Where allowed by the underlying transport protocol,
@@ -754,6 +767,13 @@ HelloVerifyRequest are not included in the calculation of the
 handshake_messages (for the CertificateVerify message) and verify_data
 (for the Finished message).
 
+If a server receives a ClientHello with an invalid cookie,
+it SHOULD treat it the same as a ClientHello with no
+cookie. This avoids race/deadlock conditions if the client
+somehow gets a bad cookie (e.g., because the server
+changes its cookie signing key).
+
+
 .ti 0
 4.2.2. Handshake Message Format
 
@@ -966,6 +986,14 @@ no retransmit timer.
       | FINISHED  | -------------------------------+
       |           |
       +-----------+
+           |  /|\\
+           |   |
+           |   |
+           +---+
+        
+        Read retransmit
+     Retransmit last flight
+
 
      Figure 3. DTLS timeout and retransmission state machine
 
@@ -1015,10 +1043,17 @@ start in the PREPARING state.  DTLS servers start in the
 WAITING state, but with empty buffers and no retransmit timer.
 
 When the server desires a rehandshake, it transitions from the
-FINISHED state to the PREPARING state to transmit the
-HelloRequest.  When the client receives a HelloRequest it
-transitions from FINISHED to PREPARING to transmit the
-ClientHello.
+FINISHED state to the PREPARING state to transmit the HelloRequest.
+When the client receives a HelloRequest it transitions from FINISHED
+to PREPARING to transmit the ClientHello.  In addition, for at least
+2MSL, when in the FINISHED state, the node which transmits the last
+flight (the server in an ordinary handshake or the client in a resumed
+handshake) MUST respond to a retransmit of the peer's last flight with
+a retransmit of the last flight. This avoids deadlock conditions if
+the last flight gets lost. This requirement applies to DTLS 1.0 as
+well, and though not explicit in [DTLS1] but was always required for
+the state machine to function correctly.
+
 
 .ti 0 
 4.2.4.1. Timer Values
@@ -1221,11 +1256,6 @@ has been assigned by the IANA.
 8.1. Normative References
 
 .ti 3
-[ECCGCM]   E. Rescorla, "TLS Elliptic Curve Cipher Suites with SHA-256/384
-and AES Galois Counter Mode", draft-ietf-tls-ecc-new-mac-06 (work in
-progress), April 2008.
-
-.ti 3
 [RFC1191]  Mogul, J. and S. Deering, "Path MTU discovery", RFC
 1191, November 1990.
 
@@ -1242,9 +1272,12 @@ Internet Protocol", RFC 4301, December 2005.
 Retransmission Timer", RFC 2988, November 2000.
 
 .ti 3
+[RFC4821]  Mathis, M., and J. Heffner, "Packetization Layer
+Path MTU Discovery", RFC 4821, March 2007.
+
+.ti 3
 [RSAGCM]   Salowey, J., Choudhury, A., and D. McGrew, "AES-GCM Cipher
-Suites for TLS", draft-ietf-tls-rsa-aes-gcm-03 (work in progress),
-April 2008.
+Suites for TLS", RFC 5288, August 2008.
 
 .ti 3
 [TCP]      Postel, J., "Transmission Control Protocol", STD 7, RFC
@@ -1259,18 +1292,13 @@ April 2008.
 8.2. Informative References
 
 .ti 3
-[AH]      S. Kent, "IP Authentication Header", RFC 4302,
-December 2005.
-
-.ti 3
 [DCCP]     Kohler, E., Handley, M., Floyd, S., Padhye, J., "Datagram
 Congestion Control Protocol", Work in Progress, 
 10 March 2005.
 
 .ti 3
 [DCCPDTLS] T. Phelan, "Datagram Transport Layer Security (DTLS) over
-the Datagram Congestion Control Protocol (DCCP)", 
-draft-ietf-dccp-dtls-06 (work in progress), April 2008.
+the Datagram Congestion Control Protocol (DCCP)", RFC 5238, May 2008.
 
 .ti 3
 [DTLS]     Modadugu, N., Rescorla, E., "The Design and Implementation
@@ -1279,6 +1307,10 @@ of Datagram TLS", Proceedings of ISOC NDSS 2004, February 2004.
 .ti 3
 [DTLS1]    Rescorla, E., and N. Modadugu, "Datagram Transport Layer
 Security", RFC 4347, April 2006.
+
+.ti 3
+[ECCGCM]   E. Rescorla, "TLS Elliptic Curve Cipher Suites with SHA-256/384
+and AES Galois Counter Mode", RFC 5289, August 2008.
 
 .ti 3
 [ESP]      S. Kent "IP Encapsulating Security

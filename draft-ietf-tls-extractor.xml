@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
-<!ENTITY RFC2434 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2434.xml">
+<!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
 <!ENTITY RFC3711 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
 <!ENTITY RFC4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
+<!ENTITY RFC5281 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5281.xml">
 <!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 
 <!ENTITY I-D.ietf-avt-dtls-srtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avt-dtls-srtp">
 
-o]>
+]>
 <!-- $Id -->
 <?rfc inline="yes"?>
 <?rfc toc="yes" ?>
@@ -19,7 +20,8 @@ o]>
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-tls-extractor-03.txt" ipr="full3978">
+<rfc category="std" docName="draft-ietf-tls-extractor-05.txt" 
+     ipr="pre5378Trust200902">
   <front>
     <title abbrev="TLS Exporters">Keying Material Exporters for Transport Layer Security (TLS)</title>
 
@@ -43,7 +45,8 @@ o]>
       </address>
     </author>
 
-    <date day="23" month="January" year="2009" />
+
+    <date day="07" month="March" year="2009" />
 
     <abstract>
       <t>A number of protocols wish to leverage Transport Layer Security (TLS)
@@ -89,7 +92,7 @@ o]>
       </list>
       </t>
     <t>
-    The mechanism described in this document is intended to fill these
+    The mechanism described in this document is intended to fulfill these
     requirements.
     </t>
     </section>
@@ -102,7 +105,7 @@ o]>
     <section title="Binding to Application Contexts" anchor="sec.binding">
      <t>
      In addition to exporting keying material, an application using the
-     keying material has to securely establish the upper-layer layer
+     keying material has to securely establish the upper-layer 
      context where the keying material will be used.  The details of this
      context depend on the application, but it could include things such as
      algorithms and parameters that will be used with the keys,
@@ -132,7 +135,7 @@ o]>
      once the handshake completes, the peers will have the same view of the
      information. Extensions also allow a limited form of negotiation:
      for example, the TLS client could propose several alternatives for
-     some context parameters, and TLS server could select one of them.
+     some context parameters, and the TLS server could select one of them.
      </t>
      <t>The upper-layer protocol can include its own handshake which can
       be protected using the keys exported from TLS.
@@ -148,13 +151,15 @@ o]>
     </section>
     <section title="Exporter Definition" anchor="exporter.def">
     <t>
-    An exporter takes as input three values:
+      The output of the exporter is intended to be used in a single
+      scope, which is associated with the TLS session, the label, and the context
+      value. 
     </t>
     <t>
     <list style="symbols">
     <t>A disambiguating label string</t>
-    <t>A per-association context value provided by the
-       exporter using application</t>
+    <t>A per-association context value provided by the application using
+    the exporter</t>
     <t>A length value</t>
     </list>
     </t>
@@ -164,7 +169,7 @@ o]>
     <t>
         <figure>
           <artwork><![CDATA[	
-       PRF(master_secret, label, 
+       PRF(SecurityParameters.master_secret, label, 
            SecurityParameters.client_random +
            SecurityParameters.server_random +
            context_value_length + context_value
@@ -173,38 +178,67 @@ o]>
     </figure>
      </t>
     <t>
+      Where PRF is the TLS PRF in use for the session.
     The output is a pseudorandom bit string of length bytes
     generated from the master_secret. 
     </t>
     <t>
+    Labels here have the same definition as in TLS, i.e.,
+    an ASCII string with no terminating NULL.
     Label values beginning with "EXPERIMENTAL" MAY be used
     for private use without registration. All other
     label values MUST be registered via Specification Required as
-    described by RFC 2434 <xref target="RFC2434"/>.
+    described by RFC 5226 <xref target="RFC5226"/>.
     Note that exporter labels have the potential to collide with 
     existing PRF labels. In order to prevent this, labels SHOULD
     begin with "EXPORTER". This is not a MUST because there are
     existing uses which have labels which do not begin with
     this prefix.
     </t>
+    <figure>
+	<artwork><![CDATA[
+	opaque context<0..2^16-1>;
+	]]>
+	</artwork>
+    </figure>
     <t>
     The context value allows the application using the exporter
     to mix its own data with the TLS PRF for the exporter
-    output. The context value length is encoded as an unsigned
+    output. One example of where this might be useful is 
+    an authentication setting where the client credentials
+    are valid for more than one identity; the context value
+    could then be used to mix the expected identity into
+    the keying material, thus preventing substitution attacks.
+    The context value length is encoded as an unsigned
     16-bit quantity (uint16) representing the length of the
-    context value.
+    context value. The context MAY be zero length.
     </t>
     </section>
     <section anchor="section.sec" title="Security Considerations">
     <t>
-    Because an exporter produces the same value if applied twice
-    with the same label to the same master_secret, it is critical
-    that two EKM values generated with the same label be used
-    for two different purposes--hence the requirement for IANA
-    registration. 
-    However, because exporters depend on the TLS PRF, it is not a
-    threat to the use of an EKM value generated from one label to reveal an
-    EKM value generated from another label.
+      The prime security requirement for exporter outputs is that
+      they be independent. More formally, 
+      after a particular TLS session, if an adversary is allowed to choose
+      multiple (label, context value) pairs and is given the output of the PRF for
+      those values, the attacker is still unable to distinguish between the output
+      of the PRF for a (label, context value) pair (different from the ones that
+      it submitted) and a random value of the same length. In particular,
+      there may be settings, such as the one described in <xref target="exporter.def"/>, where the attacker can control the context value; such an attacker
+      MUST not be able to predict the output of the exporter.
+      Similarly, an attacker who does not know the master secret should
+      not be able to distinguish valid exporter outputs from random values.
+      The current set of TLS PRFs is believed to meet this objective, provided the
+      master secret is randomly generated.
+    </t>
+    <t>
+      Because an exporter produces the same value if applied twice
+      with the same label to the same master_secret, it is critical
+      that two EKM values generated with the same label not be used
+      for two different purposes--hence the requirement for IANA
+      registration. 
+      However, because exporters depend on the TLS PRF, it is not a
+      threat to the use of an EKM value generated from one label to reveal an
+      EKM value generated from another label.
     </t>
     </section>
     <section anchor="section.iana" title="IANA Considerations">
@@ -221,10 +255,11 @@ o]>
    master secret                  [RFC5246]
    key expansion                  [RFC5246]
    client EAP encryption          [RFC2716]
-   ttls keying material           [draft-funk-eap-ttls-v0-01]
+   ttls keying material           [RFC5281]
+   ttls challenge                 [RFC5281]
 </artwork></figure>
 <t>
-Future values are allocated via RFC2434 Specification Required
+Future values are allocated via RFC5226 Specification Required
 policy. The label is a string consisting of printable ASCII
 characters.  IANA MUST also verify that one label is not a prefix
 of any other label. For example, labels "key" or "master secretary"
@@ -234,7 +269,9 @@ are forbidden.
     <section title="Acknowledgments">
     <t>
     Thanks to Pasi Eronen for valuable comments and the contents of the IANA section
-    and <xref target="sec.binding"/>. 
+    and <xref target="sec.binding"/>. Thanks to David McGrew for helpful
+    discussion of the security considerations and Alfred Hoenes for
+    editorial comments.
     </t>
     </section>
   </middle>
@@ -242,12 +279,13 @@ are forbidden.
   <back>
     <references title="Normative References">
       &RFC2119;
-      &RFC2434;
+      &RFC5226;
       &RFC5246;
+      &RFC5281;
     </references>
     <references title="Informational References">
-      &RFC4347;
       &RFC3711;
+      &RFC4347;
       &I-D.ietf-avt-dtls-srtp;
     </references> 
   </back>

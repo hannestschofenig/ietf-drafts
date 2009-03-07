@@ -12,13 +12,13 @@
     <organization />
 </author>
 
-<date month='February' day='25' year='2008' />
+<date month='October' day='29' year='2008' />
 
 <abstract><t>This document describes a Datagram Transport Layer Security (DTLS) extension to establish keys for secure RTP (SRTP) and secure RTP Control Protocol (SRTCP) flows.  DTLS keying happens on the media path, independent of any out-of-band signalling channel present.</t></abstract>
 
 </front>
 
-<seriesInfo name='Internet-Draft' value='draft-ietf-avt-dtls-srtp-02' />
+<seriesInfo name='Internet-Draft' value='draft-ietf-avt-dtls-srtp-06' />
 <format type='TXT'
-        target='http://www.ietf.org/internet-drafts/draft-ietf-avt-dtls-srtp-02.txt' />
+        target='http://www.ietf.org/internet-drafts/draft-ietf-avt-dtls-srtp-06.txt' />
 </reference>
