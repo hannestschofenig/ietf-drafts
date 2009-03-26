@@ -1,0 +1,212 @@
+\documentclass[helvetica]{seminar} 
+\centerslidesfalse 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 73} 
+\fancyfoot[C]{\tiny DTLS 1.2}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% don't center vertically
+\centerslidesfalse 
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+\begin{document}
+
+
+        
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}DTLS 1.2 Status}\\
+
+\vspace{.3 in}
+\large{Eric Rescorla}\\
+\large{RTFM, Inc.}\\
+\large{\texttt{ekr@rtfm.com}}
+\end{center}
+\end{slide}
+
+
+\begin{slide}
+\heading{Current State}
+
+\begin{itemize}
+\item New draft: \url{draft-ietf-tls-rfc4347-bis-02.txt}
+\item[]
+\item Requirement to handle data from old epochs
+\item Clarified Handling of data/handshake ordering during rehandshake
+\item Clarified handling of sequence numbers and epochs
+\item Clarified PMTU handling for stream-type transports
+\item Clarified behavior of cookies with key changes
+\item Are we done yet?
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Handling data from old epochs}
+
+\begin{itemize}
+\item Issue raised by Michael Tuexen
+\item Some implementations reject data from old epochs during rehandshake
+\begin{itemize}
+\item This can create stalls
+\end{itemize}
+\item New requirement:
+\end{itemize}
+Until the handshake has
+completed, implementations MUST accept packets from the old epoch.
+\begin{quote}
+
+\end{quote}
+\end{slide}
+
+\begin{slide}
+\heading{Handling of sequence numbers}
+
+\begin{itemize}
+\item Raised by Robin Seggelman
+\item Text isn't clear about sequence numbers and rehandshake
+\item Intention: each epoch has its own seqno 
+\begin{itemize}
+\item Separate replay checks for each epoch
+\end{itemize}
+\item Changed text to clarify
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{PMTU Handling}
+
+\begin{itemize}
+\item Issue raised by Michael Tuexen
+\item Previous text said to assume stream transports had ``infinite PMTU''
+\begin{itemize}
+\item This doesn't make any sense
+\end{itemize}
+\item New text:
+\end{itemize}
+
+\begin{quote}
+For DTLS over TCP or SCTP, which automatically fragment
+and reassemble datagrams, there is no PMTU limitation.
+However, the upper layer protocol MUST NOT write any
+record that exceeds the maximum record size of $2^{14}$ bytes.
+\end{quote}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Data/handshake reordering}
+
+\vspace{-.3 in}
+\begin{itemize}
+\item Issue raised by ???
+\item What happens if handshake and data packets are reordered
+\begin{itemize}
+\item Can happen from the final agent to speak
+\item New handshakes and rehandshakes are different
+\end{itemize}
+\item New text:
+\end{itemize}
+
+\begin{quote}
+Note that in the special case of a rehandshake on an existing
+association, it is safe to process a data packet immediately even if
+the CSS or Finished has not yet been received provided that either
+the rehandshake resumes the existing session or that it uses exactly
+the same security parameters as the existing association.  In an
+other case, the implementation MUST wait for the receipt of the
+Finished to prevent downgrade attack.
+\end{quote}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Clarified cookie handling with key changes}
+
+\begin{itemize}
+\item Issue raised by ???
+\item If the signing key changes, you can get multiple \textsf{HelloVerifyRequest}s
+\item New text:
+\end{itemize}
+
+\begin{quote}
+If a server receives a ClientHello with an invalid cookie, it SHOULD
+treat it the same as a ClientHello with no cookie. This avoids
+race/deadlock conditions if the client somehow gets a bad cookie
+(e.g., because the server changes its cookie signing key). Note to
+implementors: this may results in clients receiving multiple
+HelloVerifyRequest messages with different cookies.  Clients SHOULD
+handle this by sending a new HelloVerify in response to the new
+HelloVerifyRequest.
+\end{quote}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Next Steps}
+
+\begin{itemize}
+\item Everything here was minor
+\item And mostly clarifications of minor issues
+\item Ready for WGLC?
+\end{itemize}
+
+\end{slide}
+
+
+\end{document}
