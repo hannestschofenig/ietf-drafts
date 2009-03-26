@@ -1,0 +1,149 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 71} 
+\fancyfoot[C]{\tiny TLS WG}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}Transport Layer Security WG}\\
+\large{{IETF 71}} \\
+\end{center}
+\end{slide}
+
+
+% don't center vertically
+\centerslidesfalse 
+
+\begin{slide}
+\heading{Agenda}
+
+{\tiny
+\begin{enumerate}
+\item Agenda bashing (5 minutes) - chairs
+\begin{itemize}
+\item Bluesheets
+\item Agenda changes
+\item Scribe for minutes
+\item Jabber scribe
+\end{itemize}
+\item Document status (5 minutes) - chairs
+\begin{itemize}
+\item Progress since last IETF
+\end{itemize}      
+\item  DTLS 1.2 (30 minutes) - Eric Rescorla
+\item DES and IDEA Cipher Suites for Transport Layer Security (TLS)  (10 minutes) - Pasi Eronen
+\item ECDHE\_PSK Ciphersuites for Transport Layer Security (TLS) (10 minutes) - Pascal Urien
+\item DTLS 1.1 (10 minutes) - Eric Rescorla
+\item Camellia Cipher Suites for TLS (10 minutes) - Akihiro Kato
+\end{enumerate}
+}
+
+\end{slide}
+
+\begin{slide}
+\heading{Document Status (RFCs)}
+
+\vspace{-.2 in}
+
+{\tiny
+\begin{tabular}{|p{1.5 in}|p{1.4 in}|p{.7 in}|}
+\hline
+The TLS Protocol Version 1.0  & RFC 2246 & Published \\
+Addition of Kerberos Cipher Suites to Transport Layer Security (TLS)  & RFC 2712 & Published \\
+Upgrading to TLS Within HTTP/1.1  & RFC 2817 & Published \\
+HTTP Over TLS  & RFC 2818 & Published \\
+AES Ciphersuites for TLS  & RFC 3268 & Published \\
+Transport Layer Security (TLS) Extensions  & RFC 3546 & Published \\
+Transport Layer Security Protocol Compression Methods  & RFC 3749 & Published \\
+Addition of Camellia Cipher Suites to Transport Layer Security (TLS)  & RFC 4132 & Published \\
+Pre-Shared Key Ciphersuites for Transport Layer Security (TLS)  & RFC 4279 & Published \\
+The The Transport Layer Security (TLS) Protocol Version 1.1  & RFC 4346 & Published \\
+Transport Layer Security (TLS) Extensions  & RFC 4366 & Published \\
+Elliptic Curve Cryptography (ECC) Cipher Suites for Transport Layer Security (TLS)  & RFC 4492 & Published \\
+Pre-Shared Key (PSK) Cipher Suites with NULL Encryption for Transport Layer Security (TLS)  & RFC 4785 & Published \\
+Using OpenPGP keys for TLS authentication  & RFC 5081 & Published \\
+Using the Secure Remote Password (SRP) Protocol for TLS Authentication  & RFC 5054 & Published \\
+\hline
+\end{tabular}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Document Status (IDs)}
+
+{\tiny
+\begin{tabular}{|p{1.5 in}|p{1.4 in}|p{.7 in}|}
+\hline
+The Transport Layer Security (TLS) Protocol Version 1.2 & draft-ietf-tls-rfc-4346bis-09 & \textbf{Approved} \\
+TLS Elliptic Curve Cipher Suites with SHA-256/384 and AES Galois Counter Mode & draft-ietf-tls-ecc-new-mac-04 & \textbf{WGLC Finished} \\
+AES-GCM Cipher Suites for TLS & draft-ietf-tls-rsa-aes-gcm-02 & \textbf{WGLC Finished} \\
+Transport Layer Security (TLS) Extensions: Extension Definitions & draft-ietf-tls-rfc4366-bis-02 & In progress \\
+Keying Material Extractors for Transport Layer Security (TLS) & draft-ietf-tls-extractor-01 & \textbf{New} \\
+ECDHE\_PSK Ciphersuites for Transport Layer Security (TLS) & draft-ietf-tls-ecdhe-psk-00 & \textbf{New} \\
+DES and IDEA Cipher Suites for Transport Layer Security (TLS) & draft-ietf-tls-idea-00 & \textbf{New} \\
+\hline
+\end{tabular}
+}
+
+
+\end{slide}
+
+
+\end{document}
