@@ -2,6 +2,7 @@
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC5226 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5226.xml">
+<!ENTITY RFC5216 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5216.xml">
 <!ENTITY RFC3711 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
 <!ENTITY RFC4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
@@ -20,7 +21,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-tls-extractor-05.txt" 
+<rfc category="std" docName="draft-ietf-tls-extractor-06.txt" 
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="TLS Exporters">Keying Material Exporters for Transport Layer Security (TLS)</title>
@@ -46,7 +47,7 @@
     </author>
 
 
-    <date day="07" month="March" year="2009" />
+    <date day="12" month="July" year="2009" />
 
     <abstract>
       <t>A number of protocols wish to leverage Transport Layer Security (TLS)
@@ -69,7 +70,8 @@
     </t>
     <t>A number of protocols wish to leverage Transport Layer Security (TLS) <xref target="RFC5246"/> or Datagram TLS (DTLS) <xref target="RFC4347"/>
       to perform key establishment but then use some of the keying material
-      for their own purposes. A typical example is DTLS-SRTP <xref target="I-D.ietf-avt-dtls-srtp"/>, which uses DTLS to perform a key exchange and 
+      for their own purposes. A typical example is DTLS-SRTP <xref target="I-D.ietf-avt-dtls-srtp"/>, a key management scheme for SRTP 
+      which uses DTLS to perform a key exchange and 
       negotiate the SRTP <xref target="RFC3711"/> protection suite and
       then uses the DTLS master_secret to generate the SRTP keys.
     </t>
@@ -104,14 +106,14 @@
     </section>
     <section title="Binding to Application Contexts" anchor="sec.binding">
      <t>
-     In addition to exporting keying material, an application using the
+     In addition to using an exporter to obtain keying material, an application using the
      keying material has to securely establish the upper-layer 
      context where the keying material will be used.  The details of this
      context depend on the application, but it could include things such as
      algorithms and parameters that will be used with the keys,
      identifier(s) for the endpoint(s) who will use the keys, identifier(s)
      for the session(s) where the keys will be used, and the lifetime(s)
-     for the context and/or keys. At minimum, there should be some
+     for the context and/or keys. At a minimum, there should be some
      mechanism for signalling that an exporter will be used.
      </t>
      <t>
@@ -130,7 +132,7 @@
      </t>
      <t>Information about the upper-layer context can be exchanged in TLS
      extensions included in the ClientHello and ServerHello messages.  
-     This approach is used in [DTLS-SRTP].
+     This approach is used in <xref target="I-D.ietf-avt-dtls-srtp"/>.
      The handshake messages are protected by the Finished messages, so
      once the handshake completes, the peers will have the same view of the
      information. Extensions also allow a limited form of negotiation:
@@ -138,7 +140,7 @@
      some context parameters, and the TLS server could select one of them.
      </t>
      <t>The upper-layer protocol can include its own handshake which can
-      be protected using the keys exported from TLS.
+      be protected using the keys exported by TLS.
      </t>
      </list>
      </t>
@@ -155,12 +157,13 @@
       scope, which is associated with the TLS session, the label, and the context
       value. 
     </t>
+    <t> The exporter takes three input values</t>
     <t>
     <list style="symbols">
-    <t>A disambiguating label string</t>
-    <t>A per-association context value provided by the application using
-    the exporter</t>
-    <t>A length value</t>
+    <t>a disambiguating label string,</t>
+    <t>a per-association context value provided by the application using
+    the exporter, and</t>
+    <t>a length value.</t>
     </list>
     </t>
     <t>
@@ -195,12 +198,6 @@
     existing uses which have labels which do not begin with
     this prefix.
     </t>
-    <figure>
-	<artwork><![CDATA[
-	opaque context<0..2^16-1>;
-	]]>
-	</artwork>
-    </figure>
     <t>
     The context value allows the application using the exporter
     to mix its own data with the TLS PRF for the exporter
@@ -212,6 +209,10 @@
     The context value length is encoded as an unsigned
     16-bit quantity (uint16) representing the length of the
     context value. The context MAY be zero length.
+      Because the context value is mixed with the master_secret via
+      the PRF, it is safe to mix confidential information into the
+      extractor provided that the master_secret will not be known to
+      the attacker.
     </t>
     </section>
     <section anchor="section.sec" title="Security Considerations">
@@ -224,7 +225,7 @@
       of the PRF for a (label, context value) pair (different from the ones that
       it submitted) and a random value of the same length. In particular,
       there may be settings, such as the one described in <xref target="exporter.def"/>, where the attacker can control the context value; such an attacker
-      MUST not be able to predict the output of the exporter.
+      MUST NOT be able to predict the output of the exporter.
       Similarly, an attacker who does not know the master secret should
       not be able to distinguish valid exporter outputs from random values.
       The current set of TLS PRFs is believed to meet this objective, provided the
@@ -240,6 +241,27 @@
       threat to the use of an EKM value generated from one label to reveal an
       EKM value generated from another label.
     </t>
+    <t>
+    With certain TLS cipher suites, the TLS master secret is not
+    necessarily unique to a single TLS session. In particular, with RSA
+    key exchange, a malicious party acting as TLS server in one session
+    and TLS client in another session can cause those two sessions to
+    have the same TLS master secret (though the sessions must be 
+    established simultaneously to get adequate control of the Random
+    values). Applications using the EKM need
+    to consider this in how they use the EKM; in some cases, requiring
+    the use of other cipher suites (such as those using Diffie-Hellman key
+    exchange) may be advisable.
+    </t>
+    <t>
+      Designing a secure mechanism that uses extractors is not 
+      necessarily straightforward. This document only provides
+      the extractor mechanism, but the problem of agreeing
+      on the surrounding context and the meaning of the
+      information passed to and from the extractor remains.
+      Any new uses of the extractor mechanism should be subject
+      to careful review.
+    </t>
     </section>
     <section anchor="section.iana" title="IANA Considerations">
     <t>
@@ -248,18 +270,27 @@
    are given below:
     </t>
 <figure><artwork>
-   Value                          Reference
-   -----                          ------------
-   client finished                [RFC5246]
-   server finished                [RFC5246]
-   master secret                  [RFC5246]
-   key expansion                  [RFC5246]
-   client EAP encryption          [RFC2716]
-   ttls keying material           [RFC5281]
-   ttls challenge                 [RFC5281]
+     Value                          Reference  Note
+     -----------------------------  ---------  ----
+     client finished                [RFC5246]  (1)
+     server finished                [RFC5246]  (1)
+     master secret                  [RFC5246]  (1)
+     key expansion                  [RFC5246]  (1)
+     client EAP encryption          [RFC5216]
+     ttls keying material           [RFC5281]
+     ttls challenge                 [RFC5281]
 </artwork></figure>
 <t>
-Future values are allocated via RFC5226 Specification Required
+Note(1): These entries are reserved and MUST NOT be used for
+the purpose described in RFC XXXX, in order to avoid
+confusion with similar, but distinct use in RFC 5246.
+</t>
+<t>
+[ RFC Editor: Please replace 'XXXX' above by the RFC number assigned
+to this document and delete this remark. ]
+</t>
+<t>
+Future values are allocated via RFC 5226 Specification Required
 policy. The label is a string consisting of printable ASCII
 characters.  IANA MUST also verify that one label is not a prefix
 of any other label. For example, labels "key" or "master secretary"
@@ -281,12 +312,13 @@ are forbidden.
       &RFC2119;
       &RFC5226;
       &RFC5246;
-      &RFC5281;
     </references>
-    <references title="Informational References">
+    <references title="Informative References">
+      &RFC5216;
       &RFC3711;
       &RFC4347;
       &I-D.ietf-avt-dtls-srtp;
+      &RFC5281;
     </references> 
   </back>
 </rfc>
