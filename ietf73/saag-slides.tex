@@ -1,0 +1,159 @@
+\documentclass[helvetica]{seminar} 
+\centerslidesfalse 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 73} 
+\fancyfoot[C]{\tiny SAAG: Insecure Hash Functions}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% don't center vertically
+\centerslidesfalse 
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+\begin{document}
+
+
+        
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}The Need for Cryptographically Insecure Hash Functions}\\
+
+\vspace{.3 in}
+\large{Eric Rescorla}\\
+\large{RTFM, Inc.}\\
+\large{\texttt{ekr@rtfm.com}}
+\end{center}
+\end{slide}
+
+
+\begin{slide}
+\heading{Cryptographic hash functions are useful... too useful}
+
+\begin{itemize}
+\item Reminder: $H(M) \to \{0,1\}*b$
+\item[]
+\item Used in all sorts of non-security settings
+\begin{itemize}
+\item Generation of unique fixed-length identifiers~\cite{reload}
+\item Content ``fingerprints''~\cite{rfc4366,fork-loop-fix}
+\item ``Strong'' checksum~\cite{http}
+\end{itemize}
+\item These are non-adversarial settings
+\begin{itemize}
+\item The cryptographic guarantees are not used here
+\end{itemize}
+\item Disadvantages
+\begin{itemize}
+\item Performance
+\item Confusion
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Why this is confusing}
+
+\begin{itemize}
+\item When cryptographic digests are used, people expect them to be security critical
+\begin{itemize}
+\item Even worse now that MD5 has been weakened
+\item Reviewers ask ``what about hash agility?'' ``Where's the security analysis?''
+\item Need to explicitly disclaim security usages
+\end{itemize}
+\end{itemize}
+\footnotesize{
+\begin{verbatim}
+               Because the maximum number of inputs which need to be
+compared is 70 the chance of a collision is low even with a
+relatively small hash value, such as 32 bits.  CRC-32c as specified
+in [RFC4960] is a specific acceptable function, as is MD5 [RFC1321].
+Note that MD5 is being chosen purely for non-cryptographic
+properties.  An attacker who can control the inputs in order to
+produce a hash collision can attack the connection in a variety of
+other ways. [draft-ietf-sip-fork-loop-fix-08.txt]
+\end{verbatim}}
+\end{slide}
+
+
+\begin{slide}
+\heading{We need standardized insecure hash function(s)}
+
+\begin{itemize}
+\item Can be used instead of cryptographic hashes
+\begin{itemize}
+\item Faster
+\item Explicitly weak
+\item Serves as a signal that it's not security critical
+\end{itemize}
+\item Requirements
+\begin{itemize}
+\item Fast
+\item Low collision probability: chance of $H(M)==H(M')$ is $2^{-b}$
+\item High probability of detecting small errors
+\item \emph{Easy} to find collisions and preimages
+\end{itemize}
+\item Lots of existing hashes (CRC, universal hashing, ...)
+\begin{itemize}
+\item Let's pick one (or two)
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+{\small
+\bibliographystyle{alpha}
+\bibliography{local}
+}
+
+\end{document}

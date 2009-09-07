@@ -1,0 +1,214 @@
+\documentclass[helvetica]{seminar} 
+\centerslidesfalse 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url} 
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 73} 
+\fancyfoot[C]{\tiny DTLS 1.2}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% don't center vertically
+\centerslidesfalse 
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+\begin{document}
+
+
+        
+\begin{slide}
+\begin{center}
+\LARGE{{\bf}DTLS 1.2 Status}\\
+
+\vspace{.3 in}
+\large{Eric Rescorla}\\
+\large{RTFM, Inc.}\\
+\large{\texttt{ekr@networkresonance.com}}
+\end{center}
+\end{slide}
+
+
+\begin{slide}
+\heading{Current State}
+
+\begin{itemize}
+\item New draft: \url{draft-ietf-tls-rfc4347-bis-01.txt}
+\item[]
+\item Defined handling of invalid cookies
+\item Fixed state machine for lost last flight
+\item Clarified buffering of out of order packets
+\item Editorial 
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Handling of Invalid Cookies}
+
+\begin{itemize}
+\item Issue raised by Pasi Eronen
+\item Just dropping the \textsf{HelloRequest} creates deadlocks
+\begin{itemize}
+\item For instance, what happens is server changes keys
+\end{itemize}
+\item Resolution: treat as missing cookie
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Lost Last Flight}
+
+\begin{minipage}[t]{2.5in}
+\begin{itemize}
+\item Issue raised by Robin Seggelman
+\item What happens if the last flight is lost
+\begin{itemize}
+\item Other side retransmits
+\item Does the sender retransmit?
+\end{itemize}
+\item Fixed state machine
+\begin{itemize}
+\item Required to hold last flight for 2MSL
+\item Immediate retransmit in response to receive retransmit
+\end{itemize}
+
+\end{itemize}
+\end{minipage}
+\begin{minipage}[t]{1.5in}
+\begin{verbatim}
+  +-----------+                 
+  |           |                 
+  | FINISHED  | 
+  |           |
+  +-----------+
+       |  /|\
+       |   |
+       |   |
+       +---+
+
+    Read retransmit
+ Retransmit last flight
+\end{verbatim}
+\end{minipage}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Buffering of Out of Order Packets (I)}
+
+\vspace{-.2 in}
+\begin{itemize}
+\item Issue raised by Michael Tuexen
+\item What happens about packets received before \textsf{Finished}
+\begin{itemize}
+\item Packet drops
+\item Reordering
+\end{itemize}
+\item Clarified text to encourage buffering for reliable transports
+\end{itemize}
+
+{\small
+\begin{verbatim}
+                          Implementations MAY either buffer or
+discard such packets, though when DTLS is used over reliable
+transports (e.g., SCTP), they SHOULD be buffered and processed once
+the handshake completes.  Note that TLS's restrictions on when
+packets may be sent still apply, and the receiver treats the packets
+as if they were sent in the right order.  In particular, it is still
+impermissible to send data prior to completion of the first
+handshake.
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Buffering of Out of Order Packets (II)}
+
+\begin{itemize}
+\item Issue raised by Michael Tuexesn
+\item What about reordering in rehandshakes?
+\item There is potential for glitches in dataflow
+\begin{itemize}
+\item Data sent with new epoch
+\item But not ready until \textsf{CSS}, \textsf{Finished} received
+\end{itemize}
+\item Proposal: implementations MAY accept packets before receiving
+\textsf{CSS}, \textsf{Finished}
+\begin{itemize}
+\item Major vulnerability here is downgrade attack
+\begin{itemize}
+\item Epoch mostly replaces \textsf{ChangeCipherSpec}
+\end{itemize}
+\item SHOULD only do this during rehandshake?
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Trajectory}
+
+\begin{itemize}
+\item New version shortly
+\item Hopefully get more input
+\item Last call before PHL?
+\end{itemize}
+
+\end{slide}
+
+
+
+\end{document}
