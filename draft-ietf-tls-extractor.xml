@@ -21,7 +21,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-tls-extractor-06.txt" 
+<rfc category="std" docName="draft-ietf-tls-extractor-07.txt" 
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="TLS Exporters">Keying Material Exporters for Transport Layer Security (TLS)</title>
@@ -47,7 +47,7 @@
     </author>
 
 
-    <date day="12" month="July" year="2009" />
+    <date day="07" month="September" year="2009" />
 
     <abstract>
       <t>A number of protocols wish to leverage Transport Layer Security (TLS)
@@ -78,14 +78,15 @@
     <t>
       These applications imply a need to be
       able to export keying material (later called Exported Keying Material
-      or EKM) from TLS/DTLS, and securely agree on the upper-layer context
+      or EKM) from TLS/DTLS to an application or protocol residing at an 
+      upper-layer, and securely agree on the upper-layer context
       where the keying material will be used. The mechanism for exporting
       the keying material has the following requirements:
       </t>
       <t>
       <list style="symbols">
       <t>Both client and server need to be able to export the same EKM value.</t>
-      <t>EKM values should be indistinguishable from random 
+      <t>EKM values should be indistinguishable from random data
          by attackers who don't know the master_secret.</t>
       <t>It should be possible to export multiple EKM values
 	 from the same TLS/DTLS association.</t>
@@ -95,7 +96,7 @@
       </t>
     <t>
     The mechanism described in this document is intended to fulfill these
-    requirements.
+    requirements. This mechanism is compatible with all versions of TLS.
     </t>
     </section>
     <section title="Conventions Used In This Document">
@@ -301,8 +302,8 @@ are forbidden.
     <t>
     Thanks to Pasi Eronen for valuable comments and the contents of the IANA section
     and <xref target="sec.binding"/>. Thanks to David McGrew for helpful
-    discussion of the security considerations and Alfred Hoenes for
-    editorial comments.
+    discussion of the security considerations and to Vijay Gurbani and Alfred Hoenes for
+    editorial comments. 
     </t>
     </section>
   </middle>
