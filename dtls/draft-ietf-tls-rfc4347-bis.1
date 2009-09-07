@@ -16,8 +16,8 @@
 INTERNET-DRAFT                                               E. Rescorla
 Obsoletes (if approved): RFC 4347                             RTFM, Inc.
 Intended Status: Proposed Standard                           N. Modadugu
-<draft-ietf-tls-rfc4347-bis-01.txt>                  Stanford University
-                                        November 2008 (Expires May 2009)
+<draft-ietf-tls-rfc4347-bis-02.txt>                  Stanford University
+                                  March 7, 2009 (Expires September 2009)
 
 
 .ce
@@ -28,10 +28,18 @@ Datagram Transport Layer Security version 1.2
 .nf
 Status of This Memo
 
-   By submitting this Internet-Draft, each author represents that any
-   applicable patent or other IPR claims of which he or she is aware
-   have been or will be disclosed, and any of which he or she becomes
-   aware will be disclosed, in accordance with Section 6 of BCP 79.
+   This Internet-Draft is submitted to IETF in full conformance with the
+   provisions of BCP 78 and BCP 79.  This document may contain material
+   from IETF Documents or IETF Contributions published or made publicly
+   available before November 10, 2008.  The person(s) controlling the
+   copyright in some of this material may not have granted the IETF
+   Trust the right to allow modifications of such material outside the
+   IETF Standards Process.  Without obtaining an adequate license from
+   the person(s) controlling the copyright in such materials, this
+   document may not be modified outside the IETF Standards Process, and
+   derivative works of it may not be created outside the IETF Standards
+   Process, except to format it for publication as an RFC or to
+   translate it into languages other than English.
 
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF), its areas, and its working groups.  Note that
@@ -54,7 +62,15 @@ Status of This Memo
 Copyright Notice
 
 .nf 
-Copyright (C) The IETF Trust (2008).
+   Copyright (c) 2009 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents in effect on the date of
+   publication of this document (http://trustee.ietf.org/license-info).
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.
+.fi
 
 .ti 0
 Abstract
@@ -68,6 +84,20 @@ based on the Transport Layer Security (TLS) protocol and provides
 equivalent security guarantees.  Datagram semantics of the underlying
 transport are preserved by the DTLS protocol. This document
 updates DTLS 1.0 to work with TLS version 1.2.
+
+.ti 0
+Legal
+
+.nf
+   This documents and the information contained therein are provided on
+   an "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE
+   REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE
+   IETF TRUST AND THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL
+   WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY
+   WARRANTY THAT THE USE OF THE INFORMATION THEREIN WILL NOT INFRINGE
+   ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS
+   FOR A PARTICULAR PURPOSE.
+.fi
 
 .ti 0
 Table of Contents
@@ -336,9 +366,14 @@ format is shown below:
 
 .fi
 DTLS uses an explicit sequence number, rather than an implicit one,
-carried in the sequence_number field of the record.  As with
-TLS, the sequence number is set to zero after each
-ChangeCipherSpec message is sent.
+carried in the sequence_number field of the record. Sequence numbers
+are maintained separately for each epoch, with each sequence_number
+initially being 0 for each epoch. For instance, if a handshake
+message from epoch 0 is retransmitted, it might have a sequence
+number after a message from epoch 1, even if the message from
+epoch 1 was transmitted first. Note that some care needs to be
+taken during the handshake to ensure that retransmitted messages
+use the right epoch and keying material.
 
 If several handshakes are performed in close succession, there
 might be multiple records on the wire with the same sequence
@@ -358,7 +393,8 @@ implementations SHOULD discard packets from earlier epochs,
 but if packet loss causes noticeable problems MAY choose
 to retain keying material from previous epochs for up
 to 120 seconds (the default TCP MSL) to allow for packet
-reordering.
+reordering.  Until the handshake has completed, implementations
+MUST accept packets from the old epoch.
 
 Conversely, it is possible for records that are protected
 by the newly negotiated context to be received prior
@@ -372,6 +408,18 @@ apply, and the receiver treats the packets as if they were
 sent in the right order.
 In particular, it is still impermissible to send data
 prior to completion of the first handshake. 
+
+Note that in the special case of a rehandshake on an
+existing association, it is safe to process a data packet
+immediately even if the CSS or 
+Finished has not yet been
+received provided that either the rehandshake resumes
+the existing session or that it uses exactly the same
+security parameters as the existing association.
+In an other case, the implementation MUST wait for
+the receipt of the Finished to prevent downgrade
+attack.
+
 
 
 .ti 0
@@ -450,8 +498,9 @@ In particular:
   PMTU. 
 
 - For DTLS over TCP or SCTP, which automatically fragment
-  and reassemble datagrams, the upper layer protocol
-  SHOULD be informed that the PMTU is effectively infinite.
+   and reassemble datagrams, there is no PMTU limitation.
+   However, the upper layer protocol MUST NOT write any
+   record that exceeds the maximum record size of 2^14 bytes.
 .fi
 
 The DTLS record layer SHOULD allow the upper layer protocol
@@ -667,6 +716,7 @@ to receive the cookie, which makes DoS attacks with spoofed IP
 addresses difficult.  This mechanism does not provide any
 defense against DoS attacks mounted from valid IP addresses.
 
+
 .ne 13
 The exchange is shown below:
 
@@ -771,7 +821,11 @@ If a server receives a ClientHello with an invalid cookie,
 it SHOULD treat it the same as a ClientHello with no
 cookie. This avoids race/deadlock conditions if the client
 somehow gets a bad cookie (e.g., because the server
-changes its cookie signing key).
+changes its cookie signing key). Note to implementors:
+this may results in clients receiving multiple 
+HelloVerifyRequest messages with different cookies.
+Clients SHOULD handle this by sending a new HelloVerify
+in response to the new HelloVerifyRequest.
 
 
 .ti 0
@@ -1379,53 +1433,4 @@ Stanford, CA 94305
 
 EMail: nagendra@cs.stanford.edu
 
-.bp
-.in 0
-.nf
-Full Copyright Statement
-
-   Copyright (C) The IETF Trust (2008).
-
-   This document is subject to the rights, licenses and restrictions
-   contained in BCP 78, and except as set forth therein, the authors
-   retain all their rights.
-
-   This document and the information contained herein are provided on an
-   "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE REPRESENTS
-   OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE IETF TRUST AND
-   THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL WARRANTIES, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF
-   THE INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED
-   WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-
-
-Intellectual Property
-
-   The IETF takes no position regarding the validity or scope of any
-   Intellectual Property Rights or other rights that might be claimed to
-   pertain to the implementation or use of the technology described in
-   this document or the extent to which any license under such rights
-   might or might not be available; nor does it represent that it has
-   made any independent effort to identify any such rights.  Information
-   on the procedures with respect to rights in RFC documents can be
-   found in BCP 78 and BCP 79.
-
-   Copies of IPR disclosures made to the IETF Secretariat and any
-   assurances of licenses to be made available, or the result of an
-   attempt made to obtain a general license or permission for the use of
-   such proprietary rights by implementers or users of this
-   specification can be obtained from the IETF on-line IPR repository at
-   http://www.ietf.org/ipr.
-
-   The IETF invites any interested party to bring to its attention any
-   copyrights, patents or patent applications, or other proprietary
-   rights that may cover technology that may be required to implement
-   this standard.  Please address the information to the IETF at
-   ietf-ipr@ietf.org.
-
-
-Acknowledgment
-
-   Funding for the RFC Editor function is provided by the IETF
-   Administrative Support Activity (IASA).
 
