@@ -23,7 +23,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-rescorla-tls-renegotiation-00.txt" ipr="full3978">
+<rfc category="std" docName="draft-rescorla-tls-renegotiation-00.txt"    ipr="pre5378Trust200902">
   <front>
     <title abbrev="TLS Renegotiation Extension">Transport Layer Security (TLS) Renegotiation Indication Extension</title>
 
@@ -109,7 +109,7 @@
       </address>-->
     </author>
 
-    <date day="07" month="October" year="2009" />
+    <date day="05" month="November" year="2009" />
 
     <abstract>
       <t>SSL and TLS renegotiation are vulnerable to an attack in
