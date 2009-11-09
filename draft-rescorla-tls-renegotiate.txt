@@ -4,11 +4,11 @@
 Network Working Group                                        E. Rescorla
 Internet-Draft                                                RTFM, Inc.
 Intended status:  Standards Track                                 M. Ray
-Expires:  May 9, 2010                                        S. Dispensa
+Expires:  May 13, 2010                                       S. Dispensa
                                                              PhoneFactor
                                                                 N. Oskov
                                                                Microsoft
-                                                       November 05, 2009
+                                                       November 09, 2009
 
 
    Transport Layer Security (TLS) Renegotiation Indication Extension
@@ -45,14 +45,14 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on May 9, 2010.
+   This Internet-Draft will expire on May 13, 2010.
 
 Copyright Notice
 
 
 
 
-Rescorla, et al.           Expires May 9, 2010                  [Page 1]
+Rescorla, et al.          Expires May 13, 2010                  [Page 1]
 
 Internet-Draft         TLS Renegotiation Extension         November 2009
 
@@ -108,7 +108,7 @@ Abstract
 
 
 
-Rescorla, et al.           Expires May 9, 2010                  [Page 2]
+Rescorla, et al.          Expires May 13, 2010                  [Page 2]
 
 Internet-Draft         TLS Renegotiation Extension         November 2009
 
@@ -121,12 +121,13 @@ Table of Contents
    4.  Backward Compatibility  . . . . . . . . . . . . . . . . . . . . 6
      4.1.  Client Considerations . . . . . . . . . . . . . . . . . . . 6
      4.2.  Server Considerations . . . . . . . . . . . . . . . . . . . 6
+     4.3.  SSLv3 . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
    5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 7
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 7
    7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 7
    8.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 7
      8.1.  Normative References  . . . . . . . . . . . . . . . . . . . 7
-     8.2.  Informative References  . . . . . . . . . . . . . . . . . . 7
+     8.2.  Informative References  . . . . . . . . . . . . . . . . . . 8
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . . 8
 
 
@@ -163,8 +164,7 @@ Table of Contents
 
 
 
-
-Rescorla, et al.           Expires May 9, 2010                  [Page 3]
+Rescorla, et al.          Expires May 13, 2010                  [Page 3]
 
 Internet-Draft         TLS Renegotiation Extension         November 2009
 
@@ -220,7 +220,7 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
 
 
 
-Rescorla, et al.           Expires May 9, 2010                  [Page 4]
+Rescorla, et al.          Expires May 13, 2010                  [Page 4]
 
 Internet-Draft         TLS Renegotiation Extension         November 2009
 
@@ -276,7 +276,7 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
 
 
 
-Rescorla, et al.           Expires May 9, 2010                  [Page 5]
+Rescorla, et al.          Expires May 13, 2010                  [Page 5]
 
 Internet-Draft         TLS Renegotiation Extension         November 2009
 
@@ -332,9 +332,16 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
 
 
 
-Rescorla, et al.           Expires May 9, 2010                  [Page 6]
+Rescorla, et al.          Expires May 13, 2010                  [Page 6]
 
 Internet-Draft         TLS Renegotiation Extension         November 2009
+
+
+4.3.  SSLv3
+
+   SSLv3 does not support extensions and thus it is not possible to
+   securely renegotiate with SSLv3.  Deployments wishing to renegotiate
+   securely will need to upgrade to at least TLS 1.0.
 
 
 5.  Security Considerations
@@ -376,21 +383,24 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
    [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
               (TLS) Protocol Version 1.2", RFC 5246, August 2008.
 
+
+
+
+
+
+Rescorla, et al.          Expires May 13, 2010                  [Page 7]
+
+Internet-Draft         TLS Renegotiation Extension         November 2009
+
+
+8.2.  Informative References
+
    [I-D.altman-tls-channel-bindings]
               Altman, J., Williams, N., and L. Zhu, "Channel Bindings
               for TLS", draft-altman-tls-channel-bindings-07 (work in
               progress), October 2009.
 
-8.2.  Informative References
-
    [RFC2818]  Rescorla, E., "HTTP Over TLS", RFC 2818, May 2000.
-
-
-
-
-Rescorla, et al.           Expires May 9, 2010                  [Page 7]
-
-Internet-Draft         TLS Renegotiation Extension         November 2009
 
 
 Authors' Addresses
@@ -424,25 +434,15 @@ Authors' Addresses
 
    Nasko
    Microsoft
+   One Microsoft Way
+   Redmond, WA  98052
+   USA
+
+   Email:  nasko.oskov@microsoft.com
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla, et al.           Expires May 9, 2010                  [Page 8]
+Rescorla, et al.          Expires May 13, 2010                  [Page 8]
 

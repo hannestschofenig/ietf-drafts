@@ -92,24 +92,24 @@
     <author fullname="Nasko" initials="N." surname="Oskov">
       <organization>Microsoft</organization>
 
-<!--      <address>
+      <address>
         <postal>
-          <street></street>
+          <street>One Microsoft Way</street>
 
-          <city>Overland Park</city>
+          <city>Redmond</city>
 
-          <region>KS</region>
+          <region>WA</region>
 
-          <code>66213</code>
+          <code>98052</code>
 
           <country>USA</country>
         </postal>
 
-        <email>ekr@rtfm.com</email>
-      </address>-->
+        <email>nasko.oskov@microsoft.com</email>
+      </address>
     </author>
 
-    <date day="05" month="November" year="2009" />
+    <date day="09" month="November" year="2009" />
 
     <abstract>
       <t>SSL and TLS renegotiation are vulnerable to an attack in
@@ -296,6 +296,13 @@ Client                        Attacker                        Server
 	  at the "warning" level.] Servers SHOULD follow this behavior.
 	</t>
       </section>
+      <section title="SSLv3">
+	<t>
+	  SSLv3 does not support extensions and thus it is not possible to
+	  securely renegotiate with SSLv3. Deployments wishing to renegotiate
+	  securely will need to upgrade to at least TLS 1.0.
+	</t>
+      </section>
     </section>
     <section title="Security Considerations">
       <t>
@@ -325,7 +332,7 @@ Client                        Attacker                        Server
 	extension described here was independently invented by
 	Steve Dispensa, Nasko Oskov, and Eric Rescorla.
 	Comments and refinements were received from Jesse Walker
-	and the rest of the Project Mogul team.
+	and the rest of the Project Mogul team. 
       </t>
     </section>
   </middle>
@@ -334,11 +341,12 @@ Client                        Attacker                        Server
     <references title="Normative References">
       &RFC2119;
       &RFC5246;
-      &I-D.altman-tls-channel-bindings;
     </references>
     <references title="Informative References">
 <!--      &RFC5216;
       &RFC4347;-->
+      &I-D.altman-tls-channel-bindings;
+
       &RFC2818;
 
 <!--      &I-D.ietf-avt-dtls-srtp; -->
