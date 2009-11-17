@@ -120,16 +120,16 @@ Table of Contents
    3.  Extension Definition  . . . . . . . . . . . . . . . . . . . . . 5
    4.  Backward Compatibility  . . . . . . . . . . . . . . . . . . . . 6
      4.1.  Client Considerations . . . . . . . . . . . . . . . . . . . 6
+       4.1.1.  Fallback Cipher Suite Signaling . . . . . . . . . . . . 7
      4.2.  Server Considerations . . . . . . . . . . . . . . . . . . . 7
      4.3.  SSLv3 . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 7
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 8
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 8
    7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 8
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 8
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . . . 8
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . . . 9
      8.2.  Informative References  . . . . . . . . . . . . . . . . . . 9
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . . . 9
-
 
 
 
@@ -306,7 +306,12 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
    does not respond, then this indicates that the server either does not
    support the extension or is unwilling to use it.  Because the above
    attack looks like a single handshake to the client, the client cannot
-   determine whether the connection is under attack or not.
+   determine whether the connection is under attack or not.  Note,
+   however, that merely because the server does not acknowledge the
+   extension does not mean that it is vulnerable; it might choose to
+   reject all rehandshakes.  However, it is not possible for the client
+   to determine purely via TLS mechanisms whether this is the case or
+   not.
 
    If clients wish to ensure that such attacks are impossible, they MUST
    terminate the connection immediately upon failure to receive the
@@ -324,11 +329,6 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
    are therefore relying entirely on the server refusing to renegotiate
    in the absence of the extension as opposed to explicitly indicating
    to the server that the initial handshake is in fact the first one on
-   the connection.
-
-
-
-
 
 
 
@@ -336,6 +336,22 @@ Rescorla, et al.          Expires May 21, 2010                  [Page 6]
 
 Internet-Draft         TLS Renegotiation Extension         November 2009
 
+
+   the connection.
+
+4.1.1.  Fallback Cipher Suite Signaling
+
+   [[OPEN ISSUE:  Should this feature be added?]]
+
+   Clients which choose to fall back to an extensionless mode of
+   operation MUST include the magic cipher suite [TBD] in any such
+   handshake.  Servers MUST reject any ClientHello which uses this
+   cipher suite but does not include RI with a fatal "handshake_failure"
+   alert.  Because servers ordinarily ignore unknown cipher suites, this
+   cipher suite can be added safely on any handshake, thus allowing
+   detection and prevention of the MITM attack described above.  Servers
+   MUST NOT select this cipher suite in any handshake, as it does not
+   correspond to any valid cipher suite.
 
 4.2.  Server Considerations
 
@@ -369,6 +385,14 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
 
    When combined with a server which allows renegotiation without the
    extension (which, per Section 5, is NOT RECOMMENDED) this allows a
+
+
+
+Rescorla, et al.          Expires May 21, 2010                  [Page 7]
+
+Internet-Draft         TLS Renegotiation Extension         November 2009
+
+
    downgrade attack.  Accordingly, clients which offer this extension
    SHOULD NOT fall back to extensionless modes upon handshake errors.
    Any SSLv3 or TLS implementation which chooses to address this issue
@@ -385,14 +409,6 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
    If this extension is not used, TLS renegotiation is subject to an
    attack in which the attacker can inject their own conversation with
    the TLS server as a prefix of the client's conversation.  This attack
-
-
-
-Rescorla, et al.          Expires May 21, 2010                  [Page 7]
-
-Internet-Draft         TLS Renegotiation Extension         November 2009
-
-
    is invisible to the client and looks like an ordinary renegotiation
    to the server.  The extension defined in this document allows
    renegotiation to be performed safely.  Servers SHOULD NOT allow
@@ -425,6 +441,14 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
    This vulnerability was originally discovered by Marsh Ray. The
    general concept behind the extension described here was independently
    invented by Steve Dispensa, Nasko Oskov, and Eric Rescorla.  Comments
+
+
+
+Rescorla, et al.          Expires May 21, 2010                  [Page 8]
+
+Internet-Draft         TLS Renegotiation Extension         November 2009
+
+
    and refinements were received from Jesse Walker and the rest of the
    Project Mogul team.
 
@@ -438,16 +462,6 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
 
    [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
               (TLS) Protocol Version 1.2", RFC 5246, August 2008.
-
-
-
-
-
-
-Rescorla, et al.          Expires May 21, 2010                  [Page 8]
-
-Internet-Draft         TLS Renegotiation Extension         November 2009
-
 
 8.2.  Informative References
 
@@ -479,6 +493,18 @@ Authors' Addresses
    Email:  marsh@extendedsubset.com
 
 
+
+
+
+
+
+
+
+Rescorla, et al.          Expires May 21, 2010                  [Page 9]
+
+Internet-Draft         TLS Renegotiation Extension         November 2009
+
+
    Steve Dispensa
    PhoneFactor
    7301 W 129th Street
@@ -500,5 +526,35 @@ Authors' Addresses
 
 
 
-Rescorla, et al.          Expires May 21, 2010                  [Page 9]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla, et al.          Expires May 21, 2010                 [Page 10]
 

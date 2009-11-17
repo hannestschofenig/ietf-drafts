@@ -271,7 +271,12 @@ Client                        Attacker                        Server
 	  either does not support the extension or is unwilling to
 	  use it. Because the above attack looks like a single handshake
 	  to the client, the client cannot determine whether the
-	  connection is under attack or not.
+	  connection is under attack or not. Note, however, that merely
+	  because the server does not acknowledge the extension 
+	  does not mean that it is vulnerable; it might choose to 
+	  reject all rehandshakes. However, it is not possible
+	  for the client to determine purely via TLS mechanisms
+	  whether this is the case or not.
 	</t>
 	<t>
 	  If clients wish to ensure that such attacks are impossible,
@@ -295,6 +300,24 @@ Client                        Attacker                        Server
 	  indicating to the server that the initial handshake
 	  is in fact the first one on the connection.
 	</t>
+	<section title="Fallback Cipher Suite Signaling">
+	  <t>
+	    [[OPEN ISSUE: Should this feature be added?]]
+	  </t>
+	  <t>
+	    Clients which choose to fall back to an extensionless
+	    mode of operation MUST include the magic cipher suite [TBD]
+	    in any such handshake. Servers MUST reject any ClientHello
+	    which uses this cipher suite but does not include RI
+	    with a fatal "handshake_failure" alert. Because 
+	    servers ordinarily ignore unknown cipher suites, this 
+	    cipher suite can be added safely on any handshake,
+	    thus allowing detection and prevention of 
+	    the MITM attack described above. Servers MUST NOT select
+	    this cipher suite in any handshake, as it does not
+	    correspond to any valid cipher suite.
+	  </t>
+	</section>
       </section>
       <section title="Server Considerations">
 	<t>
@@ -358,17 +381,17 @@ Client                        Attacker                        Server
       </t>
       <t>
 	While this extension mitigates the man-in-the-middle attack
-described in the overview, it does not resolve all possible problems
-an application may face if it is unaware of negotiation. It is
-possible that the authenticated identity of the server or client may
-change as a result of renegotiation. By default TLS implementations
-SHOULD verify that once an identity has been authenticated within the
-TLS handshake that it does not change on subsequent renegotiations. If
-the identity changes the renegotiation should fail. A TLS library MAY
-provide a means for the application to allow identity change across
-renegotiations, in which case the application is responsible for
-tracking the identity associated with data it is processing. This may
-require additional API facilities in the TLS library.
+	described in the overview, it does not resolve all possible problems
+	an application may face if it is unaware of negotiation. It is
+	possible that the authenticated identity of the server or client may
+	change as a result of renegotiation. By default TLS implementations
+	SHOULD verify that once an identity has been authenticated within the
+	TLS handshake that it does not change on subsequent renegotiations. If
+	the identity changes the renegotiation should fail. A TLS library MAY
+	provide a means for the application to allow identity change across
+	renegotiations, in which case the application is responsible for
+	tracking the identity associated with data it is processing. This may
+	require additional API facilities in the TLS library.
       </t>
     </section>
     <section title="IANA Considerations">
