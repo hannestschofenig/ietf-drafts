@@ -315,7 +315,7 @@ Client                        Attacker                        Server
 	    thus allowing detection and prevention of 
 	    the MITM attack described above. Servers MUST NOT select
 	    this cipher suite in any handshake, as it does not
-	    correspond to any valid cipher suite.
+	    correspond to any valid cipher suite. 
 	  </t>
 	</section>
       </section>
@@ -363,7 +363,9 @@ Client                        Attacker                        Server
 	  existing requirements). Thus, any such handshake failure
 	  can be assumed to represent either an attack or a vulnerable
 	  server; in either case the best practice is not to continue the
-	  connection.
+	  connection. Even servers which refuse to renegotiate
+	  SHOULD reply with an empty RI extension because this
+	  signals that they have been upgraded.
 	</t>
       </section>
     </section>

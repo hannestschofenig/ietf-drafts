@@ -400,7 +400,9 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
    extension is ignored (this is simply a restatement of existing
    requirements).  Thus, any such handshake failure can be assumed to
    represent either an attack or a vulnerable server; in either case the
-   best practice is not to continue the connection.
+   best practice is not to continue the connection.  Even servers which
+   refuse to renegotiate SHOULD reply with an empty RI extension because
+   this signals that they have been upgraded.
 
 
 5.  Security Considerations
@@ -439,8 +441,6 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
 7.  Acknowledgements
 
    This vulnerability was originally discovered by Marsh Ray. The
-   general concept behind the extension described here was independently
-   invented by Steve Dispensa, Nasko Oskov, and Eric Rescorla.  Comments
 
 
 
@@ -449,6 +449,8 @@ Rescorla, et al.          Expires May 21, 2010                  [Page 8]
 Internet-Draft         TLS Renegotiation Extension         November 2009
 
 
+   general concept behind the extension described here was independently
+   invented by Steve Dispensa, Nasko Oskov, and Eric Rescorla.  Comments
    and refinements were received from Jesse Walker and the rest of the
    Project Mogul team.
 
@@ -491,8 +493,6 @@ Authors' Addresses
    USA
 
    Email:  marsh@extendedsubset.com
-
-
 
 
 
