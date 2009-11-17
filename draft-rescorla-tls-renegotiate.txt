@@ -120,12 +120,12 @@ Table of Contents
    3.  Extension Definition  . . . . . . . . . . . . . . . . . . . . . 5
    4.  Backward Compatibility  . . . . . . . . . . . . . . . . . . . . 6
      4.1.  Client Considerations . . . . . . . . . . . . . . . . . . . 6
-       4.1.1.  Fallback Cipher Suite Signaling . . . . . . . . . . . . 7
      4.2.  Server Considerations . . . . . . . . . . . . . . . . . . . 7
      4.3.  SSLv3 . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+       4.3.1.  Fallback Cipher Suite Signaling . . . . . . . . . . . . 8
    5.  Security Considerations . . . . . . . . . . . . . . . . . . . . 8
    6.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 8
-   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 8
+   7.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . 9
    8.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 9
      8.1.  Normative References  . . . . . . . . . . . . . . . . . . . 9
      8.2.  Informative References  . . . . . . . . . . . . . . . . . . 9
@@ -339,20 +339,6 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
 
    the connection.
 
-4.1.1.  Fallback Cipher Suite Signaling
-
-   [[OPEN ISSUE:  Should this feature be added?]]
-
-   Clients which choose to fall back to an extensionless mode of
-   operation MUST include the magic cipher suite [TBD] in any such
-   handshake.  Servers MUST reject any ClientHello which uses this
-   cipher suite but does not include RI with a fatal "handshake_failure"
-   alert.  Because servers ordinarily ignore unknown cipher suites, this
-   cipher suite can be added safely on any handshake, thus allowing
-   detection and prevention of the MITM attack described above.  Servers
-   MUST NOT select this cipher suite in any handshake, as it does not
-   correspond to any valid cipher suite.
-
 4.2.  Server Considerations
 
    If the client does not offer the "renegotiation_info" extension, then
@@ -385,14 +371,6 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
 
    When combined with a server which allows renegotiation without the
    extension (which, per Section 5, is NOT RECOMMENDED) this allows a
-
-
-
-Rescorla, et al.          Expires May 21, 2010                  [Page 7]
-
-Internet-Draft         TLS Renegotiation Extension         November 2009
-
-
    downgrade attack.  Accordingly, clients which offer this extension
    SHOULD NOT fall back to extensionless modes upon handshake errors.
    Any SSLv3 or TLS implementation which chooses to address this issue
@@ -403,6 +381,31 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
    best practice is not to continue the connection.  Even servers which
    refuse to renegotiate SHOULD reply with an empty RI extension because
    this signals that they have been upgraded.
+
+
+
+
+
+
+
+Rescorla, et al.          Expires May 21, 2010                  [Page 7]
+
+Internet-Draft         TLS Renegotiation Extension         November 2009
+
+
+4.3.1.  Fallback Cipher Suite Signaling
+
+   [[OPEN ISSUE:  Should this feature be added?]]
+
+   Clients which choose to fall back to an extensionless mode of
+   operation MUST include the magic cipher suite [TBD] in any such
+   handshake.  Servers MUST reject any ClientHello which uses this
+   cipher suite but does not include RI with a fatal "handshake_failure"
+   alert.  Because servers ordinarily ignore unknown cipher suites, this
+   cipher suite can be added safely on any handshake, thus allowing
+   detection and prevention of the MITM attack described above.  Servers
+   MUST NOT select this cipher suite in any handshake, as it does not
+   correspond to any valid cipher suite.
 
 
 5.  Security Considerations
@@ -438,9 +441,6 @@ Internet-Draft         TLS Renegotiation Extension         November 2009
    registry.
 
 
-7.  Acknowledgements
-
-   This vulnerability was originally discovered by Marsh Ray. The
 
 
 
@@ -449,6 +449,9 @@ Rescorla, et al.          Expires May 21, 2010                  [Page 8]
 Internet-Draft         TLS Renegotiation Extension         November 2009
 
 
+7.  Acknowledgements
+
+   This vulnerability was originally discovered by Marsh Ray. The
    general concept behind the extension described here was independently
    invented by Steve Dispensa, Nasko Oskov, and Eric Rescorla.  Comments
    and refinements were received from Jesse Walker and the rest of the
@@ -493,9 +496,6 @@ Authors' Addresses
    USA
 
    Email:  marsh@extendedsubset.com
-
-
-
 
 
 

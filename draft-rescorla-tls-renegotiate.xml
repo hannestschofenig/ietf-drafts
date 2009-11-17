@@ -300,24 +300,6 @@ Client                        Attacker                        Server
 	  indicating to the server that the initial handshake
 	  is in fact the first one on the connection.
 	</t>
-	<section title="Fallback Cipher Suite Signaling">
-	  <t>
-	    [[OPEN ISSUE: Should this feature be added?]]
-	  </t>
-	  <t>
-	    Clients which choose to fall back to an extensionless
-	    mode of operation MUST include the magic cipher suite [TBD]
-	    in any such handshake. Servers MUST reject any ClientHello
-	    which uses this cipher suite but does not include RI
-	    with a fatal "handshake_failure" alert. Because 
-	    servers ordinarily ignore unknown cipher suites, this 
-	    cipher suite can be added safely on any handshake,
-	    thus allowing detection and prevention of 
-	    the MITM attack described above. Servers MUST NOT select
-	    this cipher suite in any handshake, as it does not
-	    correspond to any valid cipher suite. 
-	  </t>
-	</section>
       </section>
       <section title="Server Considerations">
 	<t>
@@ -367,6 +349,24 @@ Client                        Attacker                        Server
 	  SHOULD reply with an empty RI extension because this
 	  signals that they have been upgraded.
 	</t>
+	<section title="Fallback Cipher Suite Signaling">
+	  <t>
+	    [[OPEN ISSUE: Should this feature be added?]]
+	  </t>
+	  <t>
+	    Clients which choose to fall back to an extensionless
+	    mode of operation MUST include the magic cipher suite [TBD]
+	    in any such handshake. Servers MUST reject any ClientHello
+	    which uses this cipher suite but does not include RI
+	    with a fatal "handshake_failure" alert. Because 
+	    servers ordinarily ignore unknown cipher suites, this 
+	    cipher suite can be added safely on any handshake,
+	    thus allowing detection and prevention of 
+	    the MITM attack described above. Servers MUST NOT select
+	    this cipher suite in any handshake, as it does not
+	    correspond to any valid cipher suite. 
+	  </t>
+	</section>
       </section>
     </section>
     <section title="Security Considerations" anchor="sec.sec-cons">
