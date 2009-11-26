@@ -210,11 +210,6 @@ Client                        Attacker                        Server
 	  ]]></artwork>
 	</figure>
       <t>
-	All TLS implementations SHOULD support this extension. TLS clients
-	SHOULD generate it with every handshake and TLS servers SHOULD
-	generate it in response to any client which offers it.
-      </t>
-      <t>
 	The contents of this extension are specified as follows.
       </t>
       <t>
@@ -262,14 +257,14 @@ Client                        Attacker                        Server
 	extensions) if they do not understand it. However, some SSLv3 and
 	TLS 1.0 implementations incorrectly fail the handshake in such
 	case. This means that clients which offer "renegotiation_info" may find 
-	handshake failures. This document defines a second
-	signalling mechanism to deal with this case via a
-	a special TLS cipher suite "TLS_RENEGO_PROTECTION_REQUEST",
+	handshake failures. In order to enhance compatibility with such
+	servers, this document defines a second	signalling mechanism
+	via a special TLS cipher suite "TLS_RENEGO_PROTECTION_REQUEST",
 	with code point 0xNN, 0xMM. This cipher suite has exactly
 	the same semantics as an empty "renegotiation_info" extension.
 	Because servers ordinarily ignore unknown cipher suites, this 
-	cipher suite can be added safely on any handshake, including
-	SSLv2 backward compatibility handshakes.
+	cipher suite can be added safely on any initial handshake, including
+	SSLv2 backward compatibility handshakes. 
       </t>
       <t>
 	Servers MUST treat receipt of TLS_RENEGO_PROTECTION_REQUEST
@@ -287,21 +282,29 @@ Client                        Attacker                        Server
 	correspond to any valid set of algorithms.
       </t>
       <t>
-	Clients which support this draft MUST include either 
-	the "renegotiation_info" extension or TLS_RENEGO_PROTECTION_REQUEST in every
-	ClientHello. Because this cipher suite is equivalent to
+	Because this cipher suite is equivalent to
 	an empty "renegotiation_info" extension, 
-	"renegotiation_info" MUST be used for all rehandshakes.
-	If a client knows that a server handles extensions properly,
-	it SHOULD use "renegotiation_info" in preference to this
-	cipher suite.
+	only renegotiation_info" may be used rehandshakes.
+      </t>
+      <t>
 	Note that a minimal client which does not support
-	renegotiation at all can simply use this cipher suite in all
-	initial handshakes.  Any compliant
-	server will reject any (apparent) 
-	attempt at renegotiation by such a client.
-	Clients which do support renegotiation MUST implement
-	<xref target="sec.ext-def"/> as well.
+	renegotiation at all can simply use this cipher suite in all initial
+	handshakes.  Any compliant server will reject any (apparent) attempt
+	at renegotiation by such a client.  Clients which do support
+	renegotiation MUST implement <xref target="sec.ext-def"/> as well.
+      </t>
+    </section>
+    <section title="Requirements for Sending and Receiving">
+      <t>
+	TLS clients which support this draft MUST generate either the
+	"renegotiation_info" extension or the TLS_RENEGO_PROTECTION_REQUEST
+	cipher suite with every ClientHello. TLS servers which support this
+	draft MUST generate the "renegotiation_info" extension in the
+	ServerHello in response to any client which offers either
+	"renegotiation_info" or TLS_RENEGO_PROTECTION_REQUEST in the
+	ClientHello. Once the "renegotiation_info" has been used on
+	any connection it MUST be used on any subsequent handshakes in
+	that connection.
       </t>
     </section>
     <section title="Backward Compatibility">
@@ -359,7 +362,7 @@ Client                        Attacker                        Server
 	  of the extension described in this document for initial
 	  handshakes, thus signalling that they have been upgraded.
 	</t>
-	</section>
+      </section>
     </section>
     <section title="Security Considerations" anchor="sec.sec-cons">
       <t>
