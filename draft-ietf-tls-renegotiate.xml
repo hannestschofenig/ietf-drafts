@@ -298,13 +298,14 @@ Client                        Attacker                        Server
       <t>
 	TLS clients which support this draft MUST generate either the
 	"renegotiation_info" extension or the TLS_RENEGO_PROTECTION_REQUEST
-	cipher suite with every ClientHello. TLS servers which support this
+	cipher suite with every ClientHello.
+      </t>
+      <t>
+	TLS servers which support this
 	draft MUST generate the "renegotiation_info" extension in the
 	ServerHello in response to any client which offers either
 	"renegotiation_info" or TLS_RENEGO_PROTECTION_REQUEST in the
-	ClientHello. Once the "renegotiation_info" has been used on
-	any connection it MUST be used on any subsequent handshakes in
-	that connection.
+	ClientHello. 
       </t>
     </section>
     <section title="Backward Compatibility">
@@ -421,7 +422,8 @@ Client                        Attacker                        Server
 	extension described here was independently invented by
 	Steve Dispensa, Nasko Oskov, and Eric Rescorla with
 	refinements from Nelson Bolyard, Pasi Eronen, Mike D'Errico, Bodo Moeller,
-	Martin Rex, Jesse Walker, Nico Williams and other members of the
+	Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST),
+	Jesse Walker, Nico Williams and other members of the
 	the Project Mogul team and the TLS WG. 
 	[Note: if you think your name should be here, please speak up.]
       </t>
