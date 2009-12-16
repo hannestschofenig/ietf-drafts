@@ -524,6 +524,8 @@ Client                        Attacker                        Server
 	client may change as a result of renegotiation.
       </t>
       <t>
+	[TODO: This section still needs to be adjusted to match
+	the WG discussion.]
 	By default, TLS implementations conforming to this document MUST
 	verify that once the peer has been identified and authenticated within
 	the TLS handshake, the identity does not change on subsequent
