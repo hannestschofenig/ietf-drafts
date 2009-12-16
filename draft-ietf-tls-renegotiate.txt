@@ -299,8 +299,7 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    o  For ClientHellos which are renegotiating, this field contains the
       verify_data from the Finished message sent by the client on the
       immediately previous handshake.  For current versions of TLS, this
-      will be a 12-byte value.  Note that this value is the "tls-unique"
-      channel binding from [I-D.altman-tls-channel-bindings]
+      will be a 12-byte value.
    o  For ServerHellos which are renegotiating, this field contains the
       concatenation of the verify_data values sent by the client and the
       server (in that order) on the immediately previous handshake.  For
@@ -326,6 +325,7 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    This extension also can be used with Datagram TLS [RFC4347].
    Although for editorial simplicity this document refers to TLS, all
    requirements in this document apply equally to DTLS.
+
 
 
 
@@ -561,11 +561,11 @@ Rescorla, et al.          Expires June 19, 2010                [Page 10]
 Internet-Draft         TLS Renegotiation Extension         December 2009
 
 
-   Stephen Farrell, Michael Gray, David-Sarah Hopwood, Bodo Moeller,
-   Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST), Peter
-   Robinson, Jesse Walker, Nico Williams and other members of the the
-   Project Mogul team and the TLS WG.  [Note:  if you think your name
-   should be here, please speak up.]
+   Stephen Farrell, Michael Gray, David-Sarah Hopwood, Ben Laurie, Bodo
+   Moeller, Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST),
+   Peter Robinson, Jesse Walker, Nico Williams and other members of the
+   the Project Mogul team and the TLS WG.  [Note:  if you think your
+   name should be here, please speak up.]
 
 
 10.  References

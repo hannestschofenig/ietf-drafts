@@ -268,9 +268,7 @@ Client                        Attacker                        Server
 	  contains the verify_data from the 
 	  Finished message sent by the client on the immediately
 	  previous handshake. For current versions of TLS, this
-	  will be a 12-byte value. Note that this value is 
-	  the "tls-unique" channel binding from
-	  <xref target="I-D.altman-tls-channel-bindings"/></t>
+	  will be a 12-byte value. </t>
 	  <t>For ServerHellos which are renegotiating, this field
 	  contains the concatenation of the verify_data values
 	  sent by the client and the server (in that order) on the immediately
@@ -326,7 +324,8 @@ Client                        Attacker                        Server
 	Servers MUST treat receipt of TLS_RENEGO_PROTECTION_REQUEST
 	exactly as if the client had sent an empty "renegotiation_info"
 	extension and respond with their own "renegotiation_info"
-	extension. This is an explicit exception to the RFC 5246
+	extension.
+	This is an explicit exception to the RFC 5246
 	Section 7.4.1.4 prohibition on the server sending unsolicited
 	extensions and is only allowed because the client is signaling
 	its willingness to receive the extension via the 
@@ -570,7 +569,7 @@ Client                        Attacker                        Server
 	Steve Dispensa, Nasko Oskov, and Eric Rescorla with
 	refinements from Nelson Bolyard, Pasi Eronen, Michael D'Errico, 
 	Stephen Farrell, Michael Gray, 
-	David-Sarah Hopwood, Bodo Moeller,
+	David-Sarah Hopwood, Ben Laurie, Bodo Moeller,
 	Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST),
 	Peter Robinson, 
 	Jesse Walker, Nico Williams and other members of the
