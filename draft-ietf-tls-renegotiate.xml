@@ -426,6 +426,10 @@ Client                        Attacker                        Server
 	  need to choose one or the other preference when dealing with
 	  potentially unupgraded servers.
 	</t>
+	<t>
+	  [TODO: this needs a discussion of what signal to send in
+	  legacy renegotiation. See the TODO in Section 4.]
+	</t>
 <!--   Pending discussion
     <t>
 	  It is possible that un-upgraded servers will request that

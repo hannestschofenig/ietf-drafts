@@ -452,6 +452,9 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    to choose one or the other preference when dealing with potentially
    unupgraded servers.
 
+   [TODO:  this needs a discussion of what signal to send in legacy
+   renegotiation.  See the TODO in Section 4.]
+
 6.2.  Server Considerations
 
    If the client does not offer the "renegotiation_info" extension or
@@ -494,9 +497,6 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    If this extension is not used, TLS renegotiation is subject to an
    attack in which the attacker can inject their own conversation with
    the TLS server as a prefix of the client's conversation.  This attack
-   is invisible to the client and looks like an ordinary renegotiation
-   to the server.  The extension defined in this document allows
-   renegotiation to be performed safely.  Servers SHOULD NOT allow
 
 
 
@@ -505,6 +505,9 @@ Rescorla, et al.          Expires June 18, 2010                 [Page 9]
 Internet-Draft         TLS Renegotiation Extension         December 2009
 
 
+   is invisible to the client and looks like an ordinary renegotiation
+   to the server.  The extension defined in this document allows
+   renegotiation to be performed safely.  Servers SHOULD NOT allow
    clients to renegotiate without using this extension.  Many servers
    can mitigate this attack simply by refusing to renegotiate at all.
 
@@ -550,9 +553,6 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    invented by Steve Dispensa, Nasko Oskov, and Eric Rescorla with
    refinements from Nelson Bolyard, Pasi Eronen, Michael D'Errico,
    Stephen Farrell, Michael Gray, David-Sarah Hopwood, Bodo Moeller,
-   Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST), Peter
-   Robinson, Jesse Walker, Nico Williams and other members of the the
-   Project Mogul team and the TLS WG.  [Note:  if you think your name
 
 
 
@@ -561,6 +561,9 @@ Rescorla, et al.          Expires June 18, 2010                [Page 10]
 Internet-Draft         TLS Renegotiation Extension         December 2009
 
 
+   Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST), Peter
+   Robinson, Jesse Walker, Nico Williams and other members of the the
+   Project Mogul team and the TLS WG.  [Note:  if you think your name
    should be here, please speak up.]
 
 
@@ -604,9 +607,6 @@ Authors' Addresses
    USA
 
    Email:  ekr@rtfm.com
-
-
-
 
 
 
