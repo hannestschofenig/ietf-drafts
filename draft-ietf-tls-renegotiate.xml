@@ -428,7 +428,8 @@ Client                        Attacker                        Server
 	</t>
 	<t>
 	  [TODO: this needs a discussion of what signal to send in
-	  legacy renegotiation. See the TODO in Section 4.]
+	  legacy renegotiation to match the resolution of the paired
+	  TODO in Section 4.]
 	</t>
 <!--   Pending discussion
     <t>
