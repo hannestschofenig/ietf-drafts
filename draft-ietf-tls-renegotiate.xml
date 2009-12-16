@@ -293,6 +293,11 @@ Client                        Attacker                        Server
 	and terminate the connection. This allows two implementations
 	both of which support the extension to safely renegotiate
 	without fear of the above attack.
+	This requirement to validate any received RI extension still applies
+	even after previous handshakes on the same the connection or session did
+	not negotiate the use of RI. Every handshake must be treated
+	independently in this respect because the attacker may attempt to make
+	an initial handshake appear as a renegotiation handshake or vice-versa.
       </t>
       <t>
 	This extension also can be used with Datagram TLS <xref target="RFC4347"/>.
@@ -336,9 +341,13 @@ Client                        Attacker                        Server
 	Because the SCSV is equivalent to an empty
 	"renegotiation_info" extension, any ClientHello used
 	for secure renegotiation MUST include the "renegotiation_info" extension
-	and not the SCSV (however, see <xref target="sec.client-cons"/> 
+	and not the SCSV. 
+	[TODO: if WG consensus is that this applies to legacy 
+	negotiation, we will make this requirement more pointed.
+	otherwise, we need an explicit exception for that case.]
+<!-- (however, see <xref target="sec.client-cons"/> 
 	for an exceptional case where the SCSV MAY be used for 
-	insecure renegotiation.)
+	insecure renegotiation.)-->
       </t>
       <t>
 	Note that a minimal client which does not support
@@ -417,7 +426,8 @@ Client                        Attacker                        Server
 	  need to choose one or the other preference when dealing with
 	  potentially unupgraded servers.
 	</t>
-	<t>
+<!--   Pending discussion
+    <t>
 	  It is possible that un-upgraded servers will request that
 	  the client renegotiate. It is RECOMMENDED that clients refuse this
 	  renegotiation request. Clients which do so MUST respond to such
@@ -448,7 +458,7 @@ Client                        Attacker                        Server
 	  previous verify data. By contrast, if the client sends 
 	  the "renegotiation_info" extension, then the server will
 	  immediately detect the attack.
-	</t>
+	</t>-->
       </section>
       <section title="Server Considerations">
 	<t>
