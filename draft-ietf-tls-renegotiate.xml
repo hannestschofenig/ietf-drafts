@@ -25,7 +25,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-tls-renegotiation-01b.txt" ipr="pre5378Trust200902" updates="RFCs 5246, 4366, 4347, 4346, 2246">
+<rfc category="std" docName="draft-ietf-tls-renegotiation-02.txt" ipr="pre5378Trust200902" updates="RFCs 5246, 4366, 4347, 4346, 2246">
   <front>
     <title abbrev="TLS Renegotiation Extension">Transport Layer Security (TLS) Renegotiation Indication Extension</title>
 
@@ -111,7 +111,7 @@
       </address>
     </author>
 
-    <date day="15" month="December" year="2009" />
+    <date day="16" month="December" year="2009" />
 
     <abstract>
       <t>SSL and TLS renegotiation are vulnerable to an attack in
