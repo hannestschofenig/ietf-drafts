@@ -514,14 +514,15 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    possible that the authenticated identity of the server or client may
    change as a result of renegotiation.
 
-   By default, TLS implementations conforming to this document MUST
-   verify that once the peer has been identified and authenticated
-   within the TLS handshake, the identity does not change on subsequent
-   renegotiations.  For certificate based cipher suites, this means
-   bitwise equality of the end-entity certificate.  If the other end
-   attempts to authenticate with a different identity, the renegotiation
-   MUST fail.  If the server_name extension is used, it MUST NOT change
-   when doing renegotiation.
+   [TODO:  This section still needs to be adjusted to match the WG
+   discussion.]  By default, TLS implementations conforming to this
+   document MUST verify that once the peer has been identified and
+   authenticated within the TLS handshake, the identity does not change
+   on subsequent renegotiations.  For certificate based cipher suites,
+   this means bitwise equality of the end-entity certificate.  If the
+   other end attempts to authenticate with a different identity, the
+   renegotiation MUST fail.  If the server_name extension is used, it
+   MUST NOT change when doing renegotiation.
 
    A TLS library MAY provide a means for the application to allow
    identity and/or server_name changes across renegotiations, in which
@@ -552,13 +553,15 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST), Peter
    Robinson, Jesse Walker, Nico Williams and other members of the the
    Project Mogul team and the TLS WG.  [Note:  if you think your name
-   should be here, please speak up.]
 
 
 
 Rescorla, et al.          Expires June 18, 2010                [Page 10]
 
 Internet-Draft         TLS Renegotiation Extension         December 2009
+
+
+   should be here, please speak up.]
 
 
 10.  References
@@ -601,9 +604,6 @@ Authors' Addresses
    USA
 
    Email:  ekr@rtfm.com
-
-
-
 
 
 
