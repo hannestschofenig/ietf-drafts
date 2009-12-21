@@ -25,7 +25,7 @@
 <?rfc compact="yes" ?>
 <?rfc sortrefs="no" ?>
 <?rfc colonspace='yes' ?>
-<rfc category="std" docName="draft-ietf-tls-renegotiation-02.txt" ipr="pre5378Trust200902" updates="RFCs 5246, 4366, 4347, 4346, 2246">
+<rfc category="std" docName="draft-ietf-tls-renegotiation-03.txt" ipr="pre5378Trust200902" updates="RFCs 5246, 4366, 4347, 4346, 2246">
   <front>
     <title abbrev="TLS Renegotiation Extension">Transport Layer Security (TLS) Renegotiation Indication Extension</title>
 
@@ -111,7 +111,7 @@
       </address>
     </author>
 
-    <date day="16" month="December" year="2009" />
+    <date day="21" month="December" year="2009" />
 
     <abstract>
       <t>SSL and TLS renegotiation are vulnerable to an attack in
@@ -332,7 +332,7 @@ Client                        Attacker                        Server
 	<t>
 	  Note: a minimal client which does not support
 	  renegotiation at all can simply use the SCSV in all initial
-	  handshakes. The rules int he following sections will
+	  handshakes. The rules in the following sections will
 	  cause any compliant server to abort the handshake when
 	  it sees an apparent attempt at renegotiation by such a client.
 	</t>
@@ -348,31 +348,35 @@ Client                        Attacker                        Server
 	    <t>
 	      The client MUST include either an empty "renegotiation_info"
 	      extension, or the TLS_RENEGO_PROTECTION_REQUEST signalling
-	      cipher suite value (SCSV; see Section TODO) in
+	      cipher suite value in
 	      every ClientHello. Including both is NOT RECOMMENDED.
 	    </t>
-
 	    <t>
 	      When ServerHello is received, the client MUST check if it
-	      includes the "renegotiation_info" extension.
-
+	      includes the "renegotiation_info" extension:
+	      
+	      <list style="symbols">
+		<t>
 	      If the extension is not present, the server does not support
 	      secure renegotiation; set secure_renegotiation flag to FALSE.
 	      In this case, some clients may want to terminate the
 	      handshake instead of continuing; see 
-	      <xref target="sec.client-cons"/>for discussion.
-	      
+	      <xref target="sec.client-cons"/> for discussion.
+		</t>
+		<t>
 	      If the extension is present, set the secure_renegotiation flag
 	      to TRUE. The client MUST then verify that the length of the
 	      "renegotiated_connection" field is zero, and if it is not, MUST
 	      abort the handshake (by sending a fatal handshake_failure
 	      alert).
-
-	      Note: later in Section 3, "abort the handshake" is used
+		</t>
+		<t>
+		Note: later in Section 3, "abort the handshake" is used
 	      as a shorthand for "send a fatal handshake_failure alert and
 	      terminate the connection".
-	    </t>
-	    
+		</t>
+	      </list>
+	  </t>
 	    <t>
 	      When the handshake has completed the client needs to save the
 	      client_verify_data and server_verify_data values for future use.
@@ -384,13 +388,14 @@ Client                        Attacker                        Server
       <section title="Client Behavior: Secure Renegotiation" anchor="sec.client-reneg">
 	<t>
 	  This text applies if the connection's "secure_renegotiation" flag
-	  is set to TRUE (if it is set to FALSE, see Section TODO and TODO).
+	  is set to TRUE (if it is set to FALSE, see <xref target="sec.client-legacy"/>).
 	</t>
 	<t>
 	  <list style="symbols">
 	    <t>
 	      The client MUST include the "renegotiation_info" extension
 	      in the ClientHello, containing the saved client_verify_data.
+	      The SCSV MUST NOT be included.
 	    </t>
 	    
 	    <t>
@@ -432,7 +437,7 @@ Client                        Attacker                        Server
 	    <t>
 	      The server MUST check if the "renegotiation_info" extension
 	      is included in ClientHello. If the extension is present,
-	      set secure_renegotiation flag to 1. The server MUST then
+	      set secure_renegotiation flag to TRUE. The server MUST then
 	      verify that the length of the "renegotiated_connection" field
 	      is zero, and if it is not, MUST abort the handshake.
 	    </t>
@@ -462,7 +467,7 @@ Client                        Attacker                        Server
       <section title="Server Behavior: Secure Renegotiation" anchor="sec.server-reneg">
 	<t>
 	  This text applies if the connection's "secure_renegotiation" flag
-	  is set to TRUE (if it is set to FALSE, see Section [TODO] and [TODO]).
+	  is set to TRUE (if it is set to FALSE, see <xref target="sec.server-legacy"/>
 	</t>
 
 	<t>
@@ -539,11 +544,14 @@ Client                        Attacker                        Server
 	  potentially unupgraded servers.
 	</t>
       </section>
-      <section title="Client Behavior: Legacy (Insecure) Renegotation Handshake">
+      <section title="Client Behavior: Legacy (Insecure) Renegotation Handshake" anchor="sec.client-legacy">
 
 	<t>
 	  This text applies if the connection's "secure_renegotiation" flag
 	  is set to FALSE.
+	</t>
+
+      <t>
 	  It is possible that un-upgraded servers will request that the client
 	  renegotiate.  It is RECOMMENDED that clients refuse this
 	  renegotiation request.  Clients which do so MUST respond to such
@@ -596,10 +604,12 @@ Client                        Attacker                        Server
 	  handshakes, thus signalling that they have been upgraded.
 	</t>
       </section>
-      <section title="Server Behavior: Legacy (Insecure) Renegotiation">
+      <section title="Server Behavior: Legacy (Insecure) Renegotiation" anchor="sec.server-legacy">
 	<t>
 	  This text applies if the connection's "secure_renegotiation" flag
 	  is set to FALSE.
+	</t>
+	<t>
 	  It is RECOMMENDED that servers not permit legacy renegotiation.
 	  If servers nevertheless do permit it, they MUST follow the requirements
 	  in this section.
