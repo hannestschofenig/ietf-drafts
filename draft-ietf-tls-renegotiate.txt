@@ -136,8 +136,8 @@ Table of Contents
    5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 10
    6.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 11
    7.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 11
-   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 11
-     8.1.  Normative References . . . . . . . . . . . . . . . . . . . 11
+   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+     8.1.  Normative References . . . . . . . . . . . . . . . . . . . 12
      8.2.  Informative References . . . . . . . . . . . . . . . . . . 12
    Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 12
 
@@ -175,11 +175,11 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    renegotiation--a new handshake which establishes new cryptographic
    parameters.  Unfortunately, although the new handshake is carried out
    using the cryptographic parameters established by the original
-   handshake, there is no cryptographic connection between the two.
-   This creates the opportunity for an attack in which the attacker who
-   can intercept a client's transport layer connection can inject
-   traffic of his own as a prefix to the client's interaction with the
-   server.  The attack [Ray09] proceeds as shown below:
+   handshake, there is no cryptographic binding between the two.  This
+   creates the opportunity for an attack in which the attacker who can
+   intercept a client's transport layer connection can inject traffic of
+   his own as a prefix to the client's interaction with the server.  The
+   attack [Ray09] proceeds as shown below:
 
    Client                        Attacker                        Server
    ------                        -------                         ------
@@ -254,7 +254,7 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    being spliced in between connections.  An attempt by an attacker to
    inject himself as described above will result in a mismatch of the
    cryptographic binding and can thus be detected.  The data used in the
-   extension is similar to, but not the same as, the date used in the
+   extension is similar to, but not the same as, the data used in the
    tls-unique and/or tls-unique-for-telnet channel bindings described in
    [I-D.altman-tls-channel-bindings], however this extension is not a
    general-purpose RFC 5056 [RFC5056] channel binding facility."
@@ -600,15 +600,15 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
 
    While this extension mitigates the man-in-the-middle attack described
    in the overview, it does not resolve all possible problems an
-   application may face if it is unaware of renegotiation.  It is
-   possible that the authenticated identity of the server or client may
-   change as a result of renegotiation.
+   application may face if it is unaware of renegotiation.  For example,
+   during renegotiation either the client or the server present a
+   different certificate than was used earlier.  This may come as a
+   surprise to application developers (who might have expected, for
+   example, that a "getPeerCertificates()" API call returns the same
+   value if called twice), and might be handled in an insecure way.
 
-   [TODO:  This section still needs to be adjusted to match the WG
-   discussion.]  By default, TLS implementations conforming to this
-   document MUST verify that once the peer has been identified and
-   authenticated within the TLS handshake, the identity does not change
-   on subsequent renegotiations.  For certificate based cipher suites,
+   In order to minimize the likelihood of application confusion, TLS
+   implementations SHOULD disable renegotiation by default and offer the
 
 
 
@@ -617,16 +617,35 @@ Rescorla, et al.          Expires June 24, 2010                [Page 11]
 Internet-Draft         TLS Renegotiation Extension         December 2009
 
 
-   this means bitwise equality of the end-entity certificate.  If the
-   other end attempts to authenticate with a different identity, the
-   renegotiation MUST fail.  If the server_name extension is used, it
-   MUST NOT change when doing renegotiation.
+   applications the option to enable renegotiation.  When an application
+   enables renegotiation the implementor must determine how to handle
+   identity processing for each handshake.
 
-   A TLS library MAY provide a means for the application to allow
-   identity and/or server_name changes across renegotiations, in which
-   case the application is responsible for tracking the identity
-   associated with data it is processing.  This may require additional
-   API facilities in the TLS library.
+   TLS implementers are encouraged to clearly document how renegotiation
+   interacts with the APIs offered to applications (for example, which
+   API calls might return different values on different calls, or which
+   callbacks might get called multiple times).
+
+   To make life simpler for applications that do not expect the peer's
+   certificate to change once it's been authenticated, TLS
+   implementations may also wish to offer the applications the option
+   abort the renegotiation if the peer tries to authenticate with a
+   different certificate and/or different server name (in the
+   server_name extension) than was used earlier.  However, enabling this
+   option by default for all applications could break existing
+   applications that depend on using renegotiation to change from one
+   certificate to another.  (For example, long-lived TLS connections
+   could change to a renewed certificate; or renegotiation could select
+   a different cipher suite that requires using a different
+   certificate.)
+
+   Finally, designers of applications that depend on renegotiation are
+   reminded that many TLS APIs represent application data as a simple
+   octet stream; applications may not be able to determine exactly which
+   application data octets were received before, during, or after
+   renegotiation.  Especially if the peer presents a different
+   certificate during renegotiation, care is needed when specifying how
+   the application should handle the data.
 
 
 6.  IANA Considerations
@@ -646,6 +665,14 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    This vulnerability was originally discovered by Marsh Ray. The
    general concept behind the extension described here was independently
    invented by Steve Dispensa, Nasko Oskov, and Eric Rescorla with
+
+
+
+Rescorla, et al.          Expires June 24, 2010                [Page 12]
+
+Internet-Draft         TLS Renegotiation Extension         December 2009
+
+
    refinements from Nelson Bolyard, Pasi Eronen, Michael D'Errico,
    Stephen Farrell, Michael Gray, David-Sarah Hopwood, Ben Laurie, Bodo
    Moeller, Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST),
@@ -663,15 +690,6 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
 
    [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
               (TLS) Protocol Version 1.2", RFC 5246, August 2008.
-
-
-
-
-
-Rescorla, et al.          Expires June 24, 2010                [Page 12]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
-
 
 8.2.  Informative References
 
@@ -694,6 +712,23 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    [Ray09]    Ray, M., "Authentication Gap in TLS Renegotiation".
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla, et al.          Expires June 24, 2010                [Page 13]
+
+Internet-Draft         TLS Renegotiation Extension         December 2009
+
+
 Authors' Addresses
 
    Eric Rescorla
@@ -714,21 +749,6 @@ Authors' Addresses
    Email:  marsh@extendedsubset.com
 
 
-
-
-
-
-
-
-
-
-
-
-Rescorla, et al.          Expires June 24, 2010                [Page 13]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
-
-
    Steve Dispensa
    PhoneFactor
    7301 W 129th Street
@@ -745,26 +765,6 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    USA
 
    Email:  nasko.oskov@microsoft.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
