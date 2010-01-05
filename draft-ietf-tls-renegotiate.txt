@@ -6,30 +6,28 @@ Internet-Draft                                                RTFM, Inc.
 Updates:  RFCs 5246, 4366, 4347,                                  M. Ray
 4346, 2246 (if approved)                                     S. Dispensa
 Intended status:  Standards Track                            PhoneFactor
-Expires:  June 24, 2010                                         N. Oskov
+Expires:  July 8, 2009                                          N. Oskov
                                                                Microsoft
-                                                       December 21, 2009
+                                                            Jan 04, 2009
 
 
    Transport Layer Security (TLS) Renegotiation Indication Extension
                   draft-ietf-tls-renegotiation-03.txt
 
-Abstract
-
-   SSL and TLS renegotiation are vulnerable to an attack in which the
-   attacker forms a TLS connection with the target server, injects
-   content of his choice, and then splices in a new TLS connection from
-   a client.  The server treats the client's initial TLS handshake as a
-   renegotiation and thus believes that the initial data transmitted by
-   the attacker is from the same entity as the subsequent client data.
-   This specification defines a TLS extension to cryptographically tie
-   renegotiations to the TLS connections they are being performed over,
-   thus preventing this attack.
-
 Status of this Memo
 
    This Internet-Draft is submitted to IETF in full conformance with the
-   provisions of BCP 78 and BCP 79.
+   provisions of BCP 78 and BCP 79.  This document may contain material
+   from IETF Documents or IETF Contributions published or made publicly
+   available before November 10, 2008.  The person(s) controlling the
+   copyright in some of this material may not have granted the IETF
+   Trust the right to allow modifications of such material outside the
+   IETF Standards Process.  Without obtaining an adequate license from
+   the person(s) controlling the copyright in such materials, this
+   document may not be modified outside the IETF Standards Process, and
+   derivative works of it may not be created outside the IETF Standards
+   Process, except to format it for publication as an RFC or to
+   translate it into languages other than English.
 
    Internet-Drafts are working documents of the Internet Engineering
    Task Force (IETF), its areas, and its working groups.  Note that
@@ -47,42 +45,38 @@ Status of this Memo
    The list of Internet-Draft Shadow Directories can be accessed at
    http://www.ietf.org/shadow.html.
 
-   This Internet-Draft will expire on June 24, 2010.
-
-
-
-
-Rescorla, et al.          Expires June 24, 2010                 [Page 1]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
-
+   This Internet-Draft will expire on July 8, 2009.
 
 Copyright Notice
+
+
+
+
+Rescorla, et al.          Expires July 8, 2009                  [Page 1]
+
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
+
 
    Copyright (c) 2009 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents
-   (http://trustee.ietf.org/license-info) in effect on the date of
-   publication of this document.  Please review these documents
-   carefully, as they describe your rights and restrictions with respect
-   to this document.  Code Components extracted from this document must
-   include Simplified BSD License text as described in Section 4.e of
-   the Trust Legal Provisions and are provided without warranty as
-   described in the BSD License.
+   Provisions Relating to IETF Documents in effect on the date of
+   publication of this document (http://trustee.ietf.org/license-info).
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.
 
-   This document may contain material from IETF Documents or IETF
-   Contributions published or made publicly available before November
-   10, 2008.  The person(s) controlling the copyright in some of this
-   material may not have granted the IETF Trust the right to allow
-   modifications of such material outside the IETF Standards Process.
-   Without obtaining an adequate license from the person(s) controlling
-   the copyright in such materials, this document may not be modified
-   outside the IETF Standards Process, and derivative works of it may
-   not be created outside the IETF Standards Process, except to format
-   it for publication as an RFC or to translate it into languages other
-   than English.
+Abstract
+
+   SSL and TLS renegotiation are vulnerable to an attack in which the
+   attacker forms a TLS connection with the target server, injects
+   content of his choice, and then splices in a new TLS connection from
+   a client.  The server treats the client's initial TLS handshake as a
+   renegotiation and thus believes that the initial data transmitted by
+   the attacker is from the same entity as the subsequent client data.
+   This specification defines a TLS extension to cryptographically tie
+   renegotiations to the TLS connections they are being performed over,
+   thus preventing this attack.
 
 
 
@@ -108,38 +102,43 @@ Copyright Notice
 
 
 
-Rescorla, et al.          Expires June 24, 2010                 [Page 2]
+
+
+
+
+
+
+Rescorla, et al.          Expires July 8, 2009                  [Page 2]
 
-Internet-Draft         TLS Renegotiation Extension         December 2009
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
 
 
 Table of Contents
 
-   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
-   2.  Conventions Used In This Document  . . . . . . . . . . . . . .  4
-   3.  Secure Renegotiation Definition  . . . . . . . . . . . . . . .  4
-     3.1.  Additional Connection State  . . . . . . . . . . . . . . .  4
-     3.2.  Extension Definition . . . . . . . . . . . . . . . . . . .  5
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  4
+   2.  Conventions Used In This Document  . . . . . . . . . . . . . .  5
+   3.  Secure Renegotiation Definition  . . . . . . . . . . . . . . .  5
+     3.1.  Additional Connection State  . . . . . . . . . . . . . . .  5
+     3.2.  Extension Definition . . . . . . . . . . . . . . . . . . .  6
      3.3.  Renegotiation Protection Request Signalling Cipher
-           Suite Value  . . . . . . . . . . . . . . . . . . . . . . .  5
-     3.4.  Client Behavior: Initial Handshake . . . . . . . . . . . .  6
-     3.5.  Client Behavior: Secure Renegotiation  . . . . . . . . . .  6
-     3.6.  Server Behavior: Initial Handshake . . . . . . . . . . . .  7
-     3.7.  Server Behavior: Secure Renegotiation  . . . . . . . . . .  7
-   4.  Backward Compatibility . . . . . . . . . . . . . . . . . . . .  8
-     4.1.  Client Considerations  . . . . . . . . . . . . . . . . . .  8
-     4.2.  Client Behavior: Legacy (Insecure) Renegotation
-           Handshake  . . . . . . . . . . . . . . . . . . . . . . . .  9
-     4.3.  Server Considerations  . . . . . . . . . . . . . . . . . .  9
-     4.4.  Server Behavior: Legacy (Insecure) Renegotiation . . . . .  9
-     4.5.  SSLv3  . . . . . . . . . . . . . . . . . . . . . . . . . . 10
-   5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 10
-   6.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 11
-   7.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 11
-   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 12
-     8.1.  Normative References . . . . . . . . . . . . . . . . . . . 12
-     8.2.  Informative References . . . . . . . . . . . . . . . . . . 12
-   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 12
+           Suite Value  . . . . . . . . . . . . . . . . . . . . . . .  6
+     3.4.  Client Behavior: Initial Handshake . . . . . . . . . . . .  7
+     3.5.  Client Behavior: Secure Renegotiation  . . . . . . . . . .  8
+     3.6.  Server Behavior: Initial Handshake . . . . . . . . . . . .  8
+     3.7.  Server Behavior: Secure Renegotiation  . . . . . . . . . .  9
+   4.  Backward Compatibility . . . . . . . . . . . . . . . . . . . .  9
+     4.1.  Client Considerations  . . . . . . . . . . . . . . . . . .  9
+     4.2.  Client Behavior: Legacy (Insecure) Renegotation  . . . . . 10
+     4.3.  Server Considerations  . . . . . . . . . . . . . . . . . . 11
+     4.4.  Server Behavior: Legacy (Insecure) Renegotiation . . . . . 11
+     4.5.  SSLv3  . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+   5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 12
+   6.  IANA Considerations  . . . . . . . . . . . . . . . . . . . . . 13
+   7.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 13
+   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+     8.1.  Normative References . . . . . . . . . . . . . . . . . . . 14
+     8.2.  Informative References . . . . . . . . . . . . . . . . . . 14
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 14
 
 
 
@@ -164,9 +163,10 @@ Table of Contents
 
 
 
-Rescorla, et al.          Expires June 24, 2010                 [Page 3]
+
+Rescorla, et al.          Expires July 8, 2009                  [Page 3]
 
-Internet-Draft         TLS Renegotiation Extension         December 2009
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
 
 
 1.  Introduction
@@ -220,9 +220,9 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
 
 
 
-Rescorla, et al.          Expires June 24, 2010                 [Page 4]
+Rescorla, et al.          Expires July 8, 2009                  [Page 4]
 
-Internet-Draft         TLS Renegotiation Extension         December 2009
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
 
 
    Some protocols--such as IMAP or SMTP--have more explicit transitions
@@ -276,9 +276,9 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
 
 
 
-Rescorla, et al.          Expires June 24, 2010                 [Page 5]
+Rescorla, et al.          Expires July 8, 2009                  [Page 5]
 
-Internet-Draft         TLS Renegotiation Extension         December 2009
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
 
 
    values are specific to connection (not a TLS session cache entry).
@@ -295,14 +295,14 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
 3.2.  Extension Definition
 
    This document defines a new TLS extension:  "renegotiation_info",
-   which contains a cryptographic binding to the enclosing TLS
-   connection (if any) for which the renegotiation is being performed.
-   The "extension data" field of this extension contains a
-   "RenegotiationInfo" structure:
+   (with extension type 0xff01) which contains a cryptographic binding
+   to the enclosing TLS connection (if any) for which the renegotiation
+   is being performed.  The "extension data" field of this extension
+   contains a "RenegotiationInfo" structure:
 
              struct {
-             opaque renegotiated_connection<0..255>;
-             } Renegotiation_Info;
+               opaque renegotiated_connection<0..255>;
+             } RenegotiationInfo;
 
    The contents of this extension are specified as follows.
 
@@ -332,22 +332,24 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
 
 
 
-Rescorla, et al.          Expires June 24, 2010                 [Page 6]
+Rescorla, et al.          Expires July 8, 2009                  [Page 6]
 
-Internet-Draft         TLS Renegotiation Extension         December 2009
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
 
 
    TLS 1.0 implementations incorrectly fail the handshake in such case.
-   This means that clients which offer "renegotiation_info" may find
-   handshake failures.  In order to enhance compatibility with such
-   servers, this document defines a second signalling mechanism via a
-   special signalling cipher suite value (SCSV)
-   "TLS_RENEGO_PROTECTION_REQUEST", with code point 0xNN, 0xMM.  This
-   SCSV is not a true cipher suite and cannot be negotiated.  Instead it
-   has the same semantics as an empty "renegotiation_info" extension, as
+   This means that clients which offer the "renegotiation_info"
+   extension may encounter handshake failures.  In order to enhance
+   compatibility with such servers, this document defines a second
+   signalling mechanism via a special Signalling Cipher Suite Value
+   (SCSV) "TLS_RENEGO_PROTECTION_REQUEST", with code point {0xNN, 0xMM}.
+   This SCSV is not a true cipher suite (it does not correspond to any
+   valid set of algorithms) and cannot be negotiated.  Instead it has
+   the same semantics as an empty "renegotiation_info" extension, as
    described in the following sections.  Because SSLv3 and TLS
    implementations reliably ignore unknown cipher suites, the SCSV may
-   be safely sent to any server.
+   be safely sent to any server.  The SCSV can also be included in the
+   SSLv2 backward compatible CLIENT-HELLO.
 
    Note:  a minimal client which does not support renegotiation at all
    can simply use the SCSV in all initial handshakes.  The rules in the
@@ -381,17 +383,20 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    o  When the handshake has completed the client needs to save the
       client_verify_data and server_verify_data values for future use.
 
+
+
+
+
+
+Rescorla, et al.          Expires July 8, 2009                  [Page 7]
+
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
+
+
 3.5.  Client Behavior: Secure Renegotiation
 
    This text applies if the connection's "secure_renegotiation" flag is
    set to TRUE (if it is set to FALSE, see Section 4.2).
-
-
-
-Rescorla, et al.          Expires June 24, 2010                 [Page 7]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
-
 
    o  The client MUST include the "renegotiation_info" extension in the
       ClientHello, containing the saved client_verify_data.  The SCSV
@@ -424,31 +429,44 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
       "renegotiation_info" extension was included, set
       secure_renegotiation flag to FALSE.  In this case, some servers
       may want to terminate the handshake instead of continuing; see
-      Section [TODO] for discussion.
+      Section 4.3 for discussion.
    o  If the secure_renegotation flag is set to TRUE, the server MUST
       include an empty "renegotiation_info" extension in the ServerHello
       message.
    o  When the handshake has completed, the server needs to save the
       client_verify_data and server_verify_data values for future use.
 
+   TLS servers implementing this specification MUST ignore any unknown
+   extensions offered by the client and MUST accept version numbers
+   higher than its highest version number and negotiate the highest
+   common version.  These two requirements reiterate preexisting
+   requirements in RFC 5246 and are merely stated here in the interest
+
+
+
+Rescorla, et al.          Expires July 8, 2009                  [Page 8]
+
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
+
+
+   of forward compatibility.
+
+   Note that sending a "renegotiation_info" extension in response to a
+   ClientHello containing only the SCSV is an explicit exception to the
+   RFC 5246 Section 7.4.1.4 prohibition on the server sending
+   unsolicited extensions and is only allowed because the client is
+   signaling its willingness to receive the extension via the the
+   TLS_RENEGO_PROTECTION_REQUEST SCSV.  TLS implementations MUST
+   continue to comply with 7.4.1.4 for all other extensions.
+
 3.7.  Server Behavior: Secure Renegotiation
 
    This text applies if the connection's "secure_renegotiation" flag is
-   set to TRUE (if it is set to FALSE, see Section 4.4
+   set to TRUE (if it is set to FALSE, see Section 4.4).
 
    o  When ClientHello is received, the server MUST verify that it does
       not contain the TLS_RENEGO_PROTECTION_REQUEST SCSV.  If the SCSV
       is present, the server MUST abort the handshake.
-
-
-
-
-
-Rescorla, et al.          Expires June 24, 2010                 [Page 8]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
-
-
    o  The server MUST verify that the "renegotiation_info" extension is
       present; if it is not, the server MUST abort the handshake.
    o  The server MUST verify that the value of the
@@ -479,6 +497,14 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    determine whether the connection is under attack or not.  Note,
    however, that merely because the server does not acknowledge the
    extension does not mean that it is vulnerable; it might choose to
+
+
+
+Rescorla, et al.          Expires July 8, 2009                  [Page 9]
+
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
+
+
    reject all renegotiations and simply not signal it.  However, it is
    not possible for the client to determine purely via TLS mechanisms
    whether this is the case or not.
@@ -491,21 +517,12 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    not support renegotiation (and thus are not vulnerable) will not
    support this extension either, so in general, clients which implement
    this behavior will encounter interoperability problems.  There is no
-   set of client behavior which will guarantee security and achieve
+   set of client behaviors which will guarantee security and achieve
    maximum interoperability during the transition period.  Clients need
    to choose one or the other preference when dealing with potentially
    unupgraded servers.
 
-
-
-
-
-Rescorla, et al.          Expires June 24, 2010                 [Page 9]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
-
-
-4.2.  Client Behavior: Legacy (Insecure) Renegotation Handshake
+4.2.  Client Behavior: Legacy (Insecure) Renegotation
 
    This text applies if the connection's "secure_renegotiation" flag is
    set to FALSE.
@@ -520,29 +537,54 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    upgraded server.  If clients nevertheless choose to renegotiate, they
    MUST behave as described below.
 
-   o  The client MUST include a "renegotiation_info" extension with the
-      contents the same as described in Section 3.5
-   o  When ServerHello is received, the client MUST verify that it does
-      not contain the "renegotiation_info" extension.  If it does, the
-      client MUST abort the handshake.  [Because the server has already
-      indicated it does not support secure renegotiation the only way
-      that this can happen is if the server is broken or there is an
-      attack.]
+   Clients which choose to renegotiate MUST provide either the
+   TLS_RENEGO_PROTECTION_REQUEST SCSV or "renegotiation_info" in their
+   ClientHello.  In a legitimate renegotiation with an un-upgraded
+   server, either of these signals will be ignored by the server.
+   However, if the server (incorrectly) fails to ignore extensions,
+   sending the "renegotiation_info" extension may cause a handshake
+   failure.  Thus, it is permitted, though NOT RECOMMENDED, for the
+   client to simply send the SCSV.  This is the only situation in which
+   clients are permitted to not send the "renegotiation_info" extension
+   in a ClientHello which is used for renegotiation.
+
+   Note that in the case of this downgrade attack, if this is the
+   initial handshake from the server's perspective, then use of the SCSV
+   from the client precludes detection of this attack by the server (if
+   this is a renegotiation from the server's perspective then it will
+   detect the attack).  However, the attack will be detected by the
+
+
+
+Rescorla, et al.          Expires July 8, 2009                 [Page 10]
+
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
+
+
+   client when the server sends an empty "renegotiation_info" extension
+   and the client is expecting one containing the previous verify data.
+   By contrast, if the client sends the "renegotiation_info" extension,
+   then the server will immediately detect the attack.
+
+   When the ServerHello is received, the client MUST verify that it does
+   not contain the "renegotiation_info" extension.  If it does, the
+   client MUST abort the handshake.  [Because the server has already
+   indicated it does not support secure renegotiation the only way that
+   this can happen is if the server is broken or there is an attack.]
 
 4.3.  Server Considerations
 
    If the client does not offer the "renegotiation_info" extension or
    the TLS_RENEGO_PROTECTION_REQUEST SCSV then this indicates that the
-   client does not support secure renegotiation or is unwilling to use
-   it.  However, because the above attack looks like two handshakes to
-   the server, the server can safely continue the connection as long as
-   it does not allow the client to renegotiate.  If servers wish to
-   ensure that such attacks are impossible they need to refuse to
-   renegotiate with clients which do not offer the "renegotiation_info"
-   extension.  Servers which implement this behavior MUST respond to
-   such requests with a "no_renegotiation" alert [RFC 5246 requires this
-   alert to be at the "warning" level.]  Servers SHOULD follow this
-   behavior.
+   client does not support secure renegotiation.  However, because the
+   above attack looks like two handshakes to the server, the server can
+   safely continue the connection as long as it does not allow the
+   client to renegotiate.  If servers wish to ensure that such attacks
+   are impossible they need to refuse to renegotiate with clients which
+   do not offer the "renegotiation_info" extension.  Servers which
+   implement this behavior MUST respond to such requests with a
+   "no_renegotiation" alert [RFC 5246 requires this alert to be at the
+   "warning" level.]  Servers SHOULD follow this behavior.
 
    In order to enable clients to probe, even servers which do not
    support renegotiation MUST implement the minimal version of the
@@ -553,13 +595,6 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
 
    This text applies if the connection's "secure_renegotiation" flag is
    set to FALSE.
-
-
-
-Rescorla, et al.          Expires June 24, 2010                [Page 10]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
-
 
    It is RECOMMENDED that servers not permit legacy renegotiation.  If
    servers nevertheless do permit it, they MUST follow the requirements
@@ -572,18 +607,30 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
 
 4.5.  SSLv3
 
-   While SSLv3 is not a protocol under IETF change control, it was the
-   original basis for TLS and most TLS stacks are also SSLv3 stacks.
-   The SCSV and extension defined in this document can also be used with
-   SSLv3 with no changes except for the size of the verify_data values,
-   which are are 36 bytes long each.  TLS Clients which support SSLv3
-   and offer secure renegotiation (either via SCSV or
+   While SSLv3 is not a protocol under IETF change control (see [SSLv3])
+   it was the original basis for TLS and most TLS stacks are also SSLv3
+
+
+
+Rescorla, et al.          Expires July 8, 2009                 [Page 11]
+
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
+
+
+   stacks.  The SCSV and extension defined in this document can also be
+   used with SSLv3 with no changes except for the size of the
+   verify_data values, which are 36 bytes long each.  TLS Clients which
+   support SSLv3 and offer secure renegotiation (either via SCSV or
    "renegotiation_info") MUST accept the "renegotiation_info" extension
    from the server even if the server version is {0x03, 0x00} and behave
    as described in this specification.  TLS Servers which support secure
    renegotation and support SSLv3 MUST accept SCSV or the
    "renegotiation_info" extension and respond as described in this
    specification even if the offered client version is {0x03, 0x00}.
+   SSLv3 does not offer the "no_renegotiation" alert (and does not offer
+   a way to indicate a refusal to renegotiate at a warning level).
+   SSLv3 clients which refuse renegotiation SHOULD use a fatal
+   handshake_failure alert.
 
 
 5.  Security Considerations
@@ -601,38 +648,37 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    While this extension mitigates the man-in-the-middle attack described
    in the overview, it does not resolve all possible problems an
    application may face if it is unaware of renegotiation.  For example,
-   during renegotiation either the client or the server present a
+   during renegotiation either the client or the server can present a
    different certificate than was used earlier.  This may come as a
    surprise to application developers (who might have expected, for
    example, that a "getPeerCertificates()" API call returns the same
    value if called twice), and might be handled in an insecure way.
 
-   In order to minimize the likelihood of application confusion, TLS
-   implementations SHOULD disable renegotiation by default and offer the
-
-
-
-Rescorla, et al.          Expires June 24, 2010                [Page 11]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
-
-
-   applications the option to enable renegotiation.  When an application
-   enables renegotiation the implementor must determine how to handle
-   identity processing for each handshake.
+   TLS implementations SHOULD provide a mechanism to disable and enable
+   renegotiation.
 
    TLS implementers are encouraged to clearly document how renegotiation
    interacts with the APIs offered to applications (for example, which
    API calls might return different values on different calls, or which
    callbacks might get called multiple times).
 
-   To make life simpler for applications that do not expect the peer's
-   certificate to change once it's been authenticated, TLS
-   implementations may also wish to offer the applications the option
-   abort the renegotiation if the peer tries to authenticate with a
-   different certificate and/or different server name (in the
-   server_name extension) than was used earlier.  However, enabling this
-   option by default for all applications could break existing
+   To make life simpler for applications that use renegotiation but do
+   not expect the certificate to change once it has been authenticated,
+   TLS implementations may also wish to offer the applications the
+
+
+
+Rescorla, et al.          Expires July 8, 2009                 [Page 12]
+
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
+
+
+   option abort the renegotiation if the peer tries to authenticate with
+   a different certificate and/or different server name (in the
+   server_name extension) than was used earlier.  TLS implementations
+   may alternatively offer the option to disable renegotiation once the
+   client certificate has be authenticated.  However, enabling these
+   options by default for all applications could break existing
    applications that depend on using renegotiation to change from one
    certificate to another.  (For example, long-lived TLS connections
    could change to a renewed certificate; or renegotiation could select
@@ -662,26 +708,26 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
 
 7.  Acknowledgements
 
-   This vulnerability was originally discovered by Marsh Ray. The
-   general concept behind the extension described here was independently
-   invented by Steve Dispensa, Nasko Oskov, and Eric Rescorla with
-
-
-
-Rescorla, et al.          Expires June 24, 2010                [Page 12]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
-
-
-   refinements from Nelson Bolyard, Pasi Eronen, Michael D'Errico,
-   Stephen Farrell, Michael Gray, David-Sarah Hopwood, Ben Laurie, Bodo
-   Moeller, Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST),
-   Peter Robinson, Jesse Walker, Nico Williams and other members of the
-   the Project Mogul team and the TLS WG.  [Note:  if you think your
-   name should be here, please speak up.]
+   This vulnerability was originally discovered by Marsh Ray and
+   independently rediscovered by Martin REx.  The general concept behind
+   the extension described here was independently invented by Steve
+   Dispensa, Nasko Oskov, and Eric Rescorla with refinements from Nelson
+   Bolyard, Pasi Eronen, Michael D'Errico, Stephen Farrell, Michael
+   Gray, David-Sarah Hopwood, Ben Laurie, David Makepeace, Bodo Moeller,
+   Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST), Peter
+   Robinson, Jesse Walker, Nico Williams and other members of the the
+   Project Mogul team and the TLS WG.  [Note:  if you think your name
+   should be here, please speak up.]
 
 
 8.  References
+
+
+
+Rescorla, et al.          Expires July 8, 2009                 [Page 13]
+
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
+
 
 8.1.  Normative References
 
@@ -709,24 +755,12 @@ Internet-Draft         TLS Renegotiation Extension         December 2009
    [RFC2965]  Kristol, D. and L. Montulli, "HTTP State Management
               Mechanism", RFC 2965, October 2000.
 
-   [Ray09]    Ray, M., "Authentication Gap in TLS Renegotiation".
+   [Ray09]    Ray, M., "Authentication Gap in TLS Renegotiation",
+              <http://extendedsubset.com/?p=8>.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla, et al.          Expires June 24, 2010                [Page 13]
-
-Internet-Draft         TLS Renegotiation Extension         December 2009
+   [SSLv3]    Freier, A., Karlton, P., and P. Kocher, "The SSL Protocol
+              Version 3.0", <http://www.mozilla.org/projects/security/
+              pki/nss/ssl/draft302.txt>.
 
 
 Authors' Addresses
@@ -738,6 +772,17 @@ Authors' Addresses
    USA
 
    Email:  ekr@rtfm.com
+
+
+
+
+
+
+
+
+Rescorla, et al.          Expires July 8, 2009                 [Page 14]
+
+Internet-Draft         TLS Renegotiation Extension              Jan 2009
 
 
    Marsh Ray
@@ -780,5 +825,16 @@ Authors' Addresses
 
 
 
-Rescorla, et al.          Expires June 24, 2010                [Page 14]
+
+
+
+
+
+
+
+
+
+
+
+Rescorla, et al.          Expires July 8, 2009                 [Page 15]
 

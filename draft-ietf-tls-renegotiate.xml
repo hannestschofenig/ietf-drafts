@@ -111,7 +111,7 @@
       </address>
     </author>
 
-    <date day="21" month="December" year="2009" />
+    <date day="04" month="Jan" year="2009" />
 
     <abstract>
       <t>SSL and TLS renegotiation are vulnerable to an attack in
@@ -268,6 +268,7 @@ Client                        Attacker                        Server
       <section title="Extension Definition" anchor="sec.ext-def">
 	<t>
 	  This document defines a new TLS extension:  "renegotiation_info",
+	  (with extension type 0xff01)
 	  which contains a cryptographic binding to the enclosing TLS
 	  connection (if any) for which the renegotiation is being performed.
 	  The "extension data" field of this extension contains a
@@ -276,8 +277,8 @@ Client                        Attacker                        Server
 	<figure>
 	  <artwork><![CDATA[	
 	  struct {
-	  opaque renegotiated_connection<0..255>;
-	  } Renegotiation_Info;
+            opaque renegotiated_connection<0..255>;
+	  } RenegotiationInfo;
 	  ]]></artwork>
 	</figure>
 	<t>
@@ -318,16 +319,21 @@ Client                        Attacker                        Server
 	  implementations to ignore data following the ClientHello (i.e.,
 	  extensions) if they do not understand it. However, some SSLv3 and
 	  TLS 1.0 implementations incorrectly fail the handshake in such
-	  case. This means that clients which offer "renegotiation_info" may find 
+	  case. This means that clients which offer the
+	  "renegotiation_info" extension may encounter
 	  handshake failures. In order to enhance compatibility with such
 	  servers, this document defines a second	signalling mechanism
-	  via a special signalling cipher suite value (SCSV) "TLS_RENEGO_PROTECTION_REQUEST",
-	  with code point 0xNN, 0xMM. This SCSV is not a true cipher suite 
+	  via a special Signalling Cipher Suite Value (SCSV) "TLS_RENEGO_PROTECTION_REQUEST",
+	  with code point {0xNN, 0xMM}.
+	  This SCSV is not a true cipher suite 
+	  (it does not correspond to any valid set of algorithms)
 	  and cannot be negotiated. Instead it has the same semantics as
 	  an empty "renegotiation_info" extension, as described in the following
 	  sections.
 	  Because SSLv3 and TLS implementations reliably ignore unknown
 	  cipher suites, the SCSV may be safely sent to any server.
+	  The SCSV can also be included in the SSLv2 backward compatible
+	  CLIENT-HELLO.
 	</t>
 	<t>
 	  Note: a minimal client which does not support
@@ -447,7 +453,7 @@ Client                        Attacker                        Server
 	      the "renegotiation_info" extension was included, set
 	      secure_renegotiation flag to FALSE. In this case, some servers
 	      may want to terminate the handshake instead of continuing;
-	      see Section [TODO] for discussion.
+	      see <xref target="sec.server-cons"/> for discussion.
 	    </t>
 
 	    <t>
@@ -463,11 +469,29 @@ Client                        Attacker                        Server
 	    </t>
 	  </list>
 	</t>
+	<t>
+	  TLS servers implementing this specification MUST ignore any unknown
+	  extensions offered by the client and MUST accept version numbers
+	  higher than its highest version number and negotiate the highest
+	  common version.  These two requirements reiterate preexisting
+	  requirements in RFC 5246 and are merely stated here in the interest
+	  of forward compatibility.
+	</t>
+	<t>
+	Note that sending a "renegotiation_info" extension in
+	response to a ClientHello containing only the SCSV 
+	is an explicit exception to the RFC 5246 Section
+	7.4.1.4 prohibition on the server sending unsolicited extensions
+	and is only allowed because the client is signaling its
+	willingness to receive the extension via the the
+	TLS_RENEGO_PROTECTION_REQUEST SCSV.  TLS implementations MUST
+	continue to comply with 7.4.1.4 for all other extensions.
+      </t>
       </section>
       <section title="Server Behavior: Secure Renegotiation" anchor="sec.server-reneg">
 	<t>
 	  This text applies if the connection's "secure_renegotiation" flag
-	  is set to TRUE (if it is set to FALSE, see <xref target="sec.server-legacy"/>
+	  is set to TRUE (if it is set to FALSE, see <xref target="sec.server-legacy"/>).
 	</t>
 
 	<t>
@@ -538,13 +562,13 @@ Client                        Attacker                        Server
 	  renegotiation (and thus are not vulnerable) will not support this
 	  extension either, so in general, clients which implement this 
 	  behavior will encounter interoperability problems. There is 
-	  no set of client behavior which will guarantee security and achieve
+	  no set of client behaviors which will guarantee security and achieve
 	  maximum interoperability during the transition period. Clients
 	  need to choose one or the other preference when dealing with
 	  potentially unupgraded servers.
 	</t>
       </section>
-      <section title="Client Behavior: Legacy (Insecure) Renegotation Handshake" anchor="sec.client-legacy">
+      <section title="Client Behavior: Legacy (Insecure) Renegotation" anchor="sec.client-legacy">
 
 	<t>
 	  This text applies if the connection's "secure_renegotiation" flag
@@ -564,30 +588,46 @@ Client                        Attacker                        Server
 	  behave as described below.
 	</t>
 	<t>
-	  <list style="symbols">	
-	    <t>
-	      The client MUST include a "renegotiation_info" extension
-	      with the contents the same as described in <xref target="sec.client-reneg"/>
-	    </t>
-	    
-	    <t>
-	      When ServerHello is received, the client MUST verify that
-	      it does not contain the "renegotiation_info" extension.
-	      If it does, the client MUST abort the handshake.
-	      [Because the server has already indicated it does not
-	      support secure renegotiation
-	      the only way that this can happen is if the server
-	      is broken or there is an attack.]
-	    </t>
-	  </list>
+	  Clients which
+	  choose to renegotiate MUST provide either the
+	  TLS_RENEGO_PROTECTION_REQUEST SCSV or "renegotiation_info" in their
+	  ClientHello.  In a legitimate renegotiation with an un-upgraded
+	  server, either of these signals will be ignored by the server.
+	  However, if the server (incorrectly) fails to ignore extensions,
+	  sending the "renegotiation_info" extension may cause a handshake
+	  failure.  Thus, it is permitted, though NOT RECOMMENDED, for the
+	  client to simply send the SCSV.  This is the only situation in which
+	  clients are permitted to not send the "renegotiation_info" extension
+	  in a ClientHello which is used for renegotiation.
+	</t>
+	<t>
+	  Note that in the case of this downgrade attack, if this
+	  is the initial handshake from the server's perspective, then use of
+	  the SCSV from the client precludes detection of this attack by the
+	  server (if this is a renegotiation from the server's perspective
+	  then it will detect the attack).
+	  However, the attack will be detected by the client when the
+	  server sends an empty "renegotiation_info" extension and the client
+	  is expecting one containing the previous verify data.  By contrast,
+	  if the client sends the "renegotiation_info" extension, then the
+	  server will immediately detect the attack.
+	</t>
+	  <t>
+	    When the ServerHello is received, the client MUST verify that
+	    it does not contain the "renegotiation_info" extension.
+	    If it does, the client MUST abort the handshake.
+	    [Because the server has already indicated it does not
+	    support secure renegotiation
+	    the only way that this can happen is if the server
+	    is broken or there is an attack.]
 	</t>
       </section>
-      <section title="Server Considerations">
+      <section title="Server Considerations" anchor="sec.server-cons">
 	<t>
 	  If the client does not offer the "renegotiation_info" extension
 	  or the TLS_RENEGO_PROTECTION_REQUEST SCSV
 	  then this indicates that the client does not support secure
-	  renegotiation or is unwilling to use it. However, because the above attack
+	  renegotiation. However, because the above attack
 	  looks like two handshakes to the server, the server can safely
 	  continue the connection as long as it does not allow the client
 	  to renegotiate. If servers wish to ensure that such attacks are
@@ -630,12 +670,13 @@ Client                        Attacker                        Server
       </section>
       <section title="SSLv3">
 	<t>
-	  While SSLv3 is not a protocol under IETF change control, 
+	  While SSLv3 is not a protocol under IETF change control
+	  (see <xref target="SSLv3"/>)
 	  it was the original basis for TLS and most TLS stacks are 
 	  also SSLv3 stacks. The SCSV and extension defined in this
 	  document can also be used with SSLv3 with no changes 
 	  except for the size of the verify_data values, which are
-	  are 36 bytes long each. TLS Clients which support SSLv3 and
+	  36 bytes long each. TLS Clients which support SSLv3 and
 	  offer secure
 	  renegotiation (either via SCSV or "renegotiation_info") MUST 
 	  accept the "renegotiation_info" extension from
@@ -645,7 +686,12 @@ Client                        Attacker                        Server
 	  support SSLv3 MUST accept
 	  SCSV or the "renegotiation_info" extension and respond
 	  as described in this specification even if the
-	  offered client version is {0x03, 0x00}.
+	  offered client version is {0x03, 0x00}. SSLv3 does
+	  not offer the "no_renegotiation" alert (and does
+	  not offer a way to indicate a refusal to renegotiate
+	  at a warning level). SSLv3 clients which refuse
+	  renegotiation SHOULD use a fatal handshake_failure
+	  alert.
 	</t>
       </section>
     </section>
@@ -667,19 +713,15 @@ Client                        Attacker                        Server
 	described in the overview, it does not resolve all possible
 	problems an application may face if it is unaware of renegotiation.
 	For example, during renegotiation  either the client or the server 
-	present a different certificate than was used
+	can present a different certificate than was used
 	earlier. This may come as a surprise to application
 	developers (who might have expected, for example, that a
 	"getPeerCertificates()" API call returns the same value if called
 	twice), and might be handled in an insecure way.
       </t>
       <t>
-	In order to minimize the likelihood of application confusion,
-	TLS implementations SHOULD disable renegotiation by default and offer
-	the applications the option to enable renegotiation.  When an
-	application enables renegotiation the implementor must
-	determine how to handle identity processing for
-	each handshake.	
+	TLS implementations SHOULD provide a mechanism to disable and enable
+	renegotiation.
       </t>
       <t>
 	TLS implementers are encouraged to clearly document how
@@ -688,18 +730,20 @@ Client                        Attacker                        Server
 	calls, or which callbacks might get called multiple times).
       </t>
       <t>
-	To make life simpler for applications that do not expect the peer's
-	certificate to change once it's been authenticated, TLS
-	implementations may also wish to offer the applications the option
-	abort the renegotiation if the peer tries to authenticate with a
-	different certificate and/or different server name (in the
-	server_name extension) than was used earlier. However, enabling
-	this option by default for all applications could break existing
-	applications that depend on using renegotiation to change from one
-	certificate to another. (For example, long-lived TLS connections
-	could change to a renewed certificate; or renegotiation could
-	select a different cipher suite that requires using a different
-	certificate.)
+	To make life simpler for applications that use renegotiation but
+	do not expect the
+	certificate to change once it has been authenticated, TLS implementations
+	may also wish to offer the applications the option abort the
+	renegotiation if the peer tries to authenticate with a different
+	certificate and/or different server name (in the server_name extension)
+	than was used earlier.  TLS implementations may alternatively offer the
+	option to disable renegotiation once the client certificate has be
+	authenticated.  However, enabling these options by default for all
+	applications could break existing applications that depend on using
+	renegotiation to change from one certificate to another.  (For example,
+	long-lived TLS connections could change to a renewed certificate; or
+	renegotiation could select a different cipher suite that requires using
+	a different certificate.)
       </t>
       <t>
 	Finally, designers of applications that depend on renegotiation are
@@ -726,13 +770,15 @@ Client                        Attacker                        Server
     </section>
     <section title="Acknowledgements">
       <t>
-	This vulnerability was originally discovered by Marsh Ray.
+	This vulnerability was originally discovered by Marsh Ray and
+	independently rediscovered by Martin REx.
 	The general concept behind the 
 	extension described here was independently invented by
 	Steve Dispensa, Nasko Oskov, and Eric Rescorla with
 	refinements from Nelson Bolyard, Pasi Eronen, Michael D'Errico, 
 	Stephen Farrell, Michael Gray, 
-	David-Sarah Hopwood, Ben Laurie, Bodo Moeller,
+	David-Sarah Hopwood, Ben Laurie, 
+	David Makepeace, Bodo Moeller,
 	Martin Rex (who defined TLS_RENEGO_PROTECTION_REQUEST),
 	Peter Robinson, 
 	Jesse Walker, Nico Williams and other members of the
@@ -755,13 +801,23 @@ Client                        Attacker                        Server
       &RFC2818;
       &RFC2965;
 
-      <reference anchor="Ray09">
+
+      <reference anchor="Ray09" target="http://extendedsubset.com/?p=8">
 	<front>
 	  <title>Authentication Gap in TLS Renegotiation</title>
 	  <author initials="M." surname="Ray" fullname="M. Ray"/>
 	</front>
 	<date month="November" year="2009"/>
-	<url>http://extendedsubset.com/?p=8</url>
+      </reference>
+
+      <reference anchor="SSLv3" target="http://www.mozilla.org/projects/security/pki/nss/ssl/draft302.txt">
+	<front>
+	  <title>The SSL Protocol Version 3.0</title>
+	  <author initials="A.O." surname="Freier" fullname="Alan O. Freier"/>
+	  <author initials="P." surname="Karlton" fullname="Philip Karlton"/>
+	  <author initials="P.C." surname="Kocher" fullname="Paul C. Kocher"/>
+	</front>
+	<date month="November" year="2006"/>
       </reference>
 
       <!--      &I-D.ietf-avt-dtls-srtp; -->
