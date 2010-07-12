@@ -19,21 +19,22 @@
 4.1.2.3.  AEAD Ciphers                                             12
 4.1.2.5.  New Cipher Suites                                        12
 4.1.2.6.  Anti-replay                                              13
-4.2.      The DTLS Handshake Protocol                              13
+4.1.2.7.  Handling Invalid Records                                 13
+4.2.      The DTLS Handshake Protocol                              14
 4.2.1.    Denial of Service Countermeasures                        14
-4.2.2.    Handshake Message Format                                 16
+4.2.2.    Handshake Message Format                                 17
 4.2.3.    Message Fragmentation and Reassembly                     18
-4.2.4.    Timeout and Retransmission                               18
-4.2.4.1.  Timer Values                                             22
-4.2.5.    ChangeCipherSpec                                         22
-4.2.6.    CertificateVerify and Finished Messages                  22
-4.2.7.    Alert Messages                                           22
-4.3.      Summary of new syntax                                    23
-4.3.1.    Record Layer                                             24
-4.3.2.    Handshake Protocol                                       24
-5.        Security Considerations                                  25
-6.        Acknowledgements                                         26
-7.        IANA Considerations                                      26
-8.        References                                               26
-8.1.      Normative References                                     26
-8.2.      Informative References                                   27
+4.2.4.    Timeout and Retransmission                               19
+4.2.4.1.  Timer Values                                             23
+4.2.5.    ChangeCipherSpec                                         23
+4.2.6.    CertificateVerify and Finished Messages                  23
+4.2.7.    Alert Messages                                           23
+4.3.      Summary of new syntax                                    24
+4.3.1.    Record Layer                                             25
+4.3.2.    Handshake Protocol                                       25
+5.        Security Considerations                                  26
+6.        Acknowledgements                                         27
+7.        IANA Considerations                                      27
+8.        References                                               27
+8.1.      Normative References                                     27
+8.2.      Informative References                                   28

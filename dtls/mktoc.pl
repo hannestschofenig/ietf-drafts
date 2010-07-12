@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/opt/local/bin/perl
 $page=1;
 
 while(<STDIN>){
