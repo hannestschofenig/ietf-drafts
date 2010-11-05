@@ -1,0 +1,363 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 79} 
+\fancyfoot[C]{\tiny P2PSIP WG}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}RELOAD Status/Open Issues}\\
+\large{\url{draft-ietf-p2psip-base-11}}\\
+\large{{IETF 79}} \\
+\vspace{3em}
+\large{Eric Rescorla}\\
+\large{\url{ekr@rtfm.com}}
+\end{center}
+\end{slide}
+
+
+\centerslidesfalse 
+
+
+\begin{slide}
+\heading{Overall Status}
+
+\begin{itemize}
+\item draft -10 (Aug 3), draft-11 (Oct 12)
+\begin{itemize}
+\item Resolved most known open issues  
+\item Thanks to Eric Burger for a detailed review
+\end{itemize}
+\item Second WGLC ended November 4
+\begin{itemize}
+\item Some minor new issues raised
+\end{itemize}
+\item General plan
+\begin{itemize}
+\item Resolve remaining issues here
+\item Confirm on the list
+\item Generate a finished draft by December 10
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Variable-length node-ids}
+
+\begin{itemize}
+\item Enacts WG consensus
+\item Fixed per overlay
+\item Range of 16-20 bytes
+\item Set in configuration document
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Non-TLS security modes}
+
+\begin{itemize}
+\item Enacts WG consensus: (D)TLS for now with room for other
+  prototocols in future
+\item Requirements for future link protocols in \S 5.6.1:
+\begin{itemize}
+\item Endpoint authentication
+\item Traffic origin authentication and integrity
+\item Traffic confidentiality
+\end{itemize}
+\item Set in configuration document
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Direct Response Routing}
+
+\begin{itemize}
+\item Permitted on a single overlay basis
+\item Set in configuration document
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Minor Changes}
+
+\begin{itemize}
+\item Provided a definition of \verb^AppAttachReq^ and \verb^AppAttachAns^ in \S 5.5.2.1 and 5.5.2.2.
+\item no ICE $\rightarrow$ NoICE
+\item Added a \verb^send_update^ flag to \verb^AttachReqAns^ to facilitate
+  requests for immediate updates
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Minor Changes: RFC 2119 issues}
+
+\begin{itemize}
+\item Removed MUST-level requirement for generation counter on
+  opaque \verb^Destination^ values as unenforceable [Eric Burger]
+\item Made setting \verb^FORWARD_CRITICAL^ and \verb^DESTINATION_CRITICAL^
+  MUST-level with \verb^DirectResponseForwardingOption^. (interop
+  requirement)
+\item Recipients now MAY process messages with unknown
+  non-critical extensions (was SHOULD) [Eric Burger]
+\item Clarified what the MUST requirement is for processing \verb^Attach^
+  (you can refuse and throw an error) [Eric Burger]
+\item Strengthened requirements on which STUN servers to use
+  (MUST use one from the same group) in \S 5.5.1.4.
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Known Uncontroversial TODOs}
+
+\begin{itemize}
+\item Add padding to \verb^PING^ to facilitate MTU discovery
+\item Unwind misguided leap-second correction in \S 5.5.3.2
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{ICE: Nomination Level}
+
+\begin{itemize}
+\item \S 5.5.1.10.2 formerly required regular nomination
+\begin{itemize}
+\item Regular nomination is very slower than aggressive
+\item There are already a lot of round-trips
+\end{itemize}
+\item Original rationale was to ensure consistent state
+\begin{itemize}
+\item Don't believe this is needed: ICE naturally converges
+\end{itemize}
+\end{itemize}
+\vspace{1em}
+\textbf{Proposed Resolution:} Leave as-is in the draft
+\end{slide}
+
+
+\begin{slide}
+\heading{Mandatory to Implement Signature/Hash Algorithms}
+
+\begin{itemize}
+\item None specified
+\item Need some for interop
+\end{itemize}
+
+\vspace{1em}
+\textbf{Proposed Resolution:} RSA with SHA-256
+\end{slide}
+
+
+
+
+\begin{slide}
+\heading{Direct Response Routing and ICE}
+
+\begin{itemize}
+\item Specified in \S 5.3.2.4
+\end{itemize}
+
+
+{\footnotesize
+\begin{verbatim}
+   This option can only be used if the direct-return-response-permitted
+   flag in the configuration for the overlay is set to TRUE.  The
+   RESPONSE_COPY flag SHOULD be set to false while the FORWARD_CRITICAL
+   and DESTINATION_CRITICAL MUST be set to true.  When a node that
+   supports this forwarding options receives a request with it, it acts
+   as if it had send an Attach request to the the requesting_node and it
+   had received the connection_information in the answer.  This causes
+   it to form a new connection directly to that node. 
+\end{verbatim}
+}
+
+\begin{itemize}
+\item This doesn't work with ICE because the sender of the request
+  doesn't have your information
+\end{itemize}
+
+\vspace{1em}
+\textbf{Proposed Resolution:} DRR can only be used with No-ICE
+\end{slide}
+
+
+\begin{slide}
+\heading{Node-Ids in \texttt{JOIN/LEAVE}}
+
+\begin{itemize}
+\item Currently \verb^JoinReq^ and \verb^LeaveReq^ have the joining 
+  Node-Id
+\end{itemize}
+
+{\footnotesize
+\begin{verbatim}
+  struct {
+     NodeId                joining_peer_id;
+     opaque                overlay_specific_data<0..2^16-1>;
+  } JoinReq;
+\end{verbatim}
+}
+
+\begin{itemize}
+\item This is unnecessary because the Node-Id is provided by the security protocol
+\item Just one more thing to check
+\end{itemize}
+
+\vspace{1em}
+\textbf{Proposed Resolution:} Remove Node-ID from these messages
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Specifying Counter Values for \texttt{NODE-MULTIPLE}}
+
+
+\vspace{-2em}
+\S 6.3.4:
+
+{\footnotesize
+\begin{verbatim}
+   In the NODE-MULTIPLE policy, a given value MUST be written (or
+   overwritten) if and only if the request is signed with a key
+   associated with a certificate containing a Node-ID such that
+   H(Node-ID || i) is equal to the Resource-ID for some small integer
+   value of i.  When this policy is in use, the maximum value of i MUST
+   be specified in the kind definition.
+\end{verbatim}
+}
+
+\begin{itemize}
+\item \verb^i^ is not carried on the wire anywhere
+\item Maximum value is specified in the configuration document
+\item Possible approaches
+\begin{itemize}
+\item Verifier iterates through \verb^i^ values (not that slow but annoying)
+\item Add syntax to carry \verb^i^ (kind of a gross special case)
+\end{itemize}
+\end{itemize}
+
+\vspace{1em}
+\textbf{Proposed Resolution:} Verifier iterates (with regrets)
+\end{slide}
+
+
+\begin{slide}
+\heading{Pings while Joining (\S 9.4)}
+
+\begin{itemize}
+\item Current procedure requires sending Pings to populate the table (step 2)
+\item These are unnecessary since Attach automatically discovers the right node
+\end{itemize}
+
+\vspace{1em}
+\textbf{Proposed Resolution:} Remove Pings as proposed on-list by BBL (Nov 1)
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Join race condition I (Michael Chen)}
+
+\begin{itemize}
+\item \S 9.4:
+\begin{itemize}
+\item Step 7: routing table from AP $\rightarrow$ JP
+\item Step 8: routing table from AP $\rightarrow$ NP
+\end{itemize}
+\item In some cases (e.g., Chord predecessors) this may cause
+  simultaneous connects between JP and it's new neighbors
+\end{itemize}
+
+\vspace{1em}
+\textbf{Proposed Resolution:} Tiebreaker when multiple connections are established
+between a pair of nodes. Smallest Node-Id seems like a natural choice.
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Join Attach timing (Michael Chen)}
+
+\begin{itemize}
+\item Proposal is to skip step 3 in which JP sends Attaches to 
+  its expected nodes.
+\item Argument for this is that the logic is simpler since no need
+  to do incremental probing.
+\item Argument against is that it then takes longer to get fully 
+  established. Client has multiple ways to get AP's routing table
+  which would allow unified logic for the neighbor set.
+\end{itemize}
+
+\vspace{1em}
+\textbf{Proposed Resolution:} Leave as-is but add discussion of the
+option to get AP's routing table rather than probe.
+\end{slide}
+
+
+\end{document}
