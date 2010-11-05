@@ -176,7 +176,7 @@
 
 \begin{itemize}
 \item Add padding to \verb^PING^ to facilitate MTU discovery
-\item Unwind misguided leap-second correction in \S 5.5.3.2
+\item Rewrite/clarify leap-second text in \S 5.5.3.2
 \end{itemize}
 \end{slide}
 
@@ -187,7 +187,7 @@
 \begin{itemize}
 \item \S 5.5.1.10.2 formerly required regular nomination
 \begin{itemize}
-\item Regular nomination is very slower than aggressive
+\item Regular nomination is quite a bit slower than aggressive
 \item There are already a lot of round-trips
 \end{itemize}
 \item Original rationale was to ensure consistent state
@@ -264,12 +264,13 @@
 }
 
 \begin{itemize}
-\item This is unnecessary because the Node-Id is provided by the security protocol
+\item This is unnecessary because the Node-Id is provided by the security block.
 \item Just one more thing to check
 \end{itemize}
 
 \vspace{1em}
-\textbf{Proposed Resolution:} Remove Node-ID from these messages
+\textbf{Proposed Resolution:} It's annoying but harmless, so in the interest
+of compatibility leave it in but clarify that a check is required.
 \end{slide}
 
 
@@ -336,7 +337,8 @@
 
 \vspace{1em}
 \textbf{Proposed Resolution:} Tiebreaker when multiple connections are established
-between a pair of nodes. Smallest Node-Id seems like a natural choice.
+between a pair of nodes. Terminate the connection \emph{originating} from the
+smaller Node-Id seems like a natural choice.
 
 \end{slide}
 
