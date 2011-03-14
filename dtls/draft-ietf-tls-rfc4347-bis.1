@@ -8,7 +8,7 @@
 .ds RF FORMFEED[Page %]
 .ds CF Standards Track
 .ds LH draft-ietf-tls-rfc4347-bis-00
-.ds RH June 2008
+.ds RH March 2011
 .ds CH DTLS
 .hy 0
 .ad l
@@ -16,23 +16,61 @@
 INTERNET-DRAFT                                               E. Rescorla
 Obsoletes (if approved): RFC 4347                             RTFM, Inc.
 Intended Status: Proposed Standard                           N. Modadugu
-<draft-ietf-tls-rfc4347-bis-04.txt>                  Stanford University
-                                    July 12, 2010 (Expires January 2011)
+<draft-ietf-tls-rfc4347-bis-05.txt>                  Stanford University
+                                    March, 2011 (Expires September 2011)
 
 
 .ce
 Datagram Transport Layer Security version 1.2
 
+.ti 0
+Abstract
 
+.in 3
+This document specifies Version 1.2 of the Datagram Transport Layer
+Security (DTLS) protocol.  The DTLS protocol provides communications
+privacy for datagram protocols.  The protocol allows client/server
+applications to communicate in a way that is designed to prevent
+eavesdropping, tampering, or message forgery.  The DTLS protocol is
+based on the Transport Layer Security (TLS) protocol and provides
+equivalent security guarantees.  Datagram semantics of the underlying
+transport are preserved by the DTLS protocol. This document
+updates DTLS 1.0 to work with TLS version 1.2.
+
+.in 0
+.ti 0
+Legal
 
 .nf
-Status of This Memo
+   This documents and the information contained therein are provided on
+   an "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE
+   REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE
+   IETF TRUST AND THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL
+   WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY
+   WARRANTY THAT THE USE OF THE INFORMATION THEREIN WILL NOT INFRINGE
+   ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS
+   FOR A PARTICULAR PURPOSE.
 
-   In this document the term BCP 78 and BCP 79 refer to RFC 3978 and RFC
-   3979 respectively.  They refer only to those RFCs and not to any
-   documents that update or supersede them.
+Status of this Memo
 
-   Copyright (c) 2010 IETF Trust and the persons identified as the
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on September 14, 2011.
+
+Copyright Notice
+
+   Copyright (c) 2011 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -56,70 +94,13 @@ Status of This Memo
    not be created outside the IETF Standards Process, except to format
    it for publication as an RFC or to translate it into languages other
    than English.
-
-   Internet-Drafts are working documents of the Internet Engineering
-   Task Force (IETF), its areas, and its working groups.  Note that
-   other groups may also distribute working documents as Internet-
-   Drafts.
-
-   Internet-Drafts are draft documents valid for a maximum of six months
-   and may be updated, replaced, or obsoleted by other documents at any
-   time.  It is inappropriate to use Internet-Drafts as reference
-   material or to cite them other than as "work in progress."
-
-   The list of current Internet-Drafts can be accessed at
-   http://www.ietf.org/ietf/1id-abstracts.txt.
-
-   The list of Internet-Draft Shadow Directories can be accessed at
-   http://www.ietf.org/shadow.html.
-
-.in 3
-.ti 0 
-Copyright Notice
-
-.nf 
-   Copyright (c) 2009 IETF Trust and the persons identified as the
-   document authors.  All rights reserved.
-
-   This document is subject to BCP 78 and the IETF Trust's Legal
-   Provisions Relating to IETF Documents in effect on the date of
-   publication of this document (http://trustee.ietf.org/license-info).
-   Please review these documents carefully, as they describe your rights
-   and restrictions with respect to this document.
-.fi
-
-.ti 0
-Abstract
-
-This document specifies Version 1.2 of the Datagram Transport Layer
-Security (DTLS) protocol.  The DTLS protocol provides communications
-privacy for datagram protocols.  The protocol allows client/server
-applications to communicate in a way that is designed to prevent
-eavesdropping, tampering, or message forgery.  The DTLS protocol is
-based on the Transport Layer Security (TLS) protocol and provides
-equivalent security guarantees.  Datagram semantics of the underlying
-transport are preserved by the DTLS protocol. This document
-updates DTLS 1.0 to work with TLS version 1.2.
-
-.ti 0
-Legal
-
-.nf
-   This documents and the information contained therein are provided on
-   an "AS IS" basis and THE CONTRIBUTOR, THE ORGANIZATION HE/SHE
-   REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE
-   IETF TRUST AND THE INTERNET ENGINEERING TASK FORCE DISCLAIM ALL
-   WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY
-   WARRANTY THAT THE USE OF THE INFORMATION THEREIN WILL NOT INFRINGE
-   ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS
-   FOR A PARTICULAR PURPOSE.
 .fi
 
 .ti 0
 Table of Contents
 
+.in 3
 .so contents.txt
-
 
 .fi
 .ti 0
@@ -169,6 +150,15 @@ There is no DTLS 1.1. That version number was skipped in
 order to harmonize version numbers with TLS. This version
 also clarifies some confusing points in the DTLS 1.0 specification.
 
+Implementations that speak both DTLS 1.2 and DTLS 1.0 can interoperate
+with those that speak only DTLS 1.0 (using DTLS 1.0 of course),
+just as TLS 1.2 implementations can interoperate with previous
+versions (See Appendix E.1 of [TLS12] for details) with the
+exception that there is no DTLS version of SSLv2 or SSLv3 so
+that the backward compatibility issues for those protocols do not
+apply.
+
+		 
 .ti 0
 1.1. Requirements Terminology
 
@@ -255,7 +245,7 @@ Messages must be transmitted and received in a defined order,
 and any other order is an error.  Clearly, this is incompatible
 with reordering and message loss.  In addition, TLS handshake
 messages are potentially larger than any given datagram, thus
-creating the problem of fragmentation.  DTLS must provide fixes
+creating the problem of IP fragmentation.  DTLS must provide fixes
 for both of these problems.
 
 .ti 0
@@ -292,6 +282,10 @@ Note: timeout and retransmission do not apply to the
 HelloVerifyRequest, because this requires creating state on
 the server.
 
+Note: The HelloVerifyRequest is designed to be small enough that
+it will not itself be fragmented, thus avoiding concerns about
+interleaving multiple HelloVerifyRequests.
+
 .ti 0
 3.2.2. Reordering
 
@@ -308,9 +302,10 @@ all previous messages have been received.
 TLS and DTLS handshake messages can be quite large (in theory
 up to 2^24-1 bytes, in practice many kilobytes).  By contrast,
 UDP datagrams are often limited to <1500 bytes if
-fragmentation is not desired.  In order to compensate for this
+IP fragmentation is not desired.  In order to compensate for this
 limitation, each DTLS handshake message may be fragmented over
-several DTLS records.  Each DTLS handshake message contains
+several DTLS records, each of which is intended to fit in
+a single IP datagram. Each DTLS handshake message contains
 both a fragment offset and a fragment length.  Thus, a
 recipient in possession of all bytes of a handshake message
 can reassemble the original unfragmented message.
@@ -435,17 +430,24 @@ Finished has not yet been
 received provided that either the rehandshake resumes
 the existing session or that it uses exactly the same
 security parameters as the existing association.
-In an other case, the implementation MUST wait for
+In any other case, the implementation MUST wait for
 the receipt of the Finished to prevent downgrade
 attack.
 
+As in TLS, implementations MUST either abandon an association or
+rehandshake prior to allowing the sequence number to wrap. Similarly,
+implementations MUST NOT allow the epoch to wrap, but instead
+MUST establish a new association, terminating the old association
+as described in Section 4.2.8. In practice, implementations rarely
+rehandshake repeatedly on the same channel, so this is not likely
+to be an issue.
 
 
 .ti 0
 4.1.1. Transport Layer Mapping
 
 Each DTLS record MUST fit within a single datagram.
-In order to avoid fragmentation,
+In order to avoid IP fragmentation,
 clients of the DTLS record layer SHOULD attempt
 to size records so that they fit within any PMTU
 estimates obtained from the record layer.
@@ -496,7 +498,8 @@ three reasons:
 
  - In some implementations the application may not directly
    talk to the network, in which case the DTLS stack may
-   absorb ICMP [RFC1191] Datagram Too Big indications.
+   absorb ICMP [RFC1191] Datagram Too Big indications
+   or ICMPv6 [RFC1885] Packet Too Big indications.
 
  - The DTLS handshake messages can exceed the PMTU.
 .fi
@@ -517,9 +520,9 @@ In particular:
   PMTU. 
 
 - For DTLS over TCP or SCTP, which automatically fragment
-   and reassemble datagrams, there is no PMTU limitation.
-   However, the upper layer protocol MUST NOT write any
-   record that exceeds the maximum record size of 2^14 bytes.
+  and reassemble datagrams, there is no PMTU limitation.
+  However, the upper layer protocol MUST NOT write any
+  record that exceeds the maximum record size of 2^14 bytes.
 .fi
 
 The DTLS record layer SHOULD allow the upper layer protocol
@@ -530,7 +533,7 @@ DTLS compression.
 
 If there is a transport protocol indication (either via 
 ICMP or via a refusal to send the datagram as in DCCP
-Section 14), then DTLS record layer should inform the
+Section 14), then the DTLS record layer MUST inform the
 upper layer protocol of the error.
 
 The DTLS record layer SHOULD NOT interfere with upper layer
@@ -602,8 +605,8 @@ This change is possible because DTLS records are not dependent
 on each other in the way that TLS records are.
 
 In general, DTLS implementations SHOULD silently discard
-records with bad MACs or that are otherwise invalid.
-If a DTLS implementation chooses to
+records with bad MACs or that are otherwise invalid. They
+MAY log an error. If a DTLS implementation chooses to
 generate an alert when it receives a message with an invalid
 MAC, it MUST generate a bad_record_mac alert with level fatal
 and terminate its connection state.
@@ -639,7 +642,7 @@ DTLS exactly as with TLS 1.2.
 
 Upon registration, new TLS cipher suites MUST indicate whether
 they are suitable for DTLS usage and what, if any, adaptations
-must be made.
+must be made (See Section 7 for IANA considerations).
 
 .ne 6
 .ti 0
@@ -686,22 +689,24 @@ succeeds.
 
 .ti 0
 4.1.2.7. Handling Invalid Records	
- 		
-Unlike TLS, DTLS is resilient in the face of invalid records (e.g.,	
-invalid formatting, length, MAC, etc.)  In general, invalid records	
-SHOULD be silently discarded, thus preserving the association.	
-Implementations which choose to generate an alert instead, MUST	
-generate fatal level alerts to avoid attacks where the attacker	
-repeatedly probes the implementation to see how it responds to	
-various types of error. Note that if DTLS is run over UDP, then any	
-implementation which does this will be extremely susceptible to DoS	
-attacks because UDP forgery is so easy. Thus, this practice is NOT	
-RECOMMENDED for such transports.	
+
+Unlike TLS, DTLS is resilient in the face of invalid records (e.g.,
+invalid formatting, length, MAC, etc.)  In general, invalid records
+SHOULD be silently discarded, thus preserving the association,
+however an error MAY be logged for diagnostic purposes.
+Implementations which choose to generate an alert instead, MUST
+generate fatal level alerts to avoid attacks where the attacker
+repeatedly probes the implementation to see how it responds to
+various types of error. Note that if DTLS is run over UDP, then any
+implementation which does this will be extremely susceptible to DoS
+attacks because UDP forgery is so easy. Thus, this practice is NOT
+RECOMMENDED for such transports.
 	
-If DTLS is being carried over a transport which is resistant to	
-forgery (e.g., SCTP with SCTP-AUTH), then it is safer to send alerts	
-because an attacker will have difficulty forging a datagram which	
-will not be rejected by the transport layer.	
+
+If DTLS is being carried over a transport which is resistant to
+forgery (e.g., SCTP with SCTP-AUTH), then it is safer to send alerts
+because an attacker will have difficulty forging a datagram which
+will not be rejected by the transport layer.
 
 
 .ti 0
@@ -715,7 +720,8 @@ with three principal changes:
 denial of service attacks.
 
 2. Modifications to the handshake header to handle message
-loss, reordering, and fragmentation.
+loss, reordering, and DTLS message fragmentation (in order
+to avoid IP fragmentation).
 
 3. Retransmission timers to handle message loss.
 
@@ -861,18 +867,26 @@ If a server receives a ClientHello with an invalid cookie,
 it SHOULD treat it the same as a ClientHello with no
 cookie. This avoids race/deadlock conditions if the client
 somehow gets a bad cookie (e.g., because the server
-changes its cookie signing key). Note to implementors:
-this may results in clients receiving multiple 
-HelloVerifyRequest messages with different cookies.
-Clients SHOULD handle this by sending a new ClientHello
-with a cookie in response to the new HelloVerifyRequest.
+changes its cookie signing key).
+
+Note to implementors: this may results in clients receiving multiple
+HelloVerifyRequest messages with different cookies.  Clients SHOULD
+handle this by sending a new ClientHello with a cookie in response to
+the new HelloVerifyRequest.  Note that this message should have the
+same handshake sequence number (0) and record sequence number (0),
+thus avoiding the need to create state on the server. This also
+implies that the client MUST NOT do replay suppression during the
+initial handshake (this is safe as handshake messages have their
+own sequence numbers). [OPEN ISSUE: It's not clear that this is the best
+choice. Michael Tuexen suggested mimicing the client's record
+sequence number instead.]
 
 
 .ti 0
 4.2.2. Handshake Message Format
 
 In order to support message loss, reordering, and
-fragmentation, DTLS modifies the TLS 1.2 handshake header:
+message fragmentation, DTLS modifies the TLS 1.2 handshake header:
 
 .nf
    struct {
@@ -944,13 +958,14 @@ implementation SHOULD queue the message but MAY discard it.
 (This is a simple space/bandwidth tradeoff).
 
 .ti 0
-4.2.3. Message Fragmentation and Reassembly
+4.2.3. Handshake Message Fragmentation and Reassembly
 
 As noted in Section 4.1.1, each DTLS message MUST fit within
 a single transport layer datagram.  However, handshake messages
 are potentially bigger than the maximum record size.  Therefore,
 DTLS provides a mechanism for fragmenting a handshake message
-over a number of records.
+over a number of records, each of which can be transmitted
+separately, thus avoiding IP fragmentation.
 
 When transmitting the handshake message, the sender divides
 the message into a series of N contiguous data ranges.  These
@@ -1139,15 +1154,32 @@ WAITING state, but with empty buffers and no retransmit timer.
 When the server desires a rehandshake, it transitions from the
 FINISHED state to the PREPARING state to transmit the HelloRequest.
 When the client receives a HelloRequest it transitions from FINISHED
-to PREPARING to transmit the ClientHello.  In addition, for at least
-2MSL, when in the FINISHED state, the node which transmits the last
-flight (the server in an ordinary handshake or the client in a resumed
-handshake) MUST respond to a retransmit of the peer's last flight with
-a retransmit of the last flight. This avoids deadlock conditions if
-the last flight gets lost. This requirement applies to DTLS 1.0 as
-well, and though not explicit in [DTLS1] but was always required for
-the state machine to function correctly.
+to PREPARING to transmit the ClientHello.
 
+In addition, for at least 2MSL, when in the FINISHED state, the node
+which transmits the last flight (the server in an ordinary handshake
+or the client in a resumed handshake) MUST respond to a retransmit of
+the peer's last flight with a retransmit of the last flight. This
+avoids deadlock conditions if the last flight gets lost. This
+requirement applies to DTLS 1.0 as well, and though not explicit in
+[DTLS1] but was always required for the state machine to function
+correctly. To see why this is necessary, consider what happens in
+an ordinary handshake if the server's Finished is lost: the
+server believes the handshake is complete but it actually is not.
+As the client is waiting for the Finished, the client's retransmit
+timer will fire and it will retransmit the client Finished, causing
+the server to respond with its own Finished, completing the handshake.
+The same logic applies on the server side for the resumed handshake.
+
+Note that because of packet loss it is possible for one side to be
+sending application data even though the other side has not received
+the first side's Finished. Implementations MUST either discard or buffer all 
+application data packets for the new epoch until they have received
+the Finished for that epoch. Implementations MAY treat receipt of 
+application data with a new epoch prior to receipt of the corresponding
+Finished
+as evidence of reordering or packet loss and retransmit their
+final flight immediately, shortcutting the retransmission timer.
 
 .ti 0 
 4.2.4.1. Timer Values
@@ -1188,7 +1220,7 @@ CertificateVerify and Finished messages have the same format as in
 TLS.  Hash calculations include entire handshake messages, including
 DTLS specific fields: message_seq, fragment_offset and
 fragment_length.  However, in order to remove sensitivity to
-fragmentation, the Finished MAC MUST be computed as if each handshake
+handshake message fragmentation, the Finished MAC MUST be computed as if each handshake
 message had been sent as a single fragment.  Note that in cases where
 the cookie exchange is used, the initial ClientHello and
 HelloVerifyRequest MUST NOT be included in the CertificateVerify 
@@ -1206,10 +1238,32 @@ is persistently sending bad messages and terminate the local
 connection state after such misbehavior is detected.
 
 .ti 0
+4.2.8. Establishing New Associations With Existing Parameters
+
+If a DTLS client-server pair are configured in such a way that repeated
+connections happen on the same host/port quartet, then it is possible
+that a client will silently abandon one connection and then initiate
+another with the same parameters (e.g., after a reboot). This will
+appear to the server as a new handshake with epoch=0. In cases
+where a server believes it has an existing association on a given 
+host/port quartet and it receives an epoch=0 ClientHello, it
+SHOULD proceed with a new handshake but MUST NOT destroy the
+existing association until the client has demonstrated reachability
+either by completing a cookie exchange or by completing a complete
+handshake including delivering a verifiable Finished message.
+After a correct Finished is received, the server MUST abandon the
+previous association to avoid confusion between two valid
+associations with overlapping epochs.
+The reachability requirement prevents off-path/blind attackers from destroying
+associations merely by sending forged ClientHellos.
+
+
+.ti 0
 4.3. Summary of new syntax
 
 This section includes specifications for the data structures
-that have changed between TLS 1.2 and DTLS.
+that have changed between TLS 1.2 and DTLS 1.2. See 
+[TLS12] for the definition of this syntax.
 
 .bp
 .ti 0
@@ -1315,6 +1369,10 @@ good reason to believe that amplification is not a threat in
 their environment.  Clients MUST be prepared to do a cookie
 exchange with every handshake.
 
+Unlike TLS implementations DTLS implementations SHOULD NOT
+respond to invalid records by terminating the connection.
+See Section 4.1.2.7 for details on this.
+
 .bp
 .ti 0
 6. Acknowledgements
@@ -1326,36 +1384,85 @@ anonymous NDSS reviewers of our original NDSS paper on DTLS
 [DTLS] for their comments.  Also, thanks to Steve Kent for
 feedback that helped clarify many points.  The section on PMTU
 was cribbed from the DCCP specification [DCCP].  Pasi Eronen
-provided a detailed review of this specification.  Helpful
-comments on the document were also received from Mark Allman,
+provided a detailed review of this specification. Peter Saint-Andre
+provided the changes list in Section 8.
+elpful comments on the document were also received from Mark Allman,
 Jari Arkko, Mohamed Badra, 
 Michael D'Errico,
-Joel Halpern, Ted Hardie, Allison Mankin,
-Robin Seggelman and Michael Tuexen.
+Adrian Farrell,
+Joel Halpern, Ted Hardie, Charlia Kaufman, Pekka Savola, Allison Mankin,
+Nikos Mavrogiannopoulos,
+Alexey Melnikov,
+Robin Seggelman, Michael Tuexen,
+Juho Vaha-Herttua, and Florian Weimer.
 
 .ti 0
 7. IANA Considerations
 
-This document uses the same identifier space as TLS [TLS12],
-so no new IANA registries are required.  When new identifiers
-are assigned for TLS, authors MUST specify whether they are
-suitable for DTLS.
+This document uses the same identifier space as TLS [TLS12], so no new
+IANA registries are required.  When new identifiers are assigned for
+TLS, authors MUST specify whether they are suitable for DTLS. IANA
+[should modify/has modified] all TLS parameter registries to add a
+DTLS-OK flag, indicating whether the specification may be used with
+DTLS.
 
 This document defines a new handshake message,
 hello_verify_request, whose value has been allocated from the
 TLS HandshakeType registry defined in [TLS12].  The value "3"
 has been assigned by the IANA.
 
-.in 14
-.ti 0
-8. References
 
 .ti 0
-8.1. Normative References
+8. Changes Since DTLS 1.0
+
+This document reflects the following changes since DTLS 1.0 [DTLS1].
+
+.nf
+- Updated to match TLS 1.2 [TLS12].
+
+- Addition of AEAD Ciphers in Section 4.1.2.3 (tracking changes in 
+  TLS 1.2.
+
+- Clarifications regarding sequence numbers and epochs in Section 4.1
+  and a clear procedure for dealing with state loss in Section 4.2.8.
+
+- Clarifications and more detailed rules regarding Path MTU issues in
+  Section 4.1.1.1. Clarification of the fragmentation text throughout.
+
+- Clarifications regarding handling of invalid records in Section 4.1.2.7.
+
+- A new paragraph describing handling of invalid cookies at the end of
+  Section 4.2.1.
+
+- Some new text describing how to avoid handshake deadlock conditions
+  at the end of Section 4.2.4.
+
+- Some new text about CertificateVerify messages in Section 4.2.6.
+
+- A prohibition on epoch wrapping in Section 4.1.
+
+- Clarification of the IANA requirements and the explicit requirement
+  for a new IANA registration flag for each parameter.
+
+- Numerous editorial changes.
+.fi
+
+
+.in 14
+.ti 0
+9. References
+
+.ti 0
+9.1. Normative References
 
 .ti 3
 [RFC1191]  Mogul, J. and S. Deering, "Path MTU discovery", RFC
 1191, November 1990.
+
+.ti 3
+[RFC1885]  Conta, A., and S. Deering, "Internet Control Message
+Protocol (ICMPv6) for the Internet Protocol Version 6
+(IPv6) Specification", RFC 1885, December 1995.
 
 .ti 3
 [RFC4301]  Kent, S. and K. Seo, "Security Architecture for the
@@ -1383,7 +1490,7 @@ Suites for TLS", RFC 5288, August 2008.
 
 .ne 8
 .ti 0
-8.2. Informative References
+9.2. Informative References
 
 .ti 3
 [DCCP]     Kohler, E., Handley, M., Floyd, S., Padhye, J., "Datagram
@@ -1413,10 +1520,6 @@ Payload (ESP)", RFC 4303, December 2005.
 .ti 3
 [IKEv2]    C. Kaufman (ed), "Internet Key Exchange (IKEv2) Protocol",
 RFC 4306, December 2005.
-
-.ti 3
-Kaufman, C., "Internet Key Exchange (IKEv2) Protocol", RFC 4306,
-December 2005.
 
 .ti 3
 [IMAP]     Crispin, M., "INTERNET MESSAGE ACCESS PROTOCOL - VERSION
@@ -1450,7 +1553,7 @@ RFC 2246, January 1999.
 
 .ti 3
 [WHYIPSEC] Bellovin, S., "Guidelines for Mandating the Use of IPsec",
-Work in Progress, October 2003.
+RFC 5406, October 2003.
 
 .in 3
 .ti 0
