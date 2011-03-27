@@ -1,0 +1,274 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 80} 
+\fancyfoot[C]{\tiny APPAREA Meeting}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}JavaScript Message Syntax (JSMS)}\\
+\vspace{.2in}
+\large{\url{draft-rescorla-jsms-00}}\\
+\large{{IETF 80}} \\
+\vspace{3em}
+\large{
+\begin{tabular}{cc}
+Eric Rescorla$^*$ & Joe Hildebrand \\
+\url{ekr@rtfm.com} & \url{jhildebr@cisco.com} \\
+\end{tabular}
+}
+\end{center}
+
+\vspace{1in}
+$^*$ Presenting
+\end{slide}
+
+
+\centerslidesfalse 
+
+
+\begin{slide}
+\heading{Overview}
+
+\vspace{-.3in}
+\begin{itemize}
+\item Lots of need for cryptographically protected (signed/encrypted) messages
+  \begin{itemize}
+  \item XMPP, OAuth, RELOAD, ...
+  \end{itemize}
+\item Empirically implementors (and designers) don't want to use CMS
+  \begin{itemize}
+  \item Fear of protocol complexity
+  \item ASN.1 allergy
+  \item Especially bad fit for JavaScript, which does badly with binary encodings
+  \end{itemize}
+\item Result is people avoid secure messaging entirely (XMPP, OAuth) or invent their own formats (RELOAD)
+\item[]
+\item We need a format people are actually willing to implement
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Current Efforts}
+
+\begin{itemize}
+\item WebToken (\texttt{draft-jones-json-webtoken-01})
+\item JSMS (\texttt{draft-rescorla-jsms-00}, this talk)
+\item Web Object Encryption and Signing (WOES) bar BOF (tonight at 2000 in Karlin I)
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{JSMS: The Basic Idea}
+
+\vspace{-.2in}
+\begin{itemize}
+\item Use JSON encoding
+\begin{itemize}
+\item Very convenient for working in JavaScript
+\item JSON libraries are readily available for other languages
+\end{itemize}
+
+\item Pick the simplest and most common use cases
+  \begin{itemize}
+  \item Digital signature
+  \item Encryption under recipient's public key (+ MAC for integrity)
+  \item Encryption with a shared symmetric key (+ MAC for integrity)
+  \end{itemize}
+
+\item Design for maximum implementation simplicity
+  \begin{itemize}
+  \item No canonicalization 
+  \item Base-64 anything difficult to represent as a string
+  \item In-memory processing (no streaming operation)
+  \end{itemize}
+\end{itemize}
+
+* WARNING: Hard hat area
+\end{slide}
+
+
+\begin{slide}
+\heading{Sample Workflow}
+
+\vspace{-.5in}
+$$
+\xymatrix@R=.2in@C=2in{
+  \textbf{Sender} & \textbf{Receiver}\\
+  \txt{Text string}\ar[d]^{\txt{\emph{\scriptsize Format}}} & \txt{Text string} \\
+  \txt{Content Object}\ar[d]^{\txt{\emph{\scriptsize Sign}}} & \txt{Content Object}\ar[u]_{\txt{\emph{\scriptsize Unformat}}} \\
+  \txt{Signed Object}\ar[d]^{\txt{\emph{\scriptsize Encrypt}}} & \txt{Signed Object}\ar[u]_{\txt{\emph{\scriptsize Verify}}} \\
+  \txt{Encrypted Object}\ar[r]^{\txt{\emph{\scriptsize Transmit}}} & \txt{Encrypted Object}\ar[u]_{\txt{\emph{\scriptsize Decrypt}}} \\
+}
+$$
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Content Objects}
+
+\vspace{-.2in}
+
+{\small
+\begin{verbatim}
+   {
+       "ContentType":"text/plain; charset=UTF-8",
+       "Type":"content",
+       "Data":"SGVsbG8sIFdvcmxkCg==",
+       "ID":"746a4c9f-8e84-4313-b669-81590ee2949e",
+       "Created":"2011-03-07T16:17Z"
+   }
+\end{verbatim}
+}
+
+\vspace{.1in}
+\begin{itemize}
+\item Wrapper around whatever the original content was
+\item Content-type to identify the format
+\item Base64 to protect potentially dangerous characters
+\item Datestamp and ID for anti-replay
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Signed Objects}
+
+\vspace{-.4in}
+
+{\footnotesize
+\begin{verbatim}
+{
+    "SignedData":"ewogICAgIkNvbnRlbnRUeXBlIjoidGV4dC9wbGFpbjsgY2hhcn
+                  ...  IKfQ==",
+    "DigestAlgorithm":"SHA-256",
+    "SignatureAlgorithm":"RSA-PKCS1-1.5",
+    "Signer":"xmpp:romeo@example.net",
+    "Signature":"sNsxJltUaz4pSzAtJiPZagUMV4SwWugWexGbffK/WJRDi2uq7TxN
+                 ... SJfIdiAJNA+nEnk="
+    "CertChain:{
+       "Type":"PKIX",
+       "Chain":[ ... ]
+    }
+}
+\end{verbatim}
+}
+
+\vspace{-.1in}
+\begin{itemize}
+\item Signature computed over binary representation of Contents
+  \begin{itemize}
+  \item Base64-encoded to prevent damage in transit
+  \end{itemize}
+\item Support for PKIX certificates\symbolfootnote[1]{But wait, aren't certificates in ASN.1? More on this shortly}
+\end{itemize}
+\vspace{.2in}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Encrypted Objects}
+
+[TODO: Need example]
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Wait, aren't PKIX certs in ASN.1/DER?}
+
+\vspace{-.1in}
+\begin{itemize}
+\item Answer 1: Do without
+  \begin{itemize}
+  \item Can potentially use raw public keys (not supported yet)
+  \end{itemize}
+
+\item Answer 2: Certificates are easier to isolate
+  \begin{itemize}
+  \item Stand up a Web service to verify/decode (natural in a Web 2.0 app)
+  \item ... remember that the JS probably came from the server anyway
+  \end{itemize}
+
+\item Answer 3: Replace
+  \begin{itemize}
+  \item Natural to have the contents of a Signed object be a key/identity binding
+  \item Eventually expect to have a simple JSMS-based certificate format
+  \end{itemize}
+
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{What's next?}
+
+Come to the WOES bar bof: [TODO]
+
+
+\end{slide}
+
+
+
+\end{document}
