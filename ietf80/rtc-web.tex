@@ -127,7 +127,7 @@ $$
   & \ar[l]_{\txt{Cookie=XXX}} & \\
   & \txt{\textbf{...}} & \\
   \ar[rr]^{\txt{\texttt{GET /malicious.js}}} & &\\
-  & & \ar[ll]_{\txt{\texttt{<script>XmlHttpRequest("https://gmail.com/")...}}} \\
+  & & \ar[ll]_{\txt{\texttt{<script>XMLHttpRequest("https://gmail.com/")...}}} \\
   \ar[r]^{\txt{\texttt{GET} w/ XXX}} & & \\
   & \ar[l]_{\txt{Mail data}} & \\
   \ar[rr]^{\txt{Mail data}} & & \\
@@ -196,7 +196,7 @@ $$
 \heading{The Same Origin Policy for HTTP Requests}
 
 \begin{itemize}
-\item JavaScript can be used to make fairly controllable HTTP requests with \verb^XmlHttpRequest()^ API
+\item JavaScript can be used to make fairly controllable HTTP requests with \verb^XMLHttpRequest()^ API
   \begin{itemize}
   \item But only to the same origin 
   \end{itemize}
