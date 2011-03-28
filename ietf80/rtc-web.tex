@@ -226,7 +226,6 @@ $$
 \begin{slide}
 \heading{Consent for real-time peer-to-peer communication}
 
-\vspace{-.4in}
 \begin{itemize}
 \item Need to able to send data between two browsers
   \begin{itemize}
@@ -237,7 +236,28 @@ $$
   \begin{itemize}
   \item Not OK to let browsers send TCP and UDP to arbitrary locations
   \end{itemize}
-\item General principle: verify consent~\cite{cors,hybi}
+
+\item General principle: verify consent
+  \begin{itemize}
+  \item Before sending traffic from a script to recipient, verify recipient
+    wants to receive it from the sender
+  \item Familiar paradigm from CORS~\cite{cors} and WebSockets\cite{hybi}
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{How to verify consent for RTC-Web}
+
+\vspace{-.2in}
+\begin{itemize}
+\item Can't trust the server (see above)
+  \begin{itemize}
+  \item Needs to be enforced by the browser
+  \end{itemize}
+
+\item Browser does a handshake with target peer to verify connectivity
 \end{itemize}
 
 \vspace{-.25in}
@@ -252,6 +272,7 @@ $$
 
 \begin{itemize}
 \item This should look familiar from ICE~\cite{rfc5245}
+\item Restricts communication with that endpoint until handshake complete (\textbf{new})
 \end{itemize}
 \end{slide}
 
