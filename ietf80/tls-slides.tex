@@ -1,0 +1,333 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 80} 
+\fancyfoot[C]{\tiny RTC-Web Security Issues}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}DTLS Update}\\
+\large{\url{draft-ietf-tls-rfc4347-bis-05}}\\
+\vspace{.2in}
+\large{{IETF 80}} \\
+\vspace{3em}
+\large{
+\begin{tabular}{c}
+Eric Rescorla \\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+\centerslidesfalse 
+
+
+\begin{slide}
+\heading{Status Overview}
+
+\begin{itemize}
+\item Document taken to IETF LC
+\item Lots of good comments (both IESG and non-IESG)
+\item New version (-05)
+\item A few open issues left
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Final Handshake Message Loss}
+
+\vspace{-.3in}
+Basic case:
+\vspace{-.1in}
+$$
+\xymatrix@R=.1in@C=1.5in{
+  \txt{\textbf{Client}} & & \txt{\textbf{Server}} \\
+  \ar[rr]^{\txt{\texttt{CSS + Finished}}} & &\\
+  & \txt{X} & \ar[l]_{\txt{\texttt{CSS + Finished}}} & \\
+  & & \ar[ll]_{\txt{\texttt{Data}}} & \\
+}
+$$
+
+\begin{itemize}
+\item Server thinks it is done; Client thinks it isn't
+\item Parallel case with resumption and the client's last message
+\item Two issues
+\begin{itemize}
+\item What should the client do?
+\item Why doesn't this cause deadlock?
+\end{itemize}
+\item This was at least unclear and likely unspecified
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Behavior Under Loss}
+
+\begin{itemize}
+\item Receiver
+  \begin{itemize}
+  \item Epoch allows detection of this case
+  \item  MUST NOT accept non-handshake messages in a new epoch prior to \verb^Finished^
+  \item  MAY buffer those messages and process them later (or not)
+    \begin{itemize}
+    \item MAY shortcut the retransmit timer when receiving unexpected application data messages
+    \end{itemize}
+  \end{itemize}
+
+\item Sender
+  \begin{itemize}
+  \item Sender MUST save the last flight for 2MSL
+  \item Respond to a retransmit of the other side's flight with a retransmit
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Epoch Wrapping}
+
+\begin{itemize}
+\item What does epoch wrapping do? [Farrell]
+\item[]
+\item Prohibit wrapping [MUST rehandshake first]
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{What about state loss?}
+
+\begin{itemize}
+\item What happens when a client loses state? [Kaufman]
+  \begin{itemize}
+  \item It sends a new \verb^ClientHello^ 
+  \item This can be confusing
+  \end{itemize}
+
+\item New text:
+  \begin{itemize}
+  \item Epoch = 0 indicates a new handshake
+  \item Server MUST NOT destroy existing association until reachability established
+    \begin{itemize}
+    \item Cookie exchange
+    \item Finished exchange
+    \end{itemize}
+  \end{itemize}
+
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{IANA Considerations}
+
+Draft read:
+
+\begin{quote}
+``Upon registration, new TLS cipher suites MUST indicate whether they
+are suitable for DTLS usage and what, if any, adaptations must be made.''
+\end{quote}
+
+\begin{itemize}
+\item Unfortunately, there was nothing here about an IANA registry
+\item Added one (Section 7)
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Miscellaneous Mostly Editorial}
+
+\begin{itemize}
+\item Clarifications throughout about DTLS versus IP fragmentation
+\item Clarification about backward compatibility
+\item Add reference to v6 Packet Too Big
+\item Implementations MUST propagate PMTU indications (i.e., ICMP*)
+\item Silent discard may include logging
+\item Added a changes list at the end (thanks to Peter Saint-Andr\'e)
+\end{itemize}
+\end{slide}
+
+
+%%%% OPEN ISSUES
+
+
+\begin{slide}
+\heading{2MSL}
+
+\begin{itemize}
+\item Concern from Miguel Garcia that we referenced TCP MSL
+  \begin{itemize}
+  \item Looked like we were expecting DTLS stack to read the TCP MSL
+  \end{itemize}
+
+\item Intention here is to be referencing the TCP spec
+  \begin{itemize}
+  \item So we can benefit if new research/new net conditions
+  \end{itemize}
+
+\item Will fix in next version
+
+\end{itemize}
+\end{slide}
+
+% 2MSL
+% Issues from Magnus
+% record sequence # (ClientHello)
+
+\begin{slide}
+\heading{Record Sequence Numbers for Retransmitted Hello Messages}
+
+\begin{itemize}
+\item What happens if a hello message is lost?
+  \begin{itemize}
+  \item Client retransmits
+  \end{itemize}
+
+\item What should the sequence numbers be?
+  \begin{itemize}
+  \item Clearly: client should be next sequence
+  \item Proposal: server echo client [Tuexen]
+  \end{itemize}
+
+\item Objections?
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{CCS position hard to determine}
+
+\begin{itemize}
+\item CCS has no handshake sequence number
+  \begin{itemize}
+  \item Hard to determine expected position vis-a-vis other messages
+  \item E.g., CSS arrives, are you expecting a CertificateVerify?
+  \end{itemize}
+
+\item Processing CSS properly requires knowing handshake state machine
+  \begin{itemize}
+  \item But which messages are expected is still deterministic 
+  \end{itemize}
+\item Proposal: leave as-is but add note about it
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Plan}
+
+\begin{itemize}
+\item Make changes above
+\item New version by end of April
+\item IESG approval
+\item ???
+\item Profit
+\end{itemize}
+
+\end{slide}
+
+        
+
+
+%    - Updated to match TLS 1.2 [TLS12].
+
+%    - Addition of AEAD Ciphers in Section 4.1.2.3 (tracking changes in
+%      TLS 1.2.
+
+%    - Clarifications regarding sequence numbers and epochs in Section 4.1
+%      and a clear procedure for dealing with state loss in Section 4.2.8.
+
+%    - Clarifications and more detailed rules regarding Path MTU issues in
+%      Section 4.1.1.1. Clarification of the fragmentation text throughout.
+
+%    - Clarifications regarding handling of invalid records in Section 4.1.2.7.
+
+%    - A new paragraph describing handling of invalid cookies at the end of
+%      Section 4.2.1.
+
+%    - Some new text describing how to avoid handshake deadlock conditions
+%      at the end of Section 4.2.4.
+
+%    - Some new text about CertificateVerify messages in Section 4.2.6.
+
+%    - A prohibition on epoch wrapping in Section 4.1.
+
+%    - Clarification of the IANA requirements and the explicit requirement
+%      for a new IANA registration flag for each parameter.
+
+%    - Numerous editorial changes.
+
+
+
+
+\end{document}
