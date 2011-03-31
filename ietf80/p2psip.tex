@@ -270,6 +270,8 @@ Special thanks to Marc Petit-Huegenin for an amazingly thorough reviews.
 \begin{slide}
 \heading{Open Issue: Signing With Multiple Node-Ids}
 
+\vspace{-.4in}
+
 \begin{itemize}
 \item Signatures are currently tied to certificates (\verb^SignerIdentity^)
   \begin{itemize}
@@ -277,11 +279,32 @@ Special thanks to Marc Petit-Huegenin for an amazingly thorough reviews.
   \end{itemize}
 
 \item Proposal: hash the Node-Id into the hash of the certificate
-  \begin{itemize}
-  \item I.e., indicator = $H(NodeId || Certificate)$
-  \item Cost = $n * m$
-  \end{itemize}
 \end{itemize}
+
+{\scriptsize
+\begin{verbatim}
+    struct {
+      select (identity_type) {
+        case cert_hash:
+          HashAlgorithm      hash_alg;              // From TLS
+          opaque             certificate_hash<0..2^8-1>;
+
+        case cert_hash_node_id:
+          HashAlgorithm      hash_alg;              // From TLS
+          opaque             certificate_node_id_hash<0..2^8-1>;
+
+        /* This structure may be extended with new types if necessary*/
+      };
+    } SignerIdentityValue;
+
+    certificate_node_id_hash = H(NodeId || certificate)
+\end{verbatim}
+}
+
+\begin{itemize}
+  \item Cost = $n * m$
+\end{itemize}
+
 \end{slide}
 
 
