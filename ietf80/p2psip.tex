@@ -1,0 +1,350 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 80} 
+\fancyfoot[C]{\tiny P2PSIP}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}RELOAD Base Update}
+\large{\url{draft-ietf-p2psip-base-13}}
+\vspace{.2in}
+\large{{IETF 80}} \\
+\vspace{3em}
+\large{
+\begin{tabular}{c}
+Dr. Cullen Jennings, Ph.D. \\
+Distinguished Engineer, Cisco VTG\\
+\url{fluffy@cisco.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+
+\centerslidesfalse 
+
+
+
+
+
+\begin{slide}
+\heading{DRR}
+
+\vspace{-.4in}
+\begin{itemize}
+\item Specified in a separate draft
+  \begin{itemize}
+  \item Need minimal support in base draft for forward compatibility
+  \end{itemize}
+
+\item Proposal
+  \begin{itemize}
+  \item Exception in \S\ 4.1.2 to allow extensions to adjust state keeping rules:
+    \small{
+    \begin{quote}
+      Whatever algorithm is used, unless a FORWARD\_CRITICAL forwarding
+      option or overlay configuration option explicitly indicates this
+      state is not needed, the state MUST be maintained for at least the
+      value of the overlay reliability timer (3 seconds) and MAY be kept
+      longer.  Future extension, such as [I-D.jiang-p2psip-relay], may
+      define mechanisms for determining when this state does not need to be
+      retained.
+ \end{quote}
+}
+  \item \verb^IGNORE-STATE-KEEPING^ forwarding extension in \verb^draft-jiang-p2psip-relay-05^ to use via list
+  \item Agreement from Jennings, Lowekamp, Even, Rescorla
+  \end{itemize}
+\end{itemize}
+                
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Configuration Refresh}
+
+\begin{itemize}
+\item Previously, just expiration time
+\item Now: retrieve configuration at a randomly selected time in the future
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Configuration Defaults}
+
+\begin{itemize}
+\item Many settings in which there were no defaults now have them
+  \begin{itemize}
+  \item Topology plugin (\verb^CHORD_RELOAD^)
+  \item Port (\verb^6084^)
+  \item Clients-permitted (\verb^chord-reactive = true^)
+   \item ...
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Resolving Simultaneous Connects}
+
+\begin{itemize}
+\item What happens if two nodes try to simultaneously connect to each other
+  \begin{itemize}
+  \item End up with two connections
+  \end{itemize}
+
+\item Tie-breaker algorithm [Chen]
+  \begin{itemize}
+  \item Comparison of Node-Id $A$, $B$ as unsigned integers 
+  \item Keep $A \rightarrow B$ connection iff $A > B$
+  \item Larger node-id sends a \verb^Error_In_Progress^ error (new)
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Replica/Topology Shift Stores and Lifetime}
+
+\begin{itemize}
+\item At time $t_0$ data is stored at $A$ with lifetime $T$ 
+\item At time $t_1$, $A$ stores to $B$ and needs to send lifetime $T'$
+  \begin{itemize}
+  \item Draft didn't define the adjustment algorithm
+  \end{itemize}
+\item \S\ 6.4.1.1 now has an explicit algorithm:
+  \begin{itemize}
+    \item $T' = T - (t_1 - t_0)$
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Triggered ConfigUpdates}
+
+\begin{itemize}
+\item $A$ tries to store item of kind $k$ to $B$ but $B$ doesn't know about $k$
+  \begin{itemize}
+  \item $B$ sends back \verb^Error_Unknown_Kind^
+  \end{itemize}
+
+\item This is a signal that $B$'s config is likely out of date
+\item New requirement (\S\ 6.4.1.2) for $A$ to generate a \verb^ConfigUpdate^
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Resource-ID Computation Algorithm}
+
+\begin{itemize}
+\item Used to be in the configuration document but now it's defined by the overlay algorithm
+  \begin{itemize}
+  \item Proposal: SHA-1 for Chord
+  \end{itemize}
+\item Bug in the current document: \S\ 9.2 specifies truncation to 128 but node-ids vary between 128 and 160 bits (\S\ 5.3.1.1)
+  \begin{itemize}
+  \item This is obviously bad
+  \item Proposal: SHA-1 truncated to node-id length
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+
+
+
+
+\begin{slide}
+\heading{Clarify Congestion Control Considerations}
+
+\begin{itemize}
+\item Wasn't totally clear what the requirements were for flow control algorithms.
+Reworded in \S\ 5.6.3.1
+\end{itemize}
+
+\small{
+\begin{quote}
+   ``Because the receiver's role is limited to providing packet
+   acknowledgements, a wide variety of congestion control algorithms can
+   be implemented on the sender side while using the same basic wire
+   protocol.  In general, senders MAY implement any rate control scheme
+   of their choice, provided that it is REQUIRED to be no more
+   aggressive then TFRC[RFC5348].
+
+   The following section describes a simple, inefficient, scheme that
+   complys with this requirement.  Another alternative would be TFRC-SP
+   [RFC4828] and use the received bitmask to allow the sender to compute
+   packet loss event rates.''
+\end{quote}
+}
+
+\end{slide}
+
+\begin{slide}
+\heading{Extensive Uncontroversial Technical and Editorial Changes}
+
+Special thanks to Marc Petit-Hugenin for an amazingly thorough reviews.
+\end{slide}
+
+
+\begin{slide}
+\heading{Open Issue: How to get a certificate with multiple Node-Ids?}
+
+\begin{itemize}
+\item Nothing in the draft here.
+\item Consensus seems to be \verb^POST^ argument
+\item Concrete Proposal: \verb^nodeids=X^ URL parameter
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Open Issue: Signing With Multiple Node-Ids}
+
+\begin{itemize}
+\item Signatures are currently tied to certificates (\verb^SignerIdentity^)
+  \begin{itemize}
+  \item But what about certificates with multiple Node-Ids?
+  \end{itemize}
+
+\item Proposal: Add a Node-Id indicator to signature 
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Proposed Multiple Signature Syntax [Petit-Hugenin]}
+
+\vspace{-.2in}
+\footnotesize{
+\begin{verbatim}
+   enum { reservedSignerIdentity(0),
+           cert_hash(1), cert_hash_node_id(2) (255)} SignerIdentityType;
+
+   struct {
+      select (identity_type) {
+        case cert_hash:
+          HashAlgorithm      hash_alg;              // From TLS
+          opaque             certificate_hash<0..2^8-1>;
+
+        case cert_hash_node_id:
+          HashAlgorithm      hash_alg;              // From TLS
+          opaque             certificate_hash<0..2^8-1>;
+          NodeId             node_id;
+
+        /* This structure may be extended with new types if necessary*/
+      };
+    } SignerIdentityValue;
+\end{verbatim}
+}
+\end{slide}
+
+\begin{slide}
+\heading{Attach for Initial Connections}
+
+\begin{itemize}
+\item Ambiguity about whether initial (non-bootstrap) connections require \verb^Attach^
+  \begin{itemize}
+  \item This includes client connections
+  \item This allows determination of Node-Id
+  \end{itemize}
+\item Now clarified in \S\ 11.
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Open Issue: Who Signs Stores?}
+
+\begin{itemize}
+\item \S\ 6.4.1.1 (\verb^StoreReq^ processing) requires verifying the stored value signatures
+\item \S\ 6.3.x (access control policies) is phrased in terms of the signed request
+
+\item Both signatures matter, but this is wrong
+\item Proposal:
+  \begin{itemize}
+  \item Check stored value signatures against access control policies (\S\ 6.3.1)
+  \item Check the request signature against either access control policies (original store) or plausible responsible node (replica store)
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Open Issue: Refreshing Finger Table}
+
+\url{http://www.ietf.org/mail-archive/web/p2psip/current/msg05564.html}
+
+\end{slide}
+
+
+
+\end{document}
