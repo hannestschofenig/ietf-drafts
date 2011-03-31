@@ -60,18 +60,19 @@
 \begin{document}
 \begin{slide}
 \begin{center}
-\vspace{1 in}
+\vspace{-.5in}
 \LARGE{{\bf}RELOAD Base Update}
-\large{\url{draft-ietf-p2psip-base-13}}
-\vspace{.2in}
+\large{\url{draft-ietf-p2psip-base-13}}\\
 \large{{IETF 80}} \\
-\vspace{3em}
+\vspace{.2in}
 \large{
-\begin{tabular}{c}
 Rev. Dr. Cullen Jennings, Ph.D. \\
-Distinguished Engineer, Cisco VTG\\
-\url{fluffy@cisco.com}
-\end{tabular}
+Distinguished Engineer\\
+Office of the CTO, Cisco VTG\\
+UBC Young Alumnus of the Year 2005\\
+\url{fluffy@cisco.com}\\
+\vspace{1em}
+NASDAQ: CSCO
 }
 \end{center}
 
@@ -249,7 +250,7 @@ Reworded in \S\ 5.6.3.1
 \begin{slide}
 \heading{Extensive Uncontroversial Technical and Editorial Changes}
 
-Special thanks to Marc Petit-Hugenin for an amazingly thorough reviews.
+Special thanks to Marc Petit-Huegenin for an amazingly thorough reviews.
 \end{slide}
 
 
@@ -259,7 +260,7 @@ Special thanks to Marc Petit-Hugenin for an amazingly thorough reviews.
 \begin{itemize}
 \item Nothing in the draft here.
 \item Consensus seems to be \verb^POST^ argument
-\item Concrete Proposal: \verb^nodeids=X^ URL parameter
+\item Concrete Proposal: \verb^nodeids=X^ query parameter
 \end{itemize}
 
 \end{slide}
@@ -275,49 +276,38 @@ Special thanks to Marc Petit-Hugenin for an amazingly thorough reviews.
   \item But what about certificates with multiple Node-Ids?
   \end{itemize}
 
-\item Proposal: Add a Node-Id indicator to signature 
+\item Proposal: hash the Node-Id into the hash of the certificate
+  \begin{itemize}
+  \item I.e., indicator = $H(NodeId || Certificate)$
+  \item Cost = $n * m$
+  \end{itemize}
 \end{itemize}
 \end{slide}
 
-\begin{slide}
-\heading{Proposed Multiple Signature Syntax [Petit-Hugenin]}
-
-\vspace{-.2in}
-\footnotesize{
-\begin{verbatim}
-   enum { reservedSignerIdentity(0),
-           cert_hash(1), cert_hash_node_id(2) (255)} SignerIdentityType;
-
-   struct {
-      select (identity_type) {
-        case cert_hash:
-          HashAlgorithm      hash_alg;              // From TLS
-          opaque             certificate_hash<0..2^8-1>;
-
-        case cert_hash_node_id:
-          HashAlgorithm      hash_alg;              // From TLS
-          opaque             certificate_hash<0..2^8-1>;
-          NodeId             node_id;
-
-        /* This structure may be extended with new types if necessary*/
-      };
-    } SignerIdentityValue;
-\end{verbatim}
-}
-\end{slide}
 
 \begin{slide}
-\heading{Attach for Initial Connections}
+\heading{Identifying Connection Endpoints with muliple Node-Ids}
 
 \begin{itemize}
-\item Ambiguity about whether initial (non-bootstrap) connections require \verb^Attach^
+\item How do you know who is at the other end of the connection?
+\end{itemize}
+\begin{itemize}
+\item Proposal from Bruce Lowekamp: use \verb^Attach^ for all but bootstrap
   \begin{itemize}
   \item This includes client connections
   \item This allows determination of Node-Id
+  \item Current status of \S\ 11.
   \end{itemize}
-\item Now clarified in \S\ 11.
+
+\item Marc Petit-Huegenin argues that this doesn't work for bootstrap
+  \begin{itemize}
+  \item Suggests using a \verb^Ping^ (possibly optional) instead.
+  \end{itemize}
+
+\item Discuss?
 \end{itemize}
 \end{slide}
+
 
 
 \begin{slide}
@@ -341,7 +331,26 @@ Special thanks to Marc Petit-Hugenin for an amazingly thorough reviews.
 \begin{slide}
 \heading{Open Issue: Refreshing Finger Table}
 
-\url{http://www.ietf.org/mail-archive/web/p2psip/current/msg05564.html}
+\begin{itemize}
+\item Formula is still wrong
+\item Proposal: Dr. Fluffy to fix
+\end{itemize}
+
+
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Way Forward}
+
+\begin{itemize}
+
+\item Resolve these issues
+\item Issue a new draft by 4/30
+\item ???
+\item Profit
+\end{itemize}
 
 \end{slide}
 
