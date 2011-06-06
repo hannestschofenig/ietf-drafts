@@ -37,7 +37,7 @@ $stat_total=0;
 &usage() unless $#ARGV>=0;
 $mtg_tmp=shift @ARGV;
 
-die("Bad meeting name $mtg_tmp: try YY<monthname> like 07mar") unless $mtg_tmp=~/^(\d\d[a-z][a-z][a-z])$/;
+die("Bad meeting name $mtg_tmp: try meeting #") unless $mtg_tmp=~/^(\d\d)$/;
 $mtg=$1;
 
 if(!$FILE){
@@ -56,7 +56,7 @@ else{
     }
 }
 
-$AGENDA_URL="http://www3.ietf.org/proceedings/$mtg/agenda/";
+$AGENDA_URL="http://datatracker.ietf.org/meeting/$mtg/agenda/";
 $DRAFT_URL="http://www.ietf.org/internet-drafts/";
 $PRINT_COMMAND="enscript -2rG -h" unless $PRINT_COMMAND;
 

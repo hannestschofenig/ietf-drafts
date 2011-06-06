@@ -7,7 +7,7 @@
 .ds LF Rescorla & Modadugu
 .ds RF FORMFEED[Page %]
 .ds CF Standards Track
-.ds LH draft-ietf-tls-rfc4347-bis-00
+.ds LH draft-ietf-tls-rfc4347-bis-06
 .ds RH March 2011
 .ds CH DTLS
 .hy 0
@@ -16,12 +16,14 @@
 INTERNET-DRAFT                                               E. Rescorla
 Obsoletes (if approved): RFC 4347                             RTFM, Inc.
 Intended Status: Proposed Standard                           N. Modadugu
-<draft-ietf-tls-rfc4347-bis-05.txt>                  Stanford University
-                                    March, 2011 (Expires September 2011)
+Expires: November 14, 2011                           Stanford University
+                                                            May 14, 2011
 
 
 .ce
 Datagram Transport Layer Security version 1.2
+.ce
+draft-ietf-tls-rfc4347-bis-05.txt
 
 .ti 0
 Abstract
@@ -406,8 +408,11 @@ epoch 1 may be received after epoch 2 has begun. In general,
 implementations SHOULD discard packets from earlier epochs,
 but if packet loss causes noticeable problems MAY choose
 to retain keying material from previous epochs for up
-to 120 seconds (the default TCP MSL) to allow for packet
-reordering.  Until the handshake has completed, implementations
+to the default MSL specified for TCP [TCP] to allow for packet
+reordering. (Note: the intention here is that implementors use
+the current guidance from the IETF for MSL, not that they attempt
+to interrogate the MSL the system TCP stack is using.)
+Until the handshake has completed, implementations
 MUST accept packets from the old epoch.
 
 Conversely, it is possible for records that are protected
@@ -820,7 +825,11 @@ its cookie and verify that they are correct upon cookie
 receipt.  The server MUST use the same version number in the
 HelloVerifyRequest that it would use when sending a
 ServerHello.  Upon receipt of the ServerHello, the client MUST
-verify that the server version values match. 
+verify that the server version values match. In order to avoid
+sequence number duplication in case of multiple HelloVerifyRequests,
+the server MUST use the record sequence number in the
+ClientHello as the record sequence number in the 
+HelloVerifyRequest.
 
 Note: this specification increases the cookie size limit to
 255 bytes for greater future flexibility. The limit remains
@@ -832,9 +841,13 @@ the server.  One technique is to have a randomly generated
 secret and generate cookies as:
 Cookie = HMAC(Secret, Client-IP, Client-Parameters)
 
-When the second ClientHello is received, the server can verify
-that the Cookie is valid and that the client can receive
-packets at the given IP address.
+When the second ClientHello is received, the server can verify that
+the Cookie is valid and that the client can receive packets at the
+given IP address.  In order to avoid sequence number duplication in
+case of multiple cookie exchanges, the server MUST use the record
+sequence number in the ClientHello as the record sequence number in
+its initial ServerHello. Subsequent ServerHellos will only be sent
+after the server has created state and MUST increment normally.
      
 One potential attack on this scheme is for the attacker to
 collect a number of cookies from different addresses and then
@@ -872,14 +885,7 @@ changes its cookie signing key).
 Note to implementors: this may results in clients receiving multiple
 HelloVerifyRequest messages with different cookies.  Clients SHOULD
 handle this by sending a new ClientHello with a cookie in response to
-the new HelloVerifyRequest.  Note that this message should have the
-same handshake sequence number (0) and record sequence number (0),
-thus avoiding the need to create state on the server. This also
-implies that the client MUST NOT do replay suppression during the
-initial handshake (this is safe as handshake messages have their
-own sequence numbers). [OPEN ISSUE: It's not clear that this is the best
-choice. Michael Tuexen suggested mimicing the client's record
-sequence number instead.]
+the new HelloVerifyRequest.
 
 
 .ti 0
@@ -1156,7 +1162,8 @@ FINISHED state to the PREPARING state to transmit the HelloRequest.
 When the client receives a HelloRequest it transitions from FINISHED
 to PREPARING to transmit the ClientHello.
 
-In addition, for at least 2MSL, when in the FINISHED state, the node
+In addition, for at least twice the default MSL defined for [TCP],
+when in the FINISHED state, the node
 which transmits the last flight (the server in an ordinary handshake
 or the client in a resumed handshake) MUST respond to a retransmit of
 the peer's last flight with a retransmit of the last flight. This
@@ -1211,7 +1218,7 @@ after substantial data transfer.
 As with TLS, the ChangeCipherSpec message is not technically a
 handshake message but MUST be treated as part of the same
 flight as the associated Finished message for the purposes of
-timeout and retransmission.
+timeout and retransmission. 
 
 .ti 0
 4.2.6. CertificateVerify and Finished Messages
@@ -1443,6 +1450,9 @@ This document reflects the following changes since DTLS 1.0 [DTLS1].
 
 - Clarification of the IANA requirements and the explicit requirement
   for a new IANA registration flag for each parameter.
+
+- Added a record sequence number mirroring technique for handling
+  repeated ClientHello messages.
 
 - Numerous editorial changes.
 .fi
