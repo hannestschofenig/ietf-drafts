@@ -126,19 +126,19 @@ Table of Contents
      4.1.  Access to Local Devices  . . . . . . . . . . . . . . . . .  7
      4.2.  Communications Consent Verification  . . . . . . . . . . .  9
        4.2.1.  ICE  . . . . . . . . . . . . . . . . . . . . . . . . .  9
-       4.2.2.  Masking  . . . . . . . . . . . . . . . . . . . . . . .  9
+       4.2.2.  Masking  . . . . . . . . . . . . . . . . . . . . . . . 10
        4.2.3.  Backward Compatibility . . . . . . . . . . . . . . . . 10
      4.3.  Communications Security  . . . . . . . . . . . . . . . . . 10
        4.3.1.  Protecting Against Retrospective Compromise  . . . . . 11
-       4.3.2.  Protecting Against During-Call Attack  . . . . . . . . 11
+       4.3.2.  Protecting Against During-Call Attack  . . . . . . . . 12
          4.3.2.1.  Key Continuity . . . . . . . . . . . . . . . . . . 12
-         4.3.2.2.  Short Authentication Strings . . . . . . . . . . . 12
+         4.3.2.2.  Short Authentication Strings . . . . . . . . . . . 13
    5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 13
-   6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 13
-   7.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 13
-     7.1.  Normative References . . . . . . . . . . . . . . . . . . . 13
+   6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 14
+   7.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 14
+     7.1.  Normative References . . . . . . . . . . . . . . . . . . . 14
      7.2.  Informative References . . . . . . . . . . . . . . . . . . 14
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 15
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 16
 
 
 
@@ -300,7 +300,7 @@ Internet-Draft              RTC-Web Security                    May 2011
    [Note:  in many cases browsers are explicitly designed to avoid
    dialogs with the semantics of "click here to screw yourself", as
    extensive research shows that users are prone to consent under such
-   circumstances.
+   circumstances.]
 
    Similarly, while Flash SWFs can access the camera and microphone,
    they explicitly require that the user consent to that access.  In
@@ -434,13 +434,13 @@ Internet-Draft              RTC-Web Security                    May 2011
    the malicious site can claim that the user is calling any user of his
    choice.  The fix for this is to tie calls to a specific set of
    cryptographic keying material, but that breaks any portability for
-   the callee's client, and is thus problematic for any but high-
-   security applications.
+   the callee's client, and is thus problematic.  (Section 4.3.2.1)
 
    While this is primarily a question not for IETF, it should be clear
-   that there is no really good answer.  In general, if you canot trust
-   the site which one is authorized for calling not to bug you then your
-   security situation is not really ideal.  It is RECOMMENDED that
+   that there is no really good answer.  In general, if you cannot trust
+   the site which one has authorized for calling not to bug you then
+   your security situation is not really ideal.  It is RECOMMENDED that
+   browsers have explicit (and obvious) indicators that they are in a
 
 
 
@@ -449,36 +449,36 @@ Rescorla                Expires December 1, 2011                [Page 8]
 Internet-Draft              RTC-Web Security                    May 2011
 
 
-   browsers have explicit (and obvious) indicators that they are in a
    call in order to mitigate this risk.
 
    The above recommendations provide security against web attackers.
    However, if a legitimate site is fetched over HTTP rather than HTTPS,
-   an attacker can inject code to initiate calls as if it were that
-   origin, thus bypassing origin restrictions.  Note that this form of
-   attack is also possible if a site embeds active content (e.g.,
+   a network attacker can inject code to initiate calls as if it were
+   that origin, thus bypassing origin restrictions.  Note that this form
+   of attack is also possible if a site embeds active content (e.g.,
    JavaScript) that is fetched over HTTP or from an untrusted site,
    because that JavaScript is executed in the security context of the
-   page. [finer-grained].  Therefore, it is RECOMMENDED that sites which
+   page [finer-grained].  Therefore, it is RECOMMENDED that sites which
    embed RTC-Web functionality serve that functionality only over HTTPS
    and that browsers disallow execution of calling functionality in
    origins which contain mixed content.  Note:  this issue is not
-   restricted to PAGES which contain mixed content.  If an origin ever
-   loads mixed content then it is possible for a network attacker to
-   infect the origin semi-permanently.
+   restricted to PAGES which contain mixed content.  If a page from a
+   given origin ever loads mixed content then it is possible for a
+   network attacker to infect the browser's notion of that origin semi-
+   permanently.
 
 4.2.  Communications Consent Verification
 
-   As discussed in Section 3.3, allowing sites unrestricted access to
-   the network introduces the risk of using the browser as an attack
-   platform against machines which would not otherwise be accessible to
-   the malicious site, for instance because they are topologically
-   restricted (e.g., behind a firewall or NAT).  In order to prevent
-   this form of attack as well as cross-protocol attacks it is important
-   to require that the target of traffic explicitly consent to receiving
-   the traffic in question.  Until that consent has been verified for a
-   given endpoint, traffic other than the consent handshake MUST NOT be
-   sent to that endpoint.
+   As discussed in Section 3.3, allowing web applications unrestricted
+   access to the via the browser network introduces the risk of using
+   the browser as an attack platform against machines which would not
+   otherwise be accessible to the malicious site, for instance because
+   they are topologically restricted (e.g., behind a firewall or NAT).
+   In order to prevent this form of attack as well as cross-protocol
+   attacks it is important to require that the target of traffic
+   explicitly consent to receiving the traffic in question.  Until that
+   consent has been verified for a given endpoint, traffic other than
+   the consent handshake MUST NOT be sent to that endpoint.
 
 4.2.1.  ICE
 
@@ -491,12 +491,12 @@ Internet-Draft              RTC-Web Security                    May 2011
    receiving element MUST demonstrate receipt/knowledge of some value
    not available to the site (thus preventing it from forging
    responses).  In order to achieve this objective with ICE, the STUN
-   transaction IDs MUST NOT be available to the initiating script.
+   transaction IDs must be generated by the browser and MUST NOT be made
+   available to the initiating script, even via a diagnostic interface.
 
-4.2.2.  Masking
 
-   Once consent is verified, there still is some concern about
-   misinterpretation attacks as described by Huang et al.  As long as
+
+
 
 
 
@@ -505,6 +505,10 @@ Rescorla                Expires December 1, 2011                [Page 9]
 Internet-Draft              RTC-Web Security                    May 2011
 
 
+4.2.2.  Masking
+
+   Once consent is verified, there still is some concern about
+   misinterpretation attacks as described by Huang et al.  As long as
    communication is limited to UDP, then this risk is probably limited.
    However, with TCP the risk of transparent proxies becomes much more
    severe.  If TCP is to be used, then WebSockets style masking MUST be
@@ -525,10 +529,11 @@ Internet-Draft              RTC-Web Security                    May 2011
    for the communicating parties to establish a channel which is secure
    against both message recovery and message modification.  (See
    [RFC5479] for more details.)  This service must be provided for both
-   voice and data.  Technology for providing this service (for instance,
-   DTLS [RFC4347] and DTLS-SRTP [RFC5763]) is well understood.  However,
-   we must still adapt this technology to the RTC-Web context, where the
-   threat model is somewhat different.
+   data and voice/video.  Ideally the same security mechanisms would be
+   used for both types of content.  Technology for providing this
+   service (for instance, DTLS [RFC4347] and DTLS-SRTP [RFC5763]) is
+   well understood.  However, we must examine this technology to the
+   RTC-Web context, where the threat model is somewhat different.
 
    In general, it is important to understand that unlike a conventional
    SIP proxy, the calling service (i.e., the Web server) controls not
@@ -548,11 +553,6 @@ Internet-Draft              RTC-Web Security                    May 2011
 
    This limitation does not mean that preventing attack by the calling
    service is completely hopeless.  However, we need to distinguish
-   between two classes of attack:
-
-
-
-
 
 
 
@@ -560,6 +560,8 @@ Rescorla                Expires December 1, 2011               [Page 10]
 
 Internet-Draft              RTC-Web Security                    May 2011
 
+
+   between two classes of attack:
 
    Retrospective compromise of calling service.
       The calling service is is non-malicious during a call but
@@ -581,34 +583,32 @@ Internet-Draft              RTC-Web Security                    May 2011
 
 4.3.1.  Protecting Against Retrospective Compromise
 
-   In a retrospective attack, that the calling service was uncompromised
+   In a retrospective attack, the calling service was uncompromised
    during the call, but that an attacker subsequently wants to recover
    the content of the call.  We assume that the attacker has access to
-   the protected media stream as well as has full control of the calling
-   service.
+   the protected media stream as well as having full control of the
+   calling service.
 
-   If the calling service has access to the traffic keying material as
-   in SDES [RFC4568] is used.  This form of attack is particularly
-   serious in the Web context because it is standard practice in Web
-   services to run extensive logging and monitoring.  Thus, it is highly
-   likely that if the traffic key is part of any HTTP request it will be
-   logged somewhere and thus subject to subsequent compromise.  It is
-   this consideration that makes an automatic, public key-based key
-   exchange mechanism imperative for RTC-Web (this is a good idea for
-   any communications security system) and this mechanism SHOULD provide
-   perfect forward secrecy (PFS).  In addition, the system MUST NOT
-   provide any APIs to extract either long-term keying material or to
-   directly access any stored traffic keys.  Otherwise, an attacker who
-   subsequently compromised the calling service might be able to use
-   those APIs to recover the traffic keys and thus compromise the
-   traffic.
+   If the calling service has access to the traffic keying material (as
+   in SDES [RFC4568]), then retrospective attack is trivial.  This form
+   of attack is particularly serious in the Web context because it is
+   standard practice in Web services to run extensive logging and
+   monitoring.  Thus, it is highly likely that if the traffic key is
+   part of any HTTP request it will be logged somewhere and thus subject
+   to subsequent compromise.  It is this consideration that makes an
+   automatic, public key-based key exchange mechanism imperative for
+   RTC-Web (this is a good idea for any communications security system)
+   and this mechanism SHOULD provide perfect forward secrecy (PFS).  The
+   signaling channel/calling service can be used to authenticate this
+   mechanism.
 
-4.3.2.  Protecting Against During-Call Attack
+   In addition, the system MUST NOT provide any APIs to extract either
+   long-term keying material or to directly access any stored traffic
+   keys.  Otherwise, an attacker who subsequently compromised the
+   calling service might be able to use those APIs to recover the
+   traffic keys and thus compromise the traffic.
 
-   Protecting against attacks during a call is a more difficult
-   proposition.  Even if the calling service cannot directly access
-   keying material (as recommended in the previous section), it can
-   simply mount a man-in-the-middle attack on the connection, telling
+
 
 
 
@@ -617,6 +617,12 @@ Rescorla                Expires December 1, 2011               [Page 11]
 Internet-Draft              RTC-Web Security                    May 2011
 
 
+4.3.2.  Protecting Against During-Call Attack
+
+   Protecting against attacks during a call is a more difficult
+   proposition.  Even if the calling service cannot directly access
+   keying material (as recommended in the previous section), it can
+   simply mount a man-in-the-middle attack on the connection, telling
    Alice that she is calling Bob and Bob that he is calling Alice, while
    in fact the calling service is acting as a calling bridge and
    capturing all the traffic.  While in theory it is possible to
@@ -633,7 +639,7 @@ Internet-Draft              RTC-Web Security                    May 2011
    it is possible for the browser to note a given user's public key and
    generate an alarm whenever that user's key changes.  SSH [RFC4251]
    uses a similar technique.  (Note that the need to avoid modal dialogs
-   precludes forcing an immediate check of the peer's key).
+   precludes forcing an immediate manual check of the peer's key).
 
    Unfortunately, this sort of key continuity mechanism is far less
    useful in the RTC-Web context.  First, much of the virtue of RTC-Web
@@ -655,16 +661,10 @@ Internet-Draft              RTC-Web Security                    May 2011
    require an API to allow the calling service to tell the browser "this
    is a call to user X".  All the calling service needs to do to avoid
    triggering a key continuity warning is to tell the browser that "this
-   is a call to user X'".  Even if the user actually checks the other
-   side's name (which all available evidence indicates is unlikely),
-   this would require (a) the browser to trusted UI to provide the name
-   and (b) the user to not be fooled by similar appearing names.
-
-4.3.2.2.  Short Authentication Strings
-
-   ZRTP [RFC6189] uses a "short authentication string" (SAS) which is
-   derived from the key agrement protocol.  This SAS is designed to be
-   read over the voice channel and if confirmed by both sides precludes
+   is a call to user Y" where Y is close to X. Even if the user actually
+   checks the other side's name (which all available evidence indicates
+   is unlikely), this would require (a) the browser to trusted UI to
+   provide the name and (b) the user to not be fooled by similar
 
 
 
@@ -673,6 +673,13 @@ Rescorla                Expires December 1, 2011               [Page 12]
 Internet-Draft              RTC-Web Security                    May 2011
 
 
+   appearing names.
+
+4.3.2.2.  Short Authentication Strings
+
+   ZRTP [RFC6189] uses a "short authentication string" (SAS) which is
+   derived from the key agreement protocol.  This SAS is designed to be
+   read over the voice channel and if confirmed by both sides precludes
    MITM attack.  The intention is that the SAS is used once and then key
    continuity used thereafter.  Unfortunately, the SAS does not offer a
    practical solution to the problem of a compromised calling service.
@@ -712,6 +719,16 @@ Internet-Draft              RTC-Web Security                    May 2011
    This entire document is about security.
 
 
+
+
+
+
+
+Rescorla                Expires December 1, 2011               [Page 13]
+
+Internet-Draft              RTC-Web Security                    May 2011
+
+
 6.  Acknowledgements
 
 
@@ -721,13 +738,6 @@ Internet-Draft              RTC-Web Security                    May 2011
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
-
-
-
-Rescorla                Expires December 1, 2011               [Page 13]
-
-Internet-Draft              RTC-Web Security                    May 2011
-
 
 7.2.  Informative References
 
@@ -767,6 +777,14 @@ Internet-Draft              RTC-Web Security                    May 2011
               Description Protocol (SDP) Security Descriptions for Media
               Streams", RFC 4568, July 2006.
 
+
+
+
+Rescorla                Expires December 1, 2011               [Page 14]
+
+Internet-Draft              RTC-Web Security                    May 2011
+
+
    [RFC5245]  Rosenberg, J., "Interactive Connectivity Establishment
               (ICE): A Protocol for Network Address Translator (NAT)
               Traversal for Offer/Answer Protocols", RFC 5245,
@@ -777,14 +795,6 @@ Internet-Draft              RTC-Web Security                    May 2011
               Protocols", RFC 5479, April 2009.
 
    [RFC5763]  Fischl, J., Tschofenig, H., and E. Rescorla, "Framework
-
-
-
-Rescorla                Expires December 1, 2011               [Page 14]
-
-Internet-Draft              RTC-Web Security                    May 2011
-
-
               for Establishing a Secure Real-time Transport Protocol
               (SRTP) Security Context Using Datagram Transport Layer
               Security (DTLS)", RFC 5763, May 2010.
@@ -823,22 +833,17 @@ Internet-Draft              RTC-Web Security                    May 2011
               2001.
 
    [whitten-johnny]
-              Whitten, A. and J. Tygar, "Why Johnny Can't Encrypt: A
-              Usability Evaluation of PGP 5.0",  Proceedings of the 8th
-              USENIX Security Symposium, 1999.
-
-
-
-
-
-
-
 
 
 
 Rescorla                Expires December 1, 2011               [Page 15]
 
 Internet-Draft              RTC-Web Security                    May 2011
+
+
+              Whitten, A. and J. Tygar, "Why Johnny Can't Encrypt: A
+              Usability Evaluation of PGP 5.0",  Proceedings of the 8th
+              USENIX Security Symposium, 1999.
 
 
 Author's Address
@@ -851,11 +856,6 @@ Author's Address
 
    Phone:  +1 650 678 2350
    Email:  ekr@rtfm.com
-
-
-
-
-
 
 
 
