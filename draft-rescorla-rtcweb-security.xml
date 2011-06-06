@@ -336,7 +336,8 @@
 	<t>
 	  While this is primarily a question not for IETF, it should be clear that there is no
 	  really good answer. In general, if you cannot trust the site which you have authorized
-	  for calling not to bug you then your security situation is not really ideal. It is RECOMMENDED that
+	  for calling not to bug you then your security situation is not really ideal. 
+	  It is RECOMMENDED that
 	  browsers have explicit (and obvious) indicators that they are in a call in order
 	  to mitigate this risk.
 	</t>
@@ -387,8 +388,10 @@
 	<section title="Masking" anchor="sec.masking">
 	  <t>
 	    Once consent is verified, there still is some concern about misinterpretation
-	    attacks as described by Huang et al. As long as communication is limited to
-	    UDP, then this risk is probably limited. However, 
+	    attacks as described by Huang et al.<xref target="huang-w2sp"/>.
+	    As long as communication is limited to
+	    UDP, then this risk is probably limited, thus masking is not required
+	    for UDP. However, 
 	    with TCP the risk of transparent proxies becomes much more severe. If TCP
 	    is to be used, then WebSockets style masking MUST be employed.
 	    <!-- [TODO: DNS injection?].-->
@@ -508,8 +511,8 @@
 	      Thus, it is possible for the browser to note a given user's
 	      public key and generate an alarm whenever that user's key 
 	      changes. SSH <xref target="RFC4251"/> uses a similar technique.
-	      (Note that the need to avoid modal dialogs precludes forcing
-	      an immediate manual check of the peer's key).
+	      (Note that the need to avoid explicit user consent on every call
+	      precludes the browser requiring an immediate manual check of the peer's key).
 	    </t>
 	    <t>
 	      Unfortunately, this sort of key continuity mechanism is far less
@@ -550,32 +553,12 @@
 	      from the key agreement protocol. This SAS is designed to be read over
 	      the voice channel and if confirmed by both sides precludes MITM
 	      attack. The intention is that the SAS is used once and then key
-	      continuity used thereafter. 
+	      continuity (though a different mechanism from that discussed
+	      above) is used thereafter. 
+	    </t>
+	    <t>
 	      Unfortunately, the SAS does not offer a practical solution to the
-	      problem of a compromised calling service. As discussed above,
-	      it cannot be modal and it is well-known that when faced with 
-	      optional mechanisms such as fingerprints, users simply do not
-	      check them <xref target="whitten-johnny"/> Thus, it is 
-	      highly unlikely that users will ever perform the SAS exchange.
-	    </t>
-	    <t>
-	      Even if users do occasionally check the SAS, key continuity
-	      is required to prevent them needing to check it on every call.
-	      However, this is problematic for reasons indicated in
-	      <xref target="sec.key-continuity"/>.
-	      In principle it is of course possible to render a different
-	      UI element to indicate that calls are using an unauthenticated
-	      set of keying material (recall that the attacker can just present
-	      a slightly different name so that the attack just shows the
-	      same UI as a call to a new device or to someone you haven't
-	      called before) but as a practical matter, users simply ignore
-	      such indicators even in the rather more dire case of mixed
-	      content warnings.
-	    </t>
-	    <t>
-	      In addition, it is far from clear that the SAS is secure even
-	      within a given call. 
-	      "Voice conversion" systems, which modify
+	      problem of a compromised calling service.	"Voice conversion" systems, which modify
 	      voice from one speaker to make it sound like another,
 	      are an active area of research. 
 	      These systems are already good enough to fool both
@@ -588,6 +571,32 @@
 	      who controls the browser to allow the SAS to succeed and then simulate call failure
 	      and reconnect, trusting that the user will not notice that
 	      the "no SAS" indicator has been set (which seems likely).
+	    </t>
+	    <t>
+	      Even were SAS secure if used, it seems exceedingly unlikely
+	      that users will actually use it. As discussed above, the
+	      browser UI constraints preclude requiring the SAS exchange
+	      prior to completing the call and so it must be voluntary;
+	      at most the browser will provide some UI indicator that the
+	      SAS has not yet been checked. However, it 
+	      it is well-known that when faced with 
+	      optional mechanisms such as fingerprints, users simply do not
+	      check them <xref target="whitten-johnny"/> Thus, it is 
+	      highly unlikely that users will ever perform the SAS exchange.
+	    </t>
+	    <t>
+	      Once uses have checked the SAS once, key continuity
+	      is required to avoid them needing to check it on every call.
+	      However, this is problematic for reasons indicated in
+	      <xref target="sec.key-continuity"/>.
+	      In principle it is of course possible to render a different
+	      UI element to indicate that calls are using an unauthenticated
+	      set of keying material (recall that the attacker can just present
+	      a slightly different name so that the attack shows the
+	      same UI as a call to a new device or to someone you haven't
+	      called before) but as a practical matter, users simply ignore
+	      such indicators even in the rather more dire case of mixed
+	      content warnings.
 	    </t>
 	  </section>
 	</section>

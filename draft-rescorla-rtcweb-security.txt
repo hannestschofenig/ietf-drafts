@@ -133,7 +133,7 @@ Table of Contents
        4.3.2.  Protecting Against During-Call Attack  . . . . . . . . 12
          4.3.2.1.  Key Continuity . . . . . . . . . . . . . . . . . . 12
          4.3.2.2.  Short Authentication Strings . . . . . . . . . . . 13
-   5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 13
+   5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 14
    6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 14
    7.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 14
      7.1.  Normative References . . . . . . . . . . . . . . . . . . . 14
@@ -438,7 +438,7 @@ Internet-Draft              RTC-Web Security                    May 2011
 
    While this is primarily a question not for IETF, it should be clear
    that there is no really good answer.  In general, if you cannot trust
-   the site which one has authorized for calling not to bug you then
+   the site which you have authorized for calling not to bug you then
    your security situation is not really ideal.  It is RECOMMENDED that
    browsers have explicit (and obvious) indicators that they are in a
 
@@ -508,11 +508,11 @@ Internet-Draft              RTC-Web Security                    May 2011
 4.2.2.  Masking
 
    Once consent is verified, there still is some concern about
-   misinterpretation attacks as described by Huang et al.  As long as
-   communication is limited to UDP, then this risk is probably limited.
-   However, with TCP the risk of transparent proxies becomes much more
-   severe.  If TCP is to be used, then WebSockets style masking MUST be
-   employed.
+   misinterpretation attacks as described by Huang et al.[huang-w2sp].
+   As long as communication is limited to UDP, then this risk is
+   probably limited, thus masking is not required for UDP.  However,
+   with TCP the risk of transparent proxies becomes much more severe.
+   If TCP is to be used, then WebSockets style masking MUST be employed.
 
 4.2.3.  Backward Compatibility
 
@@ -638,8 +638,9 @@ Internet-Draft              RTC-Web Security                    May 2011
    cannot produce a private key that maps to a given public key.  Thus,
    it is possible for the browser to note a given user's public key and
    generate an alarm whenever that user's key changes.  SSH [RFC4251]
-   uses a similar technique.  (Note that the need to avoid modal dialogs
-   precludes forcing an immediate manual check of the peer's key).
+   uses a similar technique.  (Note that the need to avoid explicit user
+   consent on every call precludes the browser requiring an immediate
+   manual check of the peer's key).
 
    Unfortunately, this sort of key continuity mechanism is far less
    useful in the RTC-Web context.  First, much of the virtue of RTC-Web
@@ -664,7 +665,6 @@ Internet-Draft              RTC-Web Security                    May 2011
    is a call to user Y" where Y is close to X. Even if the user actually
    checks the other side's name (which all available evidence indicates
    is unlikely), this would require (a) the browser to trusted UI to
-   provide the name and (b) the user to not be fooled by similar
 
 
 
@@ -673,6 +673,7 @@ Rescorla                Expires December 1, 2011               [Page 12]
 Internet-Draft              RTC-Web Security                    May 2011
 
 
+   provide the name and (b) the user to not be fooled by similar
    appearing names.
 
 4.3.2.2.  Short Authentication Strings
@@ -681,44 +682,43 @@ Internet-Draft              RTC-Web Security                    May 2011
    derived from the key agreement protocol.  This SAS is designed to be
    read over the voice channel and if confirmed by both sides precludes
    MITM attack.  The intention is that the SAS is used once and then key
-   continuity used thereafter.  Unfortunately, the SAS does not offer a
-   practical solution to the problem of a compromised calling service.
-   As discussed above, it cannot be modal and it is well-known that when
-   faced with optional mechanisms such as fingerprints, users simply do
-   not check them [whitten-johnny] Thus, it is highly unlikely that
-   users will ever perform the SAS exchange.
+   continuity (though a different mechanism from that discussed above)
+   is used thereafter.
 
-   Even if users do occasionally check the SAS, key continuity is
-   required to prevent them needing to check it on every call.  However,
-   this is problematic for reasons indicated in Section 4.3.2.1.  In
-   principle it is of course possible to render a different UI element
-   to indicate that calls are using an unauthenticated set of keying
-   material (recall that the attacker can just present a slightly
-   different name so that the attack just shows the same UI as a call to
-   a new device or to someone you haven't called before) but as a
-   practical matter, users simply ignore such indicators even in the
-   rather more dire case of mixed content warnings.
+   Unfortunately, the SAS does not offer a practical solution to the
+   problem of a compromised calling service.  "Voice conversion"
+   systems, which modify voice from one speaker to make it sound like
+   another, are an active area of research.  These systems are already
+   good enough to fool both automatic recognition systems
+   [farus-conversion] and humans [kain-conversion] in many cases, and
+   are of course likely to improve in future, especially in an
+   environment where the user just wants to get on with the phone call.
+   Thus, even if SAS is effective today, it is likely not to be so for
+   much longer.  Moreover, it is possible for an attacker who controls
+   the browser to allow the SAS to succeed and then simulate call
+   failure and reconnect, trusting that the user will not notice that
+   the "no SAS" indicator has been set (which seems likely).
 
-   In addition, it is far from clear that the SAS is secure even within
-   a given call.  "Voice conversion" systems, which modify voice from
-   one speaker to make it sound like another, are an active area of
-   research.  These systems are already good enough to fool both
-   automatic recognition systems [farus-conversion] and humans
-   [kain-conversion] in many cases, and are of course likely to improve
-   in future, especially in an environment where the user just wants to
-   get on with the phone call.  Thus, even if SAS is effective today, it
-   is likely not to be so for much longer.  Moreover, it is possible for
-   an attacker who controls the browser to allow the SAS to succeed and
-   then simulate call failure and reconnect, trusting that the user will
-   not notice that the "no SAS" indicator has been set (which seems
-   likely).
+   Even were SAS secure if used, it seems exceedingly unlikely that
+   users will actually use it.  As discussed above, the browser UI
+   constraints preclude requiring the SAS exchange prior to completing
+   the call and so it must be voluntary; at most the browser will
+   provide some UI indicator that the SAS has not yet been checked.
+   However, it it is well-known that when faced with optional mechanisms
+   such as fingerprints, users simply do not check them [whitten-johnny]
+   Thus, it is highly unlikely that users will ever perform the SAS
+   exchange.
 
-
-5.  Security Considerations
-
-   This entire document is about security.
-
-
+   Once uses have checked the SAS once, key continuity is required to
+   avoid them needing to check it on every call.  However, this is
+   problematic for reasons indicated in Section 4.3.2.1.  In principle
+   it is of course possible to render a different UI element to indicate
+   that calls are using an unauthenticated set of keying material
+   (recall that the attacker can just present a slightly different name
+   so that the attack shows the same UI as a call to a new device or to
+   someone you haven't called before) but as a practical matter, users
+   simply ignore such indicators even in the rather more dire case of
+   mixed content warnings.
 
 
 
@@ -727,6 +727,11 @@ Internet-Draft              RTC-Web Security                    May 2011
 Rescorla                Expires December 1, 2011               [Page 13]
 
 Internet-Draft              RTC-Web Security                    May 2011
+
+
+5.  Security Considerations
+
+   This entire document is about security.
 
 
 6.  Acknowledgements
@@ -773,17 +778,16 @@ Internet-Draft              RTC-Web Security                    May 2011
    [RFC4347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security", RFC 4347, April 2006.
 
-   [RFC4568]  Andreasen, F., Baugher, M., and D. Wing, "Session
-              Description Protocol (SDP) Security Descriptions for Media
-              Streams", RFC 4568, July 2006.
-
-
 
 
 Rescorla                Expires December 1, 2011               [Page 14]
 
 Internet-Draft              RTC-Web Security                    May 2011
 
+
+   [RFC4568]  Andreasen, F., Baugher, M., and D. Wing, "Session
+              Description Protocol (SDP) Security Descriptions for Media
+              Streams", RFC 4568, July 2006.
 
    [RFC5245]  Rosenberg, J., "Interactive Connectivity Establishment
               (ICE): A Protocol for Network Address Translator (NAT)
@@ -829,10 +833,6 @@ Internet-Draft              RTC-Web Security                    May 2011
    [kain-conversion]
               Kain, A. and M. Macon, "Design and Evaluation of a Voice
               Conversion Algorithm based on Spectral Envelope Mapping
-              and Residual Prediction",  Proceedings of ICASSP, May
-              2001.
-
-   [whitten-johnny]
 
 
 
@@ -841,6 +841,10 @@ Rescorla                Expires December 1, 2011               [Page 15]
 Internet-Draft              RTC-Web Security                    May 2011
 
 
+              and Residual Prediction",  Proceedings of ICASSP, May
+              2001.
+
+   [whitten-johnny]
               Whitten, A. and J. Tygar, "Why Johnny Can't Encrypt: A
               Usability Evaluation of PGP 5.0",  Proceedings of the 8th
               USENIX Security Symposium, 1999.
@@ -856,10 +860,6 @@ Author's Address
 
    Phone:  +1 650 678 2350
    Email:  ekr@rtfm.com
-
-
-
-
 
 
 
