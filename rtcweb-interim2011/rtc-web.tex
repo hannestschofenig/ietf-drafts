@@ -1,0 +1,346 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 80} 
+\fancyfoot[C]{\tiny RTC-Web Security Issues}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}RTC-Web Security Considerations}\\
+\vspace{.2in}
+\large{{IETF 80}} \\
+\vspace{3em}
+\large{
+\begin{tabular}{c}
+Eric Rescorla \\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+
+\centerslidesfalse 
+
+
+\begin{slide}
+\heading{The Browser Threat Model}
+
+\textbf{Core Web Security Guarantee}: ``users can safely visit arbitrary web sites
+and execute scripts provided by those sites.''\cite{huang-cache}
+
+\vspace{1em}
+
+\begin{itemize}
+\item This includes sites which are hosting malicious scripts!
+\item Basic Web security technique is isolation/sandboxing
+  \begin{itemize}
+  \item Protect your computer from malicious scripts
+  \item Protect content from site A from content hosted at site B
+  \item Protect site A from content hosted at site B
+  \end{itemize}
+\item In this case we're primarily concerned with JavaScript running in the browser
+\end{itemize}
+
+\textbf{The browser acts as a trusted computing base for the site}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{List of Issues to Consider}
+
+\begin{itemize}
+\item Consent to communications
+\item Access to local devices
+\item Communications security
+\end{itemize}
+              
+\end{slide}
+
+
+\begin{slide}
+\heading{In an alternate universe: Cross-Site Requests}
+
+\vspace{-.65in}
+$$
+\xymatrix@R=.2in@C=1.3in{
+  \txt{\textbf{Victim}} & \txt{\textbf{Gmail}} & \txt{\textbf{Attacker}} \\
+  \ar[r]^{\txt{Login w/ Password}} & & \\
+  & \ar[l]_{\txt{Cookie=XXX}} & \\
+  & \txt{\textbf{...}} & \\
+  \ar[rr]^{\txt{\texttt{GET /malicious.js}}} & &\\
+  & & \ar[ll]_{\txt{\texttt{<script>XMLHttpRequest("https://gmail.com/")...}}} \\
+  \ar[r]^{\txt{\texttt{GET} w/ XXX}} & & \\
+  & \ar[l]_{\txt{Mail data}} & \\
+  \ar[rr]^{\txt{Mail data}} & & \\
+}
+$$
+
+\center{\textbf{Obviously this is bad... and it's a problem even w/o cookies}}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{The Same Origin Policy (SOP)}
+
+\begin{itemize}
+\item A page's security properties are determined by its \emph{origin}
+  \begin{itemize}
+  \item This includes: protocol (HTTP or HTTPS), host, and port
+  \item All these must match for two pages to be from the same origin
+  \end{itemize}
+
+\item Each origin is associated with its own security contet
+  \begin{itemize}
+  \item Scripts in origin A have only very limited access to resources in origin B
+  \end{itemize}
+
+
+\item \emph{Important:} the origin is associated with the page, \emph{not} where the script came from
+  \begin{itemize}
+  \item Scripts loaded via \verb^<script src="">^ tags are associated with the origin of the page, not the URL for the script!
+
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+
+\begin{slide}
+\heading{The Same Origin Policy for Page Data}
+\begin{itemize}
+\item Scripts can only access page data from their own origin
+  \begin{itemize}
+  \item Contents of the DOM
+  \item JavaScript variables
+  \item Cookies
+  \item Important exception: JavaScript pointer leakage~\cite{barth-weinberger-song-cross-origin}
+  \end{itemize}
+
+\item Scripts can access any other page data from their origin
+  \begin{itemize}
+  \item Includes other windows and IFRAMEs
+  \end{itemize}
+
+\item Frame can navigate their own children
+  \begin{itemize}
+  \item This is used for cross-site communication (e.g., FaceBook Connect)
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{The Same Origin Policy for HTTP Requests}
+
+\begin{itemize}
+\item JavaScript can be used to make fairly controllable HTTP requests with \verb^XMLHttpRequest()^ API
+  \begin{itemize}
+  \item But only to the same origin 
+  \end{itemize}
+
+\item Origin A can make partly controllable requests to origin B via HTML forms
+  \begin{itemize}
+  \item But cannot read the response
+  \item \emph{Cross-Site Request Forgery} (CSRF) defenses depend on this
+  \end{itemize}
+
+\item Origin A can read scripts from origin B
+  \begin{itemize}
+  \item But they run in A's context
+  \item This is done all the time (e.g., Google analytics)
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{What does all this mean for RTC?}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Consent for real-time peer-to-peer communication}
+
+\begin{itemize}
+\item Need to able to send data between two browsers
+  \begin{itemize}
+  \item Unless you want to relay everything
+  \end{itemize}
+
+\item But this is unsafe (and violates SOP)
+  \begin{itemize}
+  \item Not OK to let browsers send TCP and UDP to arbitrary locations
+  \end{itemize}
+
+\item General principle: verify consent
+  \begin{itemize}
+  \item Before sending traffic from a script to recipient, verify recipient
+    wants to receive it from the sender
+  \item Familiar paradigm from CORS~\cite{cors} and WebSockets\cite{hybi}
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{How to verify consent for RTC-Web}
+
+\vspace{-.2in}
+\begin{itemize}
+\item Can't trust the server (see above)
+  \begin{itemize}
+  \item Needs to be enforced by the browser
+  \end{itemize}
+
+\item Browser does a handshake with target peer to verify connectivity
+\end{itemize}
+
+\vspace{-.25in}
+$$
+\xymatrix@R=.2in@C=1.3in{
+  \txt{\textbf{Alice}} & \txt{\textbf{Server}} & \txt{\textbf{Bob}} \\
+  & \ar[l]_{\txt{Connect to Bob}}  \ar[r]^{\txt{Connect to Alice}} &\\
+  \ar@{<->}[rr]^{\txt{Handshake}} & & \\
+  \ar@{<->}[rr]^{\txt{Media traffic}} & &\\
+}`
+$$
+
+\begin{itemize}
+\item This should look familiar from ICE~\cite{rfc5245}
+\item Restricts communication with that endpoint until handshake complete (\textbf{new})
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Access to Local Devices}
+
+\vspace{-.2in}
+
+\begin{itemize}
+\item Making phone (and video) calls requires that your voice be transmitted to other side
+  \begin{itemize}
+  \item But the \emph{other side} is controlled by some site you visit
+  \item What if you visit \url{http://bugmyphone.example.com}?
+  \end{itemize}
+
+\item Somehow we need to get the user's consent
+  \begin{itemize}
+  \item But to what?
+  \item And when?
+  \item Users routinely click through warning dialogs when presenting ``in-flow''
+  \end{itemize}
+
+\item What is the scope of consent?
+  \begin{itemize}
+  \item By origin?
+  \item What about mash-ups?
+  \end{itemize}
+  
+
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{What about communications security?}
+
+\begin{itemize}
+\item We've already addressed this in the context of SIP
+  \begin{itemize}
+  \item Things aren't that different here--all the usual protocols work
+  \end{itemize}
+
+\item Open question: where is the keying material stored?
+  \begin{itemize}
+  \item On the server?
+  \item In localstorage?
+  \item In the browser but isolated from the JavaScript? (probably best)
+  \end{itemize}
+  
+\end{itemize}
+
+\end{slide}
+
+
+
+
+\begin{slide}
+\scriptsize{
+\bibliographystyle{alpha}
+\bibliography{ws}
+}
+\end{slide}
+
+
+
+
+
+
+\end{document}
