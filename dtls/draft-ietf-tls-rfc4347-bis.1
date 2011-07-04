@@ -8,7 +8,7 @@
 .ds RF FORMFEED[Page %]
 .ds CF Standards Track
 .ds LH draft-ietf-tls-rfc4347-bis-06
-.ds RH March 2011
+.ds RH July 2011
 .ds CH DTLS
 .hy 0
 .ad l
@@ -16,14 +16,14 @@
 INTERNET-DRAFT                                               E. Rescorla
 Obsoletes (if approved): RFC 4347                             RTFM, Inc.
 Intended Status: Proposed Standard                           N. Modadugu
-Expires: November 14, 2011                           Stanford University
-                                                            May 14, 2011
+Expires: January 4, 2012                             Stanford University
+                                                            July 4, 2011
 
 
 .ce
 Datagram Transport Layer Security version 1.2
 .ce
-draft-ietf-tls-rfc4347-bis-05.txt
+draft-ietf-tls-rfc4347-bis-06.txt
 
 .ti 0
 Abstract
@@ -815,7 +815,17 @@ The definition of HelloVerifyRequest is as follows:
 The HelloVerifyRequest message type is
 hello_verify_request(3).
 
-The server_version field is defined as in TLS.
+The server_version field has the same syntax as in TLS. However,
+in order to avoid the requirement to do version negotiation in
+the initial handshake, DTLS 1.2 serverimplementations SHOULD use DTLS version
+1.0 regardless of the version of TLS which is expected to be 
+negotiated. DTLS 1.2 and 1.0 clients MUST use the version solely
+to indicate packet formatting (which is the same in both
+DTLS 1.2 and 1.0) and not as part of version negotiation.
+In particular, DTLS 1.2 clients MUST NOT assume that because
+the server uses version 1.0 in the HelloVerifyRequest
+that the server is not DTLS 1.2 or that it
+will eventually negotiate DTLS 1.0 rather than DTLS 1.2.
 
 When responding to a HelloVerifyRequest the client MUST use
 the same parameter values (version, random, session_id,
@@ -920,7 +930,10 @@ message fragmentation, DTLS modifies the TLS 1.2 handshake header:
 .fi
 The first message each side transmits in each handshake always
 has message_seq = 0.  Whenever each new message is generated,
-the message_seq value is incremented by one.  When a message is
+the message_seq value is incremented by one.  Note that in
+the case of a rehandshake, this implies that the HelloRequest
+will have message_seq = 0 and the ServerHello will have 
+message_seq = 1. When a message is
 retransmitted, the same message_seq value is used.  For
 example:
 
@@ -1218,7 +1231,15 @@ after substantial data transfer.
 As with TLS, the ChangeCipherSpec message is not technically a
 handshake message but MUST be treated as part of the same
 flight as the associated Finished message for the purposes of
-timeout and retransmission. 
+timeout and retransmission. This creates a potential
+ambiguity because the order of the ChangeCipherSpec cannot be
+established unambiguously with respect to the handshake messages
+in case of message loss.
+
+This is not a problem with any current TLS mode because the expected
+set of handshake messages which occur the ChangeCipherSpec is
+predictable from the rest of the handshake state. However, 
+future modes MUST take care to avoid creating ambiguity.
 
 .ti 0
 4.2.6. CertificateVerify and Finished Messages
@@ -1453,6 +1474,8 @@ This document reflects the following changes since DTLS 1.0 [DTLS1].
 
 - Added a record sequence number mirroring technique for handling
   repeated ClientHello messages.
+
+- Recommend a fixed version number for HelloVerifyRequest.
 
 - Numerous editorial changes.
 .fi

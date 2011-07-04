@@ -25,18 +25,18 @@
 4.2.2.    Handshake Message Format                                 17
 4.2.3.    Handshake Message Fragmentation and Reassembly           19
 4.2.4.    Timeout and Retransmission                               19
-4.2.4.1.  Timer Values                                             23
-4.2.5.    ChangeCipherSpec                                         23
-4.2.6.    CertificateVerify and Finished Messages                  24
-4.2.7.    Alert Messages                                           24
-4.2.8.    Establishing New Associations With Existing Parameters   24
-4.3.      Summary of new syntax                                    24
-4.3.1.    Record Layer                                             26
-4.3.2.    Handshake Protocol                                       26
-5.        Security Considerations                                  27
-6.        Acknowledgements                                         29
-7.        IANA Considerations                                      29
-8.        Changes Since DTLS 1.0                                   29
-9.        References                                               30
-9.1.      Normative References                                     30
-9.2.      Informative References                                   31
+4.2.4.1.  Timer Values                                             24
+4.2.5.    ChangeCipherSpec                                         24
+4.2.6.    CertificateVerify and Finished Messages                  25
+4.2.7.    Alert Messages                                           25
+4.2.8.    Establishing New Associations With Existing Parameters   25
+4.3.      Summary of new syntax                                    26
+4.3.1.    Record Layer                                             27
+4.3.2.    Handshake Protocol                                       27
+5.        Security Considerations                                  28
+6.        Acknowledgements                                         30
+7.        IANA Considerations                                      30
+8.        Changes Since DTLS 1.0                                   30
+9.        References                                               31
+9.1.      Normative References                                     31
+9.2.      Informative References                                   32
