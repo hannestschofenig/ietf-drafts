@@ -27,7 +27,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-rescorla-rtcweb-security-00"
+<rfc category="std" docName="draft-rescorla-rtcweb-security-01"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTC-Web Security">Security Considerations for RTC-Web</title>
@@ -54,7 +54,7 @@
       </address>
     </author>
 
-    <date day="5" month="June" year="2011" />
+    <date day="4" month="September" year="2011" />
 
     <area>RAI</area>
 
@@ -64,8 +64,8 @@
       <t>
 	The Real-Time Communications on the Web (RTC-Web) working group is tasked with
 	standardizing protocols for real-time communications between Web browsers. The
-	two major use cases for RTC-Web technology are real-time audio and/or video calls
-	and direct data transfer. Unlike most conventional real-time systems
+	major use cases for RTC-Web technology are real-time audio and/or video calls,
+	Web conferencing, and direct data transfer. Unlike most conventional real-time systems
 	(e.g., SIP-based soft phones) RTC-Web communications are directly controlled
 	by some Web server, which poses new security challenges.
 	For instance, a Web browser might expose a JavaScript
@@ -95,8 +95,8 @@
       <t>
 	The Real-Time Communications on the Web (RTC-Web) working group is tasked with
 	standardizing protocols for real-time communications between Web browsers. The
-	two major use cases for RTC-Web technology are real-time audio and/or video calls
-	and direct data transfer. Unlike most conventional real-time systems, 
+	major use cases for RTC-Web technology are real-time audio and/or video calls,
+	Web conferencing, and direct data transfer. Unlike most conventional real-time systems, 
 	(e.g., SIP-based<xref target="RFC3261"></xref> soft phones) RTC-Web communications are directly controlled
 	by some Web server. A simple case is shown below.
       </t>
@@ -293,6 +293,108 @@
 	  be the scope of user consent.
 	</t>
 	<t>
+	  For the rest of this discussion we assume that the user is somehow
+	  going to grant consent to some entity (e.g., a social networking site)
+	  to initiate a call on his behalf. This consent may be limited to a 
+	  single call or may be a general consent. In order for the user to
+	  make an intelligent decision about whether to allow a call
+	  (and hence his camera and microphone input to be routed somewhere),
+	  he must understand either who is request access, where the media
+	  is going, or both. So, for instance, one might imagine that at
+	  the time access to camera and microphone is requested, the user
+	  is shown a dialog that says "site X has requested access to camera
+	  and microphone, yes or no" (though note that this type of in-flow
+	  interface violates one of the guidelines in Section <xref target="sec.web-security"/>).
+	  The user's decision will of course be based on his opinion of Site X.
+	  However, as discussed below, this is a complicated concept.
+	</t>
+	<section title="Calling Scenarios and User Expectations">
+	  <t>
+	    While a large number of possible calling scenarios are possible, the
+	    scenarios discussed in this section illustrate many of
+	    the difficulties of identifying the relevant scope of consent.
+	  </t>
+	  <section title="Dedicated Calling Services">
+	    <t>
+	      The first scenario we consider is a dedicated calling service. In this
+	      case, the user has a relationship with a calling site
+	      and repeatedly makes calls on it. It is likely
+	      that rather than having to give permission for each call
+	      that the user will want to give the calling service long-term
+	      access to the camera and microphone. This is a natural fit
+	      for a long-term consent mechanism (e.g., installing an
+	      app store "application" to indicate permission for the
+	      calling service.)
+	      A variant of the dedicated calling service is a gaming site 
+	      (e.g., a poker site) which hosts a dedicated calling service
+	      to allow players to call each other. 
+	    </t>
+	    <t>
+	      With any kind of service where the user may use the same 
+	      service to talk to many different people, there is a question
+	      about whether the user can know who they are talking to.
+	      In general, this is difficult as most of the user interface is presented by
+	      the calling site. However, communications security mechanisms
+	      can be used to give some assurance, as described in 
+	      <xref target="sec.during-attack"/>.
+	    </t>
+	  </section>
+	  <section title="Calling the Site You're On">
+	    <t>
+	      Another simple scenario is calling the site you're actually visiting.
+	      The paradigmatic case here is the "click here to talk to a 
+	      representative" windows that appear on many shopping sites.
+	      In this case, the user's expectation is that they are
+	      calling the site they're actually visiting. However, it is
+	      unlikely that they want to provide a general consent to such
+	      a site; just because I want some information on a car
+	      doesn't mean that I want the car manufacturer to be able
+	      to activate my microphone whenever they please. Thus,
+	      this suggests the need for a second consent mechanism
+	      where I only grant consent for the duration of a given
+	      call. As described in <xref target="sec.resources"/>,
+	      great care must be taken in the design of this interface
+	      to avoid the users just clicking through.
+	    </t>
+	  </section>
+
+	  <section title="Calling to an Ad Target" anchor="sec.ad-target">
+	    <t>
+	      In both of the previous cases, the user has a direct relationship
+	      (though perhaps a transient one) with the target of the call.
+	      Moreover, in both cases he is actually visiting the site of the
+	      person he is being asked to trust. However, this is not always
+	      so. Consider the case where a user is a visiting a content site
+	      which hosts an advertisement with an invitation to call for
+	      more information. When the user clicks the ad, they are connected
+	      with the advertiser or their agent.
+	    </t>
+	    <t>
+	      The relationships here are far more complicated: the site the
+	      user is actually visiting has no direct relationship with the 
+	      advertiser; they are just hosting ads from an ad network.
+	      The user has no relationship with the ad network, but desires
+	      one with the advertiser, at least for long enough to learn 
+	      about their products. At minimum, then, whatever consent
+	      dialog is shown needs to allow the user to have some idea
+	      of the organization that they are actually calling. 
+	    </t>
+	    <t>
+	      However, because the user also has some relationship
+	      with the hosting site, it is also arguable that the
+	      hosting site should be allowed to express an opinion
+	      (e.g., to be able to allow or forbid a call)
+	      since a bad experience with an advertiser reflect negatively
+	      on the hosting site [this idea was suggested by Adam Barth].
+	      However, this obviously presents a privacy challenge,
+	      as sites which host advertisements often learn very little
+	      about whether individual users clicked through to the
+	      ads, or even which ads were presented.
+	    </t>
+	  </section>
+	</section>
+	<section title="Origin-Based Security">
+	<t>
 	  As discussed in <xref target="sec.same-origin"/>, the basic unit of
 	  Web sandboxing is the origin, and so it is natural to scope consent
 	  to origin. Specifically, a script from origin A MUST only be allowed
@@ -307,7 +409,8 @@
 	  Alice visits a site and authorizes it to make a single call. If consent is
 	  expressed solely in terms of origin, then at any future visit to that
 	  site (including one induced via mash-up or ad network), the site can
-	  bug Alice's computer. While in principle Alice could grant and then 
+	  bug Alice's computer, use the computer to place bogus calls, etc.
+	  While in principle Alice could grant and then 
 	  revoke the privilege, in practice privileges accumulate; if we are concerned
 	  about this attack, something else is needed. There are a number of potential countermeasures to
 	  this sort of issue.
@@ -317,21 +420,41 @@
 	  <t></t>
 	  <t hangText="Callee-oriented Consent"></t><t>Only allow calls to a given user.</t>
 	  <t></t>	  
-	  <t hangText="Cryptographic Consent"></t><t>Only allow calls to a given set of peer keying material.</t>
+	  <t hangText="Cryptographic Consent"></t><t>Only allow calls to a given set of peer keying material or
+	  to a cryptographically established identity.</t>
 	</list>
 	</t>
 	<t>
-	  Unfortunately, none of these approaches is really satisfactory. Individual consent puts the
-	  user's approval in the UI flow for every call. Not only does this quickly become annoying
-	  but it rapidly trains the user to simply click "OK", at which point the consent becomes
-	  useless.
+	  Unfortunately, none of these approaches is satisfactory for all cases. 
+	  As discussed above, individual consent puts the user's approval
+	  in the UI flow for every call. Not only does this quickly become annoying
+	  but it can train the user to simply click "OK", at which point the consent becomes
+	  useless. Thus, while it may be necssary to have individual consent in some 
+	  case, this is not a suitable solution for (for instance) the calling
+	  service case. Where necessary, the user interface must be carefully
+	  designed to avoid the risk of the user blindly clicking through.
 	</t>
 	<t>
 	  The other two options are designed to restrict calls to a given target. Unfortunately, 
-	  Callee-oriented consent does not work because the malicious site can claim that the
-	  user is calling any user of his choice. The fix for this is to tie calls to a
-	  specific set of cryptographic keying material, but that breaks any portability for
-	  the callee's client, and is thus problematic. (<xref target="sec.key-continuity"/>)
+	  Callee-oriented consent does not work well because a malicious site can claim that the
+	  user is calling any user of his choice. One fix for this is to tie calls to a
+	  cryptographically established identity. While not suitable for all cases,
+	  this approach may be useful for some. If we consider the advertising case
+	  described in <xref target="sec.ad-target"/>, it's not particularly convenient
+	  to require the advertiser to instantiate an iframe on the hosting site just
+	  to get permission; a more convenient approach is to cryptographically tie
+	  the advertiser's certificate to the communication directly. We're still
+	  tieing permissions to origin here, but to the media origin rather than
+	  to the Web origin.
+	</t>
+	<t>
+	  Another case where media-level cryptographic identity makes sense is when a user
+	  really does not trust the calling site. For instance, I might be worried that
+	  the calling service will attempt to bug my computer, but I also want to be
+	  able to conveniently call my friends. If consent is tied to particular
+	  communications endpoints, then my risk is limited. However, this is also not
+	  that convenient an interface, since managing individual user permissions can
+	  be painful.
 	</t>
 	<t>
 	  While this is primarily a question not for IETF, it should be clear that there is no
@@ -341,22 +464,49 @@
 	  browsers have explicit (and obvious) indicators that they are in a call in order
 	  to mitigate this risk.
 	</t>
+	</section>
+
+	<section title="Security Properties of the Calling Page">
 	<t>
-	  The above recommendations provide security against web attackers. However, if a
-	  legitimate site is fetched over HTTP rather than HTTPS, a network attacker can inject
-	  code to initiate calls as if it were that origin, thus bypassing origin
-	  restrictions. Note that this form of attack is also possible if a site
-	  embeds active content (e.g., JavaScript) that is fetched over
+	  Origin-based security is intended to security against web attackers. However, we must
+	  also consider the case of network attackers. Consider the case where I have
+	  granted permission to a calling service by an origin that has the HTTP scheme,
+	  e.g., http://calling-service.example.com. If I ever use my computer on
+	  an unsecured network (e.g., a hotspot or if my own home wireless network
+	  is insecure), and browse any HTTP site, then an attacker can bug my computer. The attack proceeds
+	  like this:
+	</t>
+	<t>
+	  <list style="numbers">
+	    <t>I connect to http://anything.example.org/. Note that this site is unaffiliated
+	    with the calling service.</t>
+	    <t>The attacker modifies my HTTP connection to inject an IFRAME (or a redirect)
+	    to http://calling-service.example.com</t>
+	    <t>The attacker forges the page from http://calling-service.example.com/ to
+	    inject JS to initiate a call to himself.</t>
+	  </list>
+	</t>
+	<t>
+	  Note that this attack does not depend on the media being insecure. Because the
+	  call is to the attacker, it is also encrypted to him. Moreover, it need not
+	  be executed immediately; the attacker can "infect" the origin semi-permanently
+	  (e.g., with a web worker or a popunder) and thus be able to bug me long 
+	  after I have left the infected network. This risk is created by allowing
+	  calls at all from a page fetched over HTTP.
+	</t>
+	<t>
+	  Even if calls are only possible from HTTPS sites, if the 
+	  site embeds active content (e.g., JavaScript) that is fetched over
 	  HTTP or from an untrusted site, because that JavaScript is executed
 	  in the security context of the page <xref target="finer-grained"/>.
-	  Therefore, it is RECOMMENDED that 
-	  sites which embed RTC-Web functionality serve that functionality only
-	  over HTTPS and that browsers disallow execution of calling functionality
-	  in origins which contain mixed content. Note: this issue is not restricted
+	  Thus, it is also dangerous to allow RTC-Web functionality from
+	  HTTPS origins that embed mixed content.
+	  Note: this issue is not restricted
 	  to PAGES which contain mixed content. If a page from a given origin ever loads mixed content
 	  then it is possible for a network attacker to infect the browser's notion of that
 	  origin semi-permanently.
 	</t>
+	</section>
       </section>
 
       <section title="Communications Consent Verification" anchor="sec.rtc-comm-consent">
@@ -391,7 +541,10 @@
 	    attacks as described by Huang et al.<xref target="huang-w2sp"/>.
 	    As long as communication is limited to
 	    UDP, then this risk is probably limited, thus masking is not required
-	    for UDP. However, 
+	    for UDP. I.e., once communications consent has been verified, it is
+	    most likely safe to allow the implementation to send arbitrary UDP
+	    traffic to the chosen destination, provided that the STUN keepalives
+	    continue to succeed. However, 
 	    with TCP the risk of transparent proxies becomes much more severe. If TCP
 	    is to be used, then WebSockets style masking MUST be employed.
 	    <!-- [TODO: DNS injection?].-->
@@ -400,10 +553,53 @@
 	<section title="Backward Compatibility">
 	  <t>
 	    A requirement to use ICE limits compatibility with legacy non-ICE clients.
-	    It seems unsafe to completely remove the requirement for some check, but
-	    it might be possible to merely require a one-sided check where the 
-	    legacy client was a STUN responder. It's unclear whether that is in
-	    fact simpler than doing ICE-Lite.
+	    It seems unsafe to completely remove the requirement for some check. 
+	    All proposed checks have the common feature that the browser
+	    sends some message to the candidate traffic recipient 
+	    and refuses to send other traffic until that message has been 
+	    replied to. The message/reply pair must be generated in such
+	    a way that an attacker who controls the Web application 
+	    cannot forge them, generally by having the message contain some
+	    secret value that must be incorporated (e.g., echoed, hashed into,
+	    etc.). Non-ICE candidates for this role (in cases where the 
+	    legacy endpoint has a public address) include:
+	  </t>
+	  <t>
+	    <list style="symbols">
+	      <t>STUN checks without using ICE (i.e., the non-RTC-web endpoint sets up a STUN responder.)</t>
+	      <t>Use or RTCP as an implicit reachability check.</t>
+	    </list>
+	  </t>
+	  <t>
+	    In the RTCP approach, the RTC-Web endpoint is allowed to send 
+	    a limited number of RTP packets prior to receiving consent. This
+	    allows a short window of attack. In addition, some legacy endpoints
+	    do not support RTCP, so this is a much more expensive solution for
+	    such endpoints, for which it would likely be easier to implement ICE.
+	    For these two reasons, an RTCP-based approach does not seem to
+	    address the security issue satisfactorily.
+	  </t>
+	  <t>
+	    In the STUN approach, the RTC-Web endpoint is able to verify that
+	    the recipient is running some kind of STUN endpoint but unless 
+	    the STUN responder is integrated with the ICE username/password
+	    establishment system, the RTC-Web endpoint cannot verify that 
+	    the recipient consents to this particular call. This may be an
+	    issue if existing STUN servers are operated at addresses that
+	    are not able to handle bandwidth-based attacks. Thus, this
+	    approach does not seem satisfactory either.
+	  </t>
+	  <t>
+	    If the systems are tightly integrated (i.e., the STUN endpoint responds with
+	    responses authenticated with ICE credentials) then this issue
+	    does not exist. However, such a design is very close to an ICE-Lite
+	    implementation (indeed, arguably is one). 
+	    An intermediate approach would be to have a STUN extension that indicated
+	    that one was responding to RTC-Web checks but not computing 
+	    integrity checks based on the ICE credentials. This would allow the
+	    use of standalone STUN servers without the risk of confusing them
+	    with legacy STUN servers. If a non-ICE legacy solution is needed,
+	    then this is probably the best choice.
 	  </t>
 	</section>
       </section>
