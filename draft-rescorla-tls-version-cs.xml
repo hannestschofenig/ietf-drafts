@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
+<!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
+<!ENTITY RFC4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
+<!ENTITY RFC2246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2246.xml">
+<!ENTITY I-D.ietf-tls-rfc4347-bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-rfc4347-bis">
+]>
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
+<?rfc toc="yes" ?>
+<?rfc symrefs="yes" ?>
+<?rfc strict="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc sortrefs="yes" ?>
+<?rfc colonspace="yes" ?>
+<?rfc rfcedstyle="no" ?>
+<!-- Don't change this. It breaks stuff -->
+<?rfc tocdepth="4"?>
+<rfc category="std" docName="draft-rescorla-tls-version-cs-00"
+     ipr="pre5378Trust200902">
+  <front>
+    <title abbrev="TLS Version Cipher Suite">Maximum Version TLS Cipher Suites</title>
+
+    <author fullname="Eric Rescorla" initials="E.K." surname="Rescorla">
+      <organization>RTFM, Inc.</organization>
+
+      <address>
+        <postal>
+          <street>2064 Edgewood Drive</street>
+
+          <city>Palo Alto</city>
+
+          <region>CA</region>
+
+          <code>94303</code>
+
+          <country>USA</country>
+        </postal>
+
+        <phone>+1 650 678 2350</phone>
+
+        <email>ekr@rtfm.com</email>
+      </address>
+    </author>
+
+    <date day="26" month="September" year="2011" />
+
+    <area>SEC</area>
+
+    <workgroup>TLS</workgroup>
+
+    <abstract>
+      <t>
+	In theory SSLv3 and TLS provide for automatic version negotiation.
+	However, experience has shown that broken servers sometimes
+	fail when clients offer higher versions than they support.
+	Some clients (in particular Web Browser clients) respond to
+	these failures by rolling back to a lower version, thus potentially
+	allowing for a downgrade attack. This document describes a set
+	of cipher suites which may be included in the handshake to
+	indicate version support and allow downgrade detection.
+      </t>
+    </abstract>
+
+    <note title="Legal">
+      <t>THIS DOCUMENT AND THE INFORMATION CONTAINED THEREIN ARE PROVIDED ON
+      AN &ldquo;AS IS&rdquo; BASIS AND THE CONTRIBUTOR, THE ORGANIZATION
+      HE/SHE REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE
+      IETF TRUST, AND THE INTERNET ENGINEERING TASK FORCE, DISCLAIM ALL
+      WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY
+      WARRANTY THAT THE USE OF THE INFORMATION THEREIN WILL NOT INFRINGE ANY
+      RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A
+      PARTICULAR PURPOSE.</t>
+    </note>
+  </front>
+
+
+
+  <middle>
+    <section title="Introduction" anchor="sec.introduction">
+      <t>
+	In theory SSLv3 and TLS <xref target="RFC5246"/>
+	provide for automatic version negotiation.
+	This mechanism works by having the client offer the highest version
+	it supports (in the ClientHello) and then the server selects the
+	highest common version. Unfortunately, experience has shown that
+	broken servers sometimes fail when clients offer higher versions
+	than they support. 
+	These failures manifest as TLS handshake failures.
+      </t>
+      <t>
+      `	Some clients (in particular Web Browser clients) respond to
+	these failures by initiating a new connection with a lower version.
+	However, because the attacker can simulate such a failure without
+	having access to the server's keying material, this means that
+	an attacker can force the client back to an earlier version of
+	TLS than the client and server mutually support. The ordinary
+	TLS anti-downgrade mechanisms such as Finished do not provide
+	protection here because	the first handshake does not complete
+	at all.
+      </t>
+      <t>
+	The natural defense against this attack is to have a "maximum version"
+	indicator which the client can safely send even to downrev servers
+	but which upgraded servers can check and will thus allow downgrade
+	detection. [Note that SSLv3 defines such a mechanism in the 
+	PKCS#1 padding for use to detect SSLv3->SSLv2 rollback.] The
+	natural location for this indicator is in the cipher suite list
+	as servers already ignore unknown cipher suites. (An extension
+	is not suitable as extension-intolerance is one form of incompatibility).
+      </t>
+    </section>
+
+    <section anchor="sec-term" title="Terminology">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+      document are to be interpreted as described in <xref
+      target="RFC2119">RFC 2119</xref>.</t>
+    </section>
+
+    <section title="Maximum Version Cipher Suites">
+      <t>
+	This document defines six new cipher suites which are used to indicate
+	the maximum version that the client supports. These cipher suites are:
+      </t>
+	  <texttable anchor="table_ex">
+	    <ttcol align='center'>Cipher Suite</ttcol>
+    <ttcol align='center'>Version</ttcol>
+    <ttcol align='center'>Code point</ttcol>
+    <c>TLS_VERSION_SSL3_SCSV</c>
+    <c>SSLv3</c>
+    <c>TBD</c>
+
+    <c>TLS_VERSION_TLS_1_0_SCSV</c>
+    <c>TLS 1.0 <xref target="RFC2246"/></c>
+    <c>TBD</c>
+
+    <c>TLS_VERSION_TLS_1_1_SCSV</c>
+    <c>TLS 1.1 <xref target="RFC4346"/></c>
+    <c>TBD</c>
+
+    <c>TLS_VERSION_TLS_1_2_SCSV</c>
+    <c>TLS 1.1 <xref target="RFC5246"/></c>
+    <c>TBD</c>
+
+    <c>TLS_VERSION_DTLS_1_1_SCSV</c>
+    <c>DTLS 1.1 <xref target="RFC4347"/></c>
+    <c>TBD</c>
+
+    <c>TLS_VERSION_DTLS_1_2_SCSV</c>
+    <c>DTLS 1.2 <xref target="I-D.ietf-tls-rfc4347-bis"/></c>
+    <c>TBD</c>
+	  </texttable>
+
+    <section title="Client Behavior">
+      <t>
+	A client compliant with this specification MUST add to its
+	cipher suite list the SCSV value which corresponds to the highest TLS
+	version it supports for the TLS mode (TLS or DTLS) it is attempting.
+	In cases where a previous attempt to connect to this server has failed
+	and the client is now retrying with a lower version, the client MUST
+	still indicate the highest version, not the lower version it is now
+	attempting. Note that when a user has configured the client to disable
+	a specific version, it is the highest configured version which must be
+	advertised. No more than one SCSV value may be present.
+      </t>
+    </section>
+
+    <section title="Server Behavior">
+      <t>
+	A server compliant with this specification MUST inspect the cipher
+	suites offered by the client to determine if an SCSV value is present.
+      </t>
+      <t>
+	<list style="symbols">
+	  <t>If no SCSV value is present, then the server proceeds with the handshake
+	  as usual.</t>
+	  <t>If more than one SCSV value is present then the server MUST terminate
+	  the connection with a fatal "illegal_parameter" alert.</t>
+	  <t>If the SCSV value is present and is equal to ClientHello.client_version,
+	  then the server continues the handshake as usual.</t>
+	  <t>If the SCSV value is present and is not equal to ClientHello.client_version,
+	  then the server MUST terminate the handshake with a fatal "handshake_failure"
+	  alert.</t>
+	</list>
+      </t>
+      <t>
+	Note that if a server (a) improperly handles version and/or extension negotiation
+	and (b) implements this specification will experience a hard failure with a
+	newer client which falls back to an older version. This is a feature rather
+	than a bug. It is important that new implementations perform correct version
+	negotiation. The only purpose of this specification is to enable newer
+	clients and servers to detect downgrade attack while not disabling newer clients
+	from commnunications with older, broken, servers.
+      </t>
+    </section>
+    </section>
+    
+    <section title="Security Considerations">
+      <t>
+	TLS already provides a mechanism for suppressing downgrade
+	attacks when both implementations are compliant. This mechanism allows
+	servers to detect the situation where they are communicating with a
+	client which has been forced to offer a fresh handshake with a 
+	lower version number by an attacker simulating non-compliance.
+      </t>
+      <t>
+	As with the normal TLS anti-downgrade mechanism,
+	the security of this mechanism rests on the security of the
+	Finished handshake calculation. If that fails, then a 
+	downgrade attack is still possible. Thus, security is only
+	provided down to the security of the Finished handshake of
+	the weakest mutually supported TLS version. Currently, the
+	Finished handshakes of all TLS versions are believed to be
+	sufficiently secure. However, if future research weakens
+	one of the Finished handshakes to the point where it cannot
+	reliably detect tampering with the handshake messages, then
+	downgrade attack to that version will be possible and defense
+	will require disabling that TLS version.
+      </t>
+    </section>
+
+    <section title="IANA Considerations">
+      <t>[TODO]</t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      &RFC2119;
+      &RFC2246;
+      &RFC4346;
+      &RFC5246;
+      &RFC4347;
+      &I-D.ietf-tls-rfc4347-bis;
+    </references>
+  </back>
+</rfc>
+
