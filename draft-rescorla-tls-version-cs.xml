@@ -152,7 +152,10 @@
     <c>DTLS 1.2 <xref target="I-D.ietf-tls-rfc4347-bis"/></c>
     <c>TBD</c>
 	  </texttable>
-
+	  
+	  <t>
+	    [[ OPEN ISSUE: Do we really need defns for SSLv3? ... ]]
+	  </t>
     <section title="Client Behavior">
       <t>
 	A client compliant with this specification MUST add to its

@@ -240,6 +240,8 @@ Internet-Draft          TLS Version Cipher Suite          September 2011
 
                                   Table 1
 
+   [[ OPEN ISSUE:  Do we really need defns for SSLv3? ... ]]
+
 3.1.  Client Behavior
 
    A client compliant with this specification MUST add to its cipher
@@ -271,8 +273,6 @@ Internet-Draft          TLS Version Cipher Suite          September 2011
       handshake with a fatal "handshake_failure" alert.
 
    Note that if a server (a) improperly handles version and/or extension
-   negotiation and (b) implements this specification will experience a
-   hard failure with a newer client which falls back to an older
 
 
 
@@ -281,6 +281,8 @@ Rescorla                 Expires March 29, 2012                 [Page 5]
 Internet-Draft          TLS Version Cipher Suite          September 2011
 
 
+   negotiation and (b) implements this specification will experience a
+   hard failure with a newer client which falls back to an older
    version.  This is a feature rather than a bug.  It is important that
    new implementations perform correct version negotiation.  The only
    purpose of this specification is to enable newer clients and servers
@@ -327,8 +329,6 @@ Internet-Draft          TLS Version Cipher Suite          September 2011
    [RFC2246]  Dierks, T. and C. Allen, "The TLS Protocol Version 1.0",
               RFC 2246, January 1999.
 
-   [RFC4346]  Dierks, T. and E. Rescorla, "The Transport Layer Security
-              (TLS) Protocol Version 1.1", RFC 4346, April 2006.
 
 
 
@@ -336,6 +336,9 @@ Rescorla                 Expires March 29, 2012                 [Page 6]
 
 Internet-Draft          TLS Version Cipher Suite          September 2011
 
+
+   [RFC4346]  Dierks, T. and E. Rescorla, "The Transport Layer Security
+              (TLS) Protocol Version 1.1", RFC 4346, April 2006.
 
    [RFC4347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security", RFC 4347, April 2006.
@@ -354,9 +357,6 @@ Author's Address
 
    Phone:  +1 650 678 2350
    Email:  ekr@rtfm.com
-
-
-
 
 
 
