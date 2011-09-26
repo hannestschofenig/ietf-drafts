@@ -1,0 +1,392 @@
+
+
+
+TLS                                                          E. Rescorla
+Internet-Draft                                                RTFM, Inc.
+Intended status:  Standards Track                     September 26, 2011
+Expires:  March 29, 2012
+
+
+                   Maximum Version TLS Cipher Suites
+                    draft-rescorla-tls-version-cs-00
+
+Abstract
+
+   In theory SSLv3 and TLS provide for automatic version negotiation.
+   However, experience has shown that broken servers sometimes fail when
+   clients offer higher versions than they support.  Some clients (in
+   particular Web Browser clients) respond to these failures by rolling
+   back to a lower version, thus potentially allowing for a downgrade
+   attack.  This document describes a set of cipher suites which may be
+   included in the handshake to indicate version support and allow
+   downgrade detection.
+
+Legal
+
+   THIS DOCUMENT AND THE INFORMATION CONTAINED THEREIN ARE PROVIDED ON
+   AN "AS IS" BASIS AND THE CONTRIBUTOR, THE ORGANIZATION HE/SHE
+   REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE
+   IETF TRUST, AND THE INTERNET ENGINEERING TASK FORCE, DISCLAIM ALL
+   WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY
+   WARRANTY THAT THE USE OF THE INFORMATION THEREIN WILL NOT INFRINGE
+   ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS
+   FOR A PARTICULAR PURPOSE.
+
+Status of this Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on March 29, 2012.
+
+
+
+
+Rescorla                 Expires March 29, 2012                 [Page 1]
+
+Internet-Draft          TLS Version Cipher Suite          September 2011
+
+
+Copyright Notice
+
+   Copyright (c) 2011 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+   This document may contain material from IETF Documents or IETF
+   Contributions published or made publicly available before November
+   10, 2008.  The person(s) controlling the copyright in some of this
+   material may not have granted the IETF Trust the right to allow
+   modifications of such material outside the IETF Standards Process.
+   Without obtaining an adequate license from the person(s) controlling
+   the copyright in such materials, this document may not be modified
+   outside the IETF Standards Process, and derivative works of it may
+   not be created outside the IETF Standards Process, except to format
+   it for publication as an RFC or to translate it into languages other
+   than English.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                 Expires March 29, 2012                 [Page 2]
+
+Internet-Draft          TLS Version Cipher Suite          September 2011
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 4
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+   3.  Maximum Version Cipher Suites . . . . . . . . . . . . . . . . . 4
+     3.1.  Client Behavior . . . . . . . . . . . . . . . . . . . . . . 5
+     3.2.  Server Behavior . . . . . . . . . . . . . . . . . . . . . . 5
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . . . 6
+   5.  IANA Considerations . . . . . . . . . . . . . . . . . . . . . . 6
+   6.  Normative References  . . . . . . . . . . . . . . . . . . . . . 6
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 7
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                 Expires March 29, 2012                 [Page 3]
+
+Internet-Draft          TLS Version Cipher Suite          September 2011
+
+
+1.  Introduction
+
+   In theory SSLv3 and TLS [RFC5246] provide for automatic version
+   negotiation.  This mechanism works by having the client offer the
+   highest version it supports (in the ClientHello) and then the server
+   selects the highest common version.  Unfortunately, experience has
+   shown that broken servers sometimes fail when clients offer higher
+   versions than they support.  These failures manifest as TLS handshake
+   failures.
+
+   ` Some clients (in particular Web Browser clients) respond to these
+   failures by initiating a new connection with a lower version.
+   However, because the attacker can simulate such a failure without
+   having access to the server's keying material, this means that an
+   attacker can force the client back to an earlier version of TLS than
+   the client and server mutually support.  The ordinary TLS anti-
+   downgrade mechanisms such as Finished do not provide protection here
+   because the first handshake does not complete at all.
+
+   The natural defense against this attack is to have a "maximum
+   version" indicator which the client can safely send even to downrev
+   servers but which upgraded servers can check and will thus allow
+   downgrade detection.  [Note that SSLv3 defines such a mechanism in
+   the PKCS#1 padding for use to detect SSLv3->SSLv2 rollback.]  The
+   natural location for this indicator is in the cipher suite list as
+   servers already ignore unknown cipher suites.  (An extension is not
+   suitable as extension-intolerance is one form of incompatibility).
+
+
+2.  Terminology
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
+
+3.  Maximum Version Cipher Suites
+
+   This document defines six new cipher suites which are used to
+   indicate the maximum version that the client supports.  These cipher
+   suites are:
+
+
+
+
+
+
+
+
+
+
+Rescorla                 Expires March 29, 2012                 [Page 4]
+
+Internet-Draft          TLS Version Cipher Suite          September 2011
+
+
+   +---------------------------+-----------------------------+---------+
+   |        Cipher Suite       |           Version           |   Code  |
+   |                           |                             |  point  |
+   +---------------------------+-----------------------------+---------+
+   |   TLS_VERSION_SSL3_SCSV   |            SSLv3            |   TBD   |
+   |  TLS_VERSION_TLS_1_0_SCSV |      TLS 1.0 [RFC2246]      |   TBD   |
+   |  TLS_VERSION_TLS_1_1_SCSV |      TLS 1.1 [RFC4346]      |   TBD   |
+   |  TLS_VERSION_TLS_1_2_SCSV |      TLS 1.1 [RFC5246]      |   TBD   |
+   | TLS_VERSION_DTLS_1_1_SCSV |      DTLS 1.1 [RFC4347]     |   TBD   |
+   | TLS_VERSION_DTLS_1_2_SCSV |           DTLS 1.2          |   TBD   |
+   |                           |  [I-D.ietf-tls-rfc4347-bis] |         |
+   +---------------------------+-----------------------------+---------+
+
+                                  Table 1
+
+3.1.  Client Behavior
+
+   A client compliant with this specification MUST add to its cipher
+   suite list the SCSV value which corresponds to the highest TLS
+   version it supports for the TLS mode (TLS or DTLS) it is attempting.
+   In cases where a previous attempt to connect to this server has
+   failed and the client is now retrying with a lower version, the
+   client MUST still indicate the highest version, not the lower version
+   it is now attempting.  Note that when a user has configured the
+   client to disable a specific version, it is the highest configured
+   version which must be advertised.  No more than one SCSV value may be
+   present.
+
+3.2.  Server Behavior
+
+   A server compliant with this specification MUST inspect the cipher
+   suites offered by the client to determine if an SCSV value is
+   present.
+
+   o  If no SCSV value is present, then the server proceeds with the
+      handshake as usual.
+   o  If more than one SCSV value is present then the server MUST
+      terminate the connection with a fatal "illegal_parameter" alert.
+   o  If the SCSV value is present and is equal to
+      ClientHello.client_version, then the server continues the
+      handshake as usual.
+   o  If the SCSV value is present and is not equal to
+      ClientHello.client_version, then the server MUST terminate the
+      handshake with a fatal "handshake_failure" alert.
+
+   Note that if a server (a) improperly handles version and/or extension
+   negotiation and (b) implements this specification will experience a
+   hard failure with a newer client which falls back to an older
+
+
+
+Rescorla                 Expires March 29, 2012                 [Page 5]
+
+Internet-Draft          TLS Version Cipher Suite          September 2011
+
+
+   version.  This is a feature rather than a bug.  It is important that
+   new implementations perform correct version negotiation.  The only
+   purpose of this specification is to enable newer clients and servers
+   to detect downgrade attack while not disabling newer clients from
+   commnunications with older, broken, servers.
+
+
+4.  Security Considerations
+
+   TLS already provides a mechanism for suppressing downgrade attacks
+   when both implementations are compliant.  This mechanism allows
+   servers to detect the situation where they are communicating with a
+   client which has been forced to offer a fresh handshake with a lower
+   version number by an attacker simulating non-compliance.
+
+   As with the normal TLS anti-downgrade mechanism, the security of this
+   mechanism rests on the security of the Finished handshake
+   calculation.  If that fails, then a downgrade attack is still
+   possible.  Thus, security is only provided down to the security of
+   the Finished handshake of the weakest mutually supported TLS version.
+   Currently, the Finished handshakes of all TLS versions are believed
+   to be sufficiently secure.  However, if future research weakens one
+   of the Finished handshakes to the point where it cannot reliably
+   detect tampering with the handshake messages, then downgrade attack
+   to that version will be possible and defense will require disabling
+   that TLS version.
+
+
+5.  IANA Considerations
+
+   [TODO]
+
+
+6.  Normative References
+
+   [I-D.ietf-tls-rfc4347-bis]
+              Rescorla, E. and N. Modadugu, "Datagram Transport Layer
+              Security version 1.2", draft-ietf-tls-rfc4347-bis-06 (work
+              in progress), July 2011.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC2246]  Dierks, T. and C. Allen, "The TLS Protocol Version 1.0",
+              RFC 2246, January 1999.
+
+   [RFC4346]  Dierks, T. and E. Rescorla, "The Transport Layer Security
+              (TLS) Protocol Version 1.1", RFC 4346, April 2006.
+
+
+
+Rescorla                 Expires March 29, 2012                 [Page 6]
+
+Internet-Draft          TLS Version Cipher Suite          September 2011
+
+
+   [RFC4347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
+              Security", RFC 4347, April 2006.
+
+   [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
+              (TLS) Protocol Version 1.2", RFC 5246, August 2008.
+
+
+Author's Address
+
+   Eric Rescorla
+   RTFM, Inc.
+   2064 Edgewood Drive
+   Palo Alto, CA  94303
+   USA
+
+   Phone:  +1 650 678 2350
+   Email:  ekr@rtfm.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                 Expires March 29, 2012                 [Page 7]
+
