@@ -28,7 +28,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-00"
+<rfc category="std" docName="draft-ietf-rtcweb-security-01"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTC-Web Security">Security Considerations for RTC-Web</title>
@@ -55,7 +55,7 @@
       </address>
     </author>
 
-    <date day="4" month="September" year="2011" />
+    <date day="21" month="September" year="2011" />
 
     <area>RAI</area>
 
@@ -838,6 +838,8 @@
   </middle>
 
   <back>
+
+
     <references title="Normative References">
       &RFC2119;
     </references>
@@ -1005,6 +1007,500 @@
 
 
     </references>
+
+
+    <section title="A Proposed Security Architecture [No Consensus on This]" anchor="sec.proposal">
+      
+      <t>This section contains a proposed security architecture, based on
+      the considerations discussed in the main body of this memo. This 
+      section is currently the opinion of the author and does not have consensus
+      though some elements of this proposal do seem to have general
+      consensus.</t>
+      
+      <section title="Trust Hierarchy" anchor="sec.proposal.trusthierarchy">
+	<t>
+	  The basic assumption of this proposal is that network resources
+	  exist in a hierarchy of trust, rooted in the browser, which 
+	  serves as the user's TRUSTED COMPUTING BASE (TCB). Any security
+	  property which the user wishes to have enforced must be 
+	  ultimately guaranteed by the browser (or transitively by
+	  some property the browser verifies). Conversely, if the
+	  browser is compromised, then no security guarantees are possible.
+	</t>
+	<t>
+	  Optimally, we would not rely on trust in any entities other
+	  than the browser. However, this is unfortunately not possible
+	  if we wish to have a functional system. 
+	  Other network elements fall into two categories: those which
+	  can be authenticated by the browser and thus are partly trusted--though
+	  to the minimum extent necessary--and
+	  those which cannot be authenticated and thus are untrusted.
+	  This is a natural extension of the end-to-end principle.
+	</t>
+	<section title="Authenticated Entities" anchor="sec.proposal.authenticated">
+	<t>
+	  There are two major classes of authenticated entities in the system:
+	</t>
+	<t>
+	  <list style="symbols">
+	    <t>Calling services: Web sites whose origin we can verify
+	    (optimally via HTTPS).</t>
+	    <t>Other users: RTC-Web peers whose origin we can verify 
+	    cryptographically (optimally via DTLS-SRTP).</t>
+	  </list>
+	</t>
+	<t>
+	  Note that merely being authenticated does not make these 
+	  entities trusted. For instance, just because we can verify
+	  that https://www.evil.org/ is owned by Dr. Evil does not
+	  mean that we can trust Dr. Evil to access our camera
+	  an microphone. However, it gives the user an opportunity
+	  to determine whether he wishes to trust Dr. Evil or not;
+	  after all, if he desires to contact Dr. Evil, it's safe
+	  to temporarily give him access to the camera and microphone
+	  for the purpose of the call. The point here is that we must
+	  first identify other elements before we can determine whether
+	  to trust them.
+	</t>
+	</section>
+	<section title="Unauthenticated Entities" anchor="sec.proposal.unauthenticated">
+	  <t>
+	    Other than the above entities, we are not generally able to
+	    identify other network elements, thus we cannot trust them.
+	    This does not mean that it is not possible to have nay interaction
+	    with them, but it means that we must assume that they will
+	    behave maliciously and design a system which is secure even
+	    if they do so.
+	  </t>
+	</section>
+      </section>
+      <section title="Layered Security">
+	<t>[TODO]</t>
+      </section>
+      <section title="Overview" anchor="sec.proposal.overview">
+	<t>
+	  This section describes a typical RTCWeb session and shows how
+	  the various security elements interact and what guarantees are
+	  provided to the user. The example in this section is a "base"
+	  use case in which the user only has limited security guarantees.
+	  In subsequent sections we describe how the basic case can
+	  be enhanced to provide stronger security. The basic principle here
+	  is that of layering: naive users and implementations get
+	  reasonable security whereas more sophisticaed users and implementations
+	  can provide stronger guarantees. 
+	</t>
+	<t>
+	  For the purposes of this example, we assume the topology shown
+	  in the figure below:
+	</t>
+      <figure title="A simple call" anchor="fig.proposal.simple">
+	<artwork><![CDATA[
+                            +----------------+
+                            |                |
+                            |     Calling    |
+			    |     Service    |
+                            |                |
+                            +----------------+
+                                ^        ^
+                               /          \
+                       HTTPS  /            \   HTTPS
+                             /              \                               
+                            /                \                               
+                           v                  v
+                        JS API              JS API
+                  +-----------+            +-----------+
+                  |           |    Media   |           |
+                  |  Browser  |<---------->|  Browser  |
+                  |           | (DTLS-SRTP)|           |
+                  +-----------+            +-----------+
+		      Alice                     Bob
+ 	]]></artwork>
+      </figure>
+      <section title="Initial Signaling">
+	<t>
+	  Alice and Bob are both users of a common calling service; they
+	  both have accounts and have made calls through the service before. 
+	  They are both connected to the calling service via HTTPS
+	  and so know the origin with some level of confidence.
+	</t>
+	<t>
+	  Alice is logged onto the calling service and decides to call Bob.
+	  She can see from the calling service that he is online and the
+	  calling service presents a JS UI in the form of a button 
+	  next to Bob's name which says "Call". Alice clicks the button,
+	  which initiates a JS callback that instantiates a PeerConnection
+	  object. This does not require a security check: JS from any
+	  origin is allowed to get this far.
+	</t>
+
+	<t>
+	  Once the PeerConnection is created, the calling service JS 
+	  needs to set up some media. Because this is an audio/video
+	  call, it creates two MediaStreams, one connected to an
+	  audio input and one connected to a video input. At this
+	  point the first security check is required: untrusted
+	  origins are not allowed to access the camera and microphone.
+	  In this case, because Alice is a long-term user of the
+	  calling service, she has made a permissions grant (i.e.,
+	  a setting in the browser) to
+	  allow the calling service to access her camera and microphone
+	  any time it wants. The browser checks this setting when the
+	  camera and microphone requests are made and thus allows them.
+	</t>
+	
+	<t>
+	  In the current W3C API, once some streams have been added,
+	  Alice's browser + JS generates a signaling message
+	  The format of this data is currently undefined. It may
+	  be a complete message as defined by ROAP [REF] or may be
+	  assembled piecemeal by the JS. In either case, it will contain:
+	</t>
+	<t>
+	  <list style="symbols">
+	    <t>Media channel information</t>
+	    <t>ICE candidates</t>
+	    <t>A fingerprint attribute binding the message to Alice's public key
+	    <xref target="RFC5763"/></t>
+	  </list>
+	</t>
+	<t>
+	  This message is sent to the signaling server, e.g., by XHR or
+	  WebSockets. The signaling server processes the message from Alice's browser,
+	  determines that this is a call to Bob and sends a signaling
+	  message to Bob's browser (again, the format is currently undefined).
+	  The JS on Bob's browser processes it and alerts Bob to the incoming
+	  cal and Alice's identity. If Bob agrees [I am ignoring early media for now], 
+	  a PeerConnection is instantiated with the message from Alice's side.
+	  At this point a similar process
+	  occurs as on Alice's browser: Bob's browser verifies that the calling
+	  service is approved, the media streams are created, and a return
+	  signaling message containing media information, ICE candidates, and
+	  a fingerprint is sent back to Alice via the signaling service.
+	</t>
+	<t>
+	  At this point, it's worth pausing and asking what security guarantees
+	  we have: if Alice and Bob trust the signaling service, then they
+	  know that they have a call to each other. If they do not trust
+	  the signaling service, all they know is that it is sending the
+	  media somewhere of its choosing.
+	</t>
+      </section>
+      <section title="Media Consent Verification">
+	<t>
+	  As described in <xref target="sec.rtc-comm-consent"/>. 
+	  This proposal specifies that that be performed via ICE.
+	  Thus, Alice and Bob perform ICE checks with each other.
+	  At the completion of these checks, they are ready to
+	  send non-ICE data.
+	</t>
+	<t>
+	  At this point, Alice knows that (a) Bob or someone else who the
+	  signaling service is claiming is Bob is willing to exchange
+	  traffic with her and (b) that either Bob is at the IP address
+	  which she has verified via ICE or there is an attacker who
+	  is on-path to that IP address detouring the traffic. Note that
+	  it is not possible for an attacker who is on-path but not
+	  attached to the signaling service to spoof these checks
+	  because they do not have the ICE credentials. Bob's security
+	  guarantees with respect to Alice are the converse of this.
+	</t>
+      </section>
+
+      <section title="DTLS Handshake">
+	<t>
+	  Once the ICE checks have completed [more specifically, once some 
+	  ICE checks have completed], Alice and Bob can set up a secure
+	  channel. This is performed via DTLS <xref target="RFC4347"/>
+	  (for the data channel) and DTLS-SRTP <xref target="RFC5763"/>
+	  for the media channel. Specifically, Alice and Bob perform
+	  a DTLS handshake on every channel which has been established
+	  by ICE. The total number of channels depends on the amount of muxing;
+	  in the most likely case we are using both RTP/RTCP mux and
+	  muxing multiple media streams on the same channel, in which
+	  case there is only one DTLS handshake. Once the DTLS handshake
+	  has completed, the keys are extracted and used to key SRTP
+	  for the media channels.
+	</t>
+	<t>
+	  At this point, Alice and Bob know that they share a set
+	  of secure data and/or media channels with keys which are 
+	  not known to any third-party attacker. Moreover, as long as
+	  they have minimal trust in the signaling service not to
+	  perform a man-in-the-middle attack, they know that their
+	  communications are secure against the signaling service as
+	  well. (We cover security against potentially malicious
+	  signaling services in Section XXX.)
+	</t>
+      </section>
+
+      <section title="Communications and Consent Freshness">
+	<t>
+	  From a security perspective, everything from here on in is a
+	  little anticlimactic: Alice and Bob exchange data protected by the
+	  keys negotiated by DTLS. Because of the security guarantees discussed
+	  in the previous sections, they know that the communications are
+	  encrypted and authenticated.
+	</t>
+	<t>
+	  The one remaining security property we need to establish is
+	  "consent freshness", i.e., allowing Alice to verify that Bob
+	  is still prepared to receive her communications. ICE 
+	  specifies periodic STUN keepalizes but only if media is not flowing.
+	  Because the consent issue is more difficult here, we 
+	  require RTCWeb implementations to send keepalives every 
+	  XXX seconds whether data is flowing or not. If a keepalive
+	  fails and no new ICE channels can be established, then 
+	  the session is terminated.
+	</t>
+      </section>
+
+      <section title="Better Security Through Authenticated Users">
+	<t>
+	  As implied above, the greater the extent to which we can
+	  authenticate the principals, the greater level of security
+	  we can provide. If Alice's browser is unable to directly authenticate
+	  Bob, then the calling service can mount a number of potential attacks, 
+	  including:
+	</t>
+	<t>
+	  <list>
+	    <t>Remotely activating Alice's camera and/or microphone in order
+	    to observe her home or office.</t>
+	    <t>Listening in on calls between her and Bob.</t>
+	  </list>
+	</t>
+	<t>
+	  These attacks are inherent in an architecture in which the
+	  signaling service authenticates the parties. Thus, Alice and
+	  Bob are faced with an all-or-nothing security model.
+	  However, if it is possible for the parties to authenticate
+	  each other directly, then substantially better security guarantees
+	  become possible. The obvious improvement here is that we can
+	  avoid the second form of attack, in which the signaling service
+	  snoops on Alice's calls. 
+	</t>
+	<t>
+	  Less obviously, but perhaps more 
+	  importantly, it means that Alice can use calling services
+	  that she might otherwise not trust. To give an example, say
+	  that Alice is using a poker gaming site: she doesn't really want
+	  to allow the site to use her camera and microphone whenever it
+	  wants but also doesn't want to have to agree to every call.
+	  If she can directly verify people she is calling, then she
+	  can configure her browser to allow the gaming site to set up
+	  calls only to people she already knows. This allows for
+	  both higher security and a more convenient user interface.
+	</t>
+	<t>
+	  The natural problem, of course, is actually providing 
+	  for direct identification of the other party. As discussed
+	  in <xref target="sec.during-attack"/> this has historically
+	  been a challenging problem. Currently, the only available
+	  technologies are out of band verification mechanisms like
+	  fingerprints or SAS. However, in recent years a new 
+	  generation of Web-based identity mechanisms (Browser-ID,
+	  Facebook Connect, OAuth, OpenID, WebFinger) has been developed;
+	  this offers the possibility of bootstrapping these mechanisms
+	  to separate authentication from operation of the calling
+	  service. Thus, I might be able to make a call on PokerGalaxy
+	  [note, this name is made up] but authenticated with my
+	  Facebook identity. People I call would then be able to
+	  verify my identity without having to trust PokerGalaxy.
+	</t>
+	<t>
+	  The key technical idea that makes this possible is to provide
+	  end-to-end cryptographic security between the browsers.
+	  This takes the signaling site out of the loop, thus opening
+	  the door for future identity mechanisms to work. Without
+	  end-to-end security, such mechanisms are not possible to 
+	  retrofit.
+	</t>
+      </section>
+    </section>
+    
+    <section title="Detailed Technical Description" anchor="sec.proposal.detailed">
+      <section title="Origin and Web Security Issues" anchor="sec.proposal.origin">
+	<t>
+	  The basic unit of permissions for RTC-Web is the origin
+	  <xref target="I-D.abarth-origin"/>. Because the security of the origin
+	  depends on being able to authenticate content from that origin,
+	  the origin can only be securely established if data is transferred
+	  over HTTPS. Thus, clients MUST treat HTTP and HTTPS origins as
+	  different permissions domains and SHOULD NOT permit access to any
+	  RTC-Web functionality from scripts fetched over non-secure (HTTP)
+	  origins. If an HTTPS origin contains mixed active content
+	  (regardless of whether it is present on the specific page 
+	  attempting to access RTC-Web functionality), any access MUST be 
+	  treated as if it came from the HTTP origin. 
+	  For instance, if a https://www.example.com/example.html
+	  loads https://www.example.com/example.js and 
+	  http://www.example.org/jquery.js, any attempt by example.js
+	  to access RTCWeb functionality MUST be treated as if it came
+	  from http://www.example.com/.
+	</t>
+      </section>
+
+      <section title="Device Permissions Model" anchor="sec.proposal.device.permissions">
+	<t>
+	  Implementations MUST obtain explicit user consent prior to
+	  providing access to the camera and/or microphone. Implementations MUST
+	  at minimum support the following two permissions models:
+	</t>
+	<t>
+	  <list style="symbols">
+	    <t>Requests for one-time camera/microphone access.</t>
+	    <t>Requests for permanent access.</t>
+	  </list>
+	</t>
+	<t><list style="hanging">
+	  <t hangText="API Requirement:">
+	    The API MUST provide a mechanism for the requesting JS to
+	    indicate which of these forms of permissions it is 
+	    requesting. This allows the client to know what sort
+	    of user interface experience to provide.
+	  </t>
+	</list></t>
+
+	<t><list style="hanging">
+	  <t hangText="UI Requirement:">
+	    The UI MUST clearly indicate when the user's camera and 
+	    microphone are in use. This indication MUST NOT be suppressable
+	    by the JS and MUST clearly indicate how to terminate a call.
+	  </t>
+	</list></t>
+
+	<t>
+	  Clients MAY permit the formation of data channels
+	  without any direct user approval. Because sites can always
+	  tunnel data through the server, further restrictions on the
+	  data channel do not provide any additional security.
+	  (though see <xref target="sec.proposal.communications.consent"/>
+	  for a related issue).
+	</t>
+	<t>
+	  Implementations which support some form of direct user authentication
+	  SHOULD also provide a policy by which a user can authorize calling
+	  only to specific counterparties.
+	</t>
+      </section>
+
+      <section title="Communications Consent" anchor="sec.proposal.communications.consent">
+	
+	<t>
+	  Browser client implementations of RTC-Web MUST implement ICE.
+	  Server gateway implementations which operate only at public IP
+	  addresses may implement ICE-Lite.
+	</t>
+	<t>
+	  Browser implementations MUST verify reachability via ICE 
+	  prior to sending any non-ICE packets to a given destination.
+	  Implementations MUST NOT provide the ICE transaction ID
+	  to JavaScript. [Note: this document takes no position on
+	  the split between ICE in JS and ICE in the browser. The
+	  above text is written the way it is for editorial convenience and will
+	  be modified appropriately if the WG decides on ICE in the JS.]
+	</t>
+	<section title="IP Location Privacy" anchor="sec.proposal.ip.location.privacy">
+	  <t>
+	    As mentioned in Section [TODO] above, a side effect of the default
+	    ICE behavior is that the peer learns one's IP address. This has
+	    negative privacy consequences in some circumstances. The following
+	    two API requirements are intended to mitigate this issue:
+	  </t>
+
+	  <t><list style="hanging">
+	  <t hangText="API Requirement:">
+	    The API MUST provide a mechanism to suppress ICE negotiation 
+	    (though perhaps to allow candidate gathering) until the
+	    user has decided to answer the call [note: determining
+	    when the call has been answered is a question for the JS.]
+	    This enables a user to prevent a peer from learning their
+	    IP address if they elect not to answer a call.
+	  </t>
+	  </list></t>
+
+	  <t><list style="hanging">
+	  <t hangText="API Requirement:">
+	    The API MUST provide a mechanism for the calling application to
+	    indicate that only TURN candidates are to be used. This
+	    prevents the peer from learning one's IP address at all.
+	  </t>
+	  </list></t>
+	</section>
+      </section>
+
+      <section title="Communications Security" anchor="sec.proposal.comsec">
+	<t>
+	  Implementations MUST implement DTLS and DTLS-SRTP. All data
+	  channels MUST be secured via DTLS. DTLS-SRTP MUST be offered
+	  for every media channel and MUST be the default; i.e., if 
+	  an implementation receives an offer for DTLS-SRTP and SDES and/or
+	  plain RTP, DTLS-SRTP MUST be selected.
+	</t>
+	<t>
+	  [OPEN ISSUE: What should the settings be here? MUST?]
+	  Implementations MAY support SDES and RTP for media traffic
+	  for backward compatibility purposes.
+	</t>
+	<!-- OPEN ISSUE: DTLS-SRTP key origin scoping? -->
+	<t><list style="hanging">
+	  <t hangText="API Requirement:">
+	    The API MUST provide a mechanism to indicate that a fresh
+	    DTLS key pair is to be generated for a specific call. 
+	    This is intended to allow for unlinkability.
+	  </t>
+	</list></t>
+
+	<t><list style="hanging">
+	  <t hangText="API Requirement:">
+	    The API MUST provide a mechanism to indicate that a fresh
+	    DTLS key pair is to be generated for a specific call. 
+	    This is intended to allow for unlinkability.
+	  </t>
+	</list></t>
+
+
+	<t><list style="hanging">
+	  <t hangText="UI Requirements:">
+	    [TODO... Crib Kaufman?]
+	  </t>
+	</list></t>
+      </section>
+
+      
+    </section>
+  </section>
   </back>
+<!--
+
+On Thu, Sep 22, 2011 at 5:45 AM, Magnus Westerlund <magnus.westerlund@ericsson.com> wrote:
+> Hi EKR,
+>
+> (As an individual)
+>
+> Thanks for posting the draft.
+>
+> I am missing a few security issues that I think should be considered.
+>
+> 1. The attempt to overload the links in an domain by concentrating
+> traffic on the domain by choosing peer-pairs. Not that I think there is
+> any real protection against this other than limit the flows to their
+> "fair" share.
+>
+> 2. Configuring RTCP or other automatically sent traffic to high
+> bit-rates. Especially under conditions where continued consent can't be
+> determined.
+>
+> Cheers
+>
+> Magnus Westerlund
+>
+>
+>
+
+
+
+-->
+
 </rfc>
 

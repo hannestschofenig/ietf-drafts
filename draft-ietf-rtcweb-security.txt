@@ -3,12 +3,12 @@
 
 RTC-Web                                                      E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                      September 4, 2011
-Expires:  March 7, 2012
+Intended status:  Standards Track                     September 21, 2011
+Expires:  March 24, 2012
 
 
                   Security Considerations for RTC-Web
-                     draft-ietf-rtcweb-security-00
+                     draft-ietf-rtcweb-security-01
 
 Abstract
 
@@ -52,7 +52,7 @@ Status of this Memo
 
 
 
-Rescorla                  Expires March 7, 2012                 [Page 1]
+Rescorla                 Expires March 24, 2012                 [Page 1]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -60,7 +60,7 @@ Internet-Draft              RTC-Web Security              September 2011
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 7, 2012.
+   This Internet-Draft will expire on March 24, 2012.
 
 Copyright Notice
 
@@ -108,44 +108,70 @@ Copyright Notice
 
 
 
-Rescorla                  Expires March 7, 2012                 [Page 2]
+Rescorla                 Expires March 24, 2012                 [Page 2]
 
 Internet-Draft              RTC-Web Security              September 2011
 
 
 Table of Contents
 
-   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  4
-   2.  Terminology  . . . . . . . . . . . . . . . . . . . . . . . . .  5
-   3.  The Browser Threat Model . . . . . . . . . . . . . . . . . . .  5
-     3.1.  Access to Local Resources  . . . . . . . . . . . . . . . .  6
-     3.2.  Same Origin Policy . . . . . . . . . . . . . . . . . . . .  6
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  5
+   2.  Terminology  . . . . . . . . . . . . . . . . . . . . . . . . .  6
+   3.  The Browser Threat Model . . . . . . . . . . . . . . . . . . .  6
+     3.1.  Access to Local Resources  . . . . . . . . . . . . . . . .  7
+     3.2.  Same Origin Policy . . . . . . . . . . . . . . . . . . . .  7
      3.3.  Bypassing SOP: CORS, WebSockets, and consent to
-           communicate  . . . . . . . . . . . . . . . . . . . . . . .  7
-   4.  Security for RTC-Web Applications  . . . . . . . . . . . . . .  7
-     4.1.  Access to Local Devices  . . . . . . . . . . . . . . . . .  7
-       4.1.1.  Calling Scenarios and User Expectations  . . . . . . .  8
-         4.1.1.1.  Dedicated Calling Services . . . . . . . . . . . .  8
-         4.1.1.2.  Calling the Site You're On . . . . . . . . . . . .  8
-         4.1.1.3.  Calling to an Ad Target  . . . . . . . . . . . . .  9
-       4.1.2.  Origin-Based Security  . . . . . . . . . . . . . . . .  9
-       4.1.3.  Security Properties of the Calling Page  . . . . . . . 11
-     4.2.  Communications Consent Verification  . . . . . . . . . . . 12
-       4.2.1.  ICE  . . . . . . . . . . . . . . . . . . . . . . . . . 12
-       4.2.2.  Masking  . . . . . . . . . . . . . . . . . . . . . . . 12
-       4.2.3.  Backward Compatibility . . . . . . . . . . . . . . . . 13
-     4.3.  Communications Security  . . . . . . . . . . . . . . . . . 14
-       4.3.1.  Protecting Against Retrospective Compromise  . . . . . 15
-       4.3.2.  Protecting Against During-Call Attack  . . . . . . . . 15
-         4.3.2.1.  Key Continuity . . . . . . . . . . . . . . . . . . 16
-         4.3.2.2.  Short Authentication Strings . . . . . . . . . . . 16
-         4.3.2.3.  Recommendations  . . . . . . . . . . . . . . . . . 17
-   5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 17
-   6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 18
-   7.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 18
-     7.1.  Normative References . . . . . . . . . . . . . . . . . . . 18
-     7.2.  Informative References . . . . . . . . . . . . . . . . . . 18
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 20
+           communicate  . . . . . . . . . . . . . . . . . . . . . . .  8
+   4.  Security for RTC-Web Applications  . . . . . . . . . . . . . .  8
+     4.1.  Access to Local Devices  . . . . . . . . . . . . . . . . .  8
+       4.1.1.  Calling Scenarios and User Expectations  . . . . . . .  9
+         4.1.1.1.  Dedicated Calling Services . . . . . . . . . . . .  9
+         4.1.1.2.  Calling the Site You're On . . . . . . . . . . . .  9
+         4.1.1.3.  Calling to an Ad Target  . . . . . . . . . . . . . 10
+       4.1.2.  Origin-Based Security  . . . . . . . . . . . . . . . . 10
+       4.1.3.  Security Properties of the Calling Page  . . . . . . . 12
+     4.2.  Communications Consent Verification  . . . . . . . . . . . 13
+       4.2.1.  ICE  . . . . . . . . . . . . . . . . . . . . . . . . . 13
+       4.2.2.  Masking  . . . . . . . . . . . . . . . . . . . . . . . 13
+       4.2.3.  Backward Compatibility . . . . . . . . . . . . . . . . 14
+     4.3.  Communications Security  . . . . . . . . . . . . . . . . . 15
+       4.3.1.  Protecting Against Retrospective Compromise  . . . . . 16
+       4.3.2.  Protecting Against During-Call Attack  . . . . . . . . 16
+         4.3.2.1.  Key Continuity . . . . . . . . . . . . . . . . . . 17
+         4.3.2.2.  Short Authentication Strings . . . . . . . . . . . 17
+         4.3.2.3.  Recommendations  . . . . . . . . . . . . . . . . . 18
+   5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 18
+   6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 19
+   7.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+     7.1.  Normative References . . . . . . . . . . . . . . . . . . . 19
+     7.2.  Informative References . . . . . . . . . . . . . . . . . . 19
+   Appendix A.  A Proposed Security Architecture [No Consensus on
+                This] . . . . . . . . . . . . . . . . . . . . . . . . 21
+     A.1.  Trust Hierarchy  . . . . . . . . . . . . . . . . . . . . . 21
+       A.1.1.  Authenticated Entities . . . . . . . . . . . . . . . . 21
+       A.1.2.  Unauthenticated Entities . . . . . . . . . . . . . . . 22
+     A.2.  Layered Security . . . . . . . . . . . . . . . . . . . . . 22
+     A.3.  Overview . . . . . . . . . . . . . . . . . . . . . . . . . 22
+       A.3.1.  Initial Signaling  . . . . . . . . . . . . . . . . . . 23
+       A.3.2.  Media Consent Verification . . . . . . . . . . . . . . 24
+       A.3.3.  DTLS Handshake . . . . . . . . . . . . . . . . . . . . 25
+       A.3.4.  Communications and Consent Freshness . . . . . . . . . 25
+       A.3.5.  Better Security Through Authenticated Users  . . . . . 25
+     A.4.  Detailed Technical Description . . . . . . . . . . . . . . 26
+       A.4.1.  Origin and Web Security Issues . . . . . . . . . . . . 26
+       A.4.2.  Device Permissions Model . . . . . . . . . . . . . . . 27
+       A.4.3.  Communications Consent . . . . . . . . . . . . . . . . 27
+
+
+
+Rescorla                 Expires March 24, 2012                 [Page 3]
+
+Internet-Draft              RTC-Web Security              September 2011
+
+
+         A.4.3.1.  IP Location Privacy  . . . . . . . . . . . . . . . 28
+       A.4.4.  Communications Security  . . . . . . . . . . . . . . . 28
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 29
 
 
 
@@ -164,7 +190,37 @@ Table of Contents
 
 
 
-Rescorla                  Expires March 7, 2012                 [Page 3]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                 Expires March 24, 2012                 [Page 4]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -220,7 +276,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                 [Page 4]
+Rescorla                 Expires March 24, 2012                 [Page 5]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -276,7 +332,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                 [Page 5]
+Rescorla                 Expires March 24, 2012                 [Page 6]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -332,7 +388,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                 [Page 6]
+Rescorla                 Expires March 24, 2012                 [Page 7]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -388,7 +444,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                 [Page 7]
+Rescorla                 Expires March 24, 2012                 [Page 8]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -444,7 +500,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                 [Page 8]
+Rescorla                 Expires March 24, 2012                 [Page 9]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -500,7 +556,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                 [Page 9]
+Rescorla                 Expires March 24, 2012                [Page 10]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -556,7 +612,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 10]
+Rescorla                 Expires March 24, 2012                [Page 11]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -612,7 +668,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 11]
+Rescorla                 Expires March 24, 2012                [Page 12]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -668,7 +724,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 12]
+Rescorla                 Expires March 24, 2012                [Page 13]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -724,7 +780,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 13]
+Rescorla                 Expires March 24, 2012                [Page 14]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -780,7 +836,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 14]
+Rescorla                 Expires March 24, 2012                [Page 15]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -836,7 +892,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 15]
+Rescorla                 Expires March 24, 2012                [Page 16]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -892,7 +948,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 16]
+Rescorla                 Expires March 24, 2012                [Page 17]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -948,7 +1004,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 17]
+Rescorla                 Expires March 24, 2012                [Page 18]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -973,7 +1029,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
    [I-D.ietf-hybi-thewebsocketprotocol]
               Fette, I. and A. Melnikov, "The WebSocket protocol",
-              draft-ietf-hybi-thewebsocketprotocol-15 (work in
+              draft-ietf-hybi-thewebsocketprotocol-17 (work in
               progress), September 2011.
 
    [I-D.kaufman-rtcweb-security-ui]
@@ -1004,7 +1060,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 18]
+Rescorla                 Expires March 24, 2012                [Page 19]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -1060,7 +1116,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 19]
+Rescorla                 Expires March 24, 2012                [Page 20]
 
 Internet-Draft              RTC-Web Security              September 2011
 
@@ -1072,6 +1128,448 @@ Internet-Draft              RTC-Web Security              September 2011
               Whitten, A. and J. Tygar, "Why Johnny Can't Encrypt: A
               Usability Evaluation of PGP 5.0",  Proceedings of the 8th
               USENIX Security Symposium, 1999.
+
+
+Appendix A.  A Proposed Security Architecture [No Consensus on This]
+
+   This section contains a proposed security architecture, based on the
+   considerations discussed in the main body of this memo.  This section
+   is currently the opinion of the author and does not have consensus
+   though some elements of this proposal do seem to have general
+   consensus.
+
+A.1.  Trust Hierarchy
+
+   The basic assumption of this proposal is that network resources exist
+   in a hierarchy of trust, rooted in the browser, which serves as the
+   user's TRUSTED COMPUTING BASE (TCB).  Any security property which the
+   user wishes to have enforced must be ultimately guaranteed by the
+   browser (or transitively by some property the browser verifies).
+   Conversely, if the browser is compromised, then no security
+   guarantees are possible.
+
+   Optimally, we would not rely on trust in any entities other than the
+   browser.  However, this is unfortunately not possible if we wish to
+   have a functional system.  Other network elements fall into two
+   categories:  those which can be authenticated by the browser and thus
+   are partly trusted--though to the minimum extent necessary--and those
+   which cannot be authenticated and thus are untrusted.  This is a
+   natural extension of the end-to-end principle.
+
+A.1.1.  Authenticated Entities
+
+   There are two major classes of authenticated entities in the system:
+
+   o  Calling services:  Web sites whose origin we can verify (optimally
+      via HTTPS).
+   o  Other users:  RTC-Web peers whose origin we can verify
+      cryptographically (optimally via DTLS-SRTP).
+
+   Note that merely being authenticated does not make these entities
+   trusted.  For instance, just because we can verify that
+   https://www.evil.org/ is owned by Dr. Evil does not mean that we can
+   trust Dr. Evil to access our camera an microphone.  However, it gives
+
+
+
+Rescorla                 Expires March 24, 2012                [Page 21]
+
+Internet-Draft              RTC-Web Security              September 2011
+
+
+   the user an opportunity to determine whether he wishes to trust Dr.
+   Evil or not; after all, if he desires to contact Dr. Evil, it's safe
+   to temporarily give him access to the camera and microphone for the
+   purpose of the call.  The point here is that we must first identify
+   other elements before we can determine whether to trust them.
+
+A.1.2.  Unauthenticated Entities
+
+   Other than the above entities, we are not generally able to identify
+   other network elements, thus we cannot trust them.  This does not
+   mean that it is not possible to have nay interaction with them, but
+   it means that we must assume that they will behave maliciously and
+   design a system which is secure even if they do so.
+
+A.2.  Layered Security
+
+   [TODO]
+
+A.3.  Overview
+
+   This section describes a typical RTCWeb session and shows how the
+   various security elements interact and what guarantees are provided
+   to the user.  The example in this section is a "base" use case in
+   which the user only has limited security guarantees.  In subsequent
+   sections we describe how the basic case can be enhanced to provide
+   stronger security.  The basic principle here is that of layering:
+   naive users and implementations get reasonable security whereas more
+   sophisticaed users and implementations can provide stronger
+   guarantees.
+
+   For the purposes of this example, we assume the topology shown in the
+   figure below:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                 Expires March 24, 2012                [Page 22]
+
+Internet-Draft              RTC-Web Security              September 2011
+
+
+                               +----------------+
+                               |                |
+                               |     Calling    |
+                               |     Service    |
+                               |                |
+                               +----------------+
+                                   ^        ^
+                                  /          \
+                          HTTPS  /            \   HTTPS
+                                /              \
+                               /                \
+                              v                  v
+                           JS API              JS API
+                     +-----------+            +-----------+
+                     |           |    Media   |           |
+                     |  Browser  |<---------->|  Browser  |
+                     |           | (DTLS-SRTP)|           |
+                     +-----------+            +-----------+
+                         Alice                     Bob
+
+                          Figure 2: A simple call
+
+A.3.1.  Initial Signaling
+
+   Alice and Bob are both users of a common calling service; they both
+   have accounts and have made calls through the service before.  They
+   are both connected to the calling service via HTTPS and so know the
+   origin with some level of confidence.
+
+   Alice is logged onto the calling service and decides to call Bob. She
+   can see from the calling service that he is online and the calling
+   service presents a JS UI in the form of a button next to Bob's name
+   which says "Call".  Alice clicks the button, which initiates a JS
+   callback that instantiates a PeerConnection object.  This does not
+   require a security check:  JS from any origin is allowed to get this
+   far.
+
+   Once the PeerConnection is created, the calling service JS needs to
+   set up some media.  Because this is an audio/video call, it creates
+   two MediaStreams, one connected to an audio input and one connected
+   to a video input.  At this point the first security check is
+   required:  untrusted origins are not allowed to access the camera and
+   microphone.  In this case, because Alice is a long-term user of the
+   calling service, she has made a permissions grant (i.e., a setting in
+   the browser) to allow the calling service to access her camera and
+   microphone any time it wants.  The browser checks this setting when
+   the camera and microphone requests are made and thus allows them.
+
+
+
+
+Rescorla                 Expires March 24, 2012                [Page 23]
+
+Internet-Draft              RTC-Web Security              September 2011
+
+
+   In the current W3C API, once some streams have been added, Alice's
+   browser + JS generates a signaling message The format of this data is
+   currently undefined.  It may be a complete message as defined by ROAP
+   [REF] or may be assembled piecemeal by the JS.  In either case, it
+   will contain:
+
+   o  Media channel information
+   o  ICE candidates
+   o  A fingerprint attribute binding the message to Alice's public key
+      [RFC5763]
+
+   This message is sent to the signaling server, e.g., by XHR or
+   WebSockets.  The signaling server processes the message from Alice's
+   browser, determines that this is a call to Bob and sends a signaling
+   message to Bob's browser (again, the format is currently undefined).
+   The JS on Bob's browser processes it and alerts Bob to the incoming
+   cal and Alice's identity.  If Bob agrees [I am ignoring early media
+   for now], a PeerConnection is instantiated with the message from
+   Alice's side.  At this point a similar process occurs as on Alice's
+   browser:  Bob's browser verifies that the calling service is
+   approved, the media streams are created, and a return signaling
+   message containing media information, ICE candidates, and a
+   fingerprint is sent back to Alice via the signaling service.
+
+   At this point, it's worth pausing and asking what security guarantees
+   we have:  if Alice and Bob trust the signaling service, then they
+   know that they have a call to each other.  If they do not trust the
+   signaling service, all they know is that it is sending the media
+   somewhere of its choosing.
+
+A.3.2.  Media Consent Verification
+
+   As described in Section 4.2.  This proposal specifies that that be
+   performed via ICE.  Thus, Alice and Bob perform ICE checks with each
+   other.  At the completion of these checks, they are ready to send
+   non-ICE data.
+
+   At this point, Alice knows that (a) Bob or someone else who the
+   signaling service is claiming is Bob is willing to exchange traffic
+   with her and (b) that either Bob is at the IP address which she has
+   verified via ICE or there is an attacker who is on-path to that IP
+   address detouring the traffic.  Note that it is not possible for an
+   attacker who is on-path but not attached to the signaling service to
+   spoof these checks because they do not have the ICE credentials.
+   Bob's security guarantees with respect to Alice are the converse of
+   this.
+
+
+
+
+
+Rescorla                 Expires March 24, 2012                [Page 24]
+
+Internet-Draft              RTC-Web Security              September 2011
+
+
+A.3.3.  DTLS Handshake
+
+   Once the ICE checks have completed [more specifically, once some ICE
+   checks have completed], Alice and Bob can set up a secure channel.
+   This is performed via DTLS [RFC4347] (for the data channel) and DTLS-
+   SRTP [RFC5763] for the media channel.  Specifically, Alice and Bob
+   perform a DTLS handshake on every channel which has been established
+   by ICE.  The total number of channels depends on the amount of
+   muxing; in the most likely case we are using both RTP/RTCP mux and
+   muxing multiple media streams on the same channel, in which case
+   there is only one DTLS handshake.  Once the DTLS handshake has
+   completed, the keys are extracted and used to key SRTP for the media
+   channels.
+
+   At this point, Alice and Bob know that they share a set of secure
+   data and/or media channels with keys which are not known to any
+   third-party attacker.  Moreover, as long as they have minimal trust
+   in the signaling service not to perform a man-in-the-middle attack,
+   they know that their communications are secure against the signaling
+   service as well.  (We cover security against potentially malicious
+   signaling services in Section XXX.)
+
+A.3.4.  Communications and Consent Freshness
+
+   From a security perspective, everything from here on in is a little
+   anticlimactic:  Alice and Bob exchange data protected by the keys
+   negotiated by DTLS.  Because of the security guarantees discussed in
+   the previous sections, they know that the communications are
+   encrypted and authenticated.
+
+   The one remaining security property we need to establish is "consent
+   freshness", i.e., allowing Alice to verify that Bob is still prepared
+   to receive her communications.  ICE specifies periodic STUN
+   keepalizes but only if media is not flowing.  Because the consent
+   issue is more difficult here, we require RTCWeb implementations to
+   send keepalives every XXX seconds whether data is flowing or not.  If
+   a keepalive fails and no new ICE channels can be established, then
+   the session is terminated.
+
+A.3.5.  Better Security Through Authenticated Users
+
+   As implied above, the greater the extent to which we can authenticate
+   the principals, the greater level of security we can provide.  If
+   Alice's browser is unable to directly authenticate Bob, then the
+   calling service can mount a number of potential attacks, including:
+
+
+
+
+
+
+Rescorla                 Expires March 24, 2012                [Page 25]
+
+Internet-Draft              RTC-Web Security              September 2011
+
+
+      Remotely activating Alice's camera and/or microphone in order to
+      observe her home or office.
+      Listening in on calls between her and Bob.
+
+   These attacks are inherent in an architecture in which the signaling
+   service authenticates the parties.  Thus, Alice and Bob are faced
+   with an all-or-nothing security model.  However, if it is possible
+   for the parties to authenticate each other directly, then
+   substantially better security guarantees become possible.  The
+   obvious improvement here is that we can avoid the second form of
+   attack, in which the signaling service snoops on Alice's calls.
+
+   Less obviously, but perhaps more importantly, it means that Alice can
+   use calling services that she might otherwise not trust.  To give an
+   example, say that Alice is using a poker gaming site:  she doesn't
+   really want to allow the site to use her camera and microphone
+   whenever it wants but also doesn't want to have to agree to every
+   call.  If she can directly verify people she is calling, then she can
+   configure her browser to allow the gaming site to set up calls only
+   to people she already knows.  This allows for both higher security
+   and a more convenient user interface.
+
+   The natural problem, of course, is actually providing for direct
+   identification of the other party.  As discussed in Section 4.3.2
+   this has historically been a challenging problem.  Currently, the
+   only available technologies are out of band verification mechanisms
+   like fingerprints or SAS.  However, in recent years a new generation
+   of Web-based identity mechanisms (Browser-ID, Facebook Connect,
+   OAuth, OpenID, WebFinger) has been developed; this offers the
+   possibility of bootstrapping these mechanisms to separate
+   authentication from operation of the calling service.  Thus, I might
+   be able to make a call on PokerGalaxy [note, this name is made up]
+   but authenticated with my Facebook identity.  People I call would
+   then be able to verify my identity without having to trust
+   PokerGalaxy.
+
+   The key technical idea that makes this possible is to provide end-to-
+   end cryptographic security between the browsers.  This takes the
+   signaling site out of the loop, thus opening the door for future
+   identity mechanisms to work.  Without end-to-end security, such
+   mechanisms are not possible to retrofit.
+
+A.4.  Detailed Technical Description
+
+A.4.1.  Origin and Web Security Issues
+
+   The basic unit of permissions for RTC-Web is the origin
+   [I-D.abarth-origin].  Because the security of the origin depends on
+
+
+
+Rescorla                 Expires March 24, 2012                [Page 26]
+
+Internet-Draft              RTC-Web Security              September 2011
+
+
+   being able to authenticate content from that origin, the origin can
+   only be securely established if data is transferred over HTTPS.
+   Thus, clients MUST treat HTTP and HTTPS origins as different
+   permissions domains and SHOULD NOT permit access to any RTC-Web
+   functionality from scripts fetched over non-secure (HTTP) origins.
+   If an HTTPS origin contains mixed active content (regardless of
+   whether it is present on the specific page attempting to access RTC-
+   Web functionality), any access MUST be treated as if it came from the
+   HTTP origin.  For instance, if a https://www.example.com/example.html
+   loads https://www.example.com/example.js and
+   http://www.example.org/jquery.js, any attempt by example.js to access
+   RTCWeb functionality MUST be treated as if it came from
+   http://www.example.com/.
+
+A.4.2.  Device Permissions Model
+
+   Implementations MUST obtain explicit user consent prior to providing
+   access to the camera and/or microphone.  Implementations MUST at
+   minimum support the following two permissions models:
+
+   o  Requests for one-time camera/microphone access.
+   o  Requests for permanent access.
+
+   API Requirement:  The API MUST provide a mechanism for the requesting
+      JS to indicate which of these forms of permissions it is
+      requesting.  This allows the client to know what sort of user
+      interface experience to provide.
+
+   UI Requirement:  The UI MUST clearly indicate when the user's camera
+      and microphone are in use.  This indication MUST NOT be
+      suppressable by the JS and MUST clearly indicate how to terminate
+      a call.
+
+   Clients MAY permit the formation of data channels without any direct
+   user approval.  Because sites can always tunnel data through the
+   server, further restrictions on the data channel do not provide any
+   additional security. (though see Appendix A.4.3 for a related issue).
+
+   Implementations which support some form of direct user authentication
+   SHOULD also provide a policy by which a user can authorize calling
+   only to specific counterparties.
+
+A.4.3.  Communications Consent
+
+   Browser client implementations of RTC-Web MUST implement ICE.  Server
+   gateway implementations which operate only at public IP addresses may
+   implement ICE-Lite.
+
+
+
+
+Rescorla                 Expires March 24, 2012                [Page 27]
+
+Internet-Draft              RTC-Web Security              September 2011
+
+
+   Browser implementations MUST verify reachability via ICE prior to
+   sending any non-ICE packets to a given destination.  Implementations
+   MUST NOT provide the ICE transaction ID to JavaScript.  [Note:  this
+   document takes no position on the split between ICE in JS and ICE in
+   the browser.  The above text is written the way it is for editorial
+   convenience and will be modified appropriately if the WG decides on
+   ICE in the JS.]
+
+A.4.3.1.  IP Location Privacy
+
+   As mentioned in Section [TODO] above, a side effect of the default
+   ICE behavior is that the peer learns one's IP address.  This has
+   negative privacy consequences in some circumstances.  The following
+   two API requirements are intended to mitigate this issue:
+
+   API Requirement:  The API MUST provide a mechanism to suppress ICE
+      negotiation (though perhaps to allow candidate gathering) until
+      the user has decided to answer the call [note:  determining when
+      the call has been answered is a question for the JS.]  This
+      enables a user to prevent a peer from learning their IP address if
+      they elect not to answer a call.
+
+   API Requirement:  The API MUST provide a mechanism for the calling
+      application to indicate that only TURN candidates are to be used.
+      This prevents the peer from learning one's IP address at all.
+
+A.4.4.  Communications Security
+
+   Implementations MUST implement DTLS and DTLS-SRTP.  All data channels
+   MUST be secured via DTLS.  DTLS-SRTP MUST be offered for every media
+   channel and MUST be the default; i.e., if an implementation receives
+   an offer for DTLS-SRTP and SDES and/or plain RTP, DTLS-SRTP MUST be
+   selected.
+
+   [OPEN ISSUE:  What should the settings be here?  MUST?]
+   Implementations MAY support SDES and RTP for media traffic for
+   backward compatibility purposes.
+
+   API Requirement:  The API MUST provide a mechanism to indicate that a
+      fresh DTLS key pair is to be generated for a specific call.  This
+      is intended to allow for unlinkability.
+
+   API Requirement:  The API MUST provide a mechanism to indicate that a
+      fresh DTLS key pair is to be generated for a specific call.  This
+      is intended to allow for unlinkability.
+
+
+
+
+
+
+Rescorla                 Expires March 24, 2012                [Page 28]
+
+Internet-Draft              RTC-Web Security              September 2011
+
+
+   UI Requirements:  [TODO...  Crib Kaufman?]
 
 
 Author's Address
@@ -1116,5 +1614,11 @@ Author's Address
 
 
 
-Rescorla                  Expires March 7, 2012                [Page 20]
+
+
+
+
+
+
+Rescorla                 Expires March 24, 2012                [Page 29]
 
