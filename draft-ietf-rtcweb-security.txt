@@ -153,14 +153,14 @@ Table of Contents
        A.1.2.  Unauthenticated Entities . . . . . . . . . . . . . . . 22
      A.2.  Overview . . . . . . . . . . . . . . . . . . . . . . . . . 22
        A.2.1.  Initial Signaling  . . . . . . . . . . . . . . . . . . 23
-       A.2.2.  Media Consent Verification . . . . . . . . . . . . . . 24
-       A.2.3.  DTLS Handshake . . . . . . . . . . . . . . . . . . . . 25
-       A.2.4.  Communications and Consent Freshness . . . . . . . . . 25
-       A.2.5.  Better Security Through Authenticated Users  . . . . . 26
-     A.3.  Detailed Technical Description . . . . . . . . . . . . . . 28
-       A.3.1.  Origin and Web Security Issues . . . . . . . . . . . . 28
-       A.3.2.  Device Permissions Model . . . . . . . . . . . . . . . 28
-       A.3.3.  Communications Consent . . . . . . . . . . . . . . . . 29
+       A.2.2.  Media Consent Verification . . . . . . . . . . . . . . 25
+       A.2.3.  DTLS Handshake . . . . . . . . . . . . . . . . . . . . 26
+       A.2.4.  Communications and Consent Freshness . . . . . . . . . 26
+     A.3.  Detailed Technical Description . . . . . . . . . . . . . . 27
+       A.3.1.  Origin and Web Security Issues . . . . . . . . . . . . 27
+       A.3.2.  Device Permissions Model . . . . . . . . . . . . . . . 27
+       A.3.3.  Communications Consent . . . . . . . . . . . . . . . . 28
+         A.3.3.1.  IP Location Privacy  . . . . . . . . . . . . . . . 29
 
 
 
@@ -169,14 +169,14 @@ Rescorla                   Expires May 2, 2012                  [Page 3]
 Internet-Draft              RTC-Web Security                October 2011
 
 
-         A.3.3.1.  IP Location Privacy  . . . . . . . . . . . . . . . 29
-       A.3.4.  Communications Security  . . . . . . . . . . . . . . . 30
-       A.3.5.  Web-Based Peer Authentication  . . . . . . . . . . . . 31
-         A.3.5.1.  Generic Concepts . . . . . . . . . . . . . . . . . 31
+       A.3.4.  Communications Security  . . . . . . . . . . . . . . . 29
+       A.3.5.  Web-Based Peer Authentication  . . . . . . . . . . . . 30
+         A.3.5.1.  Generic Concepts . . . . . . . . . . . . . . . . . 30
          A.3.5.2.  BrowserID  . . . . . . . . . . . . . . . . . . . . 31
          A.3.5.3.  OAuth  . . . . . . . . . . . . . . . . . . . . . . 33
          A.3.5.4.  Generic Identity Support . . . . . . . . . . . . . 34
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 35
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 34
+
 
 
 
@@ -1156,7 +1156,7 @@ Appendix A.  A Proposed Security Architecture [No Consensus on This]
    This section contains a proposed security architecture, based on the
    considerations discussed in the main body of this memo.  This section
    is currently the opinion of the author and does not have consensus
-   though some elements of this proposal do seem to have general
+   though some (many?) elements of this proposal do seem to have general
    consensus.
 
 A.1.  Trust Hierarchy
@@ -1216,15 +1216,15 @@ A.2.  Overview
 
    This section describes a typical RTCWeb session and shows how the
    various security elements interact and what guarantees are provided
-   to the user.  The example in this section is a "base" use case in
-   which the user only has limited security guarantees.  In subsequent
-   sections we describe how the basic case can be enhanced to provide
-   stronger security.  The basic principle here is that of layering:
-   naive users and implementations get reasonable security whereas more
-   sophisticaed users and implementations can provide stronger
-   guarantees.
-
-   For the purposes of this example, we assume the topology shown in the
+   to the user.  The example in this section is a "best case" scenario
+   in which we provide the maximal amount of user authentication and
+   media privacy with the minimal level of trust in the calling service.
+   Simpler versions with lower levels of security are also possible and
+   are noted in the text where applicable.  It's also important to
+   recognize the tension between security (or performance) and privacy.
+   The example shown here is aimed towards settings where we are more
+   concerned about secure calling than about privacy, but as we shall
+   see, there are settings where one might wish to make different
 
 
 
@@ -1233,234 +1233,24 @@ Rescorla                   Expires May 2, 2012                 [Page 22]
 Internet-Draft              RTC-Web Security                October 2011
 
 
-   figure below:
+   tradeoffs--this architecture is still compatible with those settings.
+
+   For the purposes of this example, we assume the topology shown in the
+   figure below.  This topology is derived from the topology shown in
+   Figure 1, but separates Alice and Bob's identities from the process
+   of signaling.  This separation isn't particularly important in
+   "closed world" cases where Alice and Bob are users on the same social
+   network and have identities based on that network.  However, there
+   are important settings where that is not the case, such as federation
+   (calls from one network to another) and calling on untrusted sites,
+   such as where two users who have a relationship via a given social
+   network want to call each other on another, untrusted, site, such as
+   a poker site.
 
                                +----------------+
                                |                |
-                               |     Calling    |
-                               |     Service    |
-                               |                |
-                               +----------------+
-                                   ^        ^
-                                  /          \
-                          HTTPS  /            \   HTTPS
-                                /              \
-                               /                \
-                              v                  v
-                           JS API              JS API
-                     +-----------+            +-----------+
-                     |           |    Media   |           |
-                     |  Browser  |<---------->|  Browser  |
-                     |           | (DTLS-SRTP)|           |
-                     +-----------+            +-----------+
-                         Alice                     Bob
-
-                          Figure 2: A simple call
-
-A.2.1.  Initial Signaling
-
-   Alice and Bob are both users of a common calling service; they both
-   have accounts and have made calls through the service before.  They
-   are both connected to the calling service via HTTPS and so know the
-   origin with some level of confidence.
-
-   Alice is logged onto the calling service and decides to call Bob. She
-   can see from the calling service that he is online and the calling
-   service presents a JS UI in the form of a button next to Bob's name
-   which says "Call".  Alice clicks the button, which initiates a JS
-   callback that instantiates a PeerConnection object.  This does not
-   require a security check:  JS from any origin is allowed to get this
-   far.
-
-   Once the PeerConnection is created, the calling service JS needs to
-   set up some media.  Because this is an audio/video call, it creates
-   two MediaStreams, one connected to an audio input and one connected
-   to a video input.  At this point the first security check is
-   required:  untrusted origins are not allowed to access the camera and
-   microphone.  In this case, because Alice is a long-term user of the
-   calling service, she has made a permissions grant (i.e., a setting in
-   the browser) to allow the calling service to access her camera and
-   microphone any time it wants.  The browser checks this setting when
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 23]
-
-Internet-Draft              RTC-Web Security                October 2011
-
-
-   the camera and microphone requests are made and thus allows them.
-
-   In the current W3C API, once some streams have been added, Alice's
-   browser + JS generates a signaling message The format of this data is
-   currently undefined.  It may be a complete message as defined by ROAP
-   [REF] or may be assembled piecemeal by the JS.  In either case, it
-   will contain:
-
-   o  Media channel information
-   o  ICE candidates
-   o  A fingerprint attribute binding the message to Alice's public key
-      [RFC5763]
-
-   This message is sent to the signaling server, e.g., by XMLHttpRequest
-   [REF] or by WebSockets [I-D.ietf-hybi-thewebsocketprotocol].  The
-   signaling server processes the message from Alice's browser,
-   determines that this is a call to Bob and sends a signaling message
-   to Bob's browser (again, the format is currently undefined).  The JS
-   on Bob's browser processes it and alerts Bob to the incoming call and
-   to Alice's identity.  In the basic case, this information is provided
-   entirely by the JS in Bob's browser.  I.e., Bob has no direct way of
-   knowing who is calling, only that it is someone that the calling site
-   claims is Alice (Appendix A.3.5 discusses mechanisms for providing
-   greater assurance.)  The calling site will also provide some user
-   interface element (e.g., a button) to allow Bob to answer the call.
-
-   If Bob agrees [I am ignoring early media for now], a PeerConnection
-   is instantiated with the message from Alice's side.  Then, a similar
-   process occurs as on Alice's browser:  Bob's browser verifies that
-   the calling service is approved, the media streams are created, and a
-   return signaling message containing media information, ICE
-   candidates, and a fingerprint is sent back to Alice via the signaling
-   service.
-
-   At this point, it's worth pausing and asking what security guarantees
-   we have:  if Alice and Bob trust the signaling service, then they
-   know that they have a call to each other.  If they do not trust the
-   signaling service, all they know is that it is sending the media
-   somewhere of its choosing.
-
-A.2.2.  Media Consent Verification
-
-   As described in Section 4.2.  This proposal specifies that that be
-   performed via ICE.  Thus, Alice and Bob perform ICE checks with each
-   other.  At the completion of these checks, they are ready to send
-   non-ICE data.
-
-   At this point, Alice knows that (a) Bob or someone else who the
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 24]
-
-Internet-Draft              RTC-Web Security                October 2011
-
-
-   signaling service is claiming is Bob is willing to exchange traffic
-   with her and (b) that either Bob is at the IP address which she has
-   verified via ICE or there is an attacker who is on-path to that IP
-   address detouring the traffic.  Note that it is not possible for an
-   attacker who is on-path but not attached to the signaling service to
-   spoof these checks because they do not have the ICE credentials.
-   Bob's security guarantees with respect to Alice are the converse of
-   this.
-
-A.2.3.  DTLS Handshake
-
-   Once the ICE checks have completed [more specifically, once some ICE
-   checks have completed], Alice and Bob can set up a secure channel.
-   This is performed via DTLS [RFC4347] (for the data channel) and DTLS-
-   SRTP [RFC5763] for the media channel.  Specifically, Alice and Bob
-   perform a DTLS handshake on every channel which has been established
-   by ICE.  The total number of channels depends on the amount of
-   muxing; in the most likely case we are using both RTP/RTCP mux and
-   muxing multiple media streams on the same channel, in which case
-   there is only one DTLS handshake.  Once the DTLS handshake has
-   completed, the keys are extracted and used to key SRTP for the media
-   channels.
-
-   At this point, Alice and Bob know that they share a set of secure
-   data and/or media channels with keys which are not known to any
-   third-party attacker.  Moreover, as long as they have minimal trust
-   in the signaling service not to perform a man-in-the-middle attack,
-   they know that their communications are secure against the signaling
-   service as well.  (We cover security against potentially malicious
-   signaling services in Section XXX.)
-
-A.2.4.  Communications and Consent Freshness
-
-   From a security perspective, everything from here on in is a little
-   anticlimactic:  Alice and Bob exchange data protected by the keys
-   negotiated by DTLS.  Because of the security guarantees discussed in
-   the previous sections, they know that the communications are
-   encrypted and authenticated.
-
-   The one remaining security property we need to establish is "consent
-   freshness", i.e., allowing Alice to verify that Bob is still prepared
-   to receive her communications.  ICE specifies periodic STUN
-   keepalizes but only if media is not flowing.  Because the consent
-   issue is more difficult here, we require RTCWeb implementations to
-   send keepalives every XXX seconds whether data is flowing or not.  If
-   a keepalive fails and no new ICE channels can be established, then
-   the session is terminated.
-
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 25]
-
-Internet-Draft              RTC-Web Security                October 2011
-
-
-A.2.5.  Better Security Through Authenticated Users
-
-   As implied above, the greater the extent to which we can authenticate
-   the principals, the greater level of security we can provide.  If
-   Alice's browser is unable to directly authenticate Bob, then the
-   calling service can mount a number of potential attacks, including:
-
-      Remotely activating Alice's camera and/or microphone in order to
-      observe her home or office.
-      Listening in on calls between her and Bob.
-
-   These attacks are inherent in an architecture in which the signaling
-   service authenticates the parties.  Thus, Alice and Bob are faced
-   with an all-or-nothing security model.  However, if it is possible
-   for the parties to authenticate each other directly, then
-   substantially better security guarantees become possible.  The
-   obvious improvement here is that we can avoid the second form of
-   attack, in which the signaling service snoops on Alice's calls.
-
-   Less obviously, but perhaps more importantly, it means that Alice can
-   use calling services that she might otherwise not trust.  To give an
-   example, say that Alice is using a poker gaming site:  she doesn't
-   really want to allow the site to use her camera and microphone
-   whenever it wants but also doesn't want to have to agree to every
-   call.  If she can directly verify people she is calling, then she can
-   configure her browser to allow the gaming site to set up calls only
-   to people she already knows.  This allows for both higher security
-   and a more convenient user interface.
-
-   The natural problem, of course, is actually providing for direct
-   identification of the other party.  As discussed in Section 4.3.2
-   this has historically been a challenging problem.  Currently, the
-   only available technologies are out of band verification mechanisms
-   like fingerprints or SAS.  However, in recent years a new generation
-   of Web-based identity mechanisms (BrowserID, Facebook Connect, OAuth,
-   OpenID, WebFinger) has been developed; this offers the possibility of
-   bootstrapping these mechanisms to separate authentication from
-   operation of the calling service.  Thus, I might be able to make a
-   call on PokerGalaxy [note, this name is made up] but authenticated
-   with my Facebook identity.  People I call would then be able to
-   verify my identity without having to trust PokerGalaxy.
-
-   The figure below shows an example of this:
-
-
-
-
-
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 26]
-
-Internet-Draft              RTC-Web Security                October 2011
-
-
-                               +----------------+
-                               |                |
-                               |     Poker      |
-                               |     Galaxy     |
+                               |     Signaling  |
+                               |     Server     |
                                |                |
                                +----------------+
                                    ^        ^
@@ -1484,31 +1274,185 @@ Internet-Draft              RTC-Web Security                October 2011
                      |           |   +------->|           |
                      +-----------+            +-----------+
 
-                      A call with IDP-based identity
+                 Figure 2: A call with IDP-based identity
 
-   The user interaction is much the same as in the previous case, except
-   that with the very important difference that when Bob is notified of
-   the incoming call, Alice's identity is displayed in the browser
-   chrome.  Similarly, Alice's UI will show Bob's identity in the
-   browser chrome, allowing Alice to know that her call has completed
-   securely.  If the Browsers are integrated with the address book, the
-   chrome might also show information from the address book entry, like
-   the peer's picture or their personal name.  The details will of
-   course vary with the IDP, but the general idea is that the clients
-   set up an end-to-end secure channel and then use IDP-based
-   authentication to ensure that they do not need to trust a potentially
-   untrustworthy signaling service.
+A.2.1.  Initial Signaling
 
-   Note that in these cases it will also be necessary to suppress access
-   to the media via MediaStream.record(), WebGL, etc., since otherwise
-   the browser cannot assure the user of the security of the
-   communications.
+   Alice and Bob are both users of a common calling service; they both
+   have approved the calling service to make calls (we defer the
+   discussion of device access permissions till later).  They are both
 
 
 
+Rescorla                   Expires May 2, 2012                 [Page 23]
+
+Internet-Draft              RTC-Web Security                October 2011
 
 
-Rescorla                   Expires May 2, 2012                 [Page 27]
+   connected to the calling service via HTTPS and so know the origin
+   with some level of confidence.  They also have accounts with some
+   identity provider.  This sort of identity service is becoming
+   increasingly common in the Web environment in technologies such
+   (BrowserID, Federated Google Login, Facebook Connect, OAuth, OpenID,
+   WebFinger), and is often provided as a side effect service of your
+   ordinary accounts with some service.  In this example, we show Alice
+   and Bob using a separate identity service, though they may actually
+   be using the same identity service as calling service or have no
+   identity service at all.
+
+   Alice is logged onto the calling service and decides to call Bob. She
+   can see from the calling service that he is online and the calling
+   service presents a JS UI in the form of a button next to Bob's name
+   which says "Call".  Alice clicks the button, which initiates a JS
+   callback that instantiates a PeerConnection object.  This does not
+   require a security check:  JS from any origin is allowed to get this
+   far.
+
+   Once the PeerConnection is created, the calling service JS needs to
+   set up some media.  Because this is an audio/video call, it creates
+   two MediaStreams, one connected to an audio input and one connected
+   to a video input.  At this point the first security check is
+   required:  untrusted origins are not allowed to access the camera and
+   microphone.  In this case, because Alice is a long-term user of the
+   calling service, she has made a permissions grant (i.e., a setting in
+   the browser) to allow the calling service to access her camera and
+   microphone any time it wants.  The browser checks this setting when
+   the camera and microphone requests are made and thus allows them.
+
+   In the current W3C API, once some streams have been added, Alice's
+   browser + JS generates a signaling message The format of this data is
+   currently undefined.  It may be a complete message as defined by ROAP
+   [REF] or may be assembled piecemeal by the JS.  In either case, it
+   will contain:
+
+   o  Media channel information
+   o  ICE candidates
+   o  A fingerprint attribute binding the message to Alice's public key
+      [RFC5763]
+
+   Prior to sending out the signaling message, the PeerConnection code
+   contacts the identity service and obtains an assertion binding
+   Alice's identity to her fingerprint.  The exact details depend on the
+   identity service (though as discussed in Appendix A.3.5.4 I believe
+   PeerConnection can be agnostic to them), but for now it's easiest to
+   think of as a BrowserID assertion.
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 24]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
+   This message is sent to the signaling server, e.g., by XMLHttpRequest
+   [REF] or by WebSockets [I-D.ietf-hybi-thewebsocketprotocol].  The
+   signaling server processes the message from Alice's browser,
+   determines that this is a call to Bob and sends a signaling message
+   to Bob's browser (again, the format is currently undefined).  The JS
+   on Bob's browser processes it, and alerts Bob to the incoming call
+   and to Alice's identity.  In this case, Alice has provided an
+   identity assertion and so Bob's browser contacts Alice's identity
+   provider (again, this is done in a generic way so the browser has no
+   specific knowledge of the IDP) to verity the assertion.  This allows
+   the browser to display a trusted element indicating that a call is
+   coming in from Alice.  If Alice is in Bob's address book, then this
+   interface might also include her real name, a picture, etc.  The
+   calling site will also provide some user interface element (e.g., a
+   button) to allow Bob to answer the call, though this is most likely
+   not part of the trusted UI.
+
+   If Bob agrees [I am ignoring early media for now], a PeerConnection
+   is instantiated with the message from Alice's side.  Then, a similar
+   process occurs as on Alice's browser:  Bob's browser verifies that
+   the calling service is approved, the media streams are created, and a
+   return signaling message containing media information, ICE
+   candidates, and a fingerprint is sent back to Alice via the signaling
+   service.  If Bob has a relationship with an IDP, the message will
+   also come with an identity assertion.
+
+   At this point, Alice and Bob each know that the other party wants to
+   have a secure call with them.  Based purely on the interface provided
+   by the signaling server, they know that the signaling server claims
+   that the call is from Alice to Bob. Because the far end sent an
+   identity assertion along with their message, they know that this is
+   verifiable from the IDP as well.  Of course, the call works perfectly
+   well if either Alice or Bob doesn't have a relationship with an IDP;
+   they just get a lower level of assurance.  Moreover, Alice might wish
+   to make an anonymous call through an anonymous calling site, in which
+   case she would of course just not provide any identity assertion and
+   the calling site would mask her identity from Bob.
+
+A.2.2.  Media Consent Verification
+
+   As described in Section 4.2.  This proposal specifies that that be
+   performed via ICE.  Thus, Alice and Bob perform ICE checks with each
+   other.  At the completion of these checks, they are ready to send
+   non-ICE data.
+
+   At this point, Alice knows that (a) Bob (assuming he is verified via
+   his IDP) or someone else who the signaling service is claiming is Bob
+   is willing to exchange traffic with her and (b) that either Bob is at
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 25]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
+   the IP address which she has verified via ICE or there is an attacker
+   who is on-path to that IP address detouring the traffic.  Note that
+   it is not possible for an attacker who is on-path but not attached to
+   the signaling service to spoof these checks because they do not have
+   the ICE credentials.  Bob's security guarantees with respect to Alice
+   are the converse of this.
+
+A.2.3.  DTLS Handshake
+
+   Once the ICE checks have completed [more specifically, once some ICE
+   checks have completed], Alice and Bob can set up a secure channel.
+   This is performed via DTLS [RFC4347] (for the data channel) and DTLS-
+   SRTP [RFC5763] for the media channel.  Specifically, Alice and Bob
+   perform a DTLS handshake on every channel which has been established
+   by ICE.  The total number of channels depends on the amount of
+   muxing; in the most likely case we are using both RTP/RTCP mux and
+   muxing multiple media streams on the same channel, in which case
+   there is only one DTLS handshake.  Once the DTLS handshake has
+   completed, the keys are extracted and used to key SRTP for the media
+   channels.
+
+   At this point, Alice and Bob know that they share a set of secure
+   data and/or media channels with keys which are not known to any
+   third-party attacker.  If Alice and Bob authenticated via their IDPs,
+   then they also know that the signaling service is not attacking them.
+   Even if they do not use an IDP, as long as they have minimal trust in
+   the signaling service not to perform a man-in-the-middle attack, they
+   know that their communications are secure against the signaling
+   service as well.
+
+A.2.4.  Communications and Consent Freshness
+
+   From a security perspective, everything from here on in is a little
+   anticlimactic:  Alice and Bob exchange data protected by the keys
+   negotiated by DTLS.  Because of the security guarantees discussed in
+   the previous sections, they know that the communications are
+   encrypted and authenticated.
+
+   The one remaining security property we need to establish is "consent
+   freshness", i.e., allowing Alice to verify that Bob is still prepared
+   to receive her communications.  ICE specifies periodic STUN
+   keepalizes but only if media is not flowing.  Because the consent
+   issue is more difficult here, we require RTCWeb implementations to
+   periodically send keepalives.  If a keepalive fails and no new ICE
+   channels can be established, then the session is terminated.
+
+
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 26]
 
 Internet-Draft              RTC-Web Security                October 2011
 
@@ -1542,10 +1486,32 @@ A.3.2.  Device Permissions Model
    o  Requests for one-time camera/microphone access.
    o  Requests for permanent access.
 
+   In addition, they SHOULD support requests for access to a single
+   communicating peer.  E.g., "Call customerservice@ford.com".  Browsers
+   servicing such requests SHOULD clearly indicate that identity to the
+   user when asking for permission.
+
    API Requirement:  The API MUST provide a mechanism for the requesting
       JS to indicate which of these forms of permissions it is
       requesting.  This allows the client to know what sort of user
-      interface experience to provide.
+      interface experience to provide.  In particular, browsers might
+      display a non-invasive door hanger ("some features of this site
+      may not work..." when asking for long-term permissions) but a more
+      invasive UI ("here is your own video") for single-call
+      permissions.  The API MAY grant weaker permissions than the JS
+      asked for, but if it intends to grant stronger ones SHOULD display
+      the appropriate UI for those permissions.
+
+
+
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 27]
+
+Internet-Draft              RTC-Web Security                October 2011
+
 
    API Requirement:  The API MUST provide a mechanism for the requesting
       JS to relinquish the ability to see or modify the media (e.g., via
@@ -1561,14 +1527,6 @@ A.3.2.  Device Permissions Model
    Clients MAY permit the formation of data channels without any direct
    user approval.  Because sites can always tunnel data through the
    server, further restrictions on the data channel do not provide any
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 28]
-
-Internet-Draft              RTC-Web Security                October 2011
-
-
    additional security. (though see Appendix A.3.3 for a related issue).
 
    Implementations which support some form of direct user authentication
@@ -1603,6 +1561,14 @@ A.3.3.  Communications Consent
    Binding Indications no less frequently than every 30 seconds
    regardless of whether traffic is flowing or not.  If a keepalive
    fails then the implementation MUST either attempt to find a new valid
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 28]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    path via ICE or terminate media for that ICE component.
 
 A.3.3.1.  IP Location Privacy
@@ -1612,18 +1578,6 @@ A.3.3.1.  IP Location Privacy
    amounts of location information, especially for mobile devices.  This
    has negative privacy consequences in some circumstances.  The
    following two API requirements are intended to mitigate this issue:
-
-
-
-
-
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 29]
-
-Internet-Draft              RTC-Web Security                October 2011
-
 
    API Requirement:  The API MUST provide a mechanism to suppress ICE
       negotiation (though perhaps to allow candidate gathering) until
@@ -1660,10 +1614,24 @@ A.3.4.  Communications Security
       JS to obtain the negotiated keying material.  This requirement
       preserves the end-to-end security of the media.
 
+
+
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 29]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    UI Requirements:    A user-oriented client MUST provide an
       "inspector" interface which allows the user to determine the
       security characteristics of the media. [largely derived from
       [I-D.kaufman-rtcweb-security-ui]
+      The following properties SHOULD be displayed "up-front" in the
+      browser chrome, i.e., without requiring the user to ask for them:
+
       *  A client MUST provide a user interface through which a user may
          determine the security characteristics for currently-displayed
          audio and video stream(s)
@@ -1672,34 +1640,22 @@ A.3.4.  Communications Security
          their microphone audio and camera video.
       *  The "security characteristics" MUST include an indication as to
          whether or not the transmission is cryptographically protected
-         and a if so, a brief description of the algorithms in use (For
+         and whether that protection is end-to-end.
+      *  If the far endpoint was directly verified Appendix A.3.5 the
+         "security characteristics" MUST include the verified
+         information.
+      The following properties are more likely to require some "drill-
+      down" from the user:
 
-
-
-Rescorla                   Expires May 2, 2012                 [Page 30]
-
-Internet-Draft              RTC-Web Security                October 2011
-
-
-         example:  "AES-CBC" or "Null Cipher".)
+      *  If the transmission is cryptographically protected, the The
+         algorithms in use (For example:  "AES-CBC" or "Null Cipher".)
       *  If the transmission is cryptographically protected, the
-         "security characteristics" MUST indicate the source of the
-         keying material (i.e., whether it was provided by the server or
-         via pairwise negotiation) and whether PFS is provided.
+         "security characteristics" MUST indicate whether PFS is
+         provided.
       *  If the transmission is cryptographically protected via an end-
          to-end mechanism the "security characteristics" MUST include
          some mechanism to allow an out-of-band verification of the
          peer, such as a certificate fingerprint or an SAS.
-      *  If the far endpoint was directly verified Appendix A.3.5 the
-         "security characteristics" MUST include the verified
-         information.  It SHOULD be possible for users to distinguish
-         directly verified calls and see the far identity directly from
-         the user interface during the call without going through a
-         complicated interface.
-      *  In the case of a web browser client, the "display of security
-         characteristics" MUST take the form of an inspection panel or
-         dialog provided by the browser chrome, as any user interface
-         rendered in- browser cannot be sufficiently trusted.
 
 A.3.5.  Web-Based Peer Authentication
 
@@ -1717,6 +1673,14 @@ A.3.5.1.  Generic Concepts
 
    Whatever the underlying technology, the general principle is that the
    party which is being authenticated is NOT the signaling site but
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 30]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    rather the user (and their browser).  Similarly, the relying party is
    the browser and not the signaling site.  This means that the
    PeerConnection API MUST arrange to talk directly to the identity
@@ -1729,14 +1693,6 @@ A.3.5.2.  BrowserID
    user with a verified email address to generate an assertion
    (authenticated by their identity provider) attesting to their
    identity (phrased as an email address).  The way that this is used in
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 31]
-
-Internet-Draft              RTC-Web Security                October 2011
-
-
    practice is that the relying party embeds JS in their site which
    talks to the BrowserID code (either hosted on a trusted intermediary
    or embedded in the browser).  That code generates the assertion which
@@ -1773,6 +1729,14 @@ Internet-Draft              RTC-Web Security                October 2011
    |       Identity       |/-------------------------------+
    |       Provider       |
    |                      |
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 31]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    +----------------------+
 
    The way this mechanism works is as follows.  On Alice's side, Alice
@@ -1785,14 +1749,6 @@ Internet-Draft              RTC-Web Security                October 2011
        it was generated by the PeerConnection (this prevents ordinary JS
        from implementing it).  The BrowserID signer is provided with
        Alice's fingerprint.
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 32]
-
-Internet-Draft              RTC-Web Security                October 2011
-
-
    3.  The BrowserID signer contacts Alice's identity provider,
        authenticating as Alice (likely via a cookie).
    4.  The identity provider returns a short-term certificate attesting
@@ -1827,27 +1783,21 @@ Internet-Draft              RTC-Web Security                October 2011
    provides Alice with a signed assertion of Bob's identity and keying
    material.
 
+
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 32]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
 A.3.5.3.  OAuth
 
    While OAuth is not directly designed for user-to-user authentication,
    with a little lateral thinking it can be made to serve.  We use the
    following mapping of OAuth concepts to RTC-Web concepts:
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 33]
-
-Internet-Draft              RTC-Web Security                October 2011
-
 
               +----------------------+----------------------+
               | OAuth                | RTCWeb               |
@@ -1889,6 +1839,16 @@ Internet-Draft              RTC-Web Security                October 2011
    Similarly, Bob's PeerConnection instantiates an IFRAME to talk to the
    IDP.
 
+
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 33]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
 A.3.5.4.  Generic Identity Support
 
    I believe it's possible to build a generic interface between the
@@ -1897,12 +1857,6 @@ A.3.5.4.  Generic Identity Support
    or not) and JS from the IDP provides the concrete interfaces.
    However, I need to work out the details, so I'm not specifying this
    yet.  If it works, the previous two sections will just be examples.
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 34]
-
-Internet-Draft              RTC-Web Security                October 2011
 
 
 Author's Address
@@ -1946,15 +1900,5 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-Rescorla                   Expires May 2, 2012                 [Page 35]
+Rescorla                   Expires May 2, 2012                 [Page 34]
 
