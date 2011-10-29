@@ -609,13 +609,31 @@
 	    then this is probably the best choice.
 	  </t>
 	  <t>
-	    [TODO: Write something about consent freshness and RTCP].
+	    Once initial consent is verified, we also need to verify continuing
+	    consent, in order to avoid attacks where two people briefly share
+	    an IP (e.g., behind a NAT in an Internet cafe) and the attacker
+	    arranges for a large, unstoppable, traffic flow to the 
+	    network and then leaves. The appropriate technologies here are
+	    fairly similar to those for initial consent, though are perhaps
+	    weaker since the threats is less severe.
 	  </t>
 	<t>
 	  [[ OPEN ISSUE: Exactly what should be the requirements here? Proposals include
 	  ICE all the time or ICE but with allowing one of these non-ICE things for
 	  legacy. ]]
 	</t>
+	</section>
+
+	<section title="IP Location Privacy" anchor="sec.ip.location">
+	  <t>
+	    Note that as soon as the callee sends their ICE candidates, the
+	    callee learns the callee's IP addresses. The callee's server reflexive
+	    address reveals a lot of information about the callee's location.
+	    In order to avoid tracking, implementations may wish to suppress 
+	    the start of ICE negotiation until the callee has answered. In
+	    addition, either side may wish to hide their location entirely 
+	    by forcing all traffic through a TURN server.
+	  </t>
 	</section>
       </section>
 
@@ -1354,13 +1372,29 @@
  	]]></artwork>
       </figure>
 	<t>
+	  The user interaction is much the same as in the previous
+	  case, except that with the very important difference
+	  that when Bob is notified of the incoming call,
+	  Alice's identity is displayed in the browser chrome.
+	  Similarly, Alice's UI will show Bob's identity 
+	  in the browser chrome, allowing Alice to know
+	  that her call has completed securely. If the
+	  Browsers are integrated with the address book, 
+	  the chrome might also show information from the
+	  address book entry, like the peer's picture or their
+	  personal name.
 	  The details will of course vary with the IDP, but the
 	  general idea is that the clients set up an end-to-end
 	  secure channel and then use IDP-based authentication to
 	  ensure that they do not need to trust a potentially
-	  untrustworthy signaling service. Note that in these cases
+	  untrustworthy signaling service.
+	</t>
+	<t>
+	  Note that in these cases
 	  it will also be necessary to suppress access to the
-	  media via MediaStream.record(), WebGL, etc.
+	  media via MediaStream.record(), WebGL, etc., 
+	  since otherwise the browser cannot assure the user
+	  of the security of the communications.
 	</t>
       </section>
     </section>
@@ -1481,7 +1515,7 @@
 	</t>
 	<section title="IP Location Privacy" anchor="sec.proposal.ip.location.privacy">
 	  <t>
-	    As mentioned in Section [TODO] above, a side effect of the default
+	    As mentioned in <xref target="sec.ip.location"/> above, a side effect of the default
 	    ICE behavior is that the peer learns one's IP address, which leaks
 	    large amounts of location information, especially for mobile 
 	    devices. This has
@@ -1552,8 +1586,45 @@
 
 
 	<t><list style="hanging">
-	  <t hangText="UI Requirements:">
-	    [TODO... Crib Kaufman?]
+	  <t hangText="UI Requirements: ">
+	    A user-oriented client MUST provide an "inspector" interface which
+	    allows the user to determine the security characteristics of the
+	    media. [largely derived from <xref target="I-D.kaufman-rtcweb-security-ui"/>
+	    <list style="symbols">
+	      <t> A client MUST provide a user interface through which a user may
+	      determine the security characteristics for currently-displayed
+	      audio and video stream(s)</t>
+
+	      <t> A client MUST provide a user interface through which a user may
+	      determine the security characteristics for transmissions of their
+	      microphone audio and camera video.</t>
+
+	      <t> The "security characteristics" MUST include an indication as to
+	      whether or not the transmission is cryptographically protected and
+	      a if so, a brief description of the algorithms in use
+	      (For example: "AES-CBC" or "Null Cipher".)</t>
+
+	      <t>If the transmission is cryptographically protected, the "security
+	      characteristics" MUST indicate the source of the keying material
+	      (i.e., whether it was provided by the server or via pairwise
+	      negotiation) and whether PFS is provided.</t>
+
+	      <t>If the transmission is cryptographically protected via
+	      an end-to-end mechanism the "security characteristics"
+	      MUST include some mechanism to allow an out-of-band verification
+	      of the peer, such as a certificate fingerprint or an SAS.</t>
+
+	      <t>If the far endpoint was directly verified <xref target="sec.proposal.direct.peer"/>
+	      the "security characteristics" MUST include the verified information.
+	      It SHOULD be possible for users to distinguish directly verified
+	      calls and see the far identity directly from the user interface during the call without
+	      going through a complicated interface.</t>
+
+	      <t>In the case of a web browser client, the "display of security
+	      characteristics" MUST take the form of an inspection panel or dialog
+	      provided by the browser chrome, as any user interface rendered in-
+	      browser cannot be sufficiently trusted.</t>
+	    </list>
 	  </t>
 	</list></t>
       </section>
