@@ -3,8 +3,8 @@
 
 RTC-Web                                                      E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                     September 21, 2011
-Expires:  March 24, 2012
+Intended status:  Standards Track                       October 30, 2011
+Expires:  May 2, 2012
 
 
                   Security Considerations for RTC-Web
@@ -52,15 +52,15 @@ Status of this Memo
 
 
 
-Rescorla                 Expires March 24, 2012                 [Page 1]
+Rescorla                   Expires May 2, 2012                  [Page 1]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 24, 2012.
+   This Internet-Draft will expire on May 2, 2012.
 
 Copyright Notice
 
@@ -108,9 +108,9 @@ Copyright Notice
 
 
 
-Rescorla                 Expires March 24, 2012                 [Page 2]
+Rescorla                   Expires May 2, 2012                  [Page 2]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
 Table of Contents
@@ -150,35 +150,32 @@ Table of Contents
      A.1.  Trust Hierarchy  . . . . . . . . . . . . . . . . . . . . . 21
        A.1.1.  Authenticated Entities . . . . . . . . . . . . . . . . 21
        A.1.2.  Unauthenticated Entities . . . . . . . . . . . . . . . 22
-     A.2.  Layered Security . . . . . . . . . . . . . . . . . . . . . 22
-     A.3.  Overview . . . . . . . . . . . . . . . . . . . . . . . . . 22
-       A.3.1.  Initial Signaling  . . . . . . . . . . . . . . . . . . 23
-       A.3.2.  Media Consent Verification . . . . . . . . . . . . . . 24
-       A.3.3.  DTLS Handshake . . . . . . . . . . . . . . . . . . . . 25
-       A.3.4.  Communications and Consent Freshness . . . . . . . . . 25
-       A.3.5.  Better Security Through Authenticated Users  . . . . . 25
-     A.4.  Detailed Technical Description . . . . . . . . . . . . . . 26
-       A.4.1.  Origin and Web Security Issues . . . . . . . . . . . . 26
-       A.4.2.  Device Permissions Model . . . . . . . . . . . . . . . 27
-       A.4.3.  Communications Consent . . . . . . . . . . . . . . . . 27
+     A.2.  Overview . . . . . . . . . . . . . . . . . . . . . . . . . 22
+       A.2.1.  Initial Signaling  . . . . . . . . . . . . . . . . . . 23
+       A.2.2.  Media Consent Verification . . . . . . . . . . . . . . 24
+       A.2.3.  DTLS Handshake . . . . . . . . . . . . . . . . . . . . 25
+       A.2.4.  Communications and Consent Freshness . . . . . . . . . 25
+       A.2.5.  Better Security Through Authenticated Users  . . . . . 26
+     A.3.  Detailed Technical Description . . . . . . . . . . . . . . 27
+       A.3.1.  Origin and Web Security Issues . . . . . . . . . . . . 27
+       A.3.2.  Device Permissions Model . . . . . . . . . . . . . . . 28
+       A.3.3.  Communications Consent . . . . . . . . . . . . . . . . 29
+         A.3.3.1.  IP Location Privacy  . . . . . . . . . . . . . . . 29
 
 
 
-Rescorla                 Expires March 24, 2012                 [Page 3]
+Rescorla                   Expires May 2, 2012                  [Page 3]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
-         A.4.3.1.  IP Location Privacy  . . . . . . . . . . . . . . . 28
-       A.4.4.  Communications Security  . . . . . . . . . . . . . . . 28
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 29
-
-
-
-
-
-
-
+       A.3.4.  Communications Security  . . . . . . . . . . . . . . . 29
+       A.3.5.  Web-Based Peer Authentication  . . . . . . . . . . . . 30
+         A.3.5.1.  Generic Concepts . . . . . . . . . . . . . . . . . 30
+         A.3.5.2.  BrowserID  . . . . . . . . . . . . . . . . . . . . 30
+         A.3.5.3.  OAuth  . . . . . . . . . . . . . . . . . . . . . . 32
+         A.3.5.4.  Generic Identity Support . . . . . . . . . . . . . 33
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 34
 
 
 
@@ -220,9 +217,12 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                 [Page 4]
+
+
+
+Rescorla                   Expires May 2, 2012                  [Page 4]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
 1.  Introduction
@@ -276,9 +276,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                 [Page 5]
+Rescorla                   Expires May 2, 2012                  [Page 5]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    used to bug a user's computer without their knowledge, simply by
@@ -332,9 +332,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                 [Page 6]
+Rescorla                   Expires May 2, 2012                  [Page 6]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    general, it is desirable to build a system which is secure against
@@ -388,9 +388,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                 [Page 7]
+Rescorla                   Expires May 2, 2012                  [Page 7]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
 3.3.  Bypassing SOP: CORS, WebSockets, and consent to communicate
@@ -444,9 +444,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                 [Page 8]
+Rescorla                   Expires May 2, 2012                  [Page 8]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    of user consent.
@@ -500,9 +500,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                 [Page 9]
+Rescorla                   Expires May 2, 2012                  [Page 9]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    case, the user's expectation is that they are calling the site
@@ -556,9 +556,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 10]
+Rescorla                   Expires May 2, 2012                 [Page 10]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    mismatch.
@@ -612,9 +612,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 11]
+Rescorla                   Expires May 2, 2012                 [Page 11]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    might be worried that the calling service will attempt to bug my
@@ -668,9 +668,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 12]
+Rescorla                   Expires May 2, 2012                 [Page 12]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    infect the browser's notion of that origin semi-permanently.
@@ -724,9 +724,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 13]
+Rescorla                   Expires May 2, 2012                 [Page 13]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
 4.2.3.  Backward Compatibility
@@ -780,9 +780,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 14]
+Rescorla                   Expires May 2, 2012                 [Page 14]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    [[ OPEN ISSUE:  Exactly what should be the requirements here?
@@ -836,9 +836,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 15]
+Rescorla                   Expires May 2, 2012                 [Page 15]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    service from actively attacking a user's calls, either by mounting a
@@ -892,9 +892,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 16]
+Rescorla                   Expires May 2, 2012                 [Page 16]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
 4.3.2.1.  Key Continuity
@@ -948,9 +948,9 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 17]
+Rescorla                   Expires May 2, 2012                 [Page 17]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    systems, which modify voice from one speaker to make it sound like
@@ -1004,12 +1004,15 @@ Internet-Draft              RTC-Web Security              September 2011
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 18]
+Rescorla                   Expires May 2, 2012                 [Page 18]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
 6.  Acknowledgements
+
+   Bernard Aboba, Harald Alvestrand, Cullen Jennings, Hadriel Kaplan,
+   Magnus Westerland.
 
 
 7.  References
@@ -1055,15 +1058,15 @@ Internet-Draft              RTC-Web Security              September 2011
    [RFC4251]  Ylonen, T. and C. Lonvick, "The Secure Shell (SSH)
               Protocol Architecture", RFC 4251, January 2006.
 
+
+
+Rescorla                   Expires May 2, 2012                 [Page 19]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    [RFC4347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security", RFC 4347, April 2006.
-
-
-
-Rescorla                 Expires March 24, 2012                [Page 19]
-
-Internet-Draft              RTC-Web Security              September 2011
-
 
    [RFC4568]  Andreasen, F., Baugher, M., and D. Wing, "Session
               Description Protocol (SDP) Security Descriptions for Media
@@ -1110,17 +1113,17 @@ Internet-Draft              RTC-Web Security              September 2011
               Jackson, "Talking to Yourself for Fun and Profit",  W2SP,
               2011.
 
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 20]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    [kain-conversion]
               Kain, A. and M. Macon, "Design and Evaluation of a Voice
               Conversion Algorithm based on Spectral Envelope Mapping
-
-
-
-Rescorla                 Expires March 24, 2012                [Page 20]
-
-Internet-Draft              RTC-Web Security              September 2011
-
-
               and Residual Prediction",  Proceedings of ICASSP, May
               2001.
 
@@ -1166,17 +1169,17 @@ A.1.1.  Authenticated Entities
       cryptographically (optimally via DTLS-SRTP).
 
    Note that merely being authenticated does not make these entities
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 21]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    trusted.  For instance, just because we can verify that
    https://www.evil.org/ is owned by Dr. Evil does not mean that we can
    trust Dr. Evil to access our camera an microphone.  However, it gives
-
-
-
-Rescorla                 Expires March 24, 2012                [Page 21]
-
-Internet-Draft              RTC-Web Security              September 2011
-
-
    the user an opportunity to determine whether he wishes to trust Dr.
    Evil or not; after all, if he desires to contact Dr. Evil, it's safe
    to temporarily give him access to the camera and microphone for the
@@ -1191,11 +1194,7 @@ A.1.2.  Unauthenticated Entities
    it means that we must assume that they will behave maliciously and
    design a system which is secure even if they do so.
 
-A.2.  Layered Security
-
-   [TODO]
-
-A.3.  Overview
+A.2.  Overview
 
    This section describes a typical RTCWeb session and shows how the
    various security elements interact and what guarantees are provided
@@ -1228,9 +1227,10 @@ A.3.  Overview
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 22]
+
+Rescorla                   Expires May 2, 2012                 [Page 22]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
                                +----------------+
@@ -1255,7 +1255,7 @@ Internet-Draft              RTC-Web Security              September 2011
 
                           Figure 2: A simple call
 
-A.3.1.  Initial Signaling
+A.2.1.  Initial Signaling
 
    Alice and Bob are both users of a common calling service; they both
    have accounts and have made calls through the service before.  They
@@ -1284,9 +1284,9 @@ A.3.1.  Initial Signaling
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 23]
+Rescorla                   Expires May 2, 2012                 [Page 23]
 
-Internet-Draft              RTC-Web Security              September 2011
+Internet-Draft              RTC-Web Security                October 2011
 
 
    In the current W3C API, once some streams have been added, Alice's
@@ -1300,18 +1300,26 @@ Internet-Draft              RTC-Web Security              September 2011
    o  A fingerprint attribute binding the message to Alice's public key
       [RFC5763]
 
-   This message is sent to the signaling server, e.g., by XHR or
-   WebSockets.  The signaling server processes the message from Alice's
-   browser, determines that this is a call to Bob and sends a signaling
-   message to Bob's browser (again, the format is currently undefined).
-   The JS on Bob's browser processes it and alerts Bob to the incoming
-   cal and Alice's identity.  If Bob agrees [I am ignoring early media
-   for now], a PeerConnection is instantiated with the message from
-   Alice's side.  At this point a similar process occurs as on Alice's
-   browser:  Bob's browser verifies that the calling service is
-   approved, the media streams are created, and a return signaling
-   message containing media information, ICE candidates, and a
-   fingerprint is sent back to Alice via the signaling service.
+   This message is sent to the signaling server, e.g., by XMLHttpRequest
+   [REF] or by WebSockets [I-D.ietf-hybi-thewebsocketprotocol].  The
+   signaling server processes the message from Alice's browser,
+   determines that this is a call to Bob and sends a signaling message
+   to Bob's browser (again, the format is currently undefined).  The JS
+   on Bob's browser processes it and alerts Bob to the incoming call and
+   to Alice's identity.  In the basic case, this information is provided
+   entirely by the JS in Bob's browser.  I.e., Bob has no direct way of
+   knowing who is calling, only that it is someone that the calling site
+   claims is Alice (Appendix A.3.5 discusses mechanisms for providing
+   greater assurance.)  The calling site will also provide some user
+   interface element (e.g., a button) to allow Bob to answer the call.
+
+   If Bob agrees [I am ignoring early media for now], a PeerConnection
+   is instantiated with the message from Alice's side.  Then, a similar
+   process occurs as on Alice's browser:  Bob's browser verifies that
+   the calling service is approved, the media streams are created, and a
+   return signaling message containing media information, ICE
+   candidates, and a fingerprint is sent back to Alice via the signaling
+   service.
 
    At this point, it's worth pausing and asking what security guarantees
    we have:  if Alice and Bob trust the signaling service, then they
@@ -1319,7 +1327,7 @@ Internet-Draft              RTC-Web Security              September 2011
    signaling service, all they know is that it is sending the media
    somewhere of its choosing.
 
-A.3.2.  Media Consent Verification
+A.2.2.  Media Consent Verification
 
    As described in Section 4.2.  This proposal specifies that that be
    performed via ICE.  Thus, Alice and Bob perform ICE checks with each
@@ -1329,6 +1337,14 @@ A.3.2.  Media Consent Verification
    At this point, Alice knows that (a) Bob or someone else who the
    signaling service is claiming is Bob is willing to exchange traffic
    with her and (b) that either Bob is at the IP address which she has
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 24]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    verified via ICE or there is an attacker who is on-path to that IP
    address detouring the traffic.  Note that it is not possible for an
    attacker who is on-path but not attached to the signaling service to
@@ -1336,16 +1352,7 @@ A.3.2.  Media Consent Verification
    Bob's security guarantees with respect to Alice are the converse of
    this.
 
-
-
-
-
-Rescorla                 Expires March 24, 2012                [Page 24]
-
-Internet-Draft              RTC-Web Security              September 2011
-
-
-A.3.3.  DTLS Handshake
+A.2.3.  DTLS Handshake
 
    Once the ICE checks have completed [more specifically, once some ICE
    checks have completed], Alice and Bob can set up a secure channel.
@@ -1367,7 +1374,7 @@ A.3.3.  DTLS Handshake
    service as well.  (We cover security against potentially malicious
    signaling services in Section XXX.)
 
-A.3.4.  Communications and Consent Freshness
+A.2.4.  Communications and Consent Freshness
 
    From a security perspective, everything from here on in is a little
    anticlimactic:  Alice and Bob exchange data protected by the keys
@@ -1384,22 +1391,22 @@ A.3.4.  Communications and Consent Freshness
    a keepalive fails and no new ICE channels can be established, then
    the session is terminated.
 
-A.3.5.  Better Security Through Authenticated Users
+
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 25]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
+A.2.5.  Better Security Through Authenticated Users
 
    As implied above, the greater the extent to which we can authenticate
    the principals, the greater level of security we can provide.  If
    Alice's browser is unable to directly authenticate Bob, then the
    calling service can mount a number of potential attacks, including:
-
-
-
-
-
-
-Rescorla                 Expires March 24, 2012                [Page 25]
-
-Internet-Draft              RTC-Web Security              September 2011
-
 
       Remotely activating Alice's camera and/or microphone in order to
       observe her home or office.
@@ -1428,41 +1435,84 @@ Internet-Draft              RTC-Web Security              September 2011
    this has historically been a challenging problem.  Currently, the
    only available technologies are out of band verification mechanisms
    like fingerprints or SAS.  However, in recent years a new generation
-   of Web-based identity mechanisms (Browser-ID, Facebook Connect,
-   OAuth, OpenID, WebFinger) has been developed; this offers the
-   possibility of bootstrapping these mechanisms to separate
-   authentication from operation of the calling service.  Thus, I might
-   be able to make a call on PokerGalaxy [note, this name is made up]
-   but authenticated with my Facebook identity.  People I call would
-   then be able to verify my identity without having to trust
-   PokerGalaxy.
+   of Web-based identity mechanisms (BrowserID, Facebook Connect, OAuth,
+   OpenID, WebFinger) has been developed; this offers the possibility of
+   bootstrapping these mechanisms to separate authentication from
+   operation of the calling service.  Thus, I might be able to make a
+   call on PokerGalaxy [note, this name is made up] but authenticated
+   with my Facebook identity.  People I call would then be able to
+   verify my identity without having to trust PokerGalaxy.
 
-   The key technical idea that makes this possible is to provide end-to-
-   end cryptographic security between the browsers.  This takes the
-   signaling site out of the loop, thus opening the door for future
-   identity mechanisms to work.  Without end-to-end security, such
-   mechanisms are not possible to retrofit.
+   The figure below shows an example of this:
 
-A.4.  Detailed Technical Description
 
-A.4.1.  Origin and Web Security Issues
+
+
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 26]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
+                               +----------------+
+                               |                |
+                               |     Poker      |
+                               |     Galaxy     |
+                               |                |
+                               +----------------+
+                                   ^        ^
+                                  /          \
+                          HTTPS  /            \   HTTPS
+                                /              \
+                               /                \
+                              v                  v
+                           JS API              JS API
+                     +-----------+            +-----------+
+                     |           |    Media   |           |
+               Alice |  Browser  |<---------->|  Browser  | Bob
+                     |           | (DTLS-SRTP)|           |
+                     +-----------+            +-----------+
+                           ^      ^--+     +--^     ^
+                           |         |     |        |
+                           v         |     |         v
+                     +-----------+   |     |  +-----------+
+                     |           |<--------+  |           |
+                     |   IDP     |   |        |    IDP    |
+                     |           |   +------->|           |
+                     +-----------+            +-----------+
+
+                      A call with IDP-based identity
+
+   The details will of course vary with the IDP, but the general idea is
+   that the clients set up an end-to-end secure channel and then use
+   IDP-based authentication to ensure that they do not need to trust a
+   potentially untrustworthy signaling service.  Note that in these
+   cases it will also be necessary to suppress access to the media via
+   MediaStream.record(), WebGL, etc.
+
+A.3.  Detailed Technical Description
+
+A.3.1.  Origin and Web Security Issues
 
    The basic unit of permissions for RTC-Web is the origin
    [I-D.abarth-origin].  Because the security of the origin depends on
-
-
-
-Rescorla                 Expires March 24, 2012                [Page 26]
-
-Internet-Draft              RTC-Web Security              September 2011
-
-
    being able to authenticate content from that origin, the origin can
    only be securely established if data is transferred over HTTPS.
    Thus, clients MUST treat HTTP and HTTPS origins as different
    permissions domains and SHOULD NOT permit access to any RTC-Web
    functionality from scripts fetched over non-secure (HTTP) origins.
    If an HTTPS origin contains mixed active content (regardless of
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 27]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    whether it is present on the specific page attempting to access RTC-
    Web functionality), any access MUST be treated as if it came from the
    HTTP origin.  For instance, if a https://www.example.com/example.html
@@ -1471,7 +1521,7 @@ Internet-Draft              RTC-Web Security              September 2011
    RTCWeb functionality MUST be treated as if it came from
    http://www.example.com/.
 
-A.4.2.  Device Permissions Model
+A.3.2.  Device Permissions Model
 
    Implementations MUST obtain explicit user consent prior to providing
    access to the camera and/or microphone.  Implementations MUST at
@@ -1485,6 +1535,12 @@ A.4.2.  Device Permissions Model
       requesting.  This allows the client to know what sort of user
       interface experience to provide.
 
+   API Requirement:  The API MUST provide a mechanism for the requesting
+      JS to relinquish the ability to see or modify the media (e.g., via
+      MediaStream.record()).  Combined with secure authentication of the
+      communicating peer, this allows a user to be sure that the calling
+      site is not accessing or modifying their conversion.
+
    UI Requirement:  The UI MUST clearly indicate when the user's camera
       and microphone are in use.  This indication MUST NOT be
       suppressable by the JS and MUST clearly indicate how to terminate
@@ -1493,25 +1549,35 @@ A.4.2.  Device Permissions Model
    Clients MAY permit the formation of data channels without any direct
    user approval.  Because sites can always tunnel data through the
    server, further restrictions on the data channel do not provide any
-   additional security. (though see Appendix A.4.3 for a related issue).
+   additional security. (though see Appendix A.3.3 for a related issue).
 
    Implementations which support some form of direct user authentication
-   SHOULD also provide a policy by which a user can authorize calling
-   only to specific counterparties.
+   SHOULD also provide a policy by which a user can authorize calls only
+   to specific counterparties.  Specifically, the implementation SHOULD
+   provide the following interfaces/controls:
 
-A.4.3.  Communications Consent
+   o  Allow future calls to this verified user.
+   o  Allow future calls to any verified user who is in my system
+      address book (this only works with address book integration, of
+      course).
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 28]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
+   Implementations SHOULD also provide a different user interface
+   indication when calls are in progress to users whose identities are
+   directly verifiable.  Appendix A.3.4 provides more on this.
+
+A.3.3.  Communications Consent
 
    Browser client implementations of RTC-Web MUST implement ICE.  Server
    gateway implementations which operate only at public IP addresses may
    implement ICE-Lite.
-
-
-
-
-Rescorla                 Expires March 24, 2012                [Page 27]
-
-Internet-Draft              RTC-Web Security              September 2011
-
 
    Browser implementations MUST verify reachability via ICE prior to
    sending any non-ICE packets to a given destination.  Implementations
@@ -1521,12 +1587,19 @@ Internet-Draft              RTC-Web Security              September 2011
    convenience and will be modified appropriately if the WG decides on
    ICE in the JS.]
 
-A.4.3.1.  IP Location Privacy
+   Implementations MUST send keepalives [RFC5245]; Section 10 via STUN
+   Binding Indications no less frequently than every 30 seconds
+   regardless of whether traffic is flowing or not.  If a keepalive
+   fails then the implementation MUST either attempt to find a new valid
+   path via ICE or terminate media for that ICE component.
+
+A.3.3.1.  IP Location Privacy
 
    As mentioned in Section [TODO] above, a side effect of the default
-   ICE behavior is that the peer learns one's IP address.  This has
-   negative privacy consequences in some circumstances.  The following
-   two API requirements are intended to mitigate this issue:
+   ICE behavior is that the peer learns one's IP address, which leaks
+   large amounts of location information, especially for mobile devices.
+   This has negative privacy consequences in some circumstances.  The
+   following two API requirements are intended to mitigate this issue:
 
    API Requirement:  The API MUST provide a mechanism to suppress ICE
       negotiation (though perhaps to allow candidate gathering) until
@@ -1539,11 +1612,19 @@ A.4.3.1.  IP Location Privacy
       application to indicate that only TURN candidates are to be used.
       This prevents the peer from learning one's IP address at all.
 
-A.4.4.  Communications Security
+A.3.4.  Communications Security
 
    Implementations MUST implement DTLS and DTLS-SRTP.  All data channels
    MUST be secured via DTLS.  DTLS-SRTP MUST be offered for every media
    channel and MUST be the default; i.e., if an implementation receives
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 29]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
    an offer for DTLS-SRTP and SDES and/or plain RTP, DTLS-SRTP MUST be
    selected.
 
@@ -1559,17 +1640,213 @@ A.4.4.  Communications Security
       fresh DTLS key pair is to be generated for a specific call.  This
       is intended to allow for unlinkability.
 
-
-
-
-
-
-Rescorla                 Expires March 24, 2012                [Page 28]
-
-Internet-Draft              RTC-Web Security              September 2011
-
+   API Requirement:  When DTLS-SRTP is used, the API MUST NOT permit the
+      JS to obtain the negotiated keying material.  This requirement
+      preserves the end-to-end security of the media.
 
    UI Requirements:  [TODO...  Crib Kaufman?]
+
+A.3.5.  Web-Based Peer Authentication
+
+A.3.5.1.  Generic Concepts
+
+   Recently, a number of Web-based identity technologies (OAuth,
+   BrowserID, Facebook Connect), etc. have been developed.  While the
+   details vary, what these technologies share is that they have a Web-
+   based (i.e., HTTP/HTTPS identity provider) which attests to your
+   identity.  For instance, if I have an account at example.org, I could
+   use the example.org identity provider to prove to others that I was
+   alice@example.org.  The development of these technologies allows us
+   to separate calling from identity provision:  I could call you on
+   Poker Galaxy but identify myself as alice@example.org.
+
+   Whatever the underlying technology, the general principle is that the
+   party which is being authenticated is NOT the signaling site but
+   rather the user (and their browser).  Similarly, the relying party is
+   the browser and not the signaling site.  This means that the
+   PeerConnection API MUST arrange to talk directly to the identity
+   provider in a way that cannot be impersonated by the calling site.
+   The following sections provide two examples of this.
+
+A.3.5.2.  BrowserID
+
+   BrowserID [https://browserid.org/"] is a technology which allows a
+   user with a verified email address to generate an assertion
+   (authenticated by their identity provider) attesting to their
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 30]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
+   identity (phrased as an email address).  The way that this is used in
+   practice is that the relying party embeds JS in their site which
+   talks to the BrowserID code (either hosted on a trusted intermediary
+   or embedded in the browser).  That code generates the assertion which
+   is passed back to the relying party for verification.  The assertion
+   can be verified directly or with a Web service provided by the
+   identity provider.  It's relatively easy to extend this functionality
+   to authenticate RTC-Web calls, as shown below.
+
+   +----------------------+                     +----------------------+
+   |                      |                     |                      |
+   |    Alice's Browser   |                     |     Bob's Browser    |
+   |                      | OFFER ------------> |                      |
+   |   Calling JS Code    |                     |    Calling JS Code   |
+   |          ^           |                     |          ^           |
+   |          |           |                     |          |           |
+   |          v           |                     |          v           |
+   |    PeerConnection    |                     |    PeerConnection    |
+   |       |      ^       |                     |       |      ^       |
+   | Finger|      |Signed |                     |Signed |      |       |
+   | print |      |Finger |                     |Finger |      |"Alice"|
+   |       |      |print  |                     |print  |      |       |
+   |       v      |       |                     |       v      |       |
+   |   +--------------+   |                     |   +---------------+  |
+   |   |  BrowserID   |   |                     |   |  BrowserID    |  |
+   |   |  Signer      |   |                     |   |  Verifier     |  |
+   |   +--------------+   |                     |   +---------------+  |
+   |           ^          |                     |          ^           |
+   +-----------|----------+                     +----------|-----------+
+               |                                           |
+               | Get certificate                           |
+               v                                           | Check
+   +----------------------+                                | certificate
+   |                      |                                |
+   |       Identity       |/-------------------------------+
+   |       Provider       |
+   |                      |
+   +----------------------+
+
+   The way this mechanism works is as follows.  On Alice's side, Alice
+   goes to initiate a call.
+
+   1.  The calling JS instantiates a PeerConnection and tells it that it
+       is interested in having it authenticated via BrowserID.
+   2.  The PeerConnection instantiates the BrowserID signer in an
+       IFRAME.  The IFRAME is tagged with an origin that indicates that
+       it was generated by the PeerConnection (this prevents ordinary JS
+       from implementing it).  The BrowserID signer is provided with
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 31]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
+       Alice's fingerprint.
+   3.  The BrowserID signer contacts Alice's identity provider,
+       authenticating as Alice (likely via a cookie).
+   4.  The identity provider returns a short-term certificate attesting
+       to Alice's identity and her short-term public key.
+   5.  The Browser-ID code signs the fingerprint and returns the signed
+       assertion + certificate to the PeerConnection.  [Note:  there are
+       well-understood Web mechanisms for this that I am excluding here
+       for simplicity.]
+   6.  The PeerConnection returns the signed information to the calling
+       JS code.
+   7.  The signed assertion gets sent over the wire to Bob's browser
+       (via the signaling service) as part of the call setup.
+
+   [TODO:  NEed to talk about Audience a bit.]
+
+   On Bob's side, he receives the signed assertion as part of the call
+   setup message and a similar procedure happens to verify it.
+
+   1.  The calling JS instantiates a PeerConnection and provides it the
+       relevant signaling information, including the signed assertion.
+   2.  The PeerConnection instantiates a BrowserID verifier in an IFRAME
+       and provides it the signed assertion.
+   3.  The BrowserID verifier contacts the identity provider to verify
+       the certificate and then uses the key to verify the signed
+       fingerprint.
+   4.  Alice's verified identity is returned to the PeerConnection (it
+       already has the fingerprint).
+   5.  At this point, Bob's browser can display a trusted UI indication
+       that Alice is on the other end of the call.
+
+   When Bob returns his answer, he follows the converse procedure, which
+   provides Alice with a signed assertion of Bob's identity and keying
+   material.
+
+A.3.5.3.  OAuth
+
+   While OAuth is not directly designed for user-to-user authentication,
+   with a little lateral thinking it can be made to serve.  We use the
+   following mapping of OAuth concepts to RTC-Web concepts:
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 32]
+
+Internet-Draft              RTC-Web Security                October 2011
+
+
+              +----------------------+----------------------+
+              | OAuth                | RTCWeb               |
+              +----------------------+----------------------+
+              | Client               | Relying party        |
+              | Resource owner       | Authenticating party |
+              | Authorization server | Identity service     |
+              | Resource server      | Identity service     |
+              +----------------------+----------------------+
+
+                                  Table 1
+
+   The idea here is that when Alice wants to authenticate to Bob (i.e.,
+   for Bob to be aware that she is calling).  In order to do this, she
+   allows Bob to see a resource on the identity provider that is bound
+   to the call, her identity, and her public key.  Then Bob retrieves
+   the resource from the identity provider, thus verifying the binding
+   between Alice and the call.
+
+           Alice                       IDP                       Bob
+           ---------------------------------------------------------
+           Call-Id, Fingerprint  ------->
+           <------------------- Auth Code
+           Auth Code ---------------------------------------------->
+                                        <----- Get Token + Auth Code
+                                        Token --------------------->
+                                        <------------- Get call-info
+                                        Call-Id, Fingerprint ------>
+
+   This is a modified version of a common OAuth flow, but omits the
+   redirects required to have the client point the resource owner to the
+   IDP, which is acting as both the resource server and the
+   authorization server, since Alice already has a handle to the IDP.
+
+   Above, we have referred to "Alice", but really what we mean is the
+   PeerConnection.  Specifically, the PeerConnection will instantiate an
+   IFRAME with JS from the IDP and will use that IFRAME to communicate
+   with the IDP, authenticating with Alice's identity (e.g., cookie).
+   Similarly, Bob's PeerConnection instantiates an IFRAME to talk to the
+   IDP.
+
+A.3.5.4.  Generic Identity Support
+
+   I believe it's possible to build a generic interface between the
+   PeerConnection and any identity sub-module so that the PeerConnection
+   just gets pointed to the IDP (which the relying party either trusts
+   or not) and JS from the IDP provides the concrete interfaces.
+   However, I need to work out the details, so I'm not specifying this
+   yet.  If it works, the previous two sections will just be examples.
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 33]
+
+Internet-Draft              RTC-Web Security                October 2011
 
 
 Author's Address
@@ -1620,5 +1897,8 @@ Author's Address
 
 
 
-Rescorla                 Expires March 24, 2012                [Page 29]
+
+
+
+Rescorla                   Expires May 2, 2012                 [Page 34]
 

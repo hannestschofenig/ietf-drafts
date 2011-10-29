@@ -55,7 +55,7 @@
       </address>
     </author>
 
-    <date day="21" month="September" year="2011" />
+    <date day="30" month="October" year="2011" />
 
     <area>RAI</area>
 
@@ -833,6 +833,10 @@
     </section>
 
         <section title="Acknowledgements">
+	  <t>
+	    Bernard Aboba, Harald Alvestrand,
+	    Cullen Jennings, Hadriel Kaplan, Magnus Westerland.
+	  </t>
       <t></t>
     </section>
   </middle>
@@ -1074,10 +1078,9 @@
 	  </t>
 	</section>
       </section>
-      <section title="Layered Security">
-	<t>[TODO]</t>
-      </section>
+      <!-- Not layered ? -->
       <section title="Overview" anchor="sec.proposal.overview">
+	<!-- TODO: Federated -->
 	<t>
 	  This section describes a typical RTCWeb session and shows how
 	  the various security elements interact and what guarantees are
@@ -1164,14 +1167,24 @@
 	  </list>
 	</t>
 	<t>
-	  This message is sent to the signaling server, e.g., by XHR or
-	  WebSockets. The signaling server processes the message from Alice's browser,
+	  This message is sent to the signaling server, e.g., by XMLHttpRequest
+	  [REF] or by WebSockets <xref target="I-D.ietf-hybi-thewebsocketprotocol"/>.
+	  The signaling server processes the message from Alice's browser,
 	  determines that this is a call to Bob and sends a signaling
 	  message to Bob's browser (again, the format is currently undefined).
 	  The JS on Bob's browser processes it and alerts Bob to the incoming
-	  cal and Alice's identity. If Bob agrees [I am ignoring early media for now], 
+	  call and to Alice's identity. In the basic case, this information is
+	  provided entirely by the JS in Bob's browser. I.e., Bob has no 
+	  direct way of knowing who is calling, only that it is someone
+	  that the calling site claims is Alice (<xref target="sec.proposal.direct.peer"/>
+	  discusses mechanisms for providing greater assurance.) The calling site will also provide
+	  some user interface element (e.g., a button) to allow Bob to
+	  answer the call.
+	</t>
+	<t>
+	  If Bob agrees [I am ignoring early media for now], 
 	  a PeerConnection is instantiated with the message from Alice's side.
-	  At this point a similar process
+	  Then, a similar process
 	  occurs as on Alice's browser: Bob's browser verifies that the calling
 	  service is approved, the media streams are created, and a return
 	  signaling message containing media information, ICE candidates, and
@@ -1298,7 +1311,7 @@
 	  been a challenging problem. Currently, the only available
 	  technologies are out of band verification mechanisms like
 	  fingerprints or SAS. However, in recent years a new 
-	  generation of Web-based identity mechanisms (Browser-ID,
+	  generation of Web-based identity mechanisms (BrowserID,
 	  Facebook Connect, OAuth, OpenID, WebFinger) has been developed;
 	  this offers the possibility of bootstrapping these mechanisms
 	  to separate authentication from operation of the calling
@@ -1308,12 +1321,46 @@
 	  verify my identity without having to trust PokerGalaxy.
 	</t>
 	<t>
-	  The key technical idea that makes this possible is to provide
-	  end-to-end cryptographic security between the browsers.
-	  This takes the signaling site out of the loop, thus opening
-	  the door for future identity mechanisms to work. Without
-	  end-to-end security, such mechanisms are not possible to 
-	  retrofit.
+	  The figure below shows an example of this:
+	</t>
+      <figure title="A call with IDP-based identity">
+	<artwork><![CDATA[
+                            +----------------+
+                            |                |
+                            |     Poker      |
+			    |     Galaxy     |
+                            |                |
+                            +----------------+
+                                ^        ^
+                               /          \
+                       HTTPS  /            \   HTTPS
+                             /              \                               
+                            /                \                               
+                           v                  v
+                        JS API              JS API
+                  +-----------+            +-----------+
+                  |           |    Media   |           |
+            Alice |  Browser  |<---------->|  Browser  | Bob
+                  |           | (DTLS-SRTP)|           |
+                  +-----------+            +-----------+
+                        ^      ^--+     +--^     ^		        
+                        |         |     |        |
+			v         |     |         v
+                  +-----------+   |     |  +-----------+
+                  |           |<--------+  |           |
+		  |   IDP     |   |        |    IDP    |
+                  |           |   +------->|           |
+                  +-----------+            +-----------+
+ 	]]></artwork>
+      </figure>
+	<t>
+	  The details will of course vary with the IDP, but the
+	  general idea is that the clients set up an end-to-end
+	  secure channel and then use IDP-based authentication to
+	  ensure that they do not need to trust a potentially
+	  untrustworthy signaling service. Note that in these cases
+	  it will also be necessary to suppress access to the
+	  media via MediaStream.record(), WebGL, etc.
 	</t>
       </section>
     </section>
@@ -1362,6 +1409,17 @@
 	</list></t>
 
 	<t><list style="hanging">
+	  <t hangText="API Requirement:">
+	    The API MUST provide a mechanism for the requesting JS to
+	    relinquish the ability to see or modify the media (e.g., via MediaStream.record()).
+	    Combined with secure authentication of the communicating peer,
+	    this allows a user to be sure that the calling site is not
+	    accessing or modifying their conversion.
+	  </t>
+	</list></t>
+
+
+	<t><list style="hanging">
 	  <t hangText="UI Requirement:">
 	    The UI MUST clearly indicate when the user's camera and 
 	    microphone are in use. This indication MUST NOT be suppressable
@@ -1379,8 +1437,21 @@
 	</t>
 	<t>
 	  Implementations which support some form of direct user authentication
-	  SHOULD also provide a policy by which a user can authorize calling
-	  only to specific counterparties.
+	  SHOULD also provide a policy by which a user can authorize calls 
+	  only to specific counterparties. Specifically, the implementation
+	  SHOULD provide the following interfaces/controls:
+	</t>
+	<t>
+	  <list style="symbols">
+	    <t>Allow future calls to this verified user.</t>
+	    <t>Allow future calls to any verified user who is in my system address book
+	    (this only works with address book integration, of course).</t>
+	  </list>
+	</t>
+	<t>
+	  Implementations SHOULD also provide a different user interface indication
+	  when calls are in progress to users whose identities are directly verifiable.
+	  <xref target="sec.proposal.comsec"/> provides more on this.
 	</t>
       </section>
 
@@ -1400,10 +1471,20 @@
 	  above text is written the way it is for editorial convenience and will
 	  be modified appropriately if the WG decides on ICE in the JS.]
 	</t>
+	<t>
+	  Implementations MUST send keepalives <xref target="RFC5245"/>; Section 10
+	  via STUN Binding Indications no less frequently than every 30
+	  seconds regardless of whether traffic is flowing or not. If
+	  a keepalive fails then the implementation MUST either attempt to
+	  find a new valid path via ICE or terminate media for that
+	  ICE component.
+	</t>
 	<section title="IP Location Privacy" anchor="sec.proposal.ip.location.privacy">
 	  <t>
 	    As mentioned in Section [TODO] above, a side effect of the default
-	    ICE behavior is that the peer learns one's IP address. This has
+	    ICE behavior is that the peer learns one's IP address, which leaks
+	    large amounts of location information, especially for mobile 
+	    devices. This has
 	    negative privacy consequences in some circumstances. The following
 	    two API requirements are intended to mitigate this issue:
 	  </t>
@@ -1451,11 +1532,21 @@
 	  </t>
 	</list></t>
 
+
 	<t><list style="hanging">
 	  <t hangText="API Requirement:">
 	    The API MUST provide a mechanism to indicate that a fresh
 	    DTLS key pair is to be generated for a specific call. 
 	    This is intended to allow for unlinkability.
+	  </t>
+	</list></t>
+
+	<t><list style="hanging">
+	  <t hangText="API Requirement:">
+	    When DTLS-SRTP is used, the API MUST NOT permit the
+	    JS to obtain the negotiated keying material. This
+	    requirement preserves the end-to-end security of the
+	    media.
 	  </t>
 	</list></t>
 
@@ -1467,10 +1558,203 @@
 	</list></t>
       </section>
 
-      
+      <section title="Web-Based Peer Authentication" anchor="sec.proposal.direct.peer">
+	<section title="Generic Concepts">
+	  <t>
+	    Recently, a number of Web-based identity technologies (OAuth, BrowserID, Facebook
+	    Connect), etc. have been developed. While the details vary, what 
+	    these technologies share is that they have a Web-based (i.e., HTTP/HTTPS
+	    identity provider) which attests to your identity. For instance,
+	    if I have an account at example.org, I could use the example.org identity
+	    provider to prove to others that I was alice@example.org.
+	    The development of these technologies allows us to separate calling
+	    from identity provision: I could call you on Poker Galaxy but identify
+	    myself as alice@example.org.
+	  </t>
+	  <t>
+	    Whatever the underlying technology, the general principle is that
+	    the party which is being authenticated is NOT the signaling site
+	    but rather the user (and their browser). Similarly, the relying party
+	    is the browser and not the signaling site. This means that the
+	    PeerConnection API MUST arrange to talk directly to the identity
+	    provider in a way that cannot be impersonated by the calling site.
+	    The following sections provide two examples of this.
+	  </t>
+	</section>
+
+	<section title="BrowserID">
+	  <t>
+	    BrowserID [https://browserid.org/"] is a technology which 
+	    allows a user with a verified email address to generate
+	    an assertion (authenticated by their identity provider) 
+	    attesting to their identity (phrased as an email address).
+	    The way that this is used in practice is that the relying
+	    party embeds JS in their site which talks to the BrowserID
+	    code (either hosted on a trusted intermediary or embedded
+	    in the browser). That code generates the assertion which is
+	    passed back to the relying party for verification.
+	    The assertion can be verified directly or with a Web
+	    service provided by the identity provider.
+	    It's relatively easy to extend this functionality to 
+	    authenticate RTC-Web calls, as shown below.
+	  </t>
+      <figure>
+	<artwork><![CDATA[
++----------------------+                     +----------------------+
+|                      |                     |                      |
+|    Alice's Browser   |                     |     Bob's Browser    |
+|                      | OFFER ------------> |                      |
+|   Calling JS Code    |                     |    Calling JS Code   |
+|          ^           |                     |          ^           |
+|          |           |                     |          |           |
+|          v           |                     |          v           |
+|    PeerConnection    |                     |    PeerConnection    |			       
+|       |      ^       |                     |       |      ^       |			       
+| Finger|      |Signed |	             |Signed |      |       |
+| print |      |Finger |                     |Finger |      |"Alice"|
+|       |      |print  |	    	     |print  |      |       |
+|       v      |       |	    	     |       v      |       |
+|   +--------------+   |	    	     |   +---------------+  |
+|   |  BrowserID   |   |	    	     |   |  BrowserID    |  |
+|   |  Signer      |   |	    	     |   |  Verifier     |  |
+|   +--------------+   |	    	     |   +---------------+  | 
+|           ^          |	    	     |          ^           |
++-----------|----------+                     +----------|-----------+
+            |                                           |
+            | Get certificate                           |
+	    v                                           | Check 
++----------------------+                                | certificate
+|                      |                                |
+|       Identity       |/-------------------------------+
+|       Provider       |
+|                      |
++----------------------+            
+ 	]]></artwork>
+      </figure>
+      <t>
+	The way this mechanism works is as follows. On Alice's side, Alice
+	goes to initiate a call.
+      </t>
+      <t><list style="numbers">
+	<t>The calling JS instantiates a PeerConnection
+	and tells it that it is interested in having it authenticated 
+	via BrowserID.</t>
+	<t>The PeerConnection instantiates the BrowserID signer in 
+	an IFRAME. The IFRAME is tagged with an origin that indicates
+	that it was generated by the PeerConnection (this prevents 
+	ordinary JS from implementing it). The BrowserID signer is
+	provided with Alice's fingerprint.</t>
+	<t>The BrowserID signer contacts Alice's identity provider,
+	authenticating as Alice (likely via a cookie).</t>
+	<t>The identity provider returns a short-term certificate
+	attesting to Alice's identity and her short-term public key.</t>
+	<t>The Browser-ID code signs the fingerprint and returns the
+	signed assertion + certificate to the PeerConnection. 
+	[Note: there are well-understood Web mechanisms for this
+	that I am excluding here for simplicity.]</t>
+	<t>The PeerConnection returns the signed information to the
+	calling JS code.</t>
+	<t>The signed assertion gets sent over the wire to Bob's
+	browser (via the signaling service) as part of the call setup.</t>
+      </list>
+      </t>
+      <t>
+	[TODO: NEed to talk about Audience a bit.]
+      </t>
+      <t>
+	On Bob's side, he receives the signed assertion as part of the call
+	setup message and a similar procedure happens to verify it.
+      </t>
+      <t><list style="numbers">
+	<t>The calling JS instantiates a PeerConnection
+	and provides it the relevant signaling information, including the
+	signed assertion.</t>
+	<t>The PeerConnection instantiates a BrowserID verifier in
+	an IFRAME and provides it the signed assertion.</t>
+	<t>The BrowserID verifier contacts the identity provider to
+	verify the certificate and then uses the key to verify the
+	signed fingerprint.</t>
+	<t>Alice's verified identity is returned to the PeerConnection
+	(it already has the fingerprint).</t>
+	<t>At this point, Bob's browser can display a trusted UI indication
+	that Alice is on the other end of the call.</t>
+      </list>
+      </t>
+      <t>
+	When Bob returns his answer, he follows the converse procedure, which
+	provides Alice with a signed assertion of Bob's identity and keying
+	material.
+      </t>
+      </section>
+
+	<section title="OAuth">
+	  <t>
+	    While OAuth is not directly designed for user-to-user authentication,
+	    with a little lateral thinking it can be made to serve. We use the
+	    following mapping of OAuth concepts to RTC-Web concepts:
+	  </t>
+	    <texttable anchor="oauth-rtcweb">
+	      <ttcol align="left">OAuth</ttcol>
+	      <ttcol align="left">RTCWeb</ttcol>
+	      <c>Client</c><c>Relying party</c>
+	      <c>Resource owner</c><c>Authenticating party</c>
+	      <c>Authorization server</c><c>Identity service</c>
+	      <c>Resource server</c><c>Identity service</c>
+	    </texttable>
+	  <t>
+	    The idea here is that when Alice wants to authenticate to Bob (i.e., for
+	    Bob to be aware that she is calling). In order to do this, she allows
+	    Bob to see a resource on the identity provider that is bound to the
+	    call, her identity, and her public key. Then Bob retrieves the resource
+	    from the identity provider, thus verifying the binding between Alice
+	    and the call.
+	  </t>
+      <figure>
+	<artwork><![CDATA[
+	Alice                       IDP                       Bob
+	---------------------------------------------------------
+        Call-Id, Fingerprint  ------->
+        <------------------- Auth Code
+	Auth Code ---------------------------------------------->
+  	                             <----- Get Token + Auth Code
+				     Token --------------------->
+				     <------------- Get call-info 
+				     Call-Id, Fingerprint ------>
+ 	]]></artwork>
+      </figure>
+      <t>
+	This is a modified version of a common OAuth flow, but
+	omits the redirects required to have the client point the
+	resource owner to the IDP, which is acting as both 
+	the resource server and the authorization server, since
+	Alice already has a handle to the IDP.
+      </t>
+      <t>
+	Above, we have referred to "Alice", but really what we mean
+	is the PeerConnection. Specifically, the PeerConnection will
+	instantiate an IFRAME with JS from the IDP and will use
+	that IFRAME to communicate with the IDP, authenticating
+	with Alice's identity (e.g., cookie). Similarly, Bob's
+	PeerConnection instantiates an IFRAME to talk to the IDP.
+      </t>
+      </section>
+
+      <section title="Generic Identity Support">
+	<t>
+	  I believe it's possible to build a generic interface
+	  between the PeerConnection and any identity sub-module
+	  so that the PeerConnection just gets pointed to the IDP
+	  (which the relying party either trusts or not) and
+	  JS from the IDP provides the concrete interfaces. However,
+	  I need to work out the details, so I'm not specifying this
+	  yet. If it works, the previous two sections will just be
+	  examples.
+	</t>
+      </section>
     </section>
   </section>
-  </back>
+    </section>
+</back>
 <!--
 
 On Thu, Sep 22, 2011 at 5:45 AM, Magnus Westerlund <magnus.westerlund@ericsson.com> wrote:
@@ -1491,7 +1775,7 @@ On Thu, Sep 22, 2011 at 5:45 AM, Magnus Westerlund <magnus.westerlund@ericsson.c
 > bit-rates. Especially under conditions where continued consent can't be
 > determined.
 >
-> Cheers
+						> Cheers
 >
 > Magnus Westerlund
 >
