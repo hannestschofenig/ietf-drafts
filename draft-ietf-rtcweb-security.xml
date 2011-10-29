@@ -1319,8 +1319,9 @@
 	  they have minimal trust in the signaling service not to
 	  perform a man-in-the-middle attack, they know that their
 	  communications are secure against the signaling service as
-	  well. 
+	  well.
 	</t>
+	  
       </section>
 
       <section title="Communications and Consent Freshness">
