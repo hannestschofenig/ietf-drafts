@@ -90,7 +90,6 @@
     </note>
   </front>
 
-
   <middle>
     <section title="Introduction" anchor="sec.introduction">
       <t>
@@ -232,7 +231,7 @@
 	  to the same ORIGIN from whence the script came.<xref target="I-D.abarth-origin"/>
 	  (although CORS <xref target="CORS"/> and WebSockets 
 	  <xref target="I-D.ietf-hybi-thewebsocketprotocol"/> provides a escape hatch from this restriction,
-	  as described below. This SAME ORIGIN POLICY (SOP) prevents server A
+	  as described below.) This SAME ORIGIN POLICY (SOP) prevents server A
 	  from mounting attacks on server B via the user's browser, which protects both
 	  the user (e.g., from misuse of his credentials) and the server (e.g., from DoS attack).
 	</t>
@@ -289,7 +288,7 @@
 	  sites to initiate calls violates the core Web security guarantee;
 	  without some access restrictions on local devices, any malicious site
 	  could simply bug a user. At minimum, then, it MUST NOT be possible for
-	  arbitrary sites to initiate calls to arbitrary location without user
+	  arbitrary sites to initiate calls to arbitrary locations without user
 	  consent. This immediately raises the question, however, of what should
 	  be the scope of user consent.
 	</t>
@@ -300,12 +299,12 @@
 	  single call or may be a general consent. In order for the user to
 	  make an intelligent decision about whether to allow a call
 	  (and hence his camera and microphone input to be routed somewhere),
-	  he must understand either who is request access, where the media
+	  he must understand either who is requesting access, where the media
 	  is going, or both. So, for instance, one might imagine that at
 	  the time access to camera and microphone is requested, the user
 	  is shown a dialog that says "site X has requested access to camera
 	  and microphone, yes or no" (though note that this type of in-flow
-	  interface violates one of the guidelines in Section <xref target="sec.web-security"/>).
+	  interface violates one of the guidelines in <xref target="sec.web-security"/>).
 	  The user's decision will of course be based on his opinion of Site X.
 	  However, as discussed below, this is a complicated concept.
 	</t>
@@ -355,7 +354,11 @@
 	      where I only grant consent for the duration of a given
 	      call. As described in <xref target="sec.resources"/>,
 	      great care must be taken in the design of this interface
-	      to avoid the users just clicking through.
+	      to avoid the users just clicking through. Note also
+	      that the user interface chrome must clearly display elements
+	      showing that the call is continuing in order to avoid attacks
+	      where the calling site just leaves it up indefinitely but
+	      shows a Web UI that implies otherwise.
 	    </t>
 	  </section>
 
@@ -430,7 +433,7 @@
 	  As discussed above, individual consent puts the user's approval
 	  in the UI flow for every call. Not only does this quickly become annoying
 	  but it can train the user to simply click "OK", at which point the consent becomes
-	  useless. Thus, while it may be necssary to have individual consent in some 
+	  useless. Thus, while it may be necessary to have individual consent in some 
 	  case, this is not a suitable solution for (for instance) the calling
 	  service case. Where necessary, in-flow user interfaces must be carefully
 	  designed to avoid the risk of the user blindly clicking through.
@@ -445,7 +448,7 @@
 	  to require the advertiser to instantiate an iframe on the hosting site just
 	  to get permission; a more convenient approach is to cryptographically tie
 	  the advertiser's certificate to the communication directly. We're still
-	  tieing permissions to origin here, but to the media origin (and-or destination)
+	  tying permissions to origin here, but to the media origin (and-or destination)
 	  rather than
 	  to the Web origin.
 	</t>
@@ -470,7 +473,7 @@
 
 	<section title="Security Properties of the Calling Page">
 	<t>
-	  Origin-based security is intended to security against web attackers. However, we must
+	  Origin-based security is intended to secure against web attackers. However, we must
 	  also consider the case of network attackers. Consider the case where I have
 	  granted permission to a calling service by an origin that has the HTTP scheme,
 	  e.g., http://calling-service.example.com. If I ever use my computer on
@@ -518,9 +521,8 @@
 
       <section title="Communications Consent Verification" anchor="sec.rtc-comm-consent">
 	<t>
-	  As discussed in <xref target="sec.cors-etc"/>, allowing web applications unrestricted access 
-	  to
-	  the via the browser network introduces the risk of using the browser as an attack platform against
+	  As discussed in <xref target="sec.cors-etc"/>, allowing web applications unrestricted network access 
+	  via the browser introduces the risk of using the browser as an attack platform against
 	  machines which would not otherwise be accessible to the malicious site, for
 	  instance because they are topologically restricted (e.g., behind a firewall or NAT).
 	  In order to prevent this form of attack as well as cross-protocol attacks it is
@@ -533,13 +535,29 @@
 	  Verifying receiver consent requires some sort of explicit handshake, but conveniently
 	  we already need one in order to do NAT hole-punching. ICE <xref target="RFC5245"/> includes a handshake
 	  designed to verify that the receiving element wishes to receive traffic from the
-	  sender. It is important to remember here that the site initiating ICE is 
-	  presumed malicious; in order for the handshake to be secure the receiving
-	  element MUST demonstrate receipt/knowledge of some value not available to 
-	  the site (thus preventing it from forging responses). In order to achieve this
-	  objective with ICE, the STUN transaction IDs must be generated by the browser
-	  and MUST NOT be made available to the 
-	  initiating script, even via a diagnostic interface.
+	  sender. It
+	  is important to remember here that the site initiating ICE is
+	  presumed malicious; in order for the handshake to be secure the
+	  receiving element MUST demonstrate receipt/knowledge of some value
+	  not available to the site (thus preventing the site from forging
+	  responses).  In order to achieve this objective with ICE, the STUN
+	  transaction IDs must be generated by the browser and MUST NOT be made
+	  available to the initiating script, even via a diagnostic interface.
+	  Verifying receiver consent also requires verifying the receiver wants
+	  to receive traffic from a particular sender, and at this time; for
+	  example a malicious site may simply attempt ICE to known servers
+	  that are using ICE for other sessions.  ICE provides this verification
+	  as well, by using the STUN credentials as a form of per-session shared
+	  secret.  Those credentials are known to the Web application, but would
+	  need to also be known and used by the STUN-receiving element to be useful.
+	  </t>
+	  <t>
+	    There also needs to be some mechanism for the browser to verify that
+	    the target of the traffic continues to wish to receive it.
+	    Obviously, some ICE-based mechanism will work here, but 
+	    it has been observed that because ICE keepalives are 
+	    indications, they will not work here, so some other mechanism is
+	    needed.
 	  </t>
 	</section>
 	<section title="Masking" anchor="sec.masking">
@@ -551,7 +569,10 @@
 	    for UDP. I.e., once communications consent has been verified, it is
 	    most likely safe to allow the implementation to send arbitrary UDP
 	    traffic to the chosen destination, provided that the STUN keepalives
-	    continue to succeed. However, 
+	    continue to succeed. In particular, this is true for the data channel
+	    if DTLS is used because DTLS (with the anti-chosen plaintext mechanisms required
+	    by TLS 1.1) does not allow the attacker to generate predictable
+	    ciphertext. However, 
 	    with TCP the risk of transparent proxies becomes much more severe. If TCP
 	    is to be used, then WebSockets style masking MUST be employed.
 	    <!-- [TODO: DNS injection?].-->
@@ -853,7 +874,7 @@
         <section title="Acknowledgements">
 	  <t>
 	    Bernard Aboba, Harald Alvestrand,
-	    Cullen Jennings, Hadriel Kaplan, Magnus Westerland.
+	    Cullen Jennings, Hadriel Kaplan (S 4.2.1), Matthew Kaufman, Magnus Westerland.
 	  </t>
       <t></t>
     </section>
@@ -1050,6 +1071,10 @@
 	  ultimately guaranteed by the browser (or transitively by
 	  some property the browser verifies). Conversely, if the
 	  browser is compromised, then no security guarantees are possible.
+	  Note that there are cases (e.g., Internet kiosks) where the
+	  user can't really trust the browser that much. In these cases,
+	  the level of security provided is limited by how much they
+	  trust the browser.
 	</t>
 	<t>
 	  Optimally, we would not rely on trust in any entities other
@@ -1086,13 +1111,20 @@
 	  first identify other elements before we can determine whether
 	  to trust them.
 	</t>
+	<t>
+	  It's also worth noting that there are settings where 
+	  authentication is non-cryptographic, such as other machines
+	  behind a firewall. Naturally, the level of trust one can
+	  have in identities verified in this way depends on how 
+	  strong the topology enforcement is.
+	</t>
 
 	</section>
 	<section title="Unauthenticated Entities" anchor="sec.proposal.unauthenticated">
 	  <t>
 	    Other than the above entities, we are not generally able to
 	    identify other network elements, thus we cannot trust them.
-	    This does not mean that it is not possible to have nay interaction
+	    This does not mean that it is not possible to have any interaction
 	    with them, but it means that we must assume that they will
 	    behave maliciously and design a system which is secure even
 	    if they do so.
@@ -1123,6 +1155,10 @@
 	  in the figure below. This topology is derived from the 
 	  topology shown in <xref target="fig.simple"/>, but separates
 	  Alice and Bob's identities from the process of signaling.
+	  Specifically, Alice and Bob have relationships with 
+	  some Identity Provider (IDP) 
+	  that supports a protocol such OpenID or BrowserID) that 
+	  can be used to attest to their identity.
 	  This separation isn't particularly important in "closed world"
 	  cases where Alice and Bob are users on the same social network and have
 	  identities based on that network. However, there are important
@@ -1363,7 +1399,9 @@
 	  loads https://www.example.com/example.js and 
 	  http://www.example.org/jquery.js, any attempt by example.js
 	  to access RTCWeb functionality MUST be treated as if it came
-	  from http://www.example.com/.
+	  from http://www.example.com/. Note that many browsers
+	  already track mixed content and either forbid it by default or display
+	  a warning.
 	</t>
       </section>
 
@@ -1396,9 +1434,10 @@
 	    asking for long-term permissions) but a more 
 	    invasive UI ("here is your own video") for single-call
 	    permissions. The API MAY grant weaker permissions than
-	    the JS asked for, but if it intends to grant stronger
+	    the JS asked for if the user chooses to authorize only
+	    those permissions, but if it intends to grant stronger
 	    ones SHOULD display the appropriate UI for those
-	    permissions.
+	    permissions. 
 	  </t>
 	</list></t>
 
@@ -1415,11 +1454,24 @@
 
 	<t><list style="hanging">
 	  <t hangText="UI Requirement:">
-	    The UI MUST clearly indicate when the user's camera and 
-	    microphone are in use. This indication MUST NOT be suppressable
-	    by the JS and MUST clearly indicate how to terminate a call.
+	    The UI MUST clearly indicate when the user's camera
+	    and microphone are in use.  This indication MUST NOT be
+	    suppressable by the JS and MUST clearly indicate how to terminate
+	    a call, and provide a UI means to immediately stop camera/microphone
+	    input without the JS being able to prevent it.
 	  </t>
 	</list></t>
+
+
+	<t><list style="hanging">
+	  <t hangText="UI Requirement:">
+	    If the UI indication of camera/microphone use are displayed
+	    in the browser such that minimizing the browser window would hide the
+	    indication, or the JS creating an overlapping window would hide the
+	    indication, then the browser SHOULD stop camera and microphone input.
+	  </t>
+	</list>
+	</t>
 
 	<t>
 	  Clients MAY permit the formation of data channels
@@ -1466,24 +1518,28 @@
 	  be modified appropriately if the WG decides on ICE in the JS.]
 	</t>
 	<t>
-	  Implementations MUST send keepalives <xref target="RFC5245"/>; Section 10
-	  via STUN Binding Indications no less frequently than every 30
+	  Implementations MUST send keepalives no less frequently than
+	  every 30
 	  seconds regardless of whether traffic is flowing or not. If
 	  a keepalive fails then the implementation MUST either attempt to
 	  find a new valid path via ICE or terminate media for that
-	  ICE component.
+	  ICE component. Note that ICE <xref target="RFC5245"/>; Section 10
+	  keepalives use STUN Binding Indications which are one-way and
+	  therefore not sufficient. We will need to define a new mechanism
+	  for this. [OPEN ISSUE: what to do here.]
 	</t>
-	<section title="IP Location Privacy" anchor="sec.proposal.ip.location.privacy">
-	  <t>
-	    As mentioned in <xref target="sec.ip.location"/> above, a side effect of the default
-	    ICE behavior is that the peer learns one's IP address, which leaks
-	    large amounts of location information, especially for mobile 
-	    devices. This has
-	    negative privacy consequences in some circumstances. The following
-	    two API requirements are intended to mitigate this issue:
-	  </t>
+      </section>
+      <section title="IP Location Privacy" anchor="sec.proposal.ip.location.privacy">
+	<t>
+	  As mentioned in <xref target="sec.ip.location"/> above, a side effect of the default
+	  ICE behavior is that the peer learns one's IP address, which leaks
+	  large amounts of location information, especially for mobile 
+	  devices. This has
+	  negative privacy consequences in some circumstances. The following
+	  two API requirements are intended to mitigate this issue:
+	</t>
 
-	  <t><list style="hanging">
+	<t><list style="hanging">
 	  <t hangText="API Requirement:">
 	    The API MUST provide a mechanism to suppress ICE negotiation 
 	    (though perhaps to allow candidate gathering) until the
@@ -1492,16 +1548,15 @@
 	    This enables a user to prevent a peer from learning their
 	    IP address if they elect not to answer a call.
 	  </t>
-	  </list></t>
+	</list></t>
 
-	  <t><list style="hanging">
+	<t><list style="hanging">
 	  <t hangText="API Requirement:">
 	    The API MUST provide a mechanism for the calling application to
 	    indicate that only TURN candidates are to be used. This
 	    prevents the peer from learning one's IP address at all.
 	  </t>
-	  </list></t>
-	</section>
+	</list></t>
       </section>
 
       <section title="Communications Security" anchor="sec.proposal.comsec">
@@ -1522,7 +1577,10 @@
 	  <t hangText="API Requirement:">
 	    The API MUST provide a mechanism to indicate that a fresh
 	    DTLS key pair is to be generated for a specific call. 
-	    This is intended to allow for unlinkability.
+	    This is intended to allow for unlinkability. Note that
+	    there are also settings where it is attractive to use
+	    the same keying material repeatedly, especially those
+	    with key continuity-based authentication.
 	  </t>
 	</list></t>
 
@@ -1567,7 +1625,11 @@
 
 	      <t> The "security characteristics" MUST include an indication as to
 	      whether or not the transmission is cryptographically protected and
-	      whether that protection is end-to-end.</t>
+	      whether that protection is based on a key
+	      that was delivered out-of-band
+	      (from a server) or was generated as a result of a pairwise
+	      negotiation.
+	      </t>
 
 	      <t>If the far endpoint was directly verified <xref target="sec.proposal.direct.peer"/>
 	      the "security characteristics" MUST include the verified information.</t>
@@ -1597,6 +1659,16 @@
       <section title="Web-Based Peer Authentication" anchor="sec.proposal.direct.peer">
 	<section title="Generic Concepts">
 	  <t>
+	    In a number of cases, it is desirable for the endpoint (i.e., the
+	    browser) to be able to directly identity the endpoint on the other
+	    side without trusting only the signaling service to which they
+	    are connected. For instance, users may be making a call via a federated
+	    system where they wish to get direct authentication of the other
+	    side. Alternately, they may be making a call on a site which
+	    they minimally trust (such as a poker site) but to someone who has an identity on
+	    a site they do trust (such as a social network.)
+	  </t>
+	  <t>
 	    Recently, a number of Web-based identity technologies (OAuth, BrowserID, Facebook
 	    Connect), etc. have been developed. While the details vary, what 
 	    these technologies share is that they have a Web-based (i.e., HTTP/HTTPS
@@ -1620,7 +1692,7 @@
 
 	<section title="BrowserID">
 	  <t>
-	    BrowserID [https://browserid.org/"] is a technology which 
+	    BrowserID [https://browserid.org/] is a technology which 
 	    allows a user with a verified email address to generate
 	    an assertion (authenticated by their identity provider) 
 	    attesting to their identity (phrased as an email address).
@@ -1676,10 +1748,14 @@
 	and tells it that it is interested in having it authenticated 
 	via BrowserID.</t>
 	<t>The PeerConnection instantiates the BrowserID signer in 
-	an IFRAME. The IFRAME is tagged with an origin that indicates
+	an invisible IFRAME. The IFRAME is tagged with an origin that indicates
 	that it was generated by the PeerConnection (this prevents 
 	ordinary JS from implementing it). The BrowserID signer is
-	provided with Alice's fingerprint.</t>
+	provided with Alice's fingerprint. Note that the IFRAME
+	here does not render any UI. It is being used solely to
+	allow the browser to load the BrowserID signer in isolation,
+	especially from the calling site.
+	</t>
 	<t>The BrowserID signer contacts Alice's identity provider,
 	authenticating as Alice (likely via a cookie).</t>
 	<t>The identity provider returns a short-term certificate
@@ -1693,6 +1769,50 @@
 	<t>The signed assertion gets sent over the wire to Bob's
 	browser (via the signaling service) as part of the call setup.</t>
       </list>
+      </t>
+      <t>
+	Obviously, the format of the signed assertion varies depending
+	on what signaling style the WG ultimately adopts. However, for
+	concreteness, if something like ROAP were adopted, then the
+	entire message might look like:
+      </t>
+      <figure>
+	<artwork><![CDATA[
+   {
+     "messageType":"OFFER",
+     "callerSessionId":"13456789ABCDEF",
+     "seq": 1
+     "sdp":"
+   v=0\n
+   o=- 2890844526 2890842807 IN IP4 192.0.2.1\n
+   s= \n
+   c=IN IP4 192.0.2.1\n
+   t=2873397496 2873404696\n
+   m=audio 49170 RTP/AVP 0\n
+   a=fingerprint: SHA-1 \
+   4A:AD:B9:B1:3F:82:18:3B:54:02:12:DF:3E:5D:49:6B:19:E5:7C:AB\n",
+    "identity":{
+       "identityType":"browserid",
+	 "assertion": {
+	 "digest":"<hash of fingerprint and session IDs>",
+         "audience": "[TBD]"
+         "valid-until": 1308859352261,
+        }, // signed using user's key
+        "certificate": {
+          "email": "rescorla@gmail.com",
+          "public-key": "<ekrs-public-key>",
+          "valid-until": 1308860561861,
+        } // certificate is signed by gmail.com
+	}
+   }  
+ 	]]></artwork>
+      </figure>
+      <t>
+	Note that we only expect to sign the fingerprint values and the
+	session IDs, in
+	order to allow the JS or calling service to modify the rest
+	of the SDP, while protecting the identity binding.
+	[OPEN ISSUE: should we sign seq too?] 
       </t>
       <t>
 	[TODO: NEed to talk about Audience a bit.]
