@@ -1,0 +1,555 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny W3C TPAC 2011} 
+\fancyfoot[C]{\tiny RTC-Web Security Issues}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}RTC-Web Security Model Overview}\\
+\vspace{.2in}
+\large{{W3C TPAC 2011}} \\
+\vspace{3em}
+\large{
+\begin{tabular}{c}
+Eric Rescorla \\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+
+\centerslidesfalse 
+
+
+
+\begin{slide}
+\heading{Context}
+
+\begin{itemize}
+\item IETF RTC-Web has been developing a security model
+\item This is an attempt to summarize the current state
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{The Browser Threat Model}
+
+\textbf{Core Web Security Guarantee}: ``users can safely visit arbitrary web sites
+and execute scripts provided by those sites.''\cite{huang-cache}
+
+\vspace{1em}
+
+\begin{itemize}
+\item This includes sites which are hosting malicious scripts!
+\item Basic Web security technique is isolation/sandboxing
+  \begin{itemize}
+  \item Protect your computer from malicious scripts
+  \item Protect content from site A from content hosted at site B
+  \item Protect site A from content hosted at site B
+  \end{itemize}
+\item In this case we're primarily concerned with JavaScript running in the browser
+\end{itemize}
+
+\textbf{The browser acts as a trusted computing base for the site}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{The Internet Threat Model}
+
+``You hand the packets to the attacker to deliver.'' -- Steve Bellovin
+
+\begin{itemize}
+\item Endpoints are secure
+\item An attack has complete control of the network...
+\begin{itemize}
+\item Can read any packet you send
+\item Can modify any packet in transit
+\item Can forge a packet with any source address
+\end{itemize}
+\item Cryptographic techniques are the major security measure
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{So what's our threat model?}
+
+\begin{itemize}
+\item Solid protection under the browser threat model
+  \begin{itemize}
+  \item Safe to visit any Web site
+  \item Can safely authorize A and not B
+  \end{itemize}
+\item Do the best we can under the Internet threat model
+  \begin{itemize}
+  \item Protect against network attackers if people use HTTPS
+  \item Provide strong media security for RTCWeb-RTCWeb calls
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{List of Issues to Consider}
+
+\begin{itemize}
+\item Access to local devices
+\item Consent to communications
+\item Communications security
+\end{itemize}
+              
+\end{slide}
+
+
+\begin{slide}
+\heading{Access to Local Devices}
+
+\vspace{-.2in}
+
+\begin{itemize}
+\item Making phone (and video) calls requires that your voice be transmitted to other side
+  \begin{itemize}
+  \item But the \emph{other side} is controlled by some site you visit
+  \item What if you visit \url{http://bugmyphone.example.com}?
+  \end{itemize}
+
+\item Somehow we need to get the user's consent
+  \begin{itemize}
+  \item But to what?
+  \item And when?
+  \item Users routinely click through warning dialogs when presenting ``in-flow''
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Permissions Models}
+
+\begin{itemize}
+\item Short-term permissions
+\begin{itemize}
+\item Allow this single call
+\item E.g., for a customer service call
+\end{itemize}
+
+\item Long-term permissions
+\begin{itemize}
+\item Allow this site to make calls whenever it wants
+\item E.g., for a social networking or calling site
+\item Is this going to happen? [Terriberry]
+\end{itemize}
+
+\item Per-peer permissions
+\begin{itemize}
+\item Allow calls to \url{bob@example.com}
+\item Requires strong peer identity
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+
+\begin{slide}
+\heading{Ad Hoc Calling from Embedded Advertisements}
+
+\vspace{-.3in}
+\begin{minipage}[b]{1.8in}
+\includegraphics[width=1.8in]{ford-example}
+\center{Option A: Ad in an IFRAME}
+\end{minipage}
+\begin{minipage}[b]{1.8in}
+\includegraphics[width=1.8in]{ford-example2}
+\center{Option B: Injected ad}
+\end{minipage}
+\end{slide}
+
+
+\begin{slide}
+\heading{User expectations}
+
+\begin{itemize}
+\item When I place this call I'm talking to Ford
+\item Not giving Ford long-term access to my camera and microphone
+\item[]
+\item But I'm on Slashdot...
+\begin{itemize}
+\item Do I think Slashdot has endorsed this?
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{UI for Short-Term Permissions}
+
+\begin{itemize}
+\item Generally necessary at the time of call
+\item Needs an immediate call-to-action
+\begin{itemize}
+\item E.g., a ``check-my-hair'' self video image with an OK button
+\item This must be in the browser chrome to prevent click-jacking
+\end{itemize}
+\item Permissions should only be good for this call
+\item Non-maskable indicator of call status in browser chrome
+\item Also a non-maskable call termination button
+\end{itemize}
+
+
+\end{slide}
+
+
+\begin{slide}
+\heading{API impact of short-term permissions}
+
+\begin{itemize}
+\item One natural design is to show ``self'' picture a la Facetime
+  \begin{itemize}
+  \item Here's your video, do you want to set up the call
+  \end{itemize}
+
+\item But this implies \emph{some level} of device access prior to permissions grant
+  \begin{itemize}
+  \item Step 1: display video to user with call start button
+  \item Step 2: start call
+  \end{itemize}
+
+\item Out of scope?
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{What about the site I'm visiting?}
+
+\begin{itemize}
+\item Adam Barth: the user thinks he's on Slashdot
+  \begin{itemize}
+  \item Even though Slashdot neither placed the ad nor is the called party
+  \item Only vaguely conscious of ad networks
+  \end{itemize}
+
+\item Should the top-level site get to have an opinion?
+  \begin{itemize}
+  \item Protect the user?
+  \item Protect its reputation?
+  \item What about privacy?
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Long-term permissions: Calling Services}
+
+\begin{itemize}
+\item I have an account on SocialWeb
+\begin{itemize}
+\item ... ``friends'' with a bunch of my real-world friends
+\item Want to call one of my friends
+\end{itemize}
+\end{itemize}
+
+\includegraphics[width=2in]{cullen1}
+\end{slide}
+
+
+\begin{slide}
+\heading{UI for Long-Term Permissions}
+
+\begin{itemize}
+\item Probably a bad idea to have an intrusive dialog
+\begin{itemize}
+\item Want to avoid ``click here to screw yourself''
+\item Possible: door hanger style UI ``some features on this site may not work''
+\end{itemize}
+
+\item Do we want this at all?
+  \begin{itemize}
+  \item Tension between convenience and security
+    \begin{itemize}
+    \item Calling sites likely want a clean UI
+    \item But this means that the calling site has a lot of power
+    \end{itemize}
+
+  \item Is this a permissions model the browsers want?
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Peer Identity-based Permissions}
+
+\begin{itemize}
+\item Not clear what level of attention to demand
+\item General idea
+  \begin{itemize}
+  \item Do you want to talk to \url{bob@example.com}
+  \item Easier if you can integrate with address book
+  \end{itemize}
+
+\item Orthogonal to site-based permissions?
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Partial Digression: Network Attackers}
+
+\vspace{-.25in}
+\begin{itemize}
+\item Assumption: I've authorized PokerWeb
+\item I'm in an Internet Cafe and visit any URL
+  \begin{itemize}
+  \item Attacker injects IFRAME pretending to be PokerWeb
+  \item But calls go to him
+  \end{itemize}
+\end{itemize}
+
+\includegraphics[width=2in]{injected-iframe}
+
+\begin{itemize}
+\item Result: attacker has bugged your computer
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{User Expectations}
+
+\begin{itemize}
+\item It's safe to authorize PokerWeb and then surf the Internet
+  \begin{itemize}
+  \item Without being bugged
+  \end{itemize}
+
+\item Including on insecure networks
+  \begin{itemize}
+  \item This may include your home network
+  \end{itemize}
+
+\item Unfortunately, this is not true here...
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Origin and HTTP/HTTPS}
+
+\begin{itemize}
+\item Basic problem here is HTTP-based origins
+  \begin{itemize}
+  \item Question: should RTC-Web be available over HTTP
+  \end{itemize}
+
+\item What about mixed content?
+  \begin{itemize}
+  \item Appears to be HTTPS but for our purposes is HTTP
+  \item Treat as HTTP?
+  \item Forbid RTC-Web entirely over mixed content?
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Consent for real-time peer-to-peer communication}
+
+\begin{itemize}
+\item Need to able to send data between two browsers
+  \begin{itemize}
+  \item Unless you want to relay everything
+  \end{itemize}
+
+\item But this is unsafe (and violates SOP)
+  \begin{itemize}
+  \item Not OK to let browsers send TCP and UDP to arbitrary locations
+  \end{itemize}
+
+\item General principle: verify consent
+  \begin{itemize}
+  \item Before sending traffic from a script to recipient, verify recipient
+    wants to receive it from the sender
+  \item Familiar paradigm from CORS~\cite{cors} and WebSockets\cite{hybi}
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{How to verify communications consent for RTC-Web}
+
+\vspace{-.2in}
+\begin{itemize}
+\item Can't trust the server (see above)
+  \begin{itemize}
+  \item Needs to be enforced by the browser
+  \end{itemize}
+
+\item Browser does a handshake with target peer to verify connectivity
+\end{itemize}
+
+\vspace{-.25in}
+$$
+\xymatrix@R=.2in@C=1.3in{
+  \txt{\textbf{Alice}} & \txt{\textbf{Server}} & \txt{\textbf{Bob}} \\
+  & \ar[l]_{\txt{Connect to Bob}}  \ar[r]^{\txt{Connect to Alice}} &\\
+  \ar@{<->}[rr]^{\txt{Handshake}} & & \\
+  \ar@{<->}[rr]^{\txt{Media traffic}} & &\\
+}`
+$$
+
+\begin{itemize}
+\item This should look familiar from ICE~\cite{rfc5245}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Implementing Communications Consent Securely}
+
+\vspace{-.25in}
+\begin{itemize}
+\item Remember: we don't trust the JS
+\item[]
+\item Restrict pre-handshake communications
+\begin{itemize}
+\item Restrict communications to an endpoint until handshake completes
+\item Minimize application control of ICE packets (extensions, etc.)
+\item Rate-limit ICE checks
+\end{itemize}
+\item Browser \textbf{must not} let application see STUN transaction ID
+\begin{itemize}
+\item Prevents forgery of STUN responses by the server
+\end{itemize}
+\item What about cross-protocol attacks?
+\begin{itemize}
+\item Not really an issue for UDP, especially with DTLS
+\item TCP \textbf{must} use masking
+\end{itemize}
+
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{What about communications security?}
+
+\begin{itemize}
+\item We've already addressed this in the context of SIP
+  \begin{itemize}
+  \item Things aren't that different here--all the usual protocols work
+  \end{itemize}
+
+\item This should be mostly invisible with current style API
+  \begin{itemize}
+  \item The relevant messaging is embedded in the SDP
+  \item Possibly need API controls to set up security parameters
+  \item ... cipher suites, etc.
+  \end{itemize}
+
+\item Security indicators need to be in the browser chrome
+  \begin{itemize}
+  \item So the it can't be changed by the JS
+  \end{itemize}
+
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Questions?}
+
+\end{slide}
+
+
+
+\begin{slide}
+
+\scriptsize{
+\bibliographystyle{alpha}
+\bibliography{ws}
+}
+\end{slide}
+
+
+
+
+
+
+\end{document}
