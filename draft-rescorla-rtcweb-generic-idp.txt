@@ -1,0 +1,560 @@
+
+
+
+RTC-Web                                                      E. Rescorla
+Internet-Draft                                                RTFM, Inc.
+Intended status:  Standards Track                       January 07, 2012
+Expires:  July 10, 2012
+
+
+               RTCWeb Generic Identity Provider Interface
+                   draft-rescorla-rtcweb-generic-idp
+
+Abstract
+
+   Security for RTCWEB communications requires that the communicating
+   endpoints be able to authenticate each other.  While authentication
+   may be mediated by the calling service, there are settings in which
+   this is undesirable.  This document describes a generic mechanism for
+   leveraging existing identity providers (IdPs) such as BrowserID or
+   OAuth to provide this authentication service.
+
+Legal
+
+   THIS DOCUMENT AND THE INFORMATION CONTAINED THEREIN ARE PROVIDED ON
+   AN "AS IS" BASIS AND THE CONTRIBUTOR, THE ORGANIZATION HE/SHE
+   REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE
+   IETF TRUST, AND THE INTERNET ENGINEERING TASK FORCE, DISCLAIM ALL
+   WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY
+   WARRANTY THAT THE USE OF THE INFORMATION THEREIN WILL NOT INFRINGE
+   ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS
+   FOR A PARTICULAR PURPOSE.
+
+Status of this Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on July 10, 2012.
+
+Copyright Notice
+
+
+
+
+Rescorla                  Expires July 10, 2012                 [Page 1]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+   Copyright (c) 2012 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+   This document may contain material from IETF Documents or IETF
+   Contributions published or made publicly available before November
+   10, 2008.  The person(s) controlling the copyright in some of this
+   material may not have granted the IETF Trust the right to allow
+   modifications of such material outside the IETF Standards Process.
+   Without obtaining an adequate license from the person(s) controlling
+   the copyright in such materials, this document may not be modified
+   outside the IETF Standards Process, and derivative works of it may
+   not be created outside the IETF Standards Process, except to format
+   it for publication as an RFC or to translate it into languages other
+   than English.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                  Expires July 10, 2012                 [Page 2]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+Table of Contents
+
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  4
+   2.  Overview of Operation  . . . . . . . . . . . . . . . . . . . .  4
+   3.  Protocol Details . . . . . . . . . . . . . . . . . . . . . . .  5
+     3.1.  General Message Structure  . . . . . . . . . . . . . . . .  5
+       3.1.1.  Errors . . . . . . . . . . . . . . . . . . . . . . . .  6
+     3.2.  IdP Proxy Setup  . . . . . . . . . . . . . . . . . . . . .  6
+       3.2.1.  Determining the IdP URI  . . . . . . . . . . . . . . .  7
+         3.2.1.1.  Authenticating Party . . . . . . . . . . . . . . .  7
+         3.2.1.2.  Relying Party  . . . . . . . . . . . . . . . . . .  7
+     3.3.  Requesting Assertions  . . . . . . . . . . . . . . . . . .  7
+     3.4.  Verifying Assertions . . . . . . . . . . . . . . . . . . .  8
+     3.5.  PostMessage Checks . . . . . . . . . . . . . . . . . . . .  9
+   4.  Security Considerations  . . . . . . . . . . . . . . . . . . .  9
+   5.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+     5.1.  Normative References . . . . . . . . . . . . . . . . . . . 10
+     5.2.  Informative References . . . . . . . . . . . . . . . . . . 10
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                  Expires July 10, 2012                 [Page 3]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+1.  Introduction
+
+   Security for RTCWEB communications requires that the communicating
+   endpoints be able to authenticate each other.  While authentication
+   may be mediated by the calling service, there are settings in which
+   this is undesirable.  This document describes a generic mechanism for
+   leveraging existing identity providers (IdPs) such as BrowserID or
+   OAuth to provide this authentication service.
+
+
+2.  Overview of Operation
+
+   The RTCWEB component of the browser (which we assume to be trusted)
+   interacts with the IdP in two modes:
+
+   o  As an authenticating party (AP).
+   o  As a relying party (RP).
+
+   As an AP, the user has an account relationship with the IdP.  As an
+   RP, the user merely has to be prepared to trust the IdP.  In some
+   cases, (what BrowserId calls a "primary"), the IdP is attesting to an
+   identity which it itself controls (e.g., Facebook is authoritative
+   for which user has a particular Facebook identity), and in other
+   cases (what BrowserID calls a secondary), a greater level of trust
+   and/or configuration is required.
+
+   The basic architecture is shown below:
+
+         +------------------------------------+
+         |  https://calling-site.example.com  |
+         |                                    |
+         |                                    |
+         |                                    |
+         |         Calling JS Code            |
+         |                ^                   |
+         |                | API Calls         |
+         |                v                   |
+         |         PeerConnection             |
+         |                ^                   |
+         |                | postMessage()     |
+         |                v                   |
+         |    +-------------------------+     |     +---------------+
+         |    | https://idp.example.org |     |     |               |
+         |    |                         |<--------->|   Identity    |
+         |    |        IdP JS           |     |     |   Provider    |
+         |    |                         |     |     |               |
+         |    +-------------------------+     |     +---------------+
+         |                                    |
+
+
+
+Rescorla                  Expires July 10, 2012                 [Page 4]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+         +------------------------------------+
+
+   The sequence of event is as follows:
+
+   1.  The browser (the PeerConnection component) instantiates an IdP
+       proxy (typically a hidden IFRAME) with its source at the IdP.
+       This allows the IdP to load whatever JS is necessary into the
+       proxy, which runs in the IdP's security context.
+   2.  If the user is not already logged in, the IdP does whatever is
+       required to log them in, such as soliciting a username and
+       password.
+   3.  Once the user is logged in, the IdP proxy notifies the browser
+       (via postMessage()) that it is ready.
+   4.  The browser and the IdP prixy communicate via a standardized
+       series of messages delivered via postMessage.  For instance, the
+       browser might request the IdP proxy to sign or verify a given
+       identity assertion.
+
+   This approach allows us to decouple the browser from any particular
+   identity provider; the browser need only know how to load the IdP's
+   JavaScript--which is deterministic from the IdP's domain name--and
+   the generic protocol for requesting and verifying assertions.  The
+   IdP provides whatever logic is necessary to bridge the generic
+   protocol to the IdP's specific requirements.  Thus, a single browser
+   can support any number of identity protocols, including being forward
+   compatible with IdPs which did not exist at the time the browser was
+   written.
+
+
+3.  Protocol Details
+
+3.1.  General Message Structure
+
+   Messages between the PeerConnection object and the IdP proxy are
+   formatted using JSON [RFC4627].  For instance, the PeerConnection
+   would request a signature with the following "SIGN" message:
+
+    {
+      "type":"SIGN",
+      "id": "1",
+      "message":"012345678abcdefghijkl"
+    }
+
+   All messages MUST contain a "type" field which indicates the general
+   meaning of the message.
+
+   All requests from the PeerConnection object MUST contain an "id"
+   field which MUST be unique for that PeerConnection object.  Any
+
+
+
+Rescorla                  Expires July 10, 2012                 [Page 5]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+   responses from the IdP proxy MUST contain the same id in response,
+   which allows the PeerConnection to correlate requests and responses.
+
+   Any message-specific data is carried in a "message" field.  Depending
+   on the message type, this may either be a string or a deeper JSON
+   object.
+
+3.1.1.  Errors
+
+   If an error occurs, the IdP sends a message of type "ERROR".  The
+   message MAY have an "error" field containing freeform text data which
+   containing additional information about what happened.  For instance:
+
+           {
+             "type":"ERROR",
+             "error":"Signature verification failed"
+           }
+
+                          Figure 1: Example error
+
+3.2.  IdP Proxy Setup
+
+   In order to perform an identity transaction, the PeerConnection must
+   create the IdP proxy.  While the specific technical mechanism used is
+   left up to the implementation, the following requirements MUST be met
+   for security and interoperability.
+
+   o  Any JS MUST run in the IdP's security context.
+   o  The usual browser sandbox isolation mechanisms MUST be enforced
+      with respect to the IdP proxy.
+   o  JS running in the IdP proxy MUST be able to send and receive
+      messages to the PeerConnection object using postMessage.
+   o  Either window.parent or window.opener MUST be set such that
+      messages sent with postMessage() arrive at the PeerConnection
+      object.  If both variables are set, they MUST be the same.
+   o  Messages sent by the PeerConnection object MUST have their .origin
+      value set to "rtcweb:://idp-interface".  [TBD]
+
+   One mechanism for implementing the IdP proxy is as a hidden (CSS
+   "display=none") IFRAME with a URI as determined in Section 3.2.1.
+   The PeerConnection component will of course need to specially arrange
+   for the origin value to be set correctly; as dicussed in Section 4,
+   the fact that ordinary Web pages cannot set their origins to
+   "rtcweb://..." is an essential security feature.
+
+   Initially the IdP proxy is in an unready state; the IdP JS must be
+   loaded and there may be several round trips to the IdP server, for
+   instance to log the user in.  Thus, the IFRAME's "onready" property
+
+
+
+Rescorla                  Expires July 10, 2012                 [Page 6]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+   is not a reliable indicator of when the IdP IFRAME is ready to
+   receive commands.  Instead, when the IDP proxy is ready to receive
+   commands, it delivers a "ready" message via postMessage().  As this
+   message is unsolicited, it simply contains:
+
+           { "type":"READY" }
+
+   Once the PeerConnection object receives the ready message, it can
+   send commands to the IdP proxy.
+
+3.2.1.  Determining the IdP URI
+
+   Each IdP MUST serve its initial entry page (i.e., the one loaded by
+   the IdP proxy) from the well-known URI "/.well-known/idp-proxy" on
+   the IdP's web site.  This URI MUST be loaded via HTTPS [RFC2818].
+
+3.2.1.1.  Authenticating Party
+
+   How an AP determines the appropriate IdP domain is out of scope of
+   this specification.  In general, however, the AP has some actual
+   account relationship with the IdP, as this identity is what the IdP
+   is attesting to.  Thus, the AP somehow supplies the IdP information
+   to the browser.  Some potential mechanisms include:
+
+   o  Provided by the user directly.
+   o  Specified via a Web Intent.  <http://webintents.org/>
+   o  Selected from some set of IdPs known to the calling site.  E.g.,
+      "Authenticate via Facebook Connect"
+
+3.2.1.2.  Relying Party
+
+   Unlike the AP, the RP need not have any particular relationship with
+   the IdP.  Rather, it needs to be able to process whatever assertion
+   is provided by the AP.  As the assertion contains the IdP's identity,
+   the URI can be constructed directly from the assertion.  Section
+   [TODO] describes the relevant security considerations.
+
+3.3.  Requesting Assertions
+
+   In order to request an assertion, the PeerConnection sends a "SIGN"
+   message.  Aside from the mandatory fields, this message has a
+   "contents" field containing a string.  The contents of this string
+   are defined in [I-D.ietf-rtcweb-security], but are opaque from the
+   perspective of this protocol.
+
+   A successful response to a "SIGN" message contains an "assertion"
+   field which is a verifiable assertion over the "contents" value.  The
+   exact format of this assertion are out of scope for this standard.
+
+
+
+Rescorla                  Expires July 10, 2012                 [Page 7]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+   However, the assertion MUST be securely bound to the contents such
+   that the RP (potentially with the assistance of the IdP) to recover
+   the contents value and the identity of the AP and have confidence
+   that they are as intended by the IdP at the time of assertion
+   generation.
+
+   Figure 2 shows an example transaction, with the message "abcde..."
+   being signed and bound to identity "ekr@example.org".  The
+   "signature" field contains an HMAC over the identity and the message,
+   but this is an implementation detail, and many other techniques
+   (e.g., digital signatures) could be used here.  Line breaks are
+   inserted solely for readability.
+
+       PeerConnection -> IdP proxy:
+         {
+           "type":"SIGN",
+            "id":1,
+            "message":"abcdefghijklmnopqrstuvwyz"
+         }
+
+       IdPProxy -> PeerConnection:
+         {
+           "type":"SUCCESS",
+           "id":1,
+           "message":"{\"content\":\"[\\\"bob@example.org\\\",
+             \\\"abcdefghijklmnopqrstuvwyz\\\"]\",\"signature\":
+             \"1d5f87802b78ca326eefda48d7d1af3c53a4e764\"}"
+         }
+
+
+                    Figure 2: Example assertion request
+
+3.4.  Verifying Assertions
+
+   In order to verify an assertion, an RP sends a "VERIFY" message to
+   the IdP proxy containing the assertion supplied by the AP in the
+   "message" field.
+
+   The IdP proxy verifies the assertion.  Depending on the identity
+   protocol, this may require one or more round trips to the IdP.  For
+   instance, an OAuth-based protocol will probably require using the IdP
+   as an oracle, whereas with BrowserID the IdP proxy can likely verify
+   the signature on the assertion without contacting the IdP, provided
+   that it has cached the IdP's public key.  Regardless of the
+   mechanism, if verification succeeds, the IdP proxy returns the
+   identity of the AP and the original message used when the assertion
+   was generated as a JSON encoded version of a JS array.  Figure 3
+   shows an example transaction.  Line breaks are inserted solely for
+
+
+
+Rescorla                  Expires July 10, 2012                 [Page 8]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+   readability.  [[OPEN ISSUE:  Should this be JSON encoded or be an
+   array?]]
+
+      PeerConnection -> IdP Proxy:
+        {
+          "type":"VERIFY",
+          "id":2,
+          "message":"{\"content\":\"[\\\"bob@example.org\\\",
+            \\\"abcdefghijklmnopqrstuvwyz\\\"]\",
+            \"signature\":\"1d5f87802b78ca326eefda48d7d1af3c53a4e764\"}"
+        }
+
+      IdP Proxy -> PeerConnection:
+        {
+         "type":"SUCCESS",
+         "id":2,
+         "message":"[\"100001682090590\",\"abcdefghijklmnopqrstuvwyz\"]"
+        }
+
+
+                    Figure 3: Example assertion request
+
+3.5.  PostMessage Checks
+
+   Because the PeerConnect object and the IdP proxy communicate via
+   postMessage(), it is essential to verify that the origin of any
+   message (contained in the event.origin property) and source
+   (contained in the event.source) property are as expected:
+
+   o  For messages from the PeerConnection object, the IdP proxy MUST
+      verify that the origin is "rtcweb:://idp-interface" and that the
+      source matches either window.opener or window.parent.  If both are
+      non-falsey, they MUST be equal.  If any of these checks fail, the
+      message MUST be rejected.
+   o  For messages from the IdP proxy, the PeerConnection object MUST
+      verify that the origin matches the IdP's origin and that the
+      source matches the window/IFRAME opened for the IdP proxy.
+
+   If any of these checks fail, the message MUST be rejected.  In
+   general, mismatches SHOULD NOT cause transaction failure, since
+   malicious JS might use bogus messages as a form of DoS attack.
+
+
+4.  Security Considerations
+
+
+5.  References
+
+
+
+
+Rescorla                  Expires July 10, 2012                 [Page 9]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+5.1.  Normative References
+
+   [I-D.ietf-rtcweb-security]
+              Rescorla, E., "Security Considerations for RTC-Web",
+              draft-ietf-rtcweb-security-01 (work in progress),
+              October 2011.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC2818]  Rescorla, E., "HTTP Over TLS", RFC 2818, May 2000.
+
+   [RFC4627]  Crockford, D., "The application/json Media Type for
+              JavaScript Object Notation (JSON)", RFC 4627, July 2006.
+
+5.2.  Informative References
+
+   [I-D.abarth-origin]
+              Barth, A., "The Web Origin Concept",
+              draft-abarth-origin-09 (work in progress), November 2010.
+
+
+Author's Address
+
+   Eric Rescorla
+   RTFM, Inc.
+   2064 Edgewood Drive
+   Palo Alto, CA  94303
+   USA
+
+   Phone:  +1 650 678 2350
+   Email:  ekr@rtfm.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                  Expires July 10, 2012                [Page 10]
+
