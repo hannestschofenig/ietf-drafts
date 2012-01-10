@@ -454,13 +454,17 @@
 	      If both are non-falsey, they MUST be equal.
 	      If any of these checks fail, the message MUST
 	      be rejected.
+	      [[OPEN ISSUE: An alternate (more generic) design would be to not
+	      check the origin here but rather to include the origin 
+	      in the assertion and have it checked at the RP. Comments?]]
 	    </t>
 	    <t>
 	      For messages from the IdP proxy, the PeerConnection
 	      object MUST verify that the origin matches
 	      the IdP's origin and that the source matches
 	      the window/IFRAME opened for the IdP proxy.
-	      
+	      [[OPEN ISSUE: do we need to check the origin? What if
+	      the IdP wants to redirect a bit?]]
 	    </t>
 	  </list>
 	</t>
@@ -475,8 +479,74 @@
     </section>
     <section title="Security Considerations" anchor="sec.sec-cons">
       <t>
-	
+	This mechanism relies for its security on the IdP and on
+	the PeerConnection correctly enforcing the security 
+	invariants described above. At a high level, the IdP
+	is attesting that the user identified in the assertion
+	wishes to be associated with the assertion. Thus,
+	it must not be possible for arbitrary third parties to
+	get assertions tied to a user or to produce assertions
+	that RPs will accept.
       </t>
+
+      <section title="PeerConnection Origin Check" anchor="sec.pc-origin">
+	<t>
+	  Fundamentally, the IdP proxy is just a piece of HTML and JS
+	  loaded by the browser, so nothing stops a Web attacker o
+	  from creating their own IFRAME, loading the IdP proxy HTML/JS,
+	  and requesting a signature. In order to prevent this attack,
+	  we require that all signatures be tied to a specific 
+	  origin ("rtcweb://...") which cannot be produced by
+	  a page tied to a Web attacker. Thus, while an attacker
+	  can instantiate the IdP proxy, they cannot send messages
+	  from an appropriate origin and so cannot create acceptable
+	  assertions. [[OPEN ISSUE: Where is this enforced.]
+	</t>
+      </section>
+
+      <section title="IdP Well-known URI" anchor="sec.sec-idp-uri">
+	<t>
+	  As described in <xref target="sec.idp-uri"/> the IdP proxy
+	  HTML/JS landing page is located at a well-known URI based on
+	  the IdP's domain name. This requirement prevents an attacker
+	  who can write some resources at the IdP (e.g., on one's
+	  Facebook wall) from being able to impersonate the IdP.
+	</t>
+      </section>
+
+      <section title="Web Security Feature Interactions">
+	<t>
+	  A number of optional Web security features have the potential
+	  to cause issues for this mechanism, as discussed below.
+	</t>
+	<section title="Popup Blocking" anchor="sec.popup-blocking">
+	  <t>
+	    If the user is not already logged into the IdP, the 
+	    IdP proxy may need to pop up a top level window in order
+	    to prompt the user for their authentication information
+	    (it is bad practice to do this in an IFRAME inside the
+	    window because then users have no way to determine the
+	    destination for their password). If the user's browser
+	    is configured to prevent popups, this may fail
+	    (depending on the exact algorithm that the popup blocker
+	    uses to suppress popups). It may be necessary to provide
+	    a standardized mechanism to allow the IdP proxy to
+	    request popping of a login window. [[OPEN ISSUE]
+	  </t>
+	</section>
+
+	<section title="Third Party Cookies" anchor="sec.3rd-party-cookies">
+	  <t>
+	    Some browsers allow users to block third party cookies (cookies associated
+	    with origins other than the top level page) for privacy reasons.
+	    Any IdP which uses cookies to persist logins will be broken
+	    by third-party cookie blocking. One option is to accept this
+	    as a limitation; another is to have the PeerConnection object
+	    disable third-party cookie blocking for the IdP proxy.
+	  </t>
+	</section>
+
+      </section>
     </section>
   </middle>
 

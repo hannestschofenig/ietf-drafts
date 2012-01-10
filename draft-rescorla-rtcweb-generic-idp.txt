@@ -127,16 +127,16 @@ Table of Contents
      3.3.  Requesting Assertions  . . . . . . . . . . . . . . . . . .  7
      3.4.  Verifying Assertions . . . . . . . . . . . . . . . . . . .  8
      3.5.  PostMessage Checks . . . . . . . . . . . . . . . . . . . .  9
-   4.  Security Considerations  . . . . . . . . . . . . . . . . . . .  9
-   5.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 10
-     5.1.  Normative References . . . . . . . . . . . . . . . . . . . 10
-     5.2.  Informative References . . . . . . . . . . . . . . . . . . 10
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 10
-
-
-
-
-
+   4.  Security Considerations  . . . . . . . . . . . . . . . . . . . 10
+     4.1.  PeerConnection Origin Check  . . . . . . . . . . . . . . . 10
+     4.2.  IdP Well-known URI . . . . . . . . . . . . . . . . . . . . 10
+     4.3.  Web Security Feature Interactions  . . . . . . . . . . . . 10
+       4.3.1.  Popup Blocking . . . . . . . . . . . . . . . . . . . . 10
+       4.3.2.  Third Party Cookies  . . . . . . . . . . . . . . . . . 11
+   5.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+     5.1.  Normative References . . . . . . . . . . . . . . . . . . . 11
+     5.2.  Informative References . . . . . . . . . . . . . . . . . . 11
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 11
 
 
 
@@ -482,20 +482,20 @@ Internet-Draft                 RTC-Web IdP                  January 2012
       verify that the origin is "rtcweb:://idp-interface" and that the
       source matches either window.opener or window.parent.  If both are
       non-falsey, they MUST be equal.  If any of these checks fail, the
-      message MUST be rejected.
+      message MUST be rejected.  [[OPEN ISSUE:  An alternate (more
+      generic) design would be to not check the origin here but rather
+      to include the origin in the assertion and have it checked at the
+      RP.  Comments?]]
    o  For messages from the IdP proxy, the PeerConnection object MUST
       verify that the origin matches the IdP's origin and that the
-      source matches the window/IFRAME opened for the IdP proxy.
+      source matches the window/IFRAME opened for the IdP proxy.  [[OPEN
+      ISSUE:  do we need to check the origin?  What if the IdP wants to
+      redirect a bit?]]
 
    If any of these checks fail, the message MUST be rejected.  In
    general, mismatches SHOULD NOT cause transaction failure, since
    malicious JS might use bogus messages as a form of DoS attack.
 
-
-4.  Security Considerations
-
-
-5.  References
 
 
 
@@ -504,6 +504,74 @@ Rescorla                  Expires July 10, 2012                 [Page 9]
 
 Internet-Draft                 RTC-Web IdP                  January 2012
 
+
+4.  Security Considerations
+
+   This mechanism relies for its security on the IdP and on the
+   PeerConnection correctly enforcing the security invariants described
+   above.  At a high level, the IdP is attesting that the user
+   identified in the assertion wishes to be associated with the
+   assertion.  Thus, it must not be possible for arbitrary third parties
+   to get assertions tied to a user or to produce assertions that RPs
+   will accept.
+
+4.1.  PeerConnection Origin Check
+
+   Fundamentally, the IdP proxy is just a piece of HTML and JS loaded by
+   the browser, so nothing stops a Web attacker o from creating their
+   own IFRAME, loading the IdP proxy HTML/JS, and requesting a
+   signature.  In order to prevent this attack, we require that all
+   signatures be tied to a specific origin ("rtcweb://...") which cannot
+   be produced by a page tied to a Web attacker.  Thus, while an
+   attacker can instantiate the IdP proxy, they cannot send messages
+   from an appropriate origin and so cannot create acceptable
+   assertions.  [[OPEN ISSUE:  Where is this enforced.]
+
+4.2.  IdP Well-known URI
+
+   As described in Section 3.2.1 the IdP proxy HTML/JS landing page is
+   located at a well-known URI based on the IdP's domain name.  This
+   requirement prevents an attacker who can write some resources at the
+   IdP (e.g., on one's Facebook wall) from being able to impersonate the
+   IdP.
+
+4.3.  Web Security Feature Interactions
+
+   A number of optional Web security features have the potential to
+   cause issues for this mechanism, as discussed below.
+
+4.3.1.  Popup Blocking
+
+   If the user is not already logged into the IdP, the IdP proxy may
+   need to pop up a top level window in order to prompt the user for
+   their authentication information (it is bad practice to do this in an
+   IFRAME inside the window because then users have no way to determine
+   the destination for their password).  If the user's browser is
+   configured to prevent popups, this may fail (depending on the exact
+   algorithm that the popup blocker uses to suppress popups).  It may be
+   necessary to provide a standardized mechanism to allow the IdP proxy
+   to request popping of a login window.  [[OPEN ISSUE]
+
+
+
+
+
+Rescorla                  Expires July 10, 2012                [Page 10]
+
+Internet-Draft                 RTC-Web IdP                  January 2012
+
+
+4.3.2.  Third Party Cookies
+
+   Some browsers allow users to block third party cookies (cookies
+   associated with origins other than the top level page) for privacy
+   reasons.  Any IdP which uses cookies to persist logins will be broken
+   by third-party cookie blocking.  One option is to accept this as a
+   limitation; another is to have the PeerConnection object disable
+   third-party cookie blocking for the IdP proxy.
+
+
+5.  References
 
 5.1.  Normative References
 
@@ -544,17 +612,5 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla                  Expires July 10, 2012                [Page 10]
+Rescorla                  Expires July 10, 2012                [Page 11]
 
