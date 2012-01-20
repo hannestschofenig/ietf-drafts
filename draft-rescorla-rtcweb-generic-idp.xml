@@ -91,39 +91,151 @@
   <middle>
     <section title="Introduction" anchor="sec.introduction">
       <t>
- Security for RTCWEB communications requires that the
- communicating endpoints be able to authenticate each 
- other. While authentication may be mediated by the 
- calling service, there are settings in which this is
- undesirable. This document describes a generic mechanism
- for leveraging existing identity providers
- (IdPs) such as BrowserID or OAuth to provide this
- authentication service.
+	Security for RTCWEB communications requires that the
+	communicating endpoints be able to authenticate each other. While
+	authentication may be mediated by the calling service, there are
+	settings in which this is undesirable. This document describes a
+	mechanism for leveraging existing identity providers (IdPs) such as
+	BrowserID or OAuth to provide this authentication service.
+      </t>
+      <t>
+	Specifically, Alice and Bob have relationships with some
+	Identity Provider (IDP) that supports a protocol such OpenID or
+	BrowserID) that can be used to attest to their identity. While
+	they are making calls through the signaling service, their
+	identities (and the cryptographic keying material used to make
+	the call) is authenticated via the IdP.
+	This separation isn't particularly important in "closed world"
+	cases where Alice and Bob are users on the same social network, have
+	identities based on that network, and are calling using that
+	network's signaling service. However, there are important
+	settings where that is not the case, such as
+	federation (calls from one network to another) and
+	calling on untrusted sites, such as where two users who have
+	a relationship via a given social network want to call each
+	other on another, untrusted, site, such as a poker site. 
+      </t>
+
+      <figure title="A call with IDP-based identity" anchor="fig.proposal.idp">
+	<artwork><![CDATA[
+                            +----------------+
+                            |                |
+                            |     Signaling  |
+			    |     Server     |
+                            |                |
+                            +----------------+
+                                ^        ^
+                               /          \
+                       HTTPS  /            \   HTTPS
+                             /              \                               
+                            /                \                               
+                           v                  v
+                        JS API              JS API
+                  +-----------+            +-----------+
+                  |           |    Media   |           |
+            Alice |  Browser  |<---------->|  Browser  | Bob
+                  |           | (DTLS-SRTP)|           |
+                  +-----------+            +-----------+
+                        ^      ^--+     +--^     ^		        
+                        |         |     |        |
+			v         |     |        v
+                  +-----------+   |     |  +-----------+
+                  |           |<--------+  |           |
+		  |   IDP A   |   |        |   IDP B   |
+                  |           |   +------->|           |
+                  +-----------+            +-----------+
+ 	]]></artwork>
+      </figure>
+      <t>
+	<xref target="fig.proposal.idp"/> shows the basic topology. Alice
+	and Bob are on the same signaling server, but they additionally
+	have relationships with their own IDPs. Alice has registered with
+	IdP A and Bob has registered with IdP B. Note that nothing
+	stops these IdPs from being the same, or indeed from being
+	the same as the signaling server, but they can also be totally
+	distinct. In particular, Alice and Bob need not have
+	identities from the same IdP. 
+      </t>
+      <t>
+	Starting from this point, the mechanisms described in this
+	document allow Alice and Bob to establish a mutually authenticated
+	phone call. In the interest of clarity the remainder of 
+	this section provides a brief overview of how these mechanisms
+	fit into the bigger RTCWEB calling picture. For a detailed description of the relevant protocol elements
+	and their interaction with the larger signaling protocol
+	see <xref target="I-D.ietf-rtcweb-security"/>. 
+	When Alice goes to call Bob, her browser (specifically
+	her PeerConnection object) contacts her IdP on her behalf and
+	obtains an assertion of her identity bound to her certificate
+	fingerprint. This assertion is carried with her signaling
+	messages to the signaling server and then down to Bob.
+	Bob's browser verifies the assertion, possibly with the 
+	cooperation of the IdP, and can then display Alice's
+	identity to Bob in a trusted user interface element.
+	If Alice is in Bob's address book,
+	then this interface might also include her real name, a picture, etc.
+      </t>
+      <t>
+	When/If Bob agrees to answer the call, his browser contacts his
+	IdP and gets a similar assertion. This assertion is sent to
+	the signaling server as part of Bob's answer which is then
+	forwarded to Alice. Alice's browser verifies
+	Bob's identity and can display the result in a trusted
+	UI element. At this point Alice and Bob know each other's
+	fingerprints and so they can transitively verify the 
+	keys used to authenticate the DTLS-SRTP handshake and
+	hence the security of the media.
+      </t>
+      <t>
+	It is important to note that the mechanisms in this
+	document do not require the browser to implement any 
+	particular identity protocol or to support any particular
+	IdP. Instead, this document provides a generic interface
+	which any IdP can implement. Thus, new IdPs and protocols
+	can be introduced without change to either the browser or the
+	calling service. This avoids the need to make a commitment
+	to any particular identity protocol, although browsers
+	may opt to directly implement some identity protocols in
+	order to provide superior performance or UI properties.
       </t>
     </section>
-
     <section title="Overview of Operation" anchor="sec.overview">
       <t>
- The RTCWEB component of the browser (which we assume to
- be trusted) interacts with the IdP in two modes:
+	The RTCWEB component of the browser (which we assume to
+	be trusted) interacts with the IdP in two modes:
       </t>
       <t>
- <list style="symbols">
-   <t>As an authenticating party (AP).</t>
-   <t>As a relying party (RP).</t>
- </list>
+	<list style="symbols">
+	  <t>As an authenticating party (AP), i.e., someone
+	  who is generating assertions.</t>
+	  <t>As a relying party (RP), i.e., someone who is 
+	  verifying assertions</t>
+	</list>
       </t>
       <t>
- As an AP, the user has an account relationship
- with the IdP. As an RP, the user merely has to
- be prepared to trust the IdP. In some cases,
- (what BrowserId calls a "primary"), the IdP
- is attesting to an identity which it itself
- controls (e.g., Facebook is authoritative for
- which user has a particular Facebook identity),
- and in other cases (what BrowserID calls a secondary),
- a greater level of trust and/or configuration is
- required.
+	In a mutually authenticated call, each side is both an
+	AP and an RP. In a one-way authenticated call, the side
+	which is authenticated acts as the AP and the anonymous
+	side acts as the RP.
+      </t>
+      <section title="Types of IdP" anchor="sec.idp-types">
+	<t>
+	  IdPs can exist in two flavors
+
+	</t>
+      </section>
+	As an AP, the user has an account relationship with the IdP.
+	
+      </t>
+	As an RP, the user merely has to
+	be prepared to trust the IdP. In some cases,
+	(what BrowserId calls a "primary"), the IdP
+	is attesting to an identity which it itself
+	controls (e.g., Facebook is authoritative for
+	which user has a particular Facebook identity),
+	and in other cases (what BrowserID calls a secondary),
+	a greater level of trust and/or configuration is
+	required.
       </t>
       <t>
  The basic architecture is shown below:
@@ -492,7 +604,7 @@
       <section title="PeerConnection Origin Check" anchor="sec.pc-origin">
 	<t>
 	  Fundamentally, the IdP proxy is just a piece of HTML and JS
-	  loaded by the browser, so nothing stops a Web attacker o
+<	  loaded by the browser, so nothing stops a Web attacker o
 	  from creating their own IFRAME, loading the IdP proxy HTML/JS,
 	  and requesting a signature. In order to prevent this attack,
 	  we require that all signatures be tied to a specific 
