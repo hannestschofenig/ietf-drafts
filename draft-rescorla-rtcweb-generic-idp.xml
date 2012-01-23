@@ -58,7 +58,7 @@
       </address>
     </author>
 
-    <date day="07" month="January" year="2012" />
+    <date day="22" month="January" year="2012" />
 
     <area>RAI</area>
 
@@ -199,46 +199,104 @@
 	order to provide superior performance or UI properties.
       </t>
     </section>
-    <section title="Overview of Operation" anchor="sec.overview">
+    <section title="Trust Relationships: IdPs, APs, and RPs" anchor="sec.trust-relationships">
       <t>
-	The RTCWEB component of the browser (which we assume to
-	be trusted) interacts with the IdP in two modes:
+	Any authentication protocol has three major participants:
       </t>
       <t>
-	<list style="symbols">
-	  <t>As an authenticating party (AP), i.e., someone
-	  who is generating assertions.</t>
-	  <t>As a relying party (RP), i.e., someone who is 
-	  verifying assertions</t>
+	<list style="hanging">
+	  <t hangText="Authenticating Party (AP)">The entity which is
+	  trying to establish its identity.</t>
+	  <t></t>
+
+	  <t hangText="Identity Provider (IdP)">The entity which is
+	  vouching for the AP's identity.</t>
+	  
+	  <t></t>
+
+	  <t hangText="Relying Party (RP)">The entity which is trying
+	  to verify the AP's identity.</t>
 	</list>
       </t>
       <t>
-	In a mutually authenticated call, each side is both an
-	AP and an RP. In a one-way authenticated call, the side
-	which is authenticated acts as the AP and the anonymous
-	side acts as the RP.
-      </t>
-      <section title="Types of IdP" anchor="sec.idp-types">
-	<t>
-	  IdPs can exist in two flavors
-
-	</t>
-      </section>
-	As an AP, the user has an account relationship with the IdP.
-	
-      </t>
-	As an RP, the user merely has to
-	be prepared to trust the IdP. In some cases,
-	(what BrowserId calls a "primary"), the IdP
-	is attesting to an identity which it itself
-	controls (e.g., Facebook is authoritative for
-	which user has a particular Facebook identity),
-	and in other cases (what BrowserID calls a secondary),
-	a greater level of trust and/or configuration is
-	required.
+	The AP and the IdP have an account relationship of some kind: the
+	AP registers with the IdP and is able to subsequently authenticate
+	directly to the IdP (e.g., with a password). This means that the
+	browser must somehow know which IdP (or IdPs) the user has 
+	an account relationship with. 
+	This can either be something that the user configures into
+	the browser or that is configured at the calling site and
+	then provided to the PeerConnection by the calling site.
       </t>
       <t>
- The basic architecture is shown below:
+	At a high level there are two kinds of IdPs:
+      </t>
+      <t>
+	<list style="hanging">
+	  <t hangText="Authoritative: ">IdPs which have verifiable control 
+	  of some section of the identity space. For instance, in the
+	  realm of e-mail, the operator of "example.com" has complete control of the
+	  namespace ending in "@example.com". Thus, "alice@example.com"
+	  is whoever the operator says it is. Examples of systems with
+	  authoritative identity providers include DNSSEC, 
+	  RFC 4474, and Facebook Connect (Facebook identities only
+	  make sense within the context of the Facebook system).
+	  </t>
+
+	  <t></t>
+	  <t hangText="Third-Party: ">IdPs which don't have control of 
+	  their section of the identity space but instead verify 
+	  user's identities via some unspecified mechanism and then
+	  attest to it. Because the IdP doesn't actually control
+	  the namespace, RPs need to trust that the
+	  IdP is correctly verifying AP identities, and there
+	  can potentially be multiple IdPs attesting to the same
+	  section of the identity space. Probably the best-known example
+	  of a third-party identity provider is SSL certificates,
+	  where there are a large number of CAs all of whom can
+	  attest to any domain name.
+	  </t>
+	</list>
+      </t>
+
+      <t>
+	If an AP is authenticating via an authoritative IdP, then 
+	the RP does not need to explicitly trust the IdP at all:
+	as long as the RP knows how to verify that the IdP 
+	indeed made the relevant identity assertion (a function
+	provided by the mechanisms in this document), then
+	any assertion it makes about an identity for which 
+	it is authoritative is directly verifiable.
+      </t>
+      <t>
+	By contrast, if an AP is authenticating via a third-party
+	IdP, the RP needs to explicitly trust that IdP
+	(hence the need for an explicit trust anchor list
+	in PKI-based SSL/TLS clients). The list of trustable
+	IdPs needs to be configured directly into the
+	browser, either by the user or potentially by the
+	browser manufacturer. This is a significant advantage
+	of authoritative IdPs and implies that if third-party
+	IdPs are to be supported, the potential number needs
+	to be fairly small.
+      </t>
+    </section>
+      
+    <section title="Overview of Operation" anchor="sec.overview">
+      <t>
+	In order to provide security without trusting the calling
+	site, the PeerConnection component of the browser must
+	interact directly with the IdP. In this section, we
+	describe a standalone mechanism based on IFRAMEs
+	and postMessage(), however, it may also be possible
+	to use a system like WebIntents <eref target="http://www.webintents.com/"/>.
+	[[ 
+	OPEN ISSUE: exactly how should messaging be provided?
+	I've been looking at WebIntents and it's not clear to
+	me how good a fit it is for this, especially with
+	respect to the security of the registration and picking
+	interface. More analysis needed here.
+	]].
       </t>
       <figure>
  <artwork><![CDATA[
@@ -266,83 +324,84 @@
   ]]></artwork>
       </figure>
       <t>
- The sequence of event is as follows:
+	When the PeerConnection object wants to interact with the
+	IdP, the sequence of events is as follows:
       </t>
       <t>
- <list style="numbers">
-   <t>The browser (the PeerConnection component)
-   instantiates an IdP proxy (typically a hidden
-   IFRAME) with its source at the IdP. This allows the 
-   IdP to load whatever JS is necessary into the
-   proxy, which runs in the IdP's security context.</t>
-   <t>If the user is not already logged in, the
-   IdP does whatever is required to log them in,
-   such as soliciting a username and password.</t>
-   <t>Once the user is logged in, the IdP proxy
-   notifies the browser (via postMessage()) that
-   it is ready.</t>
-   <t>The browser and the IdP prixy communicate
-   via a standardized series of messages
-   delivered via postMessage. For instance,
-   the browser might request the IdP proxy to
-   sign or verify a given identity assertion.</t>
- </list>
+	<list style="numbers">
+	  <t>The browser (the PeerConnection component)
+	  instantiates an IdP proxy (typically a hidden
+	  IFRAME) with its source at the IdP. This allows the 
+	  IdP to load whatever JS is necessary into the
+	  proxy, which runs in the IdP's security context.</t>
+	  <t>If the user is not already logged in, the
+	  IdP does whatever is required to log them in,
+	  such as soliciting a username and password.</t>
+	  <t>Once the user is logged in, the IdP proxy
+	  notifies the browser (via postMessage()) that
+	  it is ready.</t>
+	  <t>The browser and the IdP prixy communicate
+	  via a standardized series of messages
+	  delivered via postMessage. For instance,
+	  the browser might request the IdP proxy to
+	  sign or verify a given identity assertion.</t>
+	</list>
       </t>
       <t>
- This approach allows us to decouple the browser from
- any particular identity provider; the browser need
- only know how to load the IdP's JavaScript--which
- is deterministic from the IdP's domain name--and
- the generic protocol for requesting and verifying
- assertions. The IdP provides whatever logic
- is necessary to bridge the generic protocol to
- the IdP's specific requirements. Thus, a single
- browser can support any number of identity protocols,
- including being forward compatible with IdPs which
- did not exist at the time the browser was written.
+	This approach allows us to decouple the browser from
+	any particular identity provider; the browser need
+	only know how to load the IdP's JavaScript--which
+	is deterministic from the IdP's domain name--and
+	the generic protocol for requesting and verifying
+	assertions. The IdP provides whatever logic
+	is necessary to bridge the generic protocol to
+	the IdP's specific requirements. Thus, a single
+	browser can support any number of identity protocols,
+	including being forward compatible with IdPs which
+	did not exist at the time the browser was written.
       </t>
     </section>
     <section title="Protocol Details" anchor="sec.protocol-details">
       <section title="General Message Structure">
- <t>
-   Messages between the PeerConnection object and the
-   IdP proxy are formatted using JSON <xref target="RFC4627"/>.
-   For instance, the PeerConnection would request a 
-   signature with the following "SIGN" message:
- </t>
- <figure>
- <artwork><![CDATA[
+	<t>
+	  Messages between the PeerConnection object and the
+	  IdP proxy are formatted using JSON <xref target="RFC4627"/>.
+	  For instance, the PeerConnection would request a 
+	  signature with the following "SIGN" message:
+	</t>
+	<figure>
+	  <artwork><![CDATA[
  { 
    "type":"SIGN",
    "id": "1",
    "message":"012345678abcdefghijkl"
  }
  ]]></artwork>
- </figure>
- <t>
-   All messages MUST contain a "type" field which indicates
-   the general meaning of the message.
- </t>
- <t>
-   All requests from the PeerConnection object MUST contain
-   an "id" field which MUST be unique for that PeerConnection
-   object. Any responses from the IdP proxy MUST contain
-   the same id in response, which allows the PeerConnection
-   to correlate requests and responses.
- </t>
- <t>
-   Any message-specific data is carried in a "message"
-   field. Depending on the message type, this may
-   either be a string or a deeper JSON object.
- </t>
- <section title="Errors">
-   <t>
-     If an error occurs, the IdP sends a message of
-     type "ERROR". The message MAY have an
-     "error" field containing freeform
-     text data which containing additional
-     information about what happened. For instance:
-   </t>
+	</figure>
+	<t>
+	  All messages MUST contain a "type" field which indicates
+	  the general meaning of the message.
+	</t>
+	<t>
+	  All requests from the PeerConnection object MUST contain
+	  an "id" field which MUST be unique for that PeerConnection
+	  object. Any responses from the IdP proxy MUST contain
+	  the same id in response, which allows the PeerConnection
+	  to correlate requests and responses.
+	</t>
+	<t>
+	  Any message-specific data is carried in a "message"
+	  field. Depending on the message type, this may
+	  either be a string or a deeper JSON object.
+	</t>
+	<section title="Errors">
+	  <t>
+	    If an error occurs, the IdP sends a message of
+	    type "ERROR". The message MAY have an
+	    "error" field containing freeform
+	    text data which containing additional
+	    information about what happened. For instance:
+	  </t>
  <figure title="Example error" anchor="fig.example-error">
  <artwork><![CDATA[
         {
@@ -405,81 +464,92 @@
   ]]></artwork>
       </figure>
       <t>
- Once the PeerConnection object receives the ready message,
- it can send commands to the IdP proxy.
+	Once the PeerConnection object receives the ready message,
+	it can send commands to the IdP proxy.
       </t>
       <section title="Determining the IdP URI" anchor="sec.idp-uri">
- <t>
-   Each IdP MUST serve its initial entry page
-   (i.e., the one loaded by the IdP proxy) from
-   the well-known URI "/.well-known/idp-proxy" on
-   the IdP's web site. This URI MUST be loaded
-   via HTTPS <xref target="RFC2818"/>.
- </t>
- <section title="Authenticating Party">
-   <t>
-     How an AP determines the appropriate IdP domain is
-     out of scope of this specification. In general, 
-     however, the AP has some actual account relationship 
-     with the IdP, as this identity is what the IdP is 
-     attesting to. Thus, the AP somehow supplies the
-     IdP information to the browser. Some potential
-     mechanisms include:
-   </t>
-   <t>
-   <list style="symbols">
-     <t>Provided by the user directly.</t>
-     <t>Specified via a Web Intent. <eref target="http://webintents.org/"/></t>
-     <t>Selected from some set of IdPs known to the calling site.
-     E.g., "Authenticate via Facebook Connect"</t>
-   </list>
- </t>
- </section>
- <section title="Relying Party">
-   <t>
-     Unlike the AP, the RP need not have any particular
-     relationship with the IdP. Rather, it needs to be able
-     to process whatever assertion is provided by the AP.
-     As the assertion contains the IdP's identity,
-     the URI can be constructed directly from the 
-     assertion. Section [TODO] describes the
-     relevant security considerations.
-   </t>
- </section>
+	<t>
+	  Each IdP MUST serve its initial entry page
+	  (i.e., the one loaded by the IdP proxy) from
+	  the well-known URI "/.well-known/idp-proxy" on
+	  the IdP's web site. This URI MUST be loaded
+	  via HTTPS <xref target="RFC2818"/>.
+	</t>
+	<section title="Authenticating Party">
+	  <t>
+	    How an AP determines the appropriate IdP domain is
+	    out of scope of this specification. In general, 
+	    however, the AP has some actual account relationship 
+	    with the IdP, as this identity is what the IdP is 
+	    attesting to. Thus, the AP somehow supplies the
+	    IdP information to the browser. Some potential
+	    mechanisms include:
+	  </t>
+	  <t>
+	    <list style="symbols">
+	      <t>Provided by the user directly.</t>
+	      <t>Selected from some set of IdPs known to the calling site.
+	      E.g., "Authenticate via Facebook Connect"</t>
+	    </list>
+	  </t>
+	</section>
+	<section title="Relying Party">
+	  <t>
+	    Unlike the AP, the RP need not have any particular
+	    relationship with the IdP. Rather, it needs to be able
+	    to process whatever assertion is provided by the AP.
+	    As the assertion contains the IdP's identity,
+	    the URI can be constructed directly from the 
+	    assertion, and thus the RP can directly verify
+	    the technical validity of the assertion with no user 
+	    interaction. Authoritative assertions need only
+	    be verifiable. Third-party assertions also MUST be
+	    verified against local policy, as described in
+	    <xref target="sec.id-format"/>.
+	  </t>
+	</section>
       </section>
       </section>
       <section title="Requesting Assertions" anchor="sec.request-assert">
- <t>
-   In order to request an assertion, the PeerConnection
-   sends a "SIGN" message. Aside from the mandatory fields,
-   this message has a "contents" field containing a string.
-   The contents of this string are defined in 
-   <xref target="I-D.ietf-rtcweb-security"/>, but are
-   opaque from the perspective of this protocol.
- </t>
- <t>
-   A successful response to a "SIGN" message contains
-   an "assertion" field which is a verifiable assertion
-   over the "contents" value. The exact format of this
-   assertion are out of scope for this standard.
-   However, the assertion MUST be securely bound to
-   the contents such that the RP (potentially with
-   the assistance of the IdP) to recover the 
-   contents value and the identity of the AP
-   and have confidence that they are as intended
-   by the IdP at the time of assertion generation.
- </t>
- <t>
-   <xref target="fig.assert-request"/> shows an
-   example transaction, with the message 
-   "abcde..." being signed and bound to identity
-   "ekr@example.org". The "signature" field contains
-   an HMAC over the identity and the message,
-   but this is an implementation detail, and
-   many other techniques (e.g., digital signatures)
-   could be used here. Line breaks are inserted
-   solely for readability.
- </t>
+	<t>
+	  In order to request an assertion, the PeerConnection
+	  sends a "SIGN" message. Aside from the mandatory fields,
+	  this message has a "contents" field containing a string.
+	  The contents of this string are defined in 
+	  <xref target="I-D.ietf-rtcweb-security"/>, but are
+	  opaque from the perspective of this protocol.
+	</t>
+	<t>
+	  A successful response to a "SIGN" message contains
+	  an "assertion" field which is a verifiable assertion
+	  over the "contents" value. The exact format of this
+	  assertion are out of scope for this standard.
+	  However, the assertion MUST be securely bound to
+	  the contents such that the RP (potentially with
+	  the assistance of the IdP) to recover the 
+	  contents value and the identity of the AP
+	  and have confidence that they are as intended
+	  by the IdP at the time of assertion generation.
+	  [[ OPEN ISSUE: it is, however, necessary for the over-the-wire
+	  protocol to the RP to tell it which IdP to use.
+	  Should this document or the RTCWEB
+	  protocol document specify where that goes? We could just
+	  make it part of the assertion, as in:
+	  {"idp":"example.org", "assertion":...}.
+	  TODOEKR: Enact this
+	  ]]
+	</t>
+	<t>
+	  <xref target="fig.assert-request"/> shows an
+	  example transaction, with the message 
+	  "abcde..." being signed and bound to identity
+	  "ekr@example.org". The "signature" field contains
+	  an HMAC over the identity and the message,
+	  but this is an implementation detail, and
+	  many other techniques (e.g., digital signatures)
+	  could be used here. Line breaks are inserted
+	  solely for readability.
+	</t>
  
       <figure title="Example assertion request" anchor="fig.assert-request">
  <artwork><![CDATA[
@@ -504,30 +574,46 @@
       </section>
 
       <section title="Verifying Assertions" anchor="sec.verify-assert">
- <t>
-   In order to verify an assertion, an RP sends a "VERIFY"
-   message to the IdP proxy containing the assertion 
-   supplied by the AP in the "message" field.
- </t>
- <t>
-   The IdP proxy verifies the assertion. Depending on the
-   identity protocol, this may require one or more round
-   trips to the IdP. For instance, an OAuth-based protocol
-   will probably require using the IdP as an oracle,
-   whereas with BrowserID the IdP proxy can likely
-   verify the signature on the assertion without
-   contacting the IdP, provided that it has cached
-   the IdP's public key. Regardless of the mechanism,
-   if verification succeeds, the IdP proxy returns
-   the identity of the AP and the original message
-   used when the assertion was generated as a JSON
-   encoded version of a JS array. <xref target="fig.verify-request"/> shows
-   an example transaction. Line breaks are inserted
-   solely for readability. 
-   [[OPEN ISSUE: Should this be JSON encoded or be an array?]]
- </t>
+	<t>
+	  In order to verify an assertion, an RP sends a "VERIFY"
+	  message to the IdP proxy containing the assertion 
+	  supplied by the AP in the "message" field.
+	</t>
+	<t>
+	  The IdP proxy verifies the assertion. Depending on the
+	  identity protocol, this may require one or more round
+	  trips to the IdP. For instance, an OAuth-based protocol
+	  will probably require using the IdP as an oracle,
+	  whereas with BrowserID the IdP proxy can likely
+	  verify the signature on the assertion without
+	  contacting the IdP, provided that it has cached
+	  the IdP's public key.
+	</t>
+	<t>
+	  Regardless of the mechanism,
+	  if verification succeeds, a successful response from
+	  the IdP proxy MUST contain a message field consisting
+	  of a dictionary/hash with the following fields:
+	</t>
+	<t>
+	  <list style="hanging">
+	    <t hangText="identity">The identity of the AP from the
+	    IdP's perspective. Details of this are provided in
+	    <xref target="sec.id-format"/></t>
+	    <t hangText="contents">The original unmodified string
+	    provided by the AP in the original SIGN request.
+	    </t>
+	  </list>
+	</t>
+	<t>
+	  <xref target="fig.verify-request"/> shows
+	  an example transaction. Line breaks are inserted
+	  solely for readability. 
+	</t>
 
  <figure title="Example assertion request" anchor="fig.verify-request">
+   <!-- TODOEKR: Make clear why this structure? And just implementation specific
+        reconstruction rule? send separately ignore the implementation -->
  <artwork><![CDATA[
       PeerConnection -> IdP Proxy:
         {
@@ -542,11 +628,61 @@
         {
          "type":"SUCCESS",
          "id":2,
-         "message":"[\"100001682090590\",\"abcdefghijklmnopqrstuvwyz\"]"
+         "message": {
+	   "identity" : {
+	     "name" : "bob@example.org",
+	     "displayname" : "Bob"
+	   },
+	   "contents":"abcdefghijklmnopqrstuvwyz"
+	 }
         }
   ]]>
  </artwork>
       </figure>
+
+      <section title="Identity Formats" anchor="sec.id-format">
+	<t>
+	  Identities passed from the IdP proxy to the PeerConnection
+	  are structured as JSON dictionaries with one mandatory
+	  field: "name". This field MUST consist of an
+	  RFC822-formatted string representing the user's identity.
+	  [[ OPEN ISSUE: Would it be better to have a typed field? ]]
+	  The PeerConnection API MUST check this string as
+	  follows:
+	</t>
+	<t>
+	  <list style="numbers">
+	    <t>If the RHS of the string is equal to the domain name
+	    of the IdP proxy, then the assertion is valid,
+	    as the IdP is authoritative for this domain.</t>
+	    <t>If the RHS of the string is not equal to the domain
+	    name of the IdP proxy, then the PeerConnection object
+	    MUST reject the assertion unless (a) the 
+	    IdP domain is listed as an acceptable third-party
+	    IdP and (b) local policy is configured to trust
+	    this IdP domain for the RHS of the identity string.
+	    </t>
+	  </list>
+	</t>
+	<t>
+	  Sites which have identities that do not fit
+	  into the RFC822 style (for instance, Facebook
+	  ids are simple numeric values) SHOULD 
+	  convert them to this form by appending their
+	  IdP domain (e.g., 12345@identity.facebook.com),
+	  thus ensuring that they are authoritative for
+	  the identity.
+	</t>
+	<t>
+	  The IdP proxy MAY also include a "displayname" field
+	  which contains a more user-friendly identity assertion.
+	  Browsers SHOULD take care in the UI to distinguish the
+	  "name" assertion which is verifiable directly from the
+	  "displayname" which cannot be verified and thus
+	  relies on trust in the IdP. In future,
+	  we may define other fields to allow the IdP to
+	  provide more information to the browser.
+	</t>
       </section>
       <section title="PostMessage Checks" anchor="sec.postmessage">
 	<t>
@@ -561,22 +697,22 @@
 	    <t>
 	      For messages from the PeerConnection object, the
 	      IdP proxy MUST verify that the origin is
-	      "rtcweb:://idp-interface" and that the source
+	      "rtcweb://idp-interface" and that the source
 	      matches either window.opener or window.parent.
 	      If both are non-falsey, they MUST be equal.
 	      If any of these checks fail, the message MUST
 	      be rejected.
-	      [[OPEN ISSUE: An alternate (more generic) design would be to not
+	      [[ OPEN ISSUE: An alternate (more generic) design would be to not
 	      check the origin here but rather to include the origin 
-	      in the assertion and have it checked at the RP. Comments?]]
+	      in the assertion and have it checked at the RP. Comments? ]]
 	    </t>
 	    <t>
 	      For messages from the IdP proxy, the PeerConnection
 	      object MUST verify that the origin matches
 	      the IdP's origin and that the source matches
 	      the window/IFRAME opened for the IdP proxy.
-	      [[OPEN ISSUE: do we need to check the origin? What if
-	      the IdP wants to redirect a bit?]]
+	      [[ OPEN ISSUE: do we need to check the origin? What if
+	      the IdP wants to redirect a bit? ]]
 	    </t>
 	  </list>
 	</t>
@@ -587,6 +723,267 @@
 	  JS might use bogus messages as a form of DoS
 	  attack.
 	</t>
+      </section>
+      <section title="PeerConnection API Extensions" anchor="sec.pc-api">
+	<section title="Authenticating Party">
+	<t>
+	  As discussed in <xref target="sec.trust-relationships"/>, 
+	  the AP's IdP can either be configured directly into the
+	  browser or selected from a list known to the calling
+	  site. In the latter case, it MUST be possible to
+	  provide the domain name of the IdP (recall that the
+	  URL is constructed from the domain name) to the PeerConnection
+	  object.
+	</t>
+	<t>
+	  This document doesn't take a position on the nature of the
+	  API, but an example would be:
+	  PeerConnection.setIdentityProvider(DOMString idp_domain);
+	  [[ TODOEKR: More detail about how you learn domain and identity
+	     In constructor. ]]
+	</t>
+	</section>
+	
+	<section title="Relying Party">
+	  <t>
+	    Because the browser UI must be responsible for displaying
+	    the user's identity, it isn't strictly necessary to
+	    have new JS interfaces on the relying party side. However, 
+	    two new interfaces are RECOMMENDED.
+	  </t>
+	  <t>
+	    When a message is provided to the PeerConnection API with
+	    processSignalingMessage() with an assertion that cannot
+	    be verified, there is a need for some sort of error
+	    indicating verification failure. [Note: I don't
+	    see an interface for any other kind of parse error,
+	    so I'm not sure what to imitate here.]
+	  </t>
+	  <t>
+	    A new attribute should be added to indicate the verification
+	    status. For instance: readonly attribute DOMString verifiedIdentity;
+	    with the value being a JSON string indicating the identity
+	    and the domain name of the IdP, such as:
+	  </t>
+ <figure>
+ <artwork><![CDATA[
+ {
+   "identity" : "ekr@example.org",
+   "authority": "example.org"
+ }
+  ]]>
+ </artwork>
+ </figure>
+	</section>
+      </section>
+    </section>
+    
+    <section title="Example Bindings to Specific Protocols">
+      <t>
+	This section provides some examples of how the
+	mechanisms described in this document could be used
+	with existing authentication protocols such as
+	BrowserID or OAuth. Note that this does not
+	require browser-level support for either protocol.
+	Rather, the protocols can be fit into the generic
+	framework. (Though BrowserID in particular works
+	better with some client side support).
+      </t>
+	<section title="BrowserID">
+	  <t>
+	    BrowserID [https://browserid.org/] is a technology which 
+	    allows a user with a verified email address to generate
+	    an assertion (authenticated by their identity provider) 
+	    attesting to their identity (phrased as an email address).
+	    The way that this is used in practice is that the relying
+	    party embeds JS in their site which talks to the BrowserID
+	    code (either hosted on a trusted intermediary or embedded
+	    in the browser). That code generates the assertion which is
+	    passed back to the relying party for verification.
+	    The assertion can be verified directly or with a Web
+	    service provided by the identity provider.
+	    It's relatively easy to extend this functionality to 
+	    authenticate RTCWEB calls, as shown below.
+	  </t>
+      <figure>
+	<artwork><![CDATA[
++----------------------+                     +----------------------+
+|                      |                     |                      |
+|    Alice's Browser   |                     |     Bob's Browser    |
+|                      | OFFER ------------> |                      |
+|   Calling JS Code    |                     |    Calling JS Code   |
+|          ^           |                     |          ^           |
+|          |           |                     |          |           |
+|          v           |                     |          v           |
+|    PeerConnection    |                     |    PeerConnection    |			       
+|       |      ^       |                     |       |      ^       |			       
+| Finger|      |Signed |	             |Signed |      |       |
+| print |      |Finger |                     |Finger |      |"Alice"|
+|       |      |print  |	    	     |print  |      |       |
+|       v      |       |	    	     |       v      |       |
+|   +--------------+   |	    	     |   +---------------+  |
+|   |  IdP Proxy   |   |                     |   |  IDP Proxy    |  |
+|   |     to       |   |                     |   |     to        |  |
+|   |  BrowserID   |   |	    	     |   |  BrowserID    |  |
+|   |  Signer      |   |	    	     |   |  Verifier     |  |
+|   +--------------+   |	    	     |   +---------------+  | 
+|           ^          |	    	     |          ^           |
++-----------|----------+                     +----------|-----------+
+            |                                           |
+            | Get certificate                           |
+	    v                                           | Check 
++----------------------+                                | certificate
+|                      |                                |
+|       Identity       |/-------------------------------+
+|       Provider       |
+|                      |
++----------------------+            
+ 	]]></artwork>
+      </figure>
+      <t>
+	The way this mechanism works is as follows. On Alice's side, Alice
+	goes to initiate a call.
+      </t>
+      <t><list style="numbers">
+	<t>The calling JS instantiates a PeerConnection
+	and tells it that it is interested in having it authenticated 
+	via BrowserID (i.e., it provides "browserid.org" as the
+	IdP name.)
+	[[ TODOEKR: Provide a second variable? ]]
+	</t>
+	<t>The PeerConnection instantiates the BrowserID signer in
+	the IdP proxy
+	</t>
+	<t>The BrowserID signer contacts Alice's identity provider,
+	authenticating as Alice (likely via a cookie).</t>
+	<t>The identity provider returns a short-term certificate
+	attesting to Alice's identity and her short-term public key.</t>
+	<t>The Browser-ID code signs the fingerprint and returns the
+	signed assertion + certificate to the PeerConnection. </t>
+	<t>The PeerConnection returns the signed information to the
+	calling JS code.</t>
+	<t>The signed assertion gets sent over the wire to Bob's
+	browser (via the signaling service) as part of the call setup.</t>
+      </list>
+      </t>
+      <t>
+	Obviously, the format of the signed assertion varies depending
+	on what signaling style the WG ultimately adopts. However, for
+	concreteness, if something like ROAP were adopted, then the
+	entire message might look like:
+      </t>
+      <figure>
+	<artwork><![CDATA[
+   {
+     "messageType":"OFFER",
+     "callerSessionId":"13456789ABCDEF",
+     "seq": 1
+     "sdp":"
+   v=0\n
+   o=- 2890844526 2890842807 IN IP4 192.0.2.1\n
+   s= \n
+   c=IN IP4 192.0.2.1\n
+   t=2873397496 2873404696\n
+   m=audio 49170 RTP/AVP 0\n
+   a=fingerprint: SHA-1 \
+   4A:AD:B9:B1:3F:82:18:3B:54:02:12:DF:3E:5D:49:6B:19:E5:7C:AB\n",
+    "identity":{
+         "idp":"browserid.org",
+	 "assertion": {
+	   "assertion": {
+             "digest":"<hash of the contents provided by the browser>",
+             "audience": "[TBD]"
+             "valid-until": 1308859352261,
+            }, // signed using user's key
+            "certificate": {
+              "email": "rescorla@example.org",
+              "public-key": "<ekrs-public-key>",
+              "valid-until": 1308860561861,
+            } // certificate is signed by example.org
+	 }
+   }
+ 	]]></artwork>
+      </figure>
+      <t>
+	[TODO: NEed to talk about Audience a bit.]
+	[[ TODOEKR: Explain non-match between browserid.org and example.org ]]
+      </t>
+      <t>
+	On Bob's side, he receives the signed assertion as part of the call
+	setup message and a similar procedure happens to verify it.
+      </t>
+      <t><list style="numbers">
+	<t>The calling JS instantiates a PeerConnection
+	and provides it the relevant signaling information, including the
+	signed assertion.</t>
+	<t>The PeerConnection instantiates the IdP proxy which examines 
+	the IdP name and brings up the BrowserID verification code.</t>
+	<t>The BrowserID verifier contacts the identity provider to
+	verify the certificate and then uses the key to verify the
+	signed fingerprint.</t>
+	<t>Alice's verified identity is returned to the PeerConnection
+	(it already has the fingerprint).</t>
+	<t>At this point, Bob's browser can display a trusted UI indication
+	that Alice is on the other end of the call.</t>
+      </list>
+      </t>
+      <t>
+	When Bob returns his answer, he follows the converse procedure, which
+	provides Alice with a signed assertion of Bob's identity and keying
+	material.
+      </t>
+      </section>
+
+	<section title="OAuth">
+	  <t>
+	    While OAuth is not directly designed for user-to-user authentication,
+	    with a little lateral thinking it can be made to serve. We use the
+	    following mapping of OAuth concepts to RTCWEB concepts:
+	  </t>
+	    <texttable anchor="oauth-rtcweb">
+	      <ttcol align="left">OAuth</ttcol>
+	      <ttcol align="left">RTCWeb</ttcol>
+	      <c>Client</c><c>Relying party</c>
+	      <c>Resource owner</c><c>Authenticating party</c>
+	      <c>Authorization server</c><c>Identity service</c>
+	      <c>Resource server</c><c>Identity service</c>
+	    </texttable>
+	  <t>
+	    The idea here is that when Alice wants to authenticate to Bob (i.e., for
+	    Bob to be aware that she is calling). In order to do this, she allows
+	    Bob to see a resource on the identity provider that is bound to the
+	    call, her identity, and her public key. Then Bob retrieves the resource
+	    from the identity provider, thus verifying the binding between Alice
+	    and the call.
+	  </t>
+      <figure>
+	<artwork><![CDATA[
+	Alice                       IDP                       Bob
+	---------------------------------------------------------
+        Call-Id, Fingerprint  ------->
+        <------------------- Auth Code
+	Auth Code ---------------------------------------------->
+  	                             <----- Get Token + Auth Code
+				     Token --------------------->
+				     <------------- Get call-info 
+				     Call-Id, Fingerprint ------>
+ 	]]></artwork>
+      </figure>
+      <t>
+	This is a modified version of a common OAuth flow, but
+	omits the redirects required to have the client point the
+	resource owner to the IDP, which is acting as both 
+	the resource server and the authorization server, since
+	Alice already has a handle to the IDP.
+      </t>
+      <t>
+	Above, we have referred to "Alice", but really what we mean
+	is the PeerConnection. Specifically, the PeerConnection will
+	instantiate an IFRAME with JS from the IDP and will use
+	that IFRAME to communicate with the IDP, authenticating
+	with Alice's identity (e.g., cookie). Similarly, Bob's
+	PeerConnection instantiates an IFRAME to talk to the IDP.
+      </t>
       </section>
     </section>
     <section title="Security Considerations" anchor="sec.sec-cons">
@@ -604,7 +1001,7 @@
       <section title="PeerConnection Origin Check" anchor="sec.pc-origin">
 	<t>
 	  Fundamentally, the IdP proxy is just a piece of HTML and JS
-<	  loaded by the browser, so nothing stops a Web attacker o
+	  loaded by the browser, so nothing stops a Web attacker o
 	  from creating their own IFRAME, loading the IdP proxy HTML/JS,
 	  and requesting a signature. In order to prevent this attack,
 	  we require that all signatures be tied to a specific 
@@ -612,7 +1009,7 @@
 	  a page tied to a Web attacker. Thus, while an attacker
 	  can instantiate the IdP proxy, they cannot send messages
 	  from an appropriate origin and so cannot create acceptable
-	  assertions. [[OPEN ISSUE: Where is this enforced.]
+	  assertions. [[OPEN ISSUE: Where is this enforced? ]]
 	</t>
       </section>
 
@@ -625,8 +1022,8 @@
 	  Facebook wall) from being able to impersonate the IdP.
 	</t>
       </section>
-
-      <section title="Web Security Feature Interactions">
+    </section>
+    <section title="Web Security Feature Interactions">
 	<t>
 	  A number of optional Web security features have the potential
 	  to cause issues for this mechanism, as discussed below.
@@ -643,7 +1040,7 @@
 	    (depending on the exact algorithm that the popup blocker
 	    uses to suppress popups). It may be necessary to provide
 	    a standardized mechanism to allow the IdP proxy to
-	    request popping of a login window. [[OPEN ISSUE]
+	    request popping of a login window. [[OPEN ISSUE]]
 	  </t>
 	</section>
 
@@ -676,3 +1073,9 @@
     </references>
   </back>
 </rfc>
+
+<!-- TODOEKR: 
+    1. Specify IdP and Id to PeerConnection
+    2. Clarify we will almost certainly use WebIntents
+    3. Popup blocking
+-->
