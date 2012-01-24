@@ -33,7 +33,7 @@
 <rfc category="std" docName="draft-ietf-rtcweb-security-arch-00"
      ipr="pre5378Trust200902">
   <front>
-    <title abbrev="RTCWEB Security Architecture">Security Architecture for RTCWEB</title>
+    <title abbrev="RTCWEB Sec. Arch.">RTCWEB Security Architecture</title>
 
     <author fullname="Eric Rescorla" initials="E.K." surname="Rescorla">
       <organization>RTFM, Inc.</organization>
@@ -927,11 +927,25 @@
 	the attacker cannot control).
       </t>
       <t>
+	Another related attack is for the signaling service to 
+	swap the ICE candidates for the audio and video streams,
+	thus forcing a browser to send video to the sink that 
+	the other victim expects will contain audio
+	(perhaps it is only expecting audio!)
+	potentially causing overload.
 	Muxing multiple media flows over a single transport makes 
 	it harder to individually suppress a single flow by denying
 	ICE keepalives. Media-level (RTCP) mechanisms must be
 	used in this case.
       </t>
+      <t>
+	Note that attacks based on confusing one end or the other about
+	consent are possible primarily even in the face of the
+	third-party identity mechanism as long as major parts of 
+	the signaling messages are not signed. On the other hand,
+	signing the entire message severely restricts the capabilities
+	of the calling application, so there are difficult tradeoffs here.
+      </t>	
     </section>
 
   </section>
