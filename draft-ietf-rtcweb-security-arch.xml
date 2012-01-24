@@ -964,7 +964,7 @@
 
       <reference anchor='I-D.rescorla-rtcweb-generic-idp'>
 	<front>
-	  <title>Security Considerations for RTC-Web</title>
+	  <title>RTCWeb Generic Identity Provider Interface</title>
 
 	  <author initials='E' surname='Rescorla' fullname='Eric Rescorla'>
 	    <organization />
