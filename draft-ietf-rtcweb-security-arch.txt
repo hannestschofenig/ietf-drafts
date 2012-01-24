@@ -7,7 +7,7 @@ Intended status:  Standards Track                       January 22, 2012
 Expires:  July 25, 2012
 
 
-                    Security Architecture for RTCWEB
+                      RTCWEB Security Architecture
                    draft-ietf-rtcweb-security-arch-00
 
 Abstract
@@ -54,7 +54,7 @@ Status of this Memo
 
 Rescorla                  Expires July 25, 2012                 [Page 1]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    and may be updated, replaced, or obsoleted by other documents at any
@@ -110,7 +110,7 @@ Copyright Notice
 
 Rescorla                  Expires July 25, 2012                 [Page 2]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
 Table of Contents
@@ -137,8 +137,8 @@ Table of Contents
      6.2.  Privacy  . . . . . . . . . . . . . . . . . . . . . . . . . 16
      6.3.  Denial of Service  . . . . . . . . . . . . . . . . . . . . 17
    7.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 17
-   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 17
-     8.1.  Normative References . . . . . . . . . . . . . . . . . . . 17
+   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+     8.1.  Normative References . . . . . . . . . . . . . . . . . . . 18
      8.2.  Informative References . . . . . . . . . . . . . . . . . . 18
    Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 19
 
@@ -166,7 +166,7 @@ Table of Contents
 
 Rescorla                  Expires July 25, 2012                 [Page 3]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
 1.  Introduction
@@ -222,7 +222,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                 [Page 4]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    the user wishes to have enforced must be ultimately guaranteed by the
@@ -278,7 +278,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                 [Page 5]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    it means that we must assume that they will behave maliciously and
@@ -334,7 +334,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                 [Page 6]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
                                +----------------+
@@ -390,7 +390,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                 [Page 7]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    which says "Call".  Alice clicks the button, which initiates a JS
@@ -446,7 +446,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                 [Page 8]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    way so the browser has no specific knowledge of the IdP) to verity
@@ -502,7 +502,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                 [Page 9]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
 4.3.  DTLS Handshake
@@ -558,7 +558,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                [Page 10]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    [RFC2818].  Thus, clients MUST treat HTTP and HTTPS origins as
@@ -614,7 +614,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                [Page 11]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    UI Requirement:  The UI MUST clearly indicate when the user's camera
@@ -670,7 +670,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                [Page 12]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    seconds regardless of whether traffic is flowing or not.  If a
@@ -726,7 +726,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                [Page 13]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    API Requirement:  The API MUST provide a mechanism to indicate that a
@@ -782,7 +782,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                [Page 14]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
 5.6.  Web-Based Peer Authentication
@@ -838,7 +838,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                [Page 15]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
 6.  Security Considerations
@@ -894,7 +894,7 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
 
 Rescorla                  Expires July 25, 2012                [Page 16]
 
-Internet-Draft        RTCWEB Security Architecture          January 2012
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
    status and (absent the use of a technology like Tor) their IP
@@ -925,15 +925,32 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
    throttle the data channel in the absence of plausible audio and video
    (which the attacker cannot control).
 
-   Muxing multiple media flows over a single transport makes it harder
-   to individually suppress a single flow by denying ICE keepalives.
-   Media-level (RTCP) mechanisms must be used in this case.
+   Another related attack is for the signaling service to swap the ICE
+   candidates for the audio and video streams, thus forcing a browser to
+   send video to the sink that the other victim expects will contain
+   audio (perhaps it is only expecting audio!) potentially causing
+   overload.  Muxing multiple media flows over a single transport makes
+   it harder to individually suppress a single flow by denying ICE
+   keepalives.  Media-level (RTCP) mechanisms must be used in this case.
+
+   Note that attacks based on confusing one end or the other about
+   consent are possible primarily even in the face of the third-party
+   identity mechanism as long as major parts of the signaling messages
+   are not signed.  On the other hand, signing the entire message
+   severely restricts the capabilities of the calling application, so
+   there are difficult tradeoffs here.
 
 
 7.  Acknowledgements
 
    Bernard Aboba, Harald Alvestrand, Cullen Jennings, Hadriel Kaplan,
    Matthew Kaufman, Magnus Westerland.
+
+
+
+Rescorla                  Expires July 25, 2012                [Page 17]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
 
 
 8.  References
@@ -945,14 +962,6 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
               draft-abarth-origin-09 (work in progress), November 2010.
 
    [I-D.ietf-rtcweb-security]
-
-
-
-Rescorla                  Expires July 25, 2012                [Page 17]
-
-Internet-Draft        RTCWEB Security Architecture          January 2012
-
-
               Rescorla, E., "Security Considerations for RTC-Web",
               draft-ietf-rtcweb-security-01 (work in progress),
               October 2011.
@@ -993,6 +1002,13 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
    [RFC4347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security", RFC 4347, April 2006.
 
+
+
+Rescorla                  Expires July 25, 2012                [Page 18]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2012
+
+
    [RFC5245]  Rosenberg, J., "Interactive Connectivity Establishment
               (ICE): A Protocol for Network Address Translator (NAT)
               Traversal for Offer/Answer Protocols", RFC 5245,
@@ -1001,14 +1017,6 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
    [RFC5763]  Fischl, J., Tschofenig, H., and E. Rescorla, "Framework
               for Establishing a Secure Real-time Transport Protocol
               (SRTP) Security Context Using Datagram Transport Layer
-
-
-
-Rescorla                  Expires July 25, 2012                [Page 18]
-
-Internet-Draft        RTCWEB Security Architecture          January 2012
-
-
               Security (DTLS)", RFC 5763, May 2010.
 
    [XmlHttpRequest]
@@ -1025,14 +1033,6 @@ Author's Address
 
    Phone:  +1 650 678 2350
    Email:  ekr@rtfm.com
-
-
-
-
-
-
-
-
 
 
 
