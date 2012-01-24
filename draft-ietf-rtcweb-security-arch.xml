@@ -134,6 +134,14 @@
 	that document.
       </t>
     </section>
+
+    <section anchor="sec-term" title="Terminology">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+      document are to be interpreted as described in <xref
+      target="RFC2119">RFC 2119</xref>.</t>
+    </section>
+
     <section title="Trust Model" anchor="sec.proposal.trusthierarchy">
       <t>
 	The basic assumption of this architecture is that network resources
@@ -228,10 +236,10 @@
       <t>
 	For the purposes of this example, we assume the topology shown
 	in the figure below. This topology is derived from the 
-	topology shown in [TODO: <!--<xref target="fig.simple"/>-->], but separates
+	topology shown in <xref target="fig.simple"/>, but separates
 	Alice and Bob's identities from the process of signaling.
 	Specifically, Alice and Bob have relationships with 
-	some Identity Provider (IDP) 
+	some Identity Provider (IdP) 
 	that supports a protocol such OpenID or BrowserID) that 
 	can be used to attest to their identity.
 	This separation isn't particularly important in "closed world"
@@ -243,7 +251,7 @@
 	a relationship via a given social network want to call each
 	other on another, untrusted, site, such as a poker site. 
       </t>
-      <figure title="A call with IDP-based identity" anchor="fig.proposal.idp">
+      <figure title="A call with IdP-based identity" anchor="fig.proposal.idp">
 	<artwork><![CDATA[
                             +----------------+
                             |                |
@@ -268,7 +276,7 @@
 			v         |     |         v
                   +-----------+   |     |  +-----------+
                   |           |<--------+  |           |
-		  |   IDP     |   |        |    IDP    |
+		  |   IdP     |   |        |    IdP    |
                   |           |   +------->|           |
                   +-----------+            +-----------+
  	]]></artwork>
@@ -321,8 +329,8 @@
 	  Alice's browser + JS generates a signaling message
 	  The format of this data is currently undefined. It may
 	  be a complete message as defined by ROAP 
-	  <xref target="I-D.jennings-rtcweb-signaling"/>, 
-	  separate media description and transport messages 
+	  <xref target="I-D.jennings-rtcweb-signaling"/>
+	  or separate media description and transport messages 
 	  as defined in JSEP [REF] or may be
 	  assembled piecemeal by the JS. In either case, it will contain:
 	</t>
@@ -330,16 +338,18 @@
 	  <list style="symbols">
 	    <t>Media channel information</t>
 	    <t>ICE candidates</t>
-	    <t>A fingerprint attribute binding the message to Alice's public key
+	    <t>A fingerprint attribute binding the communication to Alice's public key
 	    <xref target="RFC5763"/></t>
 	  </list>
 	</t>
 	<t>
+	  [Note that the above implies that this information should appear in
+	  JSEP's transport-level messages.]
 	  Prior to sending out the signaling message, the PeerConnection code
 	  contacts the identity service and obtains an assertion binding
 	  Alice's identity to her fingerprint. The exact details depend on
-	  the identity service (though as discussed in [I-D.rescorla-rtcweb-generic-idp]
-	  I believe PeerConnection can be agnostic to them), but for now it's
+	  the identity service (though as discussed in <xref target="I-D.rescorla-rtcweb-generic-idp"/>
+	  PeerConnection can be agnostic to them), but for now it's
 	  easiest to think of as a BrowserID assertion.
 	  The assertion may bind other information to the identity besides
 	  the fingerprint, but at minimum it needs to bind
@@ -355,7 +365,7 @@
 	  call and to Alice's identity. In this case, Alice has provided an
 	  identity assertion and so Bob's browser contacts Alice's identity provider
 	  (again, this is done in a generic way so the browser has no 
-	  specific knowledge of the IDP) to verity the assertion. This
+	  specific knowledge of the IdP) to verity the assertion. This
 	  allows the browser to display a trusted element indicating that
 	  a call is coming in from Alice. If Alice is in Bob's address book,
 	  then this interface might also include her real name, a picture, etc.
@@ -372,7 +382,7 @@
 	  service is approved, the media streams are created, and a return
 	  signaling message containing media information, ICE candidates, and
 	  a fingerprint is sent back to Alice via the signaling service.
-	  If Bob has a relationship with an IDP, the message will also come
+	  If Bob has a relationship with an IdP, the message will also come
 	  with an identity assertion.
 	</t>
 	<t>
@@ -381,8 +391,8 @@
 	  by the signaling server, they know that the signaling server claims
 	  that the call is from Alice to Bob. Because the far end sent an identity
 	  assertion along with their message, they know that this is verifiable
-	  from the IDP as well. Of course, the call works perfectly well if
-	  either Alice or Bob doesn't have a relationship with an IDP; they
+	  from the IdP as well. Of course, the call works perfectly well if
+	  either Alice or Bob doesn't have a relationship with an IdP; they
 	  just get a lower level of assurance. Moreover, Alice might wish
 	  to make an anonymous call through an anonymous calling site, 
 	  in which case she would of course just not provide any identity
@@ -401,7 +411,7 @@
 	</t>
 	<t>
 	  At this point, Alice knows that (a) Bob (assuming he is verified
-	  via his IDP) or someone else who the
+	  via his IdP) or someone else who the
 	  signaling service is claiming is Bob is willing to exchange
 	  traffic with her and (b) that either Bob is at the IP address
 	  which she has verified via ICE or there is an attacker who
@@ -432,9 +442,9 @@
 	  At this point, Alice and Bob know that they share a set
 	  of secure data and/or media channels with keys which are 
 	  not known to any third-party attacker. If Alice and
-	  Bob authenticated via their IDPs, then they also know
+	  Bob authenticated via their IdPs, then they also know
 	  that the signaling service is not attacking them. Even
-	  if they do not use an IDP, as long as
+	  if they do not use an IdP, as long as
 	  they have minimal trust in the signaling service not to
 	  perform a man-in-the-middle attack, they know that their
 	  communications are secure against the signaling service as
@@ -471,7 +481,7 @@
 	  <xref target="I-D.abarth-origin"/>. Because the security of the origin
 	  depends on being able to authenticate content from that origin,
 	  the origin can only be securely established if data is transferred
-	  over HTTPS. Thus, clients MUST treat HTTP and HTTPS origins as
+	  over HTTPS <xref target="RFC2818"/>. Thus, clients MUST treat HTTP and HTTPS origins as
 	  different permissions domains and SHOULD NOT permit access to any
 	  RTCWEB functionality from scripts fetched over non-secure (HTTP)
 	  origins. If an HTTPS origin contains mixed active content
@@ -555,6 +565,8 @@
 	    in the browser such that minimizing the browser window would hide the
 	    indication, or the JS creating an overlapping window would hide the
 	    indication, then the browser SHOULD stop camera and microphone input.
+	    [Note: this may not be necessary in systems that are non-windows-based
+	    but that have good notifications support, such as phones.]
 	  </t>
 	</list>
 	</t>
@@ -727,7 +739,7 @@
 	      negotiation.
 	      </t>
 
-	      <t>If the far endpoint was directly verified <xref target="sec.proposal.direct.peer"/>
+	      <t>If the far endpoint was directly verified  (see <xref target="sec.proposal.direct.peer"/>)
 	      the "security characteristics" MUST include the verified information.</t>
 	    </list>
 	  </t>
@@ -795,11 +807,12 @@
 	      must be cryptographically bound to the user's identity.
 	      At minimum this MUST be the fingerprint, but we may
 	      choose to add other information as the signaling
-	      protocol firms up.
+	      protocol firms up. This will be defined in a future
+	      version of this document.
 	    </t>
 	    
 	    <t>
-	      The interface to the IdP. [I-D.rescorla-rtcweb-generic-idp]
+	      The interface to the IdP. <xref target="I-D.rescorla-rtcweb-generic-idp"/>
 	      specifies a specific protocol mechanism which allows the
 	      use of any identity protocol without requiring specific
 	      further protocol support in the browser.
@@ -808,7 +821,8 @@
 	    <t>
 	      The JavaScript interfaces which the calling application can
 	      use to specify the IdP to use to generate assertions and
-	      to discover what assertions were received.
+	      to discover what assertions were received. These interfaces
+	      should be defined in the W3C document.
 	    </t>
 	  </list>
 	</t>
@@ -839,6 +853,9 @@
 	this means the signaling server. Implementations which
 	wish to avoid downgrade attack should only offer
 	the strongest available mechanism, which is DTLS/DTLS-SRTP.
+	Note that the implication of this choice will be that
+	interop to non-DTLS-SRTP devices will need to happen through
+	gateways.
       </t>
       <t>
 	Even if only DTLS/DTLS-SRTP are used, the signaling server
@@ -909,6 +926,12 @@
 	the absence of plausible audio and video (which
 	the attacker cannot control).
       </t>
+      <t>
+	Muxing multiple media flows over a single transport makes 
+	it harder to individually suppress a single flow by denying
+	ICE keepalives. Media-level (RTCP) mechanisms must be
+	used in this case.
+      </t>
     </section>
 
   </section>
@@ -925,171 +948,35 @@
 
     <references title="Normative References">
       &RFC2119;
+      &RFC2818;
+      &I-D.abarth-origin;
       &I-D.ietf-rtcweb-security;
     </references>
     <references title="Informative References">
       &RFC3261;
-      &RFC3552;
-      &RFC2818;
-      &RFC5479;
       &RFC5763;
       &RFC4347;
-      &RFC4568;
-      &RFC4251;
-      &RFC3760;
-      &RFC6189;
       &RFC5245;
-      &I-D.abarth-origin;
       &I-D.ietf-hybi-thewebsocketprotocol;
       &I-D.kaufman-rtcweb-security-ui;
       &I-D.jennings-rtcweb-signaling;
 
-      <reference anchor="abarth-rtcweb">
+
+      <reference anchor='I-D.rescorla-rtcweb-generic-idp'>
 	<front>
-	  <title>Prompting the user is security failure</title>
-	  
-	  <author initials="A." surname="Barth">
-	    <organization></organization>
-	  </author>
-	  
+	  <title>Security Considerations for RTC-Web</title>
 
-	</front>
-	<seriesInfo name="" value="RTC-Web Workshop"/>
-	<format target="http://rtc-web.alvestrand.com/home/papers/barth-security-prompt.pdf?attredirects=0" type="PDF"/>
-      </reference>
-      
-      <reference anchor="whitten-johnny">
-	<front>
-	  <title>Why Johnny Can't Encrypt: A Usability Evaluation of PGP 5.0</title>
-	  
-	  <author initials="A." surname="Whitten">
-	    <organization></organization>
+	  <author initials='E' surname='Rescorla' fullname='Eric Rescorla'>
+	    <organization />
 	  </author>
 
-	  <author initials="J.D." surname="Tygar">
-	    <organization></organization>
-	  </author>
-	</front>
-	<seriesInfo name="" value="Proceedings of the 8th USENIX Security Symposium, 1999"/>
-      </reference>
-
-
-      <reference anchor="cranor-wolf">
-	<front>
-	  <title>Crying Wolf: An Empirical Study of SSL Warning Effectiveness</title>
-
-	  <author initials="J." surname="Sunshine">
-	    <organization></organization>
-	  </author>
-
-	  <author initials="S." surname="Egelman">
-	    <organization></organization>
-	  </author>
-	  <author initials="H." surname="Almuhimedi">
-	    <organization></organization>
-	  </author>
-	  <author initials="N." surname="Atri">
-	    <organization></organization>
-	  </author>
-	  <author initials="L." surname="cranor">
-	    <organization></organization>
-	  </author>
+	  <date month='January' day='23' year='2012' />
 	</front>
 
-	<seriesInfo name="" value="Proceedings of the 18th USENIX Security Symposium, 2009"/>
-
+	<seriesInfo name='Internet-Draft' value='draft-rescorla-rtcweb-generic-idp-00' />
+	<format type='TXT'
+		target='http://www.ietf.org/internet-drafts/draft-rescorla-generic-idp-00.txt' />
       </reference>
-
-
-      <reference anchor="kain-conversion">
-	<front>
-	  <title>Design and Evaluation of a Voice Conversion Algorithm based on Spectral Envelope Mapping and Residual Prediction</title>
-	  
-	  <author initials="A." surname="Kain">
-	    <organization></organization>
-	  </author>
-	  
-
-	  <author initials="M." surname="Macon">
-	    <organization></organization>
-	  </author>
-	</front>
-
-	<seriesInfo name="" value="Proceedings of ICASSP, May 2001"/>
-      </reference>
-
-      <reference anchor="farus-conversion">
-	<front>
-	  <title>Speaker Recognition Robustness to Voice Conversion</title>
-	  
-	  <author initials="M." surname="Farrus">
-	    <organization></organization>
-	  </author>
-	  <author initials="D." surname="Erro">
-	    <organization></organization>
-	  </author>
-	  <author initials="J." surname="Hernando">
-	    <organization></organization>
-	  </author>
-
-	</front>
-      </reference>
-
-
-      <reference anchor="huang-w2sp">
-	<front>
-	  <title>Talking to Yourself for Fun and Profit</title>
-	  
-	  <author initials="L-S." surname="Huang">
-	    <organization></organization>
-	  </author>
-	  <author initials="E.Y." surname="Chen">
-	    <organization></organization>
-	  </author>
-	  <author initials="A." surname="Barth">
-	    <organization></organization>
-	  </author>
-	  <author initials="E." surname="Rescorla">
-	    <organization></organization>
-	  </author>
-	  <author initials="C." surname="Jackson">
-	    <organization></organization>
-	  </author>
-	</front>
-
-	<seriesInfo name="" value="W2SP, 2011"/>
-      </reference>
-
-      
-
-
-      <reference anchor="finer-grained">
-	<front>
-	  <title>Beware of Finer-Grained Origins</title>
-
-	  <author initials="A." surname="Barth">
-	    <organization></organization>
-	  </author>
-	  <author initials="C." surname="Jackson">
-	    <organization></organization>
-	  </author>
-	</front>
-
-	<seriesInfo name="" value="W2SP, 2008"/>
-      </reference>
-
-
-      <reference anchor="CORS">
-	<front>
-	  <title>Cross-Origin Resource Sharing</title>
-	  
-	  <author initials="A." surname="van Kesteren">
-	    <organization></organization>
-	  </author>
-	</front>
-	<format target="http://www.w3.org/TR/cors/" type="TXT"/>
-      </reference>
-
 
       <reference anchor="XmlHttpRequest">
 	<front>
