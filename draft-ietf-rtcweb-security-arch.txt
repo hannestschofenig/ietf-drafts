@@ -981,9 +981,9 @@ Internet-Draft        RTCWEB Security Architecture          January 2012
               progress), June 2011.
 
    [I-D.rescorla-rtcweb-generic-idp]
-              Rescorla, E., "Security Considerations for RTC-Web",
-              draft-rescorla-rtcweb-generic-idp-00 (work in progress),
-              January 2012.
+              Rescorla, E., "RTCWeb Generic Identity Provider
+              Interface", draft-rescorla-rtcweb-generic-idp-00 (work in
+              progress), January 2012.
 
    [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
               A., Peterson, J., Sparks, R., Handley, M., and E.
