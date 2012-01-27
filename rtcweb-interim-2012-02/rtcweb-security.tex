@@ -174,9 +174,27 @@ Safari & Accept \\
 
 \end{slide}
 
-
 \begin{slide}
 \heading{Issue: Media Security Requirements}
+
+[TODO: background]
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Communications Security: Implementation Requirements (Proposed)}
+
+\begin{itemize}
+\item MUST implement DTLS-SRTP (for media) and DTLS (for data) 
+\item MAY implement RTP(?) and SDES(??) for backward compatibility purposes 
+\item Security MUST be default state
+  \begin{itemize}
+  \item Implementations MUST offer DTLS and/or DTLS-SRTP for every channel
+  \item MUST accept DTLS and/or DTLS-SRTP whenever offered 
+  \item MUST not do unencrypted data channel
+  \end{itemize}
+\end{itemize}
 
 \end{slide}
 
@@ -202,6 +220,216 @@ Eric Rescorla \\
 \end{slide}
 
 
-\centerslidestrue
+\centerslidesfalse
+
+
+
+\begin{slide}
+\heading{What are we trying to accomplish?}
+
+\begin{itemize}
+\item Allow Alice and Bob to have a secure call
+\item Detect
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Topology}
+
+\begin{center}
+\includegraphics[width=3in]{full-topology}
+\end{center}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Terminology}
+\begin{itemize}
+\item[] \emph{Authenticating Party (AP)}:  The entity which is trying to establish its identity.
+
+\item[] \emph{Identity Provider (IdP)}:  The entity which is vouching for the AP's identity.
+
+\item[] \emph{ Relying Party (RP)}:  The entity which is trying to verify the AP's identity.
+\end{itemize}
+
+\end{slide}
+
+
+
+
+
+\begin{slide}
+\heading{Types of IdP}
+
+\begin{itemize}
+\item[] \emph{Authoritative}: Attests for identities within their own namespace
+  \begin{itemize}
+  \item Often multiple Authoritatives IdPs exist with different scopes
+  \item Examples: DNSSEC, RFC 4474, Facebook Connect (for the Facebook ID)
+  \end{itemize}
+
+\item[] \emph{Third-party}: Attests for identities in a name-space they don't control
+  \begin{itemize}
+  \item Often multiple Third-Party IdPs share the same space
+  \item Can attest to real-world identities
+  \item Examples: SSL/TLS certificates, the State of California (driver's licenses)
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Authoritative vs. Third-Party IdPs: Trust Relationship}
+
+\begin{itemize}
+\item No need to explicitly trust third-party IdPs
+  \begin{itemize}
+  \item \url{ekr@example.com} is whoever \url{example.com} says it is
+  \item The problem is authenticating \url{example.com}
+  \end{itemize}
+
+\item Authoritative IdPs need to be explicitly trusted
+  \begin{itemize}
+  \item Example: how do I know GoDaddy is a legitimate CA?
+  \item Answer: the browser manufacturer vetted them
+  \item They are allowed to attest to \emph{any} domain name
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{User Relationships with IdPs}
+
+\begin{itemize}
+\item Authenticating Party
+  \begin{itemize}
+  \item Has some account with the IdP
+  \item May have established their identity 
+    \begin{itemize}
+    \item Especially for third-party IdPs
+    \end{itemize}
+  \item Can authenticate to the IdP in the future (e.g., with a password)
+  \end{itemize}
+
+\item Relying party
+  \begin{itemize}
+  \item Doesn't have any account relationship with the IdP
+  \item Must be able to verify the IdP's identity
+  \item Needs to trust third-party IdPs
+  \end{itemize}
+
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Example: Facebook Connect (sorta OAuth)}
+
+\begin{itemize}
+\item AP is a user with a Facebook account
+  \begin{itemize}
+  \item They may or may not be logged in at the moment
+  \item (Where \emph{logged in} == cookies)
+  \end{itemize}
+
+\item RP is a Web server
+  \begin{itemize}
+  \item Idea is to bootstrap Facebook authentication
+  \item ... rather than have your own account system
+  \item RP registers with Facebook and gets an application key
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Facebook Connect Call Flow (not logged in) 1}
+
+\vspace{-.7in}
+$$
+\xymatrix@C=1.0in@R=.15in{
+  \txt{Alice} & \txt{RP\\\url{www.example.com}} & \txt{Facebook} \\
+  \ar[r]^{\txt{\texttt{GET /...}}} & & \\
+  & \ar[l]_{\txt{Redirect to}}^{\txt\tiny{\texttt{www.facebook.com/dialog/oauth?client\_id=1234\&redirect\_uri=www.example.com/auth}}} & \\
+  \ar[rr]^{\txt\tiny{\texttt{GET /dialog/oauth?client\_id=1234\&redirect\_uri=www.example.com/auth}}} & & \\
+  & & \ar@{<->}[ll]_{\txt{Login and permissions dialog}} \\
+}
+$$
+
+\end{slide}
+
+
+
+\begin{slide}
+
+\begin{center}
+\includegraphics[width=3.5in]{fb-permissions}
+\end{center}
+
+\end{slide}
+
+\begin{slide}
+\heading{Facebook Connect Call Flow (not logged in) 2}
+
+\vspace{-.7in}
+$$
+\xymatrix@C=1.0in@R=.15in{
+  \txt{Alice} & \txt{RP\\\url{www.example.com}} & \txt{Facebook} \\
+  \ar[r]^{\txt{\texttt{GET /...}}} & & \\
+  & \ar[l]_{\txt{Redirect to}}^{\txt\tiny{\texttt{www.facebook.com/dialog/oauth?client\_id=1234\&redirect\_uri=www.example.com/auth}}} & \\
+  \ar[rr]^{\txt\tiny{\texttt{GET /dialog/oauth?client\_id=1234\&redirect\_uri=www.example.com/auth}}} & & \\
+  & & \ar@{<->}[ll]_{\txt{Login and permissions dialog}} \\
+  & & \ar[ll]_{\txt{Redirect to}}^{\txt\tiny{\texttt{www.example.com/auth?code=5678}}}\\
+  \ar[r]^{\txt\tiny{\texttt{GET /auth?code=5678}}} & &\\
+  & \ar[r]^{\txt\tiny{\texttt{GET /oauth/access\_token?client\_id=1234\&client\_secret=<secret>\&code=5678}}} & \\
+  & & \ar[l]_{\txt\tiny{\texttt{access\_token=987654321}}} \\
+  & \ar[r]^{\txt\tiny{\texttt{GET /me?access\_token=987654321}}} & \\
+  & & \ar[l]_{\txt\tiny{\texttt{user=1111111, ...}}} \\
+  & \ar[l]_{\txt{Hello, user 1111111}} & \\
+}
+$$
+
+\end{slide}
+
+
+
+
+\begin{slide}
+\heading{Facebook Connect Call Flow (logged in)}
+
+\vspace{-.7in}
+$$
+\xymatrix@C=1.0in@R=.15in{
+  \txt{Alice} & \txt{RP\\\url{www.example.com}} & \txt{Facebook} \\
+  \ar[r]^{\txt{\texttt{GET /...}}} & & \\
+  & \ar[l]_{\txt{Redirect to}}^{\txt\tiny{\texttt{www.facebook.com/dialog/oauth?client\_id=1234\&redirect\_uri=www.example.com/auth}}} & \\
+  \ar[rr]^{\txt\tiny{\texttt{GET /dialog/oauth?client\_id=1234\&redirect\_uri=www.example.com/auth}}} & & \\
+  & & \ar[ll]_{\txt{Redirect to}}^{\txt\tiny{\texttt{www.example.com/auth?code=5678}}}\\
+  \ar[r]^{\txt\tiny{\texttt{GET /auth?code=5678}}} & &\\
+  & \ar[r]^{\txt\tiny{\texttt{GET /oauth/access\_token?client\_id=1234\&client\_secret=<secret>\&code=5678}}} & \\
+  & & \ar[l]_{\txt\tiny{\texttt{access\_token=987654321}}} \\
+  & \ar[r]^{\txt\tiny{\texttt{GET /me?access\_token=987654321}}} & \\
+  & & \ar[l]_{\txt\tiny{\texttt{user=1111111, ...}}} \\
+  & \ar[l]_{\txt{Hello, user 1111111}} & \\
+}
+$$
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Why this complicated flow?}
+
+
+
+
+\end{slide}
 
 \end{document}
