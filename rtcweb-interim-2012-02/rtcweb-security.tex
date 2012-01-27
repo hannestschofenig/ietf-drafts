@@ -734,8 +734,22 @@ window.addEventListener('message',
 \end{slide}
 
 
+
 \begin{slide}
-\heading{Why aren't logins done in IFRAMEs}
+
+\heading{Logins generally done in separate windows}
+
+\vspace{-.4in}
+\begin{center}
+\includegraphics[width=2.5in]{fb-login}
+\end{center}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Why aren't logins done in IFRAMEs?}
 
 \begin{itemize}
 \item Scenario: you are on \url{example.org}
@@ -746,15 +760,37 @@ window.addEventListener('message',
 \item Both Facebook Connect and BrowserID use a separate window
 \item Why?
   \begin{itemize}
-  \item You are soliciting the user's password
+  \item IdP is soliciting the user's password
   \item User needs to know they are using the right IdP
   \item A separate window means they can examine the URL bar
+  \item Also concerns about clickjacking/redressing
   \end{itemize}
 
+\item Other option is to navigate the entire page to an interstitial page
 \end{itemize}
 \end{slide}
 
 
+
+\begin{slide}
+\heading{IFRAMEs don't have to be visible}
+
+\begin{verbatim}
+	idp = document.createElement('IFRAME');
+	$(idp).hide();
+
+
+\end{verbatim}
+
+\begin{itemize}
+\item This takes up no space on the screen
+\begin{itemize}
+\item It's just JS from the IFRAME source running on the page
+\item Can still \verb^postMessage()^ to and from it
+\end{itemize}
+\item Invisible IFRAMEs are a very important tool
+\end{itemize}
+\end{slide}
 
 
 \end{document}
