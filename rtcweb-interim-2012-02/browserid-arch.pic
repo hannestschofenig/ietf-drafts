@@ -1,0 +1,25 @@
+.PS
+
+BROWSER: box dashed width 2 height 3
+box invis "Browser" with .n at BROWSER.n + (0,.15)
+
+MFB: box width 1.5 height 1 with .nw at BROWSER.nw + (.2, -.2)
+box invis "\fCmyfavoritebeer.com\fR" "(RP)" with .n at MFB.n + (0,-.1)
+
+BI: box width 1.5 height 1 with .n at MFB.s + (0, -.5)
+box invis "\fCbrowserid.org\fR" "(IdP)" with .n at BI.n + (0,-.1)
+
+box invis "Login as" "\fCekr@rtfm.com\fR?" with .n at last box.s + (0,.1)
+
+arrow "postMessage()" from MFB.sw + (.2,0) to BI.nw + (.2,0)
+arrow "postMessage()" from BI.ne + (-.2,0) to MFB.se + (-.2,0)
+
+
+MFBS: box width 1.5 height 1 with .w at MFB.e + (1, 0)
+box invis "\fCmyfavoritebeer.com\fR" "(RP)" with .n at MFBS.n + (0,-.1)
+arrow <-> "HTTP" "" from MFB.e to MFBS.w
+
+BIS: box width 1.5 height 1 with .w at BI.e + (1, 0)
+box invis "\fCbrowserid.org\fR" "(RP)" with .n at BIS.n + (0,-.1)
+arrow <-> "HTTP" "" from BI.e to BIS.w
+.PE

@@ -4,6 +4,7 @@
 \usepackage{graphicx} 
 \usepackage{slidesec} 
 \usepackage{url}
+\usepackage[usenames]{color}
 
 \long\def\symbolfootnote[#1]#2{\begingroup%
 \def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
@@ -229,7 +230,20 @@ Eric Rescorla \\
 
 \begin{itemize}
 \item Allow Alice and Bob to have a secure call
-\item Detect
+  \begin{itemize}
+  \item Authenticated with their identity providers
+  \item On any site
+    \begin{itemize}
+    \item Even untrusted/partially trusted ones
+    \end{itemize}
+  \end{itemize}
+
+\item Advantages
+  \begin{itemize}
+  \item Use one identity on any calling site
+  \item Security against active attack by calling site
+  \item Support for federated cases
+  \end{itemize}
 \end{itemize}
 
 \end{slide}
@@ -319,13 +333,28 @@ Eric Rescorla \\
 
 \item Relying party
   \begin{itemize}
-  \item Doesn't have any account relationship with the IdP
+  \item Doesn't have any account relationship with the IdP\symbolfootnote[1]{Note: privacy issues.}
   \item Must be able to verify the IdP's identity
   \item Needs to trust third-party IdPs
   \end{itemize}
 
 \end{itemize}
 \end{slide}
+
+
+\begin{slide}
+\heading{Web-based IdP Systems}
+
+\begin{itemize}
+\item Facebook Connect
+\item Google login
+\item OAuth
+\item OpenID
+\item BrowserID
+\end{itemize}
+
+\end{slide}
+
 
 
 \begin{slide}
@@ -424,9 +453,143 @@ $$
 \end{slide}
 
 
-\begin{slide}
-\heading{Why this complicated flow?}
 
+\begin{slide}
+\heading{Example: BrowserID (no key pair)}
+
+\vspace{-.5in}
+$$
+\xymatrix@C=0.8in@R=.15in{
+  \txt{Alice} & \txt{RP\\\url{www.example.com}} & \txt{BrowserID.org} \\
+    \ar[r]^{\txt{\texttt{GET /...}}} & & \\
+    & \ar[l]_{\txt\tiny{\texttt{<script src="https://browserid.org/include.js"/>}}}^{\txt\tiny{\texttt{navigator.id.get(function(assertion)\{...\});}}} & \\
+    \txt{[Generate Keys]} \\
+    \ar[rr]^{\txt{Get certificate + Cookie}} & & \\
+    & & \ar[ll]_{\txt{Certificate}} \\
+    \txt{[Sign Assertion]} \\
+    \ar[r]^{\txt{Signed assertion + Certificate}} & \\
+    & \ar[l]_{\txt{Hello, user 11111111}} \\
+}
+$$
+
+\end{slide}
+
+
+
+\begin{slide}
+
+\includegraphics[width=4in]{browserid-login.png}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Example: BrowserID (existing key pair)}
+
+\vspace{-.5in}
+$$
+\xymatrix@C=0.8in@R=.15in{
+  \txt{Alice} & \txt{RP\\\url{www.example.com}} & \txt{BrowserID.org} \\
+    \ar[r]^{\txt{\texttt{GET /...}}} & & \\
+    & \ar[l]_{\txt\tiny{\texttt{<script src="https://browserid.org/include.js"/>}}}^{\txt\tiny{\texttt{navigator.id.get(function(assertion)\{...\});}}} & \\
+    \txt{[Sign Assertion]} \\
+    \ar[r]^{\txt{Signed assertion + Certificate}} & \\
+    & \ar[l]_{\txt{Hello, user 11111111}} \\
+}
+$$
+
+\end{slide}
+
+
+\begin{slide}
+\heading{BrowserID: Why no MITM Attacks?}
+
+\vspace{-.5in}
+$$
+\xymatrix@C=0.7in@R=.15in{
+  \txt{Alice} & \txt{\url{attacker.com}} & \txt{\url{example.com}} \\
+    \ar[r]^{\txt{\texttt{GET /...}}} & & \\
+    & \ar[r]^{\txt{\texttt{GET /...}}} & \\
+    & \ar[l]_{\txt\tiny{\texttt{<script src="https://browserid.org/include.js"/>}}}^{\txt\tiny{\texttt{navigator.id.get(function(assertion)\{...\});}}} & \\
+    \txt{[Sign Assertion]} \\
+    \ar[r]^{\txt{Signed assertion + Certificate}} & \\
+    &   \ar[r]^{\txt{Signed assertion + Certificate}} & \\
+    & & \ar[l]_{\txt{Hello, user 11111111}} \\
+}
+$$
+\end{slide}
+
+\begin{slide}
+\heading{BrowserID: Audience Parameter}
+
+\vspace{-.5in}
+$$
+\xymatrix@C=0.7in@R=.15in{
+  \txt{Alice} & \txt{\url{attacker.com}} & \txt{\url{example.com}} \\
+    \ar[r]^{\txt{\texttt{GET /...}}} & & \\
+    & \ar[r]^{\txt{\texttt{GET /...}}} & \\
+    & \ar[l]_{\txt\tiny{\texttt{<script src="https://browserid.org/include.js"/>}}}^{\txt\tiny{\texttt{navigator.id.get(function(assertion)\{...\});}}} & \\
+    \txt{[Sign Assertion]} \\
+    \ar[r]^{\txt{Signed assertion({\color{blue} audience=\texttt{attacker.com}}) + Certificate}} & \\
+    &   \ar[r]^{\txt{Signed assertion + Certificate}} & \\
+    & & \ar[l]_{\txt{Audience mismatch error}} \\
+}
+$$
+\end{slide}
+
+\begin{slide}
+\heading{Preventing assertion forwarding}
+
+\begin{itemize}
+\item BrowserID assertions are scoped to origin (audience parameter)
+  \begin{itemize}
+  \item RPs check that the origin in the assertion matches their domain
+  \item This prevents assertion forwarding
+  \end{itemize}
+
+\item Why does this work?
+  \begin{itemize}
+  \item BrowserID JS is part of the TCB
+  \item Browser enforces origin of requests from the calling site
+  \item RP transitively trusts origin/audience because it trusts BrowserID.org
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+        
+
+\begin{slide}
+\heading{BrowserID Security Architecture}
+
+\begin{center}
+\includegraphics[width=3.2in]{browserid-arch}
+\end{center}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{One browser, multiple security contexts}
+
+\begin{itemize}
+\item Browser security data scoped by \emph{origin}
+  \begin{itemize}
+  \item \url{browserid.org} window and \url{myfavoritebeer.org} window are isolated
+  \item Each runs their own JS independently
+  \end{itemize}
+
+\item Security guarantees
+  \begin{itemize}
+  \item Origin A can't touch origin B's data
+  \item Origin A can't see what origin B is displaying
+  \item Communication is by \verb^postMessage()^ (or navigation hack)
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{PostMessage}
 
 
 
