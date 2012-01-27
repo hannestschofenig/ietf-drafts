@@ -453,6 +453,25 @@ $$
 \end{slide}
 
 
+\begin{slide}
+\heading{Facebook Connect Privacy Features}
+
+\begin{itemize}
+\item RP needs to register with Facebook
+\item User approves policy separately for each RP
+  \begin{itemize}
+  \item Including which user information to share
+  \end{itemize}
+
+\item Facebook learns about every authentication transaction
+  \begin{itemize}
+  \item Including user/RP pair
+  \end{itemize}
+
+\end{itemize}
+
+\end{slide}
+
 
 \begin{slide}
 \heading{Example: BrowserID (no key pair)}
@@ -474,8 +493,6 @@ $$
 
 \end{slide}
 
-
-
 \begin{slide}
 
 \includegraphics[width=4in]{browserid-login.png}
@@ -483,22 +500,7 @@ $$
 \end{slide}
 
 
-\begin{slide}
-\heading{Example: BrowserID (existing key pair)}
 
-\vspace{-.5in}
-$$
-\xymatrix@C=0.8in@R=.15in{
-  \txt{Alice} & \txt{RP\\\url{www.example.com}} & \txt{BrowserID.org} \\
-    \ar[r]^{\txt{\texttt{GET /...}}} & & \\
-    & \ar[l]_{\txt\tiny{\texttt{<script src="https://browserid.org/include.js"/>}}}^{\txt\tiny{\texttt{navigator.id.get(function(assertion)\{...\});}}} & \\
-    \txt{[Sign Assertion]} \\
-    \ar[r]^{\txt{Signed assertion + Certificate}} & \\
-    & \ar[l]_{\txt{Hello, user 11111111}} \\
-}
-$$
-
-\end{slide}
 
 
 \begin{slide}
@@ -558,6 +560,59 @@ $$
 \end{slide}
         
 
+
+
+\begin{slide}
+\heading{Browser-ID Privacy Features}
+
+\begin{itemize}
+\item Client generates a key pair
+  \begin{itemize}
+  \item Idp signs a binding between key pair and user ID
+  \end{itemize}
+
+\item Client generates assertions based on key pair
+  \begin{itemize}
+  \item Sends along certificate
+  \end{itemize}
+
+\item RP fetches IdP public key
+  \begin{itemize}
+  \item This need only happen once
+  \end{itemize}
+
+\item IdP never learns where you are visiting
+  \begin{itemize}
+  \item No relationship between RP and IdP
+  \end{itemize}
+
+
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Example: BrowserID (existing key pair)}
+
+\vspace{-.5in}
+$$
+\xymatrix@C=0.8in@R=.15in{
+  \txt{Alice} & \txt{RP\\\url{www.example.com}} & \txt{BrowserID.org} \\
+    \ar[r]^{\txt{\texttt{GET /...}}} & & \\
+    & \ar[l]_{\txt\tiny{\texttt{<script src="https://browserid.org/include.js"/>}}}^{\txt\tiny{\texttt{navigator.id.get(function(assertion)\{...\});}}} & \\
+    \txt{[Sign Assertion]} \\
+    \ar[r]^{\txt{Signed assertion + Certificate}} & \\
+    & \ar[l]_{\txt{Hello, user 11111111}} \\
+}
+$$
+
+\end{slide}
+
+
+
+
+
 \begin{slide}
 \heading{BrowserID Security Architecture}
 
@@ -589,10 +644,76 @@ $$
 
 
 \begin{slide}
-\heading{PostMessage}
+\heading{PostMessage: Sender}
+
+\verb^otherWindow.postMessage(message, targetOrigin);^
+
+\begin{itemize}
+\item[] \verb^otherWindow^: the window to send the message to
+\item[] \verb^message^: the message to send
+\item[] \verb^targetOrigin^: the expected origin of the other window
+\end{itemize}
+\end{slide}
 
 
+\begin{slide}
+\heading{Why do we need \texttt{targetOrigin}?}
+
+\begin{itemize}
+\item Malicious pages can navigate other windows
+  \begin{itemize}
+  \item This creates a race condition
+  \end{itemize}
+
+\item RP creates the new window to IdP with \verb^w = createWindow()^
+\item Attacker navigates \verb^w^ to his own site
+\item RP does \verb^w.postMessage(secret,...)^
+\item Attacker gets the secret
+\item \verb^targetOrigin^ stops this
+\end{itemize}
 
 \end{slide}
+
+
+\begin{slide}
+\heading{PostMessage: receiver}
+
+\begin{verbatim}
+window.addEventListener('message',
+                        function(event) {
+                          ...
+                        });
+\end{verbatim}
+
+\begin{itemize}
+\item Event properties:
+  \begin{itemize}
+  \item[] \verb^data^: the message passed by the sender
+  \item[] \verb^origin^: the sender's origin
+  \item[] \verb^source^: the sender's window
+  \end{itemize}
+
+\item Important: \verb^origin^ value can be trusted
+  \begin{itemize}
+  \item Enforced by the browser
+  \item May not be the current origin of \verb^source^, however
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{IFRAMEs}
+
+\begin{itemize}
+\item What if I don't want another window to open?
+  \begin{itemize}
+  \item Solution: IFRAMEs
+  \end{itemize}
+
+\end{itemize}
+
+\end{slide}
+
 
 \end{document}
