@@ -1,0 +1,14 @@
+.PS
+BROWSER: box dashed width 2 height 2.5
+box invis "Browser" with .n at BROWSER.n + (0,.15)
+
+EO: box width 1.75 height 2.25 with .n at BROWSER.n + (0,-.2)
+EOL: box invis width 1.75 height .25 "\fCexample.org\fR" with .n at EO.n + (0,-.1)
+
+IO: box width 1.5 height 1 with .n at EO.n + (0,-1)
+box invis "\fCidp.org\fR" with .n at IO.n + (0,-.1)
+
+arrow "postMessage()" from EOL.sw + (.4,0) down .65
+arrow <- "postMessage()" from EOL.se + (-.4,0) down .65
+
+.PE

@@ -711,9 +711,50 @@ window.addEventListener('message',
   \item Solution: IFRAMEs
   \end{itemize}
 
-\end{itemize}
+  \begin{center}
+  \includegraphics[height=2in]{iframe}
+  \end{center}
 
+\end{itemize}
 \end{slide}
+
+
+\begin{slide}
+\heading{IFRAME Security Properties}
+
+\begin{itemize}
+\item Isolated from the main page
+  \begin{itemize}
+  \item More or less the same rules as a separate window
+  \end{itemize}
+
+\item Can be easily navigated by the main page
+\item Can be invisible (both good and bad)
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Why aren't logins done in IFRAMEs}
+
+\begin{itemize}
+\item Scenario: you are on \url{example.org}
+  \begin{itemize}
+  \item \url{example.org} wants to log you in with \url{idp.org}
+  \end{itemize}
+
+\item Both Facebook Connect and BrowserID use a separate window
+\item Why?
+  \begin{itemize}
+  \item You are soliciting the user's password
+  \item User needs to know they are using the right IdP
+  \item A separate window means they can examine the URL bar
+  \end{itemize}
+
+\end{itemize}
+\end{slide}
+
+
 
 
 \end{document}
