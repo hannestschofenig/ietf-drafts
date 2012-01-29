@@ -178,7 +178,44 @@ Safari & Accept \\
 \begin{slide}
 \heading{Issue: Media Security Requirements}
 
-[TODO: background]
+\begin{itemize}
+\item DTLS/DTLS-SRTP provides the best security
+  \begin{itemize}
+  \item Can detect MITM with fingerprint checks (though inconvenient)
+  \item Strong authentication when used with third-party IdP
+  \end{itemize}
+
+\item Demand for SDES, RTP, or both
+  \begin{itemize}
+  \item Mostly in terms of interop with legacy systems w/o media gatewaying
+  \item Concerns about bid-down attacks, UI confusion, etc.
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Interop Deployment Questions}
+
+\begin{itemize}
+\item Everyone supports RTP
+  \begin{itemize}
+  \item But obviously security is... bad
+  \end{itemize}
+
+\item Most \emph{current} implementations support SDES
+  \begin{itemize}
+  \item Unclear (at least to me) how many deployments support it
+  \end{itemize}
+
+\item Decision proposal:
+  \begin{itemize}
+  \item Need RTP if not much SDES deployment
+  \item If a lot of SDES deployment, not much need for RTP
+  \end{itemize}
+
+
+\end{itemize}
 
 \end{slide}
 
@@ -188,7 +225,7 @@ Safari & Accept \\
 
 \begin{itemize}
 \item MUST implement DTLS-SRTP (for media) and DTLS (for data) 
-\item MAY implement RTP(?) and SDES(??) for backward compatibility purposes 
+\item MAY implement RTP(?) and SDES(?)
 \item Security MUST be default state
   \begin{itemize}
   \item Implementations MUST offer DTLS and/or DTLS-SRTP for every channel
@@ -301,13 +338,13 @@ Eric Rescorla \\
 \heading{Authoritative vs. Third-Party IdPs: Trust Relationship}
 
 \begin{itemize}
-\item No need to explicitly trust third-party IdPs
+\item No need to explicitly trust authoritative IdPs
   \begin{itemize}
   \item \url{ekr@example.com} is whoever \url{example.com} says it is
   \item The problem is authenticating \url{example.com}
   \end{itemize}
 
-\item Authoritative IdPs need to be explicitly trusted
+\item Third-party IdPs need to be explicitly trusted
   \begin{itemize}
   \item Example: how do I know GoDaddy is a legitimate CA?
   \item Answer: the browser manufacturer vetted them
@@ -922,23 +959,6 @@ window.addEventListener('message',
 \end{slide}
 
 
-\begin{slide}
-\heading{IdP Trust Architecture: Authenticating Party}
-
-\begin{center}
-\includegraphics[width=3.5in]{rtcweb-security-arch-idp}
-\end{center}
-
-\end{slide}
-
-\begin{slide}
-\heading{IdP Trust Architecture: Relying Party}
-
-\begin{center}
-\includegraphics[width=3.5in]{rtcweb-security-arch-idp2}
-\end{center}
-\end{slide}
-
 
 
 \begin{slide}
@@ -1021,6 +1041,18 @@ window.addEventListener('message',
 \end{slide}
 
 
+
+\begin{slide}
+\heading{But we want it to be generic...}
+
+\begin{itemize}
+\item This means defined interfaces
+\item ... that work for any IdP
+\end{itemize}
+
+\end{slide}
+
+
 \begin{slide}
 \heading{What needs to be defined}
 
@@ -1028,6 +1060,7 @@ window.addEventListener('message',
 \item Information from the signaling message that is authenticated [IETF]
   \begin{itemize}
   \item Minimally: DTLS-SRTP fingerprint
+  \item Generic carrier for identity assertion
   \item Depends on signaling protocol
   \end{itemize}
 
@@ -1044,6 +1077,375 @@ window.addEventListener('message',
   \end{itemize}
 \end{itemize}
 \end{slide}
+
+
+\begin{slide}
+\heading{What needs to be tied to user identity?}
+
+\begin{itemize}
+\item Only data which is verifiably bound is trustworthy
+  \begin{itemize}
+  \item Need to assume attacker has modified anything else
+  \end{itemize}
+
+\item Initial analysis (depends on protocol)
+  \begin{itemize}
+  \item Fingerprint (MUST)
+  \item ICE candidates
+  \item Media parameters
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Security Properties of ICE Candidates}
+
+\begin{itemize}
+\item Effect of modifying ICE candidates
+  \begin{itemize}
+  \item Advertise candidates to route media through attacker
+    \begin{itemize}
+    \item Makes a MITM attack easier
+    \item Mostly irrelevant if DTLS keying used
+    \end{itemize}
+  \item Route to \verb^/dev/null^ (DoS)
+    \begin{itemize}
+    \item Silly if you are in signaling path!
+    \end{itemize}
+
+  \end{itemize}
+
+\item Signaling service can affect ICE candidates anyway
+  \begin{itemize}
+  \item Provide a malicious TURN server
+  \item Return blackhole server reflexive addresses
+  \item This drives data through signaling service
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Security Properties of Media Parameters}
+
+[TODO]
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Generic Structure for Identity Assertions}
+
+\begin{small}
+\begin{verbatim}
+       "identity":{
+            "idp":{     // Standardized
+               "domain":"browserid.org",   // Identity domain
+               "method":"default"          // Domain-specific method
+            },
+            "assertion": "..."             // IdP-specific
+       }
+\end{verbatim}
+\end{small}
+\end{slide}
+
+
+\begin{slide}
+\heading{Basic Architecture}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{IdP Trust Architecture: Authenticating Party}
+
+\begin{center}
+\includegraphics[width=3.5in]{rtcweb-security-arch-idp}
+\end{center}
+
+\end{slide}
+
+\begin{slide}
+\heading{IdP Trust Architecture: Relying Party}
+
+\begin{center}
+\includegraphics[width=3.5in]{rtcweb-security-arch-idp2}
+\end{center}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Generic Downward Interface\\(Implemented by PeerConnection)}
+
+\begin{itemize}
+\item Instantiate ``IdP Proxy'' with JS from IdP
+  \begin{itemize}
+  \item Probably invisible IFRAME
+  \item Maybe a WebIntent (more later)
+  \end{itemize}
+
+\item Send (standardized) messages to IdP proxy via \verb^postMessage()^
+  \begin{itemize}
+  \item ``\verb^SIGN^'' to get assertion
+  \item ``\verb^VERIFY^'' to verify assertion
+  \end{itemize}
+
+\item IdP proxy responds 
+  \begin{itemize}
+  \item ``\verb^SUCCESS^'' with answer
+  \item ``\verb^ERROR^'' with error
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Where is the IdP JS fetched from?}
+
+\begin{itemize}
+\item Deterministically constructed from IdP domain name and method
+  \begin{itemize}
+  \item[] {\small \url{https://<idp-domain>/.well-known/idp-proxy/<protocol>}}
+    \end{itemize}
+
+\item Why in \verb^/.well-known^?
+  \begin{itemize}
+  \item Trust-relationship derives from control of the domain
+  \item Must not be possible for non-administrative users of domain to impersonate IdP
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{How does PeerConnection know IdP domain?}
+
+\begin{itemize}
+\item Authenticating Party
+
+  \begin{itemize}
+  \item IdP domain configured into browser
+    \begin{itemize}
+    \item User ``logs into'' browser via UI
+    \item WebIntents again
+    \end{itemize}
+
+  \item Specified by the calling site
+    \begin{itemize}
+    \item ``Authenticate this call with Facebook connect''
+    \item Need a new API point for this
+    \end{itemize}
+  \end{itemize}
+
+\item Relying party
+  \begin{itemize}
+  \item Carried in the generic part of the identity assertion
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Generic Message Structure}
+
+\begin{verbatim}
+    {
+      "type": "...",     // "SIGN","VERIFY","SUCCESS", ...
+      "id": "1",         // used for correlation
+    }
+\end{verbatim}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Incoming Message Checks (IdP Proxy)}
+
+\begin{itemize}
+\item Messages MUST come from \verb^rtcweb://.../^
+\item This prevents ordinary JS from instantiating IdP proxy
+  \begin{itemize}
+  \item Remember, it's just an IFRAME
+  \item But you can't set your origin to arbitrary values
+  \end{itemize}
+
+\item Messages MUST come from parent window
+  \begin{itemize}
+  \item Prevents confusion about which proxy
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Incoming Message Checks (PeerConnection)}
+
+\begin{itemize}
+\item Messages MUST come from IdP origin domain
+  \begin{itemize}
+  \item Prevents navigation by attackers in other windows
+  \end{itemize}
+
+\item Messages MUST come from IdP proxy window
+  \begin{itemize}
+  \item Prevents confusion about which proxy
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Signature process}
+
+\begin{tiny}
+\begin{verbatim}
+       PeerConnection -> IdP proxy:
+         {
+           "type":"SIGN",
+            "id":1,
+            "message":"abcdefghijklmnopqrstuvwyz"
+         }
+
+       IdPProxy -> PeerConnection:
+         {
+           "type":"SUCCESS",
+           "id":1,
+           "message": {
+             "idp":{
+               "domain": "example.org"
+               "protocol": "bogus"
+             },
+             "assertion":\"{\"identity\":\"bob@example.org\",
+                            \"contents\":\"abcdefghijklmnopqrstuvwyz\",
+                            \"signature\":\"010203040506\"}"
+           }
+         }
+
+\end{verbatim}
+\end{tiny}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Verification Process}
+
+\begin{tiny}
+\begin{verbatim}
+         PeerConnection -> IdP Proxy:
+           {
+             "type":"VERIFY",
+             "id":2,
+             "message":\"{\"identity\":\"bob@example.org\",
+                          \"contents\":\"abcdefghijklmnopqrstuvwyz\",
+                          \"signature\":\"010203040506\"}"
+           }
+
+         IdP Proxy -> PeerConnection:
+           {
+            "type":"SUCCESS",
+            "id":2,
+            "message": {
+              "identity" : {
+                "name" : "bob@example.org",
+                "displayname" : "Bob"
+              },
+              "contents":"abcdefghijklmnopqrstuvwyz"
+            }
+           }
+\end{verbatim}
+\end{tiny}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Meaning of Successful Verification}
+
+\begin{itemize}
+\item IdP has verified assertion
+  \begin{itemize}
+  \item Identity is given in ``identity''
+  \item ``name'' is the actual identity (RFC822 format)
+  \item ``displayname'' is a human-readable string
+  \end{itemize}
+
+\item Contents is the original message the AP passed in
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Processing Successful Verifications}
+
+\begin{itemize}
+\item Authoritative IdPs
+  \begin{itemize}
+  \item RHS of \verb^identity.name^ matches IdP domain
+  \item No more checks needed
+  \end{itemize}
+
+\item Third-party IdPs
+  \begin{itemize}
+  \item RHS of \verb^identity.name^ does not match IdP domain
+  \item IdP MUST be trusted by policy
+  \end{itemize}
+
+\item These checks performed by PeerConnection
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{How do I stand up a new IdP?}
+
+\begin{enumerate}
+\item Get some users (the hard part)
+\item Implement handlers for \verb^SIGN^ and \verb^VERIFY^ messages
+  \begin{itemize}
+  \item Probably $<100$ lines of JS
+  \end{itemize}
+
+\item Put the right JS at \verb^/.well-known/idp-proxy^
+\item Profit
+\end{enumerate}
+\end{slide}
+
+
+\begin{slide}
+\heading{Integrated IdP Support}
+
+\begin{itemize}
+\item Things work fine with no browser-side IdP support
+\item But specialized support is nice too
+  \begin{itemize}
+  \item BrowserID in Firefox
+  \item ``Sign-in to browser'' in Chrome
+  \item Better UI/performance properties
+  \end{itemize}
+
+\item Still specify IdP by URL
+  \begin{itemize}
+  \item IdP JS detects that the browser has built-in support
+  \item Calls go directly to the browser code
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
 
 
 
