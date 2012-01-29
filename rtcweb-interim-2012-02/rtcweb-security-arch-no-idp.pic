@@ -1,0 +1,14 @@
+.PS
+BROWSER: box dashed width 2 height 2.5 fill .5
+box invis "Browser" with .n at BROWSER.n + (0,.15)
+
+EO: box width 1.75 height 2.25 with .n at BROWSER.n + (0,-.2) fill 0
+EOL: box invis width 1.75 height .25 "\fCexample.org\fR" with .n at EO.n + (0,-.1)
+
+PC: box width 1.25 height 1.5  fill .5 with .s at EO.s + (0,.25)
+PCL: box invis width 1.75 height .25 "PeerConnection" with .n at PC.n + (0,-.1)
+
+box invis "Trusted" "(Part of browser)" with .nw at BROWSER.ne + (1,-.1)
+arrow from last box.w to BROWSER.ne + (-.05,-.05)
+arrow from last box.w to PC.ne + (-.05,-.05)
+.PE

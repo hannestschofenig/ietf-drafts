@@ -356,6 +356,45 @@ Eric Rescorla \\
 \end{slide}
 
 
+\begin{slide}
+\heading{Web-based IdP Objectives: User Perspective}
+
+\begin{itemize}
+\item Single-sign on
+  \begin{itemize}
+  \item No need to make a new account for each service
+  \item Don't need to remember lots of passwords
+  \end{itemize}
+
+\item Privacy
+  \begin{itemize}
+  \item Avoid creating a super-cookie
+    \begin{itemize}
+    \item Only authenticate to sites I have approved
+    \item Control exposure of my personal information
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Web-based IdP Objectives: Site Perspective}
+
+\begin{itemize}
+\item Low friction
+  \begin{itemize}
+  \item Avoid the need for account creation
+  \item ... the source of a lot of user rolloff
+  \end{itemize}
+
+\item Leverage existing user information
+  \begin{itemize}
+  \item E.g., information you've stored in your FB account
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
 
 \begin{slide}
 \heading{Example: Facebook Connect (sorta OAuth)}
@@ -773,12 +812,64 @@ window.addEventListener('message',
 
 
 \begin{slide}
+\heading{How Clickjacking Works}
+
+\begin{itemize}
+\item Attacker embeds the victim site's page in an IFRAME
+  \begin{itemize}
+  \item IFRAME is in front but marked transparent
+  \item The attacker's page shows through
+  \end{itemize}
+
+\item Attacker gets the victim to click on ``his'' page
+  \begin{itemize}
+  \item Really the victim site's page
+  \end{itemize}
+
+\item Victim has just taken action on the victim site
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{IFRAMEs, Clickjacking, and Permissions Grants}
+
+\begin{center}
+\includegraphics[width=3.5in]{clickjacking}
+\end{center}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Preventing Framing}
+
+\begin{itemize}
+\item IdP policy is to have the login page be top-level
+  \begin{itemize}
+  \item Good RPs comply with this policy
+  \item But we're concerned about malicious RPs
+  \end{itemize}
+
+\item IdPs use ``framebusting'' JavaScript to prevent being framed
+  \begin{itemize}
+  \item This is harder than it sounds
+  \item ... but standard procedure
+  \end{itemize}
+
+
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
 \heading{IFRAMEs don't have to be visible}
 
 \begin{verbatim}
 	idp = document.createElement('IFRAME');
 	$(idp).hide();
-
 
 \end{verbatim}
 
@@ -791,6 +882,170 @@ window.addEventListener('message',
 \item Invisible IFRAMEs are a very important tool
 \end{itemize}
 \end{slide}
+
+
+
+\begin{slide}
+\heading{What are we trying to accomplish?}
+
+\vspace{-.3in}
+\begin{itemize}
+\item Repurpose existing identity infrastructure for user-to-user authentication
+\item []
+\item Requirements/objectives
+  \begin{itemize}
+  \item Use existing accounts
+  \item Minimal (preferably no) changes to IdP
+  \item Easy to support at calling site
+    \begin{itemize}
+    \item Better if no change
+    \end{itemize}
+
+  \item Generic support in browser
+    \begin{itemize}
+    \item Single downward interface between PeerConnection object and IdP
+    \item Should be able to support new IdPs/protocols without changing browser
+    \end{itemize}
+  \end{itemize}
+
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Reminder: Trust Architecture}
+
+\begin{center}
+\includegraphics[width=3.5in]{rtcweb-security-arch-no-idp}
+\end{center}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{IdP Trust Architecture: Authenticating Party}
+
+\begin{center}
+\includegraphics[width=3.5in]{rtcweb-security-arch-idp}
+\end{center}
+
+\end{slide}
+
+\begin{slide}
+\heading{IdP Trust Architecture: Relying Party}
+
+\begin{center}
+\includegraphics[width=3.5in]{rtcweb-security-arch-idp2}
+\end{center}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Example IdP Interaction: BrowserID}
+
+[TODO: Diagram from page 21 of IETF 82 talk]
+
+\end{slide}
+
+\begin{slide}
+\heading{Example ROAP Offer with BrowserID}
+
+\begin{tiny}
+\begin{verbatim}
+      {
+        "messageType":"OFFER",
+        "callerSessionId":"13456789ABCDEF",
+        "seq": 1
+        "sdp":"
+        ...
+      a=fingerprint: SHA-1 \
+      4A:AD:B9:B1:3F:82:18:3B:54:02:12:DF:3E:5D:49:6B:19:E5:7C:AB\n",
+       "identity":{
+            "idp":{     // Standardized
+               "domain":"browserid.org",
+               "method":"default"
+            },
+            "assertion":   // Contents are browserid-specific
+              "\"assertion\": {
+                \"digest\":\"<hash of the contents from the browser>\",
+                \"audience\": \"[TBD]\"
+                \"valid-until\": 1308859352261,
+               },
+               \"certificate\": {
+                 \"email\": \"rescorla@example.org\",
+                 \"public-key\": \"<ekrs-public-key>\",
+                 \"valid-until\": 1308860561861,
+               }" // certificate is signed by example.org
+            }
+      }
+\end{verbatim}
+\end{tiny}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Example JSEP TransportInfo with Facebook Connect\\(Or any private identity service)}
+
+\vspace{-.3in}
+\begin{tiny}
+\begin{verbatim}
+{
+       "pwd":"asd88fgpdd777uzjYhagZg",
+       "ufrag":"8hhy",
+       "fingerprint":{
+          "algorithm":"sha-1",
+          "value":"4AADB9B13F82183B540212DF3E5D496B19E57CAB",
+       },
+       "candidates:[
+         ...
+       ],
+       "identity":{
+         "idp":{
+            "domain": "example.org"
+            "protocol": "bogus"
+          },
+          "assertion":\"{\"identity\":\"bob@example.org\",
+                        \"contents\":\"abcdefghijklmnopqrstuvwyz\",
+                        \"signature\":\"010203040506\"}"
+       }
+}
+\end{verbatim}
+\end{tiny}                      
+
+\begin{itemize}
+\item[] * Assumption here is that we have changed JSEP to emit transport-infos
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{What needs to be defined}
+
+\begin{itemize}
+\item Information from the signaling message that is authenticated [IETF]
+  \begin{itemize}
+  \item Minimally: DTLS-SRTP fingerprint
+  \item Depends on signaling protocol
+  \end{itemize}
+
+\item Interface from PeerConnection to the IdP [IETF]
+  \begin{itemize}
+  \item A specific set of messages to exchange
+  \item Sent via \verb^postMessage()^ or WebIntents
+  \end{itemize}
+
+\item JavaScript calling interfaces to PeerConnection [W3C]
+  \begin{itemize}
+  \item Specify the IdP
+  \item Interrogate the connection identity information
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
 
 
 \end{document}
