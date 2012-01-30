@@ -1,0 +1,30 @@
+.PS
+
+BROWSER: box dashed width 2 height 2.5
+box invis "Browser" with .n at BROWSER.n + (0,.15)
+
+EO: box width 1.75 height 2.25 with .n at BROWSER.n + (0,-.2) 
+EOL: box invis width 1.75 height .25 "\fCexample.org\fR" with .n at EO.n + (0,-.1)
+
+IO: box width 1.5 height 1 with .n at EO.n + (0,-1) 
+box invis "\fCidp.org\fR" "(invisible)" with .n at IO.n
+
+box invis width 1.25 "Grant permissions to" "\fCexample.org\fR?" with .n at last box.s + (0,.1) fill .1
+box height .4 invis "Real frame hierarchy" with .n at BROWSER.s
+
+
+BROWSER2: box dashed width 2 height 2.5 with .w at BROWSER.e + (.5, 0)
+box invis "Browser" with .n at BROWSER2.n + (0,.15)
+
+EO2: box width 1.75 height 2.25 with .n at BROWSER2.n + (0,-.2) 
+EOL2: box invis width 1.75 height .25 "\fCexample.org\fR" with .n at EO2.n + (0,-.1)
+
+IO2: box invis width 1.5 height 1 with .n at EO2.n + (0,-1) 
+box invis with .n at IO2.n
+
+box width 1.25 invis "Click here for porn" with .n at last box.s + (0,.1) fill .1
+
+box height .4 invis "What the user sees" with .n at BROWSER2.s
+.PE
+
+.PE
