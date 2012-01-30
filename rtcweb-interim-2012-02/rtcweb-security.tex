@@ -448,6 +448,9 @@ Eric Rescorla \\
   \item Idea is to bootstrap Facebook authentication
   \item ... rather than have your own account system
   \item RP registers with Facebook and gets an application key
+    \begin{itemize}
+    \item Facebook wants to control authentication experience
+    \end{itemize}
   \end{itemize}
 \end{itemize}
 \end{slide}
@@ -549,8 +552,30 @@ $$
 \end{slide}
 
 
+
 \begin{slide}
-\heading{Example: BrowserID (no key pair)}
+\heading{Example: BrowserID}
+
+\begin{itemize}
+\item Effectively client-side certificates
+  \begin{itemize}
+  \item But user not exposed to certificates
+  \end{itemize}
+
+\item Why this example?
+  \begin{itemize}
+  \item Easy to understand 
+  \item Familiar-looking technology
+  \item Less need to wrap your head around redirects, etc.
+  \end{itemize}
+
+
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{BrowserID (no key pair)}
 
 \vspace{-.5in}
 $$
@@ -964,7 +989,7 @@ window.addEventListener('message',
 \begin{slide}
 \heading{Example IdP Interaction: BrowserID}
 
-[TODO: Diagram from page 21 of IETF 82 talk]
+\includegraphics[width=3.2in]{full-topology}
 
 \end{slide}
 
@@ -1131,9 +1156,28 @@ window.addEventListener('message',
 \begin{slide}
 \heading{Security Properties of Media Parameters}
 
-[TODO]
+\begin{itemize}
+\item Which media flows
+  \begin{itemize}
+  \item Calling service has control of this anyway
+  \item But the UI needs to show what is being used
+    \begin{itemize}
+    \item For consent reasons
+    \end{itemize}
+  \end{itemize}
+
+\item Which codecs
+  \begin{itemize}
+  \item Calling service can influence these
+  \item Might be nice to secure them
+  \item But too limiting
+  \item SRTP should provide security regardless of codec selection
+  \end{itemize}
+
+\end{itemize}
 
 \end{slide}
+
 
 
 
@@ -1144,7 +1188,7 @@ window.addEventListener('message',
 \begin{verbatim}
        "identity":{
             "idp":{     // Standardized
-               "domain":"browserid.org",   // Identity domain
+               "domain":"idp.example.org", // Identity domain
                "method":"default"          // Domain-specific method
             },
             "assertion": "..."             // IdP-specific
@@ -1431,8 +1475,8 @@ window.addEventListener('message',
 \item Things work fine with no browser-side IdP support
 \item But specialized support is nice too
   \begin{itemize}
-  \item BrowserID in Firefox
   \item ``Sign-in to browser'' in Chrome
+  \item BrowserID in Firefox
   \item Better UI/performance properties
   \end{itemize}
 
@@ -1446,6 +1490,11 @@ window.addEventListener('message',
 \end{slide}
 
 
+
+\begin{slide}
+\heading{Questions?}
+
+\end{slide}
 
 
 

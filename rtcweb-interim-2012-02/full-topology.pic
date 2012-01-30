@@ -1,0 +1,19 @@
+.PS
+SS: box "Signaling" "Server"
+
+ALICE: box "Alice's" "Browser" with .ne at SS.sw + (-1,-1)
+BOB: box "Bob's" "Browser" with .nw at SS.se + (1,-1)
+arrow <-> "HTTPS" "(ROAP?)" aligned from ALICE.n to SS.sw
+arrow <-> "HTTPS" "(ROAP?)" aligned from SS.se to BOB.n
+box invis height .25 "JS API" with .s at ALICE.n
+box invis height .25 "JS API" with .s at BOB.n
+arrow <-> "Media" "(DTLS-SRTP)" from ALICE.e to BOB.w
+IDPALICE: box dashed "Identity" "Provider" with .n at ALICE.s + (0,-.75)
+IDPBOB: box dashed "Identity" "Provider" with .n at BOB.s + (0,-.75)
+arrow <-> dashed "Get Assertion" from ALICE.s to IDPALICE.n
+arrow <-> dashed "Get Assertion" from BOB.s to IDPBOB.n
+arrow <-> dashed aligned "                               Verify Assertion" "" from IDPALICE.ne to BOB.sw
+arrow <-> dashed aligned "Verify Assertion                               " "" from ALICE.se to IDPBOB.nw
+
+.PE
+		
