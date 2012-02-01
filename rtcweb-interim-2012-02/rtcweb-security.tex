@@ -4,6 +4,7 @@
 \usepackage{graphicx} 
 \usepackage{slidesec} 
 \usepackage{url}
+\usepackage[normalem]{ulem}
 \usepackage[usenames]{color}
 
 \long\def\symbolfootnote[#1]#2{\begingroup%
@@ -193,6 +194,34 @@ Safari & Accept \\
 \end{itemize}
 \end{slide}
 
+
+
+\begin{slide}
+\heading{Interaction with Server-based features}
+
+\vspace{-.4in}
+\begin{itemize}
+\item End-to-end security requires denying the server direct media access
+  \begin{itemize}
+  \item Via MediaStream APIs [See Randell \sout{JSEP}Jesup's slides]
+  \item This precludes many fancy video applications
+  \end{itemize}
+
+\item Need for two security models
+  \begin{itemize}
+  \item[] \emph{Browser-to-browser secure.} Limited effects but JS can't access media at all
+  \item[] \emph{Javascript-visible.} Powerful effects but need to trust JS
+  \item This should be under control of the JavaScript but with a UI indicator
+  \end{itemize}
+
+\item End-to-end crypto still adds value in server-visible model
+  \begin{itemize}
+  \item Protection against programmer error (excess logging, XSS, etc.)
+  \item Malicious activity more readily detectable
+  \end{itemize}
+
+\end{itemize}
+\end{slide}
 
 \begin{slide}
 \heading{Interop Deployment Questions}
