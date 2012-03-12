@@ -12,10 +12,10 @@
 <!ENTITY RFC3760 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3760.xml">
 <!ENTITY RFC6189 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6189.xml">
 <!ENTITY RFC5245 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5245.xml">
+<!ENTITY RFC6454 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6454.xml">
 <!ENTITY RFC4627 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4627.xml">
 
-
-<!ENTITY I-D.abarth-origin SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.abarth-origin">
+<!ENTITY I-D.ietf-rtcweb-security-arch SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-rtcweb-security-arch">
 <!ENTITY I-D.ietf-hybi-thewebsocketprotocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-hybi-thewebsocketprotocol">
 <!ENTITY I-D.kaufman-rtcweb-security-ui SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.kaufman-rtcweb-security-ui">
 <!ENTITY I-D.ietf-rtcweb-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-rtcweb-security">
@@ -31,7 +31,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-rescorla-rtcweb-generic-idp"
+<rfc category="std" docName="draft-rescorla-rtcweb-generic-idp-01"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTCWEB IdP">RTCWEB Generic Identity Provider Interface</title>
@@ -58,7 +58,7 @@
       </address>
     </author>
 
-    <date day="22" month="January" year="2012" />
+    <date day="12" month="March" year="2012" />
 
     <area>RAI</area>
 
@@ -286,7 +286,7 @@
 	browser manufacturer. This is a significant advantage
 	of authoritative IdPs and implies that if third-party
 	IdPs are to be supported, the potential number needs
-	to be fairly small.
+	to be fairly small. 
       </t>
     </section>
       
@@ -401,7 +401,7 @@
 	<t>
 	  Any message-specific data is carried in a "message"
 	  field. Depending on the message type, this may
-	  either be a string or a deeper JSON object.
+	  either be a string or a richer JSON object.
 	</t>
 	<section title="Errors">
 	  <t>
@@ -741,8 +741,6 @@
 	      object MUST verify that the origin matches
 	      the IdP's origin and that the source matches
 	      the window/IFRAME opened for the IdP proxy.
-	      [[ OPEN ISSUE: do we need to check the origin? What if
-	      the IdP wants to redirect a bit? ]]
 	    </t>
 	  </list>
 	</t>
@@ -958,7 +956,7 @@
  	]]></artwork>
       </figure>
       <t>
-	[TODO: Need to talk about Audience a bit.]
+	<!-- [TODO: Need to talk about Audience a bit.] -->
 	Note that while the IdP here is specified as "browserid.org",
 	the actual certificate is signed by example.org. This is because
 	BrowserID is a combined authoritative/third-party system in
@@ -1079,7 +1077,23 @@
 	  Facebook wall) from being able to impersonate the IdP.
 	</t>
       </section>
+
+      <section title="Security of Third-Party IdPs" anchor="sec.sec-third-party">
+	<t>
+	  As discussed above, each third-party IdP represents a new universal trust
+	  point and therefore the number of these IdPs needs to be 
+	  quite limited. Most IdPs, even those which issue unqualified
+	  identities such as Facebook, can be recast as authoritative
+	  IdPs (e.g., 123456@facebook.com). However, in such cases,
+	  the user interface implications are not entirely desirable.
+	  One intermediate approach is to have special (potentially user
+	  configurable) UI for large authoritative IdPs, thus allowing
+	  the user to instantly grasp that the call is being authenticated
+	  by Facebook, Google, etc.
+	</t>
+      </section>
     </section>
+
     <section title="Web Security Feature Interactions">
 	<t>
 	  A number of optional Web security features have the potential
@@ -1129,27 +1143,12 @@
       &RFC2119;      
       &RFC2818;      
       &I-D.ietf-rtcweb-security;
-
-      <reference anchor='I-D.ietf-rtcweb-security-arch'>
-	<front>
-	  <title>RTCWeb Security Architecture</title>
-
-	  <author initials='E' surname='Rescorla' fullname='Eric Rescorla'>
-	    <organization />
-	  </author>
-
-	  <date month='January' day='23' year='2012' />
-	</front>
-
-	<seriesInfo name='Internet-Draft' value='draft-ietf-rtcweb-security-arch' />
-	<format type='TXT'
-		target='http://www.ietf.org/internet-drafts/draft-ietf-rtcweb-security-arch-00.txt' />
-      </reference>
-
+      &I-D.ietf-rtcweb-security-arch;
+      
       &RFC4627;
     </references>
     <references title="Informative References">
-      &I-D.abarth-origin;
+      &RFC6454;
     </references>
   </back>
 </rfc>
