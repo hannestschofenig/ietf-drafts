@@ -8,14 +8,19 @@
 <!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 <!ENTITY RFC4568 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4568.xml">
 <!ENTITY RFC5763 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5763.xml">
+<!ENTITY RFC5764 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5764.xml">
 <!ENTITY RFC4251 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4251.xml">
 <!ENTITY RFC3760 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3760.xml">
+<!ENTITY RFC5705 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5705.xml">
 <!ENTITY RFC6189 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6189.xml">
 <!ENTITY RFC5245 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5245.xml">
-<!ENTITY I-D.ietf-rtcweb-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-rtcweb-security">
+<!ENTITY RFC6454 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6454.xml">
+<!ENTITY RFC6455 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6455.xml">
 
-<!ENTITY I-D.abarth-origin SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.abarth-origin">
-<!ENTITY I-D.ietf-hybi-thewebsocketprotocol SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-hybi-thewebsocketprotocol">
+<!ENTITY I-D.ietf-rtcweb-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-rtcweb-security">
+<!ENTITY I-D.ietf-rtcweb-jsep SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-rtcweb-jsep">
+<!ENTITY I-D.muthu-behave-consent-freshness SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.muthu-behave-consent-freshness">
+
 <!ENTITY I-D.kaufman-rtcweb-security-ui SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.kaufman-rtcweb-security-ui">
 <!ENTITY I-D.jennings-rtcweb-signaling SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.jennings-rtcweb-signaling">
 ]>
@@ -30,7 +35,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-arch-00"
+<rfc category="std" docName="draft-ietf-rtcweb-security-arch-01"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTCWEB Sec. Arch.">RTCWEB Security Architecture</title>
@@ -57,7 +62,7 @@
       </address>
     </author>
 
-    <date day="22" month="January" year="2012" />
+    <date day="12" month="March" year="2012" />
 
     <area>RAI</area>
 
@@ -331,7 +336,7 @@
 	  be a complete message as defined by ROAP 
 	  <xref target="I-D.jennings-rtcweb-signaling"/>
 	  or separate media description and transport messages 
-	  as defined in JSEP [REF] or may be
+	  as defined in <xref target="I-D.ietf-rtcweb-jsep"/> or may be
 	  assembled piecemeal by the JS. In either case, it will contain:
 	</t>
 	<t>
@@ -343,8 +348,8 @@
 	  </list>
 	</t>
 	<t>
-	  [Note that the above implies that this information should appear in
-	  JSEP's transport-level messages.]
+	  [Note that it is currently unclear where JSEP will eventually put
+	  this information, in the SDP or in the transport info.]
 	  Prior to sending out the signaling message, the PeerConnection code
 	  contacts the identity service and obtains an assertion binding
 	  Alice's identity to her fingerprint. The exact details depend on
@@ -357,7 +362,7 @@
 	</t>
 	<t>
 	  This message is sent to the signaling server, e.g., by XMLHttpRequest
-	  <xref target="XmlHttpRequest"/> or by WebSockets <xref target="I-D.ietf-hybi-thewebsocketprotocol"/>.
+	  <xref target="XmlHttpRequest"/> or by WebSockets <xref target="RFC6455"/>
 	  The signaling server processes the message from Alice's browser,
 	  determines that this is a call to Bob and sends a signaling
 	  message to Bob's browser (again, the format is currently undefined).
@@ -435,7 +440,8 @@
 	  in the most likely case we are using both RTP/RTCP mux and
 	  muxing multiple media streams on the same channel, in which
 	  case there is only one DTLS handshake. Once the DTLS handshake
-	  has completed, the keys are extracted and used to key SRTP
+	  has completed, the keys are exported
+	  <xref target="RFC5705"/> and used to key SRTP
 	  for the media channels.
 	</t>
 	<t>
@@ -468,8 +474,7 @@
 	  specifies periodic STUN keepalizes but only if media is not flowing.
 	  Because the consent issue is more difficult here, we 
 	  require RTCWeb implementations to periodically send keepalives.
-	  If a keepalive
-	  fails and no new ICE channels can be established, then 
+	  If a keepalive fails and no new ICE channels can be established, then 
 	  the session is terminated.
 	</t>
       </section>
@@ -478,25 +483,34 @@
       <section title="Origin and Web Security Issues" anchor="sec.proposal.origin">
 	<t>
 	  The basic unit of permissions for RTCWEB is the origin
-	  <xref target="I-D.abarth-origin"/>. Because the security of the origin
+	  <xref target="RFC6454"/>. Because the security of the origin
 	  depends on being able to authenticate content from that origin,
 	  the origin can only be securely established if data is transferred
 	  over HTTPS <xref target="RFC2818"/>. Thus, clients MUST treat HTTP and HTTPS origins as
-	  different permissions domains and SHOULD NOT permit access to any
-	  RTCWEB functionality from scripts fetched over non-secure (HTTP)
-	  origins. If an HTTPS origin contains mixed active content
-	  (regardless of whether it is present on the specific page 
-	  attempting to access RTCWEB functionality), any access MUST be 
-	  treated as if it came from the HTTP origin. 
-	  For instance, if a https://www.example.com/example.html
-	  loads https://www.example.com/example.js and 
-	  http://www.example.org/jquery.js, any attempt by example.js
-	  to access RTCWeb functionality MUST be treated as if it came
-	  from http://www.example.com/. Note that many browsers
-	  already track mixed content and either forbid it by default or display
-	  a warning.
-	  [[ OPEN ISSUE: This seems to be wrong, but I'm not sure what's
-	  right yet. ]]
+	  different permissions domains. [Note: this follows directly
+	  from the origin security model and is stated here merely
+	  for clarity.]
+	</t>
+	<t>
+	  Many web browsers currently forbid by default any active mixed content
+	  on HTTPS pages. I.e., when JS is loaded from an HTTP origin onto
+	  an HTTPS page, an error is displayed and the content is not
+	  executed unless the user overrides the error. Any browser
+	  which enforces such a policy will also not permit access
+	  to RTCWEB functionality from mixed content pages. It is 
+	  RECOMMENDED that browsers which allow active mixed content
+	  nevertheless disable RTCWEB functionality in mixed content
+	  settings.
+	  [[ OPEN ISSUE: Should this be a 2119 MUST? It's not clear
+	  what set of conditions would make this OK, other than 
+	  that browser manufacturers have traditionally been permissive here
+	  here.]]
+	  Note that it is possible for a page which was not mixed content
+	  to become mixed content during the duration of the call. 
+	  Implementations MAY choose to terminate the call or display
+	  a warning at that point, but it is also permissible to
+	  ignore this condition. This is a deliberate implementation
+	  complexity versus security tradeoff.
 	</t>
       </section>
 
@@ -623,11 +637,9 @@
 	  find a new valid path via ICE or terminate media for that
 	  ICE component. Note that ICE <xref target="RFC5245"/>; Section 10
 	  keepalives use STUN Binding Indications which are one-way and
-	  therefore not sufficient. We will need to define a new mechanism
-	  for this. 
-	  [PROPOSED SOLUTION: Replace STUN Binding Indications with STUN
-	  Binding Requests and require that a failed transaction
-	  causes the results above.]
+	  therefore not sufficient. Instead, the consent freshness
+	  mechanism <xref target="I-D.muthu-behave-consent-freshness"/> MUST
+	  be used.
 	</t>
       </section>
       <section title="IP Location Privacy" anchor="sec.proposal.ip.location.privacy">
@@ -669,7 +681,8 @@
 
       <section title="Communications Security" anchor="sec.proposal.comsec">
 	<t>
-	  Implementations MUST implement DTLS and DTLS-SRTP. All data
+	  Implementations MUST implement DTLS <xref target="RFC4347"/> 
+	  and DTLS-SRTP <xref target="RFC5763"/><xref target="RFC5764"/>. All data
 	  channels MUST be secured via DTLS. DTLS-SRTP MUST be offered
 	  for every media channel and MUST be the default; i.e., if 
 	  an implementation receives an offer for DTLS-SRTP and SDES and/or
@@ -894,7 +907,9 @@
 	IP address, they can violate the users privacy at will.
 	Users who wish privacy against the calling sites they
 	are using must use separate privacy enhancing technologies
-	such as Tor.
+	such as Tor. Combined RTCWEB/Tor implementations SHOULD
+	arrange to route the media as well as the signaling through
+	Tor. [Currently this will produce very suboptimal performance.]
       </t>
     </section>
 
@@ -939,6 +954,10 @@
 	used in this case.
       </t>
       <t>
+	[TODO: Write up Magnus's ICE forking attack when we get some
+	clarity on it.]
+      </t>
+      <t>
 	Note that attacks based on confusing one end or the other about
 	consent are possible primarily even in the face of the
 	third-party identity mechanism as long as major parts of 
@@ -963,18 +982,22 @@
     <references title="Normative References">
       &RFC2119;
       &RFC2818;
-      &I-D.abarth-origin;
+      &RFC6454;
+      &RFC5245;
+      &RFC4347;
+      &RFC5763;
+      &RFC5764;
+
       &I-D.ietf-rtcweb-security;
+      &I-D.muthu-behave-consent-freshness;
     </references>
     <references title="Informative References">
       &RFC3261;
-      &RFC5763;
-      &RFC4347;
-      &RFC5245;
-      &I-D.ietf-hybi-thewebsocketprotocol;
+      &RFC5705;
+      &RFC6455;
       &I-D.kaufman-rtcweb-security-ui;
       &I-D.jennings-rtcweb-signaling;
-
+      &I-D.ietf-rtcweb-jsep;
 
       <reference anchor='I-D.rescorla-rtcweb-generic-idp'>
 	<front>
