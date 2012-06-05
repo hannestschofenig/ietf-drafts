@@ -70,8 +70,10 @@
 
     <abstract>
       <t>
-	The Real-Time Communications on the Web (RTCWEB) working group is tasked with
-	standardizing protocols for real-time communications between Web browsers. The
+	The Real-Time Communications on the Web (RTCWEB) working group
+        is tasked with standardizing protocols for enabling real-time
+        communications within user-agents using web technologies (e.g
+        JavaScript). The
 	major use cases for RTCWEB technology are real-time audio and/or video calls,
 	Web conferencing, and direct data transfer. Unlike most conventional real-time systems
 	(e.g., SIP-based soft phones) RTCWEB communications are directly controlled
@@ -511,6 +513,7 @@
 	  a warning at that point, but it is also permissible to
 	  ignore this condition. This is a deliberate implementation
 	  complexity versus security tradeoff.
+          [[ OPEN ISSUE:: Should we be more aggressive about this?]]
 	</t>
       </section>
 
@@ -624,7 +627,9 @@
 	  Browser implementations MUST verify reachability via ICE 
 	  prior to sending any non-ICE packets to a given destination.
 	  Implementations MUST NOT provide the ICE transaction ID
-	  to JavaScript. [Note: this document takes no position on
+	  to JavaScript during the lifetime of the transaction
+          (i.e., during the period when the ICE stack would accept
+          a new response for that transaction). [Note: this document takes no position on
 	  the split between ICE in JS and ICE in the browser. The
 	  above text is written the way it is for editorial convenience and will
 	  be modified appropriately if the WG decides on ICE in the JS.]
@@ -956,6 +961,8 @@
       <t>
 	[TODO: Write up Magnus's ICE forking attack when we get some
 	clarity on it.]
+        [TODO: Should we have a mechanism for verifying total expected
+        bandwidth]
       </t>
       <t>
 	Note that attacks based on confusing one end or the other about
@@ -971,7 +978,8 @@
   <section title="Acknowledgements">
     <t>
       Bernard Aboba, Harald Alvestrand,
-      Cullen Jennings, Hadriel Kaplan, Matthew Kaufman, Magnus Westerland.
+      Cullen Jennings, Hadriel Kaplan, Matthew Kaufman,
+      Martin Thomson, Magnus Westerland.
     </t>
   </section>
   </middle>
@@ -1064,3 +1072,8 @@ On Thu, Sep 22, 2011 at 5:45 AM, Magnus Westerlund <magnus.westerlund@ericsson.c
 </rfc>
 
 
+<!-- TODO: X.509-level DTLS authentication -->
+<!-- TODO: Fingerprint for E2E -->
+<!-- Continuing consent per Magnus -->
+
+<!-- TODO: Require key destruction -->
