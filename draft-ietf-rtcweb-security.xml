@@ -127,7 +127,7 @@
       <t>
 	In the system shown in <xref target="fig.simple"/>, Alice and Bob both have
 	RTC-Web enabled browsers and they visit some Web server which operates a
-	calling service. Each of their browsers exposes standardized JavaScript calling APIs
+	calling service. Each of their browsers exposes standardized JavaScript calling APIs (implementated as browser built-ins)
 	which are used by the Web server to set up a call between Alice and Bob.
 	While this system is topologically similar to a conventional SIP-based
 	system (with the Web server acting as the signaling service and browsers
@@ -303,11 +303,11 @@
 	  he must understand either who is requesting access, where the media
 	  is going, or both. As detailed below, there are two basic conceptual
 	  models:
-	</t>
+        </t>
 	<t>
 	  <list>
 	    <t>You are sending your media to entity A because you want to
-	    talk to Entity A (e.g., your mother).</t>.
+            talk to Entity A (e.g., your mother).</t>
 	    <t>Entity A (e.g., a calling service) asks to access the user's devices with the assurance
 	    that it will transfer the media to entity B (e.g., your mother)</t>
 	  </list>
@@ -319,7 +319,9 @@
 	  if you authorize A to place a call to B, A can call C instead.
 	  In either case, all the browser is able to do is verify and check
 	  authorization for whoever is controlling where the media goes.
-	  Even so, there are a variety of different consent scenarios
+          The target of the media can of course advertise a security/privacy
+          policy, but this is not something that the browser can
+          enforce. Even so, there are a variety of different consent scenarios
 	  that motivate different technical consent mechanisms.
 	  We discuss these mechanisms in the sections below.
 	</t>
@@ -432,7 +434,7 @@
 	      since a bad experience with an advertiser reflect negatively
 	      on the hosting site [this idea was suggested by Adam Barth].
 	      However, this obviously presents a privacy challenge,
-	      as sites which host advertisements often learn very little
+	      as sites which host advertisements in IFRAMEs often learn very little
 	      about whether individual users clicked through to the
 	      ads, or even which ads were presented.
 	    </t>
@@ -594,6 +596,10 @@
 	    indications, they will not work here, so some other mechanism is
 	    needed.
 	  </t>
+          <t>
+            [[ OPEN ISSUE: Do we need some way of verifying the expected traffic
+            rate, not just consent to receive traffic at all.]]
+          </t>
 	</section>
 	<section title="Masking" anchor="sec.masking">
 	  <t>
@@ -680,7 +686,7 @@
 	<section title="IP Location Privacy" anchor="sec.ip.location">
 	  <t>
 	    Note that as soon as the callee sends their ICE candidates, the
-	    callee learns the callee's IP addresses. The callee's server reflexive
+	    caller learns the callee's IP addresses. The callee's server reflexive
 	    address reveals a lot of information about the callee's location.
 	    In order to avoid tracking, implementations may wish to suppress 
 	    the start of ICE negotiation until the callee has answered. In
@@ -895,7 +901,11 @@
 	      It is possible (see <xref target="I-D.rescorla-rtcweb-generic-idp"/>)
 	      to use systems of this type to authenticate RTCWEB calls,
 	      linking them to existing user notions of identity 
-	      (e.g., Facebook adjacencies). Calls which are authenticated
+	      (e.g., Facebook adjacencies). Specifically, the third-party
+              identity system is used to bind the user's identity to
+              cryptographic keying material which is then used to 
+              authenticate the calling endpoints.
+              Calls which are authenticated
 	      in this fashion are naturally resistant even to active MITM attack
 	      by the calling site.
 	    </t>
@@ -936,7 +946,8 @@
         <section title="Acknowledgements">
 	  <t>
 	    Bernard Aboba, Harald Alvestrand,
-	    Cullen Jennings, Hadriel Kaplan (S 4.2.1), Matthew Kaufman, Magnus Westerland.
+	    Cullen Jennings, Hadriel Kaplan (S 4.2.1), Matthew Kaufman,
+            Martin Thomson, Magnus Westerland.
 	  </t>
       <t></t>
     </section>
