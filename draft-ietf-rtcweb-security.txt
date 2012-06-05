@@ -3,12 +3,12 @@
 
 RTC-Web                                                      E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                         March 12, 2012
-Expires:  September 13, 2012
+Intended status:  Standards Track                       January 04, 2012
+Expires:  July 7, 2012
 
 
                   Security Considerations for RTC-Web
-                     draft-ietf-rtcweb-security-02
+                     draft-ietf-rtcweb-security-03
 
 Abstract
 
@@ -52,15 +52,15 @@ Status of this Memo
 
 
 
-Rescorla               Expires September 13, 2012               [Page 1]
+Rescorla                  Expires July 7, 2012                  [Page 1]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 13, 2012.
+   This Internet-Draft will expire on July 7, 2012.
 
 Copyright Notice
 
@@ -108,9 +108,9 @@ Copyright Notice
 
 
 
-Rescorla               Expires September 13, 2012               [Page 2]
+Rescorla                  Expires July 7, 2012                  [Page 2]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
 Table of Contents
@@ -164,9 +164,9 @@ Table of Contents
 
 
 
-Rescorla               Expires September 13, 2012               [Page 3]
+Rescorla                  Expires July 7, 2012                  [Page 3]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
 1.  Introduction
@@ -220,9 +220,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012               [Page 4]
+Rescorla                  Expires July 7, 2012                  [Page 4]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    used to bug a user's computer without their knowledge, simply by
@@ -276,9 +276,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012               [Page 5]
+Rescorla                  Expires July 7, 2012                  [Page 5]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    Conventionally, we refer to either WEB ATTACKERS, who are able to
@@ -332,9 +332,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012               [Page 6]
+Rescorla                  Expires July 7, 2012                  [Page 6]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    (by each site) and are limited to certain channels.  For instance,
@@ -388,9 +388,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012               [Page 7]
+Rescorla                  Expires July 7, 2012                  [Page 7]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
 4.1.  Access to Local Devices
@@ -444,9 +444,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012               [Page 8]
+Rescorla                  Expires July 7, 2012                  [Page 8]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    However, communications security mechanisms can be used to give some
@@ -500,9 +500,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012               [Page 9]
+Rescorla                  Expires July 7, 2012                  [Page 9]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    clicked through to the ads, or even which ads were presented.
@@ -556,9 +556,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 10]
+Rescorla                  Expires July 7, 2012                 [Page 10]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    cases, this approach may be useful for some.  If we consider the
@@ -612,9 +612,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 11]
+Rescorla                  Expires July 7, 2012                 [Page 11]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    an untrusted site, because that JavaScript is executed in the
@@ -668,9 +668,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 12]
+Rescorla                  Expires July 7, 2012                 [Page 12]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
 4.2.2.  Masking
@@ -724,9 +724,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 13]
+Rescorla                  Expires July 7, 2012                 [Page 13]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    consents to this particular call.  This may be an issue if existing
@@ -780,9 +780,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 14]
+Rescorla                  Expires July 7, 2012                 [Page 14]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    SIP proxy, the calling service (i.e., the Web server) controls not
@@ -836,9 +836,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 15]
+Rescorla                  Expires July 7, 2012                 [Page 15]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    standard practice in Web services to run extensive logging and
@@ -892,9 +892,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 16]
+Rescorla                  Expires July 7, 2012                 [Page 16]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    mismatches which are in fact completely legitimate, with the result
@@ -948,9 +948,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 17]
+Rescorla                  Expires July 7, 2012                 [Page 17]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    such as fingerprints, users simply do not check them [whitten-johnny]
@@ -1004,9 +1004,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 18]
+Rescorla                  Expires July 7, 2012                 [Page 18]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
 7.1.  Normative References
@@ -1020,8 +1020,8 @@ Internet-Draft              RTC-Web Security                  March 2012
 
    [I-D.ietf-rtcweb-security-arch]
               Rescorla, E., "RTCWEB Security Architecture",
-              draft-ietf-rtcweb-security-arch-00 (work in progress),
-              January 2012.
+              draft-ietf-rtcweb-security-arch-01 (work in progress),
+              March 2012.
 
    [I-D.kaufman-rtcweb-security-ui]
               Kaufman, M., "Client Security User Interface Requirements
@@ -1030,8 +1030,8 @@ Internet-Draft              RTC-Web Security                  March 2012
 
    [I-D.rescorla-rtcweb-generic-idp]
               Rescorla, E., "RTCWEB Generic Identity Provider
-              Interface", draft-rescorla-rtcweb-generic-idp-00 (work in
-              progress), January 2012.
+              Interface", draft-rescorla-rtcweb-generic-idp-01 (work in
+              progress), March 2012.
 
    [RFC2818]  Rescorla, E., "HTTP Over TLS", RFC 2818, May 2000.
 
@@ -1060,9 +1060,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 19]
+Rescorla                  Expires July 7, 2012                 [Page 19]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
    [RFC5245]  Rosenberg, J., "Interactive Connectivity Establishment
@@ -1116,9 +1116,9 @@ Internet-Draft              RTC-Web Security                  March 2012
 
 
 
-Rescorla               Expires September 13, 2012              [Page 20]
+Rescorla                  Expires July 7, 2012                 [Page 20]
 
-Internet-Draft              RTC-Web Security                  March 2012
+Internet-Draft              RTC-Web Security                January 2012
 
 
               Kain, A. and M. Macon, "Design and Evaluation of a Voice
@@ -1172,5 +1172,5 @@ Author's Address
 
 
 
-Rescorla               Expires September 13, 2012              [Page 21]
+Rescorla                  Expires July 7, 2012                 [Page 21]
 

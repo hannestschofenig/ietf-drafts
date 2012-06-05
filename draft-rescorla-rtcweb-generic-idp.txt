@@ -3,12 +3,12 @@
 
 RTCWEB                                                       E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                       January 22, 2012
-Expires:  July 25, 2012
+Intended status:  Standards Track                         March 12, 2012
+Expires:  September 13, 2012
 
 
                RTCWEB Generic Identity Provider Interface
-                   draft-rescorla-rtcweb-generic-idp
+                  draft-rescorla-rtcweb-generic-idp-01
 
 Abstract
 
@@ -45,16 +45,16 @@ Status of this Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on July 25, 2012.
+   This Internet-Draft will expire on September 13, 2012.
 
 Copyright Notice
 
 
 
 
-Rescorla                  Expires July 25, 2012                 [Page 1]
+Rescorla               Expires September 13, 2012               [Page 1]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    Copyright (c) 2012 IETF Trust and the persons identified as the
@@ -108,9 +108,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                 [Page 2]
+Rescorla               Expires September 13, 2012               [Page 2]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
 Table of Contents
@@ -139,11 +139,12 @@ Table of Contents
      5.6.  Security Considerations  . . . . . . . . . . . . . . . . . 20
        5.6.1.  PeerConnection Origin Check  . . . . . . . . . . . . . 20
        5.6.2.  IdP Well-known URI . . . . . . . . . . . . . . . . . . 20
+       5.6.3.  Security of Third-Party IdPs . . . . . . . . . . . . . 21
      5.7.  Web Security Feature Interactions  . . . . . . . . . . . . 21
        5.7.1.  Popup Blocking . . . . . . . . . . . . . . . . . . . . 21
        5.7.2.  Third Party Cookies  . . . . . . . . . . . . . . . . . 21
-   6.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 21
-     6.1.  Normative References . . . . . . . . . . . . . . . . . . . 21
+   6.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 22
+     6.1.  Normative References . . . . . . . . . . . . . . . . . . . 22
      6.2.  Informative References . . . . . . . . . . . . . . . . . . 22
    Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 22
 
@@ -163,10 +164,9 @@ Table of Contents
 
 
 
-
-Rescorla                  Expires July 25, 2012                 [Page 3]
+Rescorla               Expires September 13, 2012               [Page 3]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
 1.  Introduction
@@ -220,9 +220,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                 [Page 4]
+Rescorla               Expires September 13, 2012               [Page 4]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
                                +----------------+
@@ -276,9 +276,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                 [Page 5]
+Rescorla               Expires September 13, 2012               [Page 5]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    Bob's browser verifies the assertion, possibly with the cooperation
@@ -332,9 +332,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                 [Page 6]
+Rescorla               Expires September 13, 2012               [Page 6]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    browser must somehow know which IdP(s) the user has an account
@@ -388,9 +388,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                 [Page 7]
+Rescorla               Expires September 13, 2012               [Page 7]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    on IFRAMEs and postMessage(), however, most likely this will
@@ -444,9 +444,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                 [Page 8]
+Rescorla               Expires September 13, 2012               [Page 8]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    generic protocol for requesting and verifying assertions.  The IdP
@@ -480,7 +480,7 @@ Internet-Draft                 RTCWEB IdP                   January 2012
    which allows the PeerConnection to correlate requests and responses.
 
    Any message-specific data is carried in a "message" field.  Depending
-   on the message type, this may either be a string or a deeper JSON
+   on the message type, this may either be a string or a richer JSON
    object.
 
 5.1.1.  Errors
@@ -500,9 +500,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                 [Page 9]
+Rescorla               Expires September 13, 2012               [Page 9]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
 5.2.  IdP Proxy Setup
@@ -556,9 +556,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 10]
+Rescorla               Expires September 13, 2012              [Page 10]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    the IdP proxy) from the well-known URI specified in "/.well-known/
@@ -612,9 +612,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 11]
+Rescorla               Expires September 13, 2012              [Page 11]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    the message has presumably been digitally signed/MACed in some way
@@ -668,9 +668,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 12]
+Rescorla               Expires September 13, 2012              [Page 12]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    identity  The identity of the AP from the IdP's perspective.  Details
@@ -724,9 +724,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 13]
+Rescorla               Expires September 13, 2012              [Page 13]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
        third-party IdP and (b) local policy is configured to trust this
@@ -762,9 +762,7 @@ Internet-Draft                 RTCWEB IdP                   January 2012
       RP.  Comments? ]]
    o  For messages from the IdP proxy, the PeerConnection object MUST
       verify that the origin matches the IdP's origin and that the
-      source matches the window/IFRAME opened for the IdP proxy. [[ OPEN
-      ISSUE:  do we need to check the origin?  What if the IdP wants to
-      redirect a bit? ]]
+      source matches the window/IFRAME opened for the IdP proxy.
 
    If any of these checks fail, the message MUST be rejected.  In
    general, mismatches SHOULD NOT cause transaction failure, since
@@ -777,16 +775,16 @@ Internet-Draft                 RTCWEB IdP                   January 2012
    As discussed in Section 3, the AP's IdP can either be configured
    directly into the browser or selected from a list known to the
    calling site.  We anticipate that some browsers will allow
-
-
-
-Rescorla                  Expires July 25, 2012                [Page 14]
-
-Internet-Draft                 RTCWEB IdP                   January 2012
-
-
    configuration of IdPs in the browser UI but allow the calling
    application to provide new candidate IdPs or to direct the selection
+
+
+
+Rescorla               Expires September 13, 2012              [Page 14]
+
+Internet-Draft                 RTCWEB IdP                     March 2012
+
+
    of a known one.  Thus, one model would be:
 
    o  If a IdP is provided by the calling application use that.
@@ -836,9 +834,11 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 15]
+
+
+Rescorla               Expires September 13, 2012              [Page 15]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
 5.5.  Example Bindings to Specific Protocols
@@ -892,9 +892,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 16]
+Rescorla               Expires September 13, 2012              [Page 16]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    +----------------------+                     +----------------------+
@@ -948,9 +948,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 17]
+Rescorla               Expires September 13, 2012              [Page 17]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    6.  The PeerConnection returns the signed information to the calling
@@ -995,18 +995,18 @@ Internet-Draft                 RTCWEB IdP                   January 2012
             }
       }
 
-   [TODO:  Need to talk about Audience a bit.]  Note that while the IdP
-   here is specified as "browserid.org", the actual certificate is
-   signed by example.org.  This is because BrowserID is a combined
-   authoritative/third-party system in which browserid.org delegates the
-   right to be authoritative (what BrowserID calls primary) to
-   individual domains.
+   Note that while the IdP here is specified as "browserid.org", the
+   actual certificate is signed by example.org.  This is because
+   BrowserID is a combined authoritative/third-party system in which
+   browserid.org delegates the right to be authoritative (what BrowserID
+   calls primary) to individual domains.
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 18]
+
+Rescorla               Expires September 13, 2012              [Page 18]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    On Bob's side, he receives the signed assertion as part of the call
@@ -1060,9 +1060,9 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 19]
+Rescorla               Expires September 13, 2012              [Page 19]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
            Alice                       IdP                       Bob
@@ -1116,14 +1116,26 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 
 
-Rescorla                  Expires July 25, 2012                [Page 20]
+Rescorla               Expires September 13, 2012              [Page 20]
 
-Internet-Draft                 RTCWEB IdP                   January 2012
+Internet-Draft                 RTCWEB IdP                     March 2012
 
 
    requirement prevents an attacker who can write some resources at the
    IdP (e.g., on one's Facebook wall) from being able to impersonate the
    IdP.
+
+5.6.3.  Security of Third-Party IdPs
+
+   As discussed above, each third-party IdP represents a new universal
+   trust point and therefore the number of these IdPs needs to be quite
+   limited.  Most IdPs, even those which issue unqualified identities
+   such as Facebook, can be recast as authoritative IdPs (e.g.,
+   123456@facebook.com).  However, in such cases, the user interface
+   implications are not entirely desirable.  One intermediate approach
+   is to have special (potentially user configurable) UI for large
+   authoritative IdPs, thus allowing the user to instantly grasp that
+   the call is being authenticated by Facebook, Google, etc.
 
 5.7.  Web Security Feature Interactions
 
@@ -1157,6 +1169,14 @@ Internet-Draft                 RTCWEB IdP                   January 2012
    third-party cookie blocking for the IdP proxy.
 
 
+
+
+
+Rescorla               Expires September 13, 2012              [Page 21]
+
+Internet-Draft                 RTCWEB IdP                     March 2012
+
+
 6.  References
 
 6.1.  Normative References
@@ -1167,16 +1187,8 @@ Internet-Draft                 RTCWEB IdP                   January 2012
               October 2011.
 
    [I-D.ietf-rtcweb-security-arch]
-              Rescorla, E., "RTCWeb Security Architecture",
-              draft-ietf-rtcweb-security-arch (work in progress),
-
-
-
-Rescorla                  Expires July 25, 2012                [Page 21]
-
-Internet-Draft                 RTCWEB IdP                   January 2012
-
-
+              Rescorla, E., "RTCWEB Security Architecture",
+              draft-ietf-rtcweb-security-arch-00 (work in progress),
               January 2012.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -1189,9 +1201,8 @@ Internet-Draft                 RTCWEB IdP                   January 2012
 
 6.2.  Informative References
 
-   [I-D.abarth-origin]
-              Barth, A., "The Web Origin Concept",
-              draft-abarth-origin-09 (work in progress), November 2010.
+   [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
+              December 2011.
 
 
 Author's Address
@@ -1217,16 +1228,5 @@ Author's Address
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-Rescorla                  Expires July 25, 2012                [Page 22]
+Rescorla               Expires September 13, 2012              [Page 22]
 

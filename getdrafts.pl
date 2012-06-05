@@ -56,7 +56,7 @@ else{
     }
 }
 
-$AGENDA_URL="http://datatracker.ietf.org/meeting/$mtg/agenda/";
+$AGENDA_URL="http://www.ietf.org/proceedings/$mtg/agenda/agenda-$mtg-";
 $DRAFT_URL="http://www.ietf.org/internet-drafts/";
 $PRINT_COMMAND="enscript -2rG -h" unless $PRINT_COMMAND;
 

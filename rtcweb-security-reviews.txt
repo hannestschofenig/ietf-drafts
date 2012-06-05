@@ -1,0 +1,425 @@
+>  THOMSON:
+Martin,
+
+Thanks for your detailed review.
+
+Comments/responses below. Let me know if you think I have
+gotten something wrong.
+
+> HTTP/HTTPS
+> 
+> S3, last paragraph before S3.1:
+> 
+>   [...], but realistically many sites do not run
+>   HTTPS [RFC2818] and so our ability to defend against network
+>   attackers is necessarily somewhat limited.
+> 
+> This isn't especially relevant.
+> 
+> Obviously, the standard class of problems with unsecured HTTP exist, but
+> within the context of this application, there aren't that many more that
+> this enables.  The example in S4.1.3 is not unique to this application.
+> It applies to any user consent that is tied to a particular web origin.
+> 
+> In comparison to possibly visiting and _using_ a site operated by a web
+> attacker, this is not substantially worse, or requiring significantly
+> more effort to analyze.
+> 
+> Of course, the only safe assumption is that you are talking to a web
+> attacker when using unsecured HTTP.
+
+> ((Aside: I'd be interested in learning how this might turn into an
+> attack on user consent.  Otherwise, this is a bit of a scary statement
+> to just drop in without support:
+>   Note:  this issue is not restricted to PAGES
+>   which contain mixed content.  If a page from a given origin ever
+>   loads mixed content then it is possible for a network attacker to
+>   infect the browser's notion of that origin semi-permanently.))
+>
+> NETWORK ATTACKERS
+> 
+> Same paragraph:
+> 
+>   [...], with the assumption that
+>   protection against network attackers is provided by running HTTPS.
+> 
+> Thankfully, the draft does not make this assumption.  Attacks on HTTP
+> are out of scope, but we still need to deal with network attackers.
+
+Thanks for catching this inconsistency. I'm taking the sum of these
+comments as "stop acting like you're not addressing HTTP." So, I
+rewrote this graf as:
+
+	Conventionally, we refer to either WEB ATTACKERS, who are able
+	to induce you to visit their sites but do not control the
+	network, and NETWORK ATTACKERS, who are able to control your
+	network. Network attackers correspond to the <xref
+	target="RFC3552"/> "Internet Threat Model". Note that for HTTP
+	traffic, a network attacker is also a Web attacker, since it
+	can inject traffic as if it were any non-HTTPS Web site. Thus,
+	when analyzing HTTP connections, we must assume that traffic
+	is going to the attacker.
+
+> TYPES OF CONSENT
+> 
+> The document talks about consent in general as being important but it
+> doesn't do anything to address what specific consent is needed.
+> 
+> I think that it has been well-established that consent is required for
+> access to input devices (e.g., camera/microphone).  The implication from
+> S4.1 is that this is sufficient as well as necessary.  There is one
+> crucial piece of the argument that is absent:
+> 
+>   A site with access to camera or microphone could send media either to
+>   itself or any site that indicates consent (see CORS).  Sending media
+>   over HTTP or thewebsocketprotocol is likely to perform less well than
+>   is ideal, but it would work.
+> 
+> Therefore, it's easy to draw the implicit conclusions of the draft,
+> namely:
+>  1. a receipt consent mechanism like CORS is necessary, and
+>  2. user consent for access to input devices is necessary _and_
+>     sufficient...for this mode.
+
+I've tried to address this some more in Section 4.1.
+
+
+> PRIVATE COMMUNICATIONS AND CONSENT
+> 
+> The above assumes that the site has access to media.  That is,
+> permission for input devices is being granted to the site.  However, it
+> is possible to imagine a mode of communications where the site mediates
+> the creation of a secure channel, but does not have access to that
+> channel.
+
+IMO there are actually two issues here:
+
+(1) consent
+(2) peer authentication
+
+To give an example, I might be happy to have Gmail be able to
+access my camera and microphone without a big consent experience,
+but I still want to be able to have calls that I know Gmail
+can't listen in on in. That way I can have easy calls, but
+when I want security I can have it. I have tried to make this 
+clear in the new text.
+
+
+> This changes the assumptions - and the nature of the consent -
+> dramatically.  S4.1.2 and security-arch@S5.2 covers this case, but
+> doesn't really properly emphasize just how different this is.
+> 
+> Just as for the entirety of S4.1, the problem then becomes one of
+> unambiguous identification.  And UI.  From S4.1.2:
+> 
+>   Naturally, it is somewhat challenging to design UI
+>   primitives which express this sort of policy.
+> 
+> Complications include group calling.  How does the site ask for
+> permissions to talk to "a@b.com" and "x@y.net"?  How does such a
+> privilege persist?  Does it even make sense to persist at all?
+> Obviously, a conference of any significant size tends toward having a
+> bridge.  At that point, input devices are most likely granted to
+> "host.example.com".
+
+I don't actually think this is an issue at the WebRTC level. ISTM
+that there are two ways to do a multi-user call in WebRTC:
+
+(a) a set of individual calls, which the browser handles separately.
+(b) a call to a bridge which manifests as a call to someone other
+than a@b.com or x@y.net
+
+So in either case, not our problem.
+
+
+> TRULY PRIVATE COMMUNICATIONS
+> 
+> Keeping the site out of the loop requires that the browser lock down
+> access to media recording.  The trick is to ensure that the media is
+> unmodified all the way from source to sink.  It's relatively easy to
+> ensure that media coming off the network is unmodified.
+> 
+> It is harder to ensure that it did not get modified by a web attacker
+> prior to being put on the network.  That requires a verifiable assertion
+> from the remote user that it did not allow a web attacker access to see
+> or modify the stream prior to it being placed in the pipe.
+> 
+> The distinction between media stream visibility and modifiability might
+> be worth discussing a little.  My initial thought is that it was not
+> especially useful in this context.  I can imagine work-arounds that
+> would enable features that depend on visibility such as recording where
+> authenticity is also desirable.
+
+Good point. I have added a new section to make this point.
+
+
+> IDENTIFICATION
+> 
+> S4.1.1.1.1.1.1.1.1 asks the obvious question:
+> 
+>   [...] there is a question about whether the
+>   user can know who they are talking to.
+> 
+> When a site has access to your media, then you are talking to the site.
+> ...and anyone the site chooses to forward your media to.  This is
+> exactly what you get when you use SRTP security descriptions (and also
+> EKT, if you allow the site to insert keys).
+
+See above.
+
+
+> USER INTERACTION CONSIDERATIONS
+> 
+> S4.1.1.2 hides two important UI considerations:
+> 
+>   [...] great care must be taken in the design of this interface
+>   to avoid the users just clicking through
+> 
+> and
+> 
+>   [...] the user
+>   interface chrome must clearly display elements showing that the call
+>   is continuing in order to avoid attacks where the calling site just
+>   leaves it up indefinitely
+> 
+> These are both massively important.  If there were a W3C companion
+> document, then it would make sense to include this sort of stuff there.
+> 
+> More robust treatment would be nice for:
+>  a) the limitations of consent mechanisms
+>  b) providing appropriate feedback
+> 
+> For the latter, this can get complicated.  I recall a discussion of the
+> geolocation API that lead to the conclusion that no UI feedback would be
+> provided.  I still believe that this was a poor choice.  This case bears
+> a certain amount of similarity to that discussion.  I should really join
+> that media capture group...
+> 
+> In any case, this probably needs at least basic treatment here, even if
+> that is just by reference.
+
+I agree we should say something about this, but I think it's best
+said in the W3C specs. I will work to produce something.
+
+
+> AUTHENTICATION MODELS
+> 
+> (Crossing over into S4 of the security-arch document here to address the
+> use cases from S4.1.1.2 and S4.1.1.3.)
+> 
+> It looks like there is an assumption in play here.  That is, there is
+> something like an IdP in use.  Calling a site (as opposed to a person)
+> is very much a case where the usual domain trust anchors are perfectly
+> adequate.  The site can offer an identical (or similar) certificate in
+> the DTLS handshake as it did with the HTTPS TLS handshake.
+> 
+> Obviously, it's not as simple as just having this chain to a trust
+> anchor.  Any site that deployed TLSA (c.f. DANE WG) would require extra
+> checking.
+> 
+> I'm surprised to see nothing on this particular use case.  It's a
+> particularly useful one.
+> 
+> CALL MEDIATION AND REPUTATION
+> 
+> S4.1.1.3 contains a discussion about a case where the reputation of one
+> site is potentially affected by it mediating a call with a third party.
+> In the example, sites wouldn't want advertisements they display from
+> reflecting poorly on them.
+> 
+> I don't see how this changes the current situation significantly.  Site
+> and ad networks work very hard to ensure that advertisements are
+> appropriate to the context in which they are shown.  Realtime calling
+> doesn't really change this situation in any meaningful way.
+> 
+> A very big part of this is ensuring that the source of media is
+> correctly identified.  In part, this is the same problem we already
+> have.  In addition, sites need to take some responsibility for making
+> any necessary distinction sufficiently clear on their own interface.  In
+> this context, the burden lies with the ad network.
+> 
+> ((Aside.  I'm not sure that this is always true:
+>   [...] sites which host
+>   advertisements often learn very little about whether individual users
+>   clicked through to the ads, or even which ads were presented
+> 
+> That's true for ads in iframes, but then the reputation concern isn't
+> entirely applicable.  If the ads are served inline, then I would have to
+> assume that obfuscation of ad network content is the only protection
+> against the site learning about ad content and user interactions.))
+> 
+> COMMUNICATIONS CONSENT
+> 
+> The idea that a target for a media flow consents is not binary in the
+> sense that ICE establishes.  Even with the addition of an expiration
+> time to ICE consent, there are two problems related to the volume of
+> packets that need addressing:
+> 
+> The rate at which STUN Binding requests are generated in ICE is
+> dependent on the bandwidth available for media.  Because this
+> information comes from a web attacker, the browser cannot trust this
+> information.  The browser has to rate-limit Binding requests based on
+> its own information.  In practice, this probably has to be based on a
+> fixed rate.
+> 
+> Even once the browser has validated consent, it has no idea _how much_
+> media is OK to send.  The difference between 8kbps audio and 5Mbps high
+> definition video is enough to make many an internet connection melt.
+> RTCP feedback like TMMBR is good, but maybe those packets could be made
+> to get "lost" by a network attacker.  Plus, if we are going to offer a
+> data channel that doesn't use RTCP, then that option isn't available.
+> 
+> BANDWIDTH LIMITING
+> 
+> Bandwidth limiting is probably an important security feature that isn't
+> really covered, though you touch on it in the security considerations of
+> security-arch.
+> 
+> SPECULATIVE STUFF
+> 
+> Don't think that we need masking: TURN TCP probably has enough
+> protection already and that's the only TCP I can imagine having to use,
+> aside from HTTPS...
+> 
+> Don't think that we need some sort of implicit consent mechanism.  For
+> consent, I don't think that it's unreasonable to expect ICE-lite at a
+> minimum.
+> 
+> See thread on hiding IP addresses.  In order to avoid tracking via IP,
+> clients should not use the Internet.  I hear that Tor is somewhat handy
+> at making it possible to have cake that you can eat too.  That said, I'm
+> not sure that that particular cake tastes all that nice...
+> 
+> IdP
+> 
+> MIXED CONTENT
+> 
+> security-arch@S5.1
+> 
+> It might make sense to consider _all_ unsecured HTTP is being in the
+> same origin for the purposes of this.
+> 
+> Furthermore, I subscribe to the view that mixed content == unsecured.
+> 
+> The idea that a page might become mixed content is a real concern.
+> Terminating the session is probably the only safe choice.
+> 
+> Here's the thought process.  Initially, I thought that it might be
+> sufficient to prevent modifications to the session once a page goes
+> rogue.  At least then if a secure browser-to-browser pipe exists that
+> the page could not access prior to the poisoning, this pipe can continue
+> unmodified.  However, if one browser goes off the grid, then it can
+> simply exploit any renegotiation capabilities that exist in the
+> application to trigger changes through the signaling channel.  For
+> instance, EKT might allow the attacker to update keys.  Given that it
+> should also be possible to insert a relay (in one direction at least) by
+> providing faked "candidates", this cracks it wide open.  The more
+> renegotiation capabilities exist on the media path, the worse this is.
+> 
+> ICE TRANSACTION ID
+> 
+> ...need only be hidden for Binding requests that are outstanding.
+> Successful requests need not be hidden.  (Note that this means meeting
+> all of the success criteria specified in RFC 5245.)
+> 
+> ICE KEEPALIVES
+> 
+> Are not sufficient, so don't require them.  Instead, require a repeat of
+> the connectivity check.  That ensures consent is refreshed and it also
+> means that the statement about ICE-Lite remains true, which would not be
+> so if another mechanism were used.
+> 
+> UNLINKABILITY
+> 
+> security-arch@S5.5
+> 
+> Nothing on this in the security doc.  What is the goal here?
+> 
+> Minting a new key can be expensive.  How do you prevent sites from
+> pushing the button too often and causing a different sort of problem?
+> 
+
+
+
+
+> DRUTA
+> I reviewed the latest version of the drafts and below are my comments/suggestions/corrections (not as comprehensive as Mark's).
+> In general I think the documents are well written with good references and paint a rather comprehensive picture of the issues to be addressed for rtcweb.
+> 
+> Draft-ietf-rtcweb-security-02
+> 
+> 1.Introduction -  second paragraph after the diagram:
+> "Each of their browsers exposes standardized JavaScript calling APIs which are used by the Web server to set up a call between Alice and Bob."
+>  This statement can be a bit more clear in that the APIs are executed locally (in the user agent) as  java script downloaded from the Web Server. The next paragraph eludes to the fact that logic is controlled by the calling service but I think it will be important to distinguish between APIs implemented by the user-agent and APIs/functions implemented by the calling service.
+> 
+> 4.1 Access to Local Devices.
+> Since this describes the threat I think is important to point out the fact that even when the user provides consent it is difficult for them to determine the real reason they give the consent to a site. Take the scenario in which a site obtains consent from the user for an app that captures a clip and saves it on the user's hard drive. Later on, if the user gave permanent consent to the site, the site can obtain access to the camera for the purpose of streaming without the user knowing that. This can be confusing for users even if they trust the site.
+> 
+> 4.2 IP location Privacy
+> "Note that as soon as the callee sends their ICE candidates, the callee learns the callee's IP addresses."
+> This must be "the caller learns the callee's IP address"
+> 
+> 4.3.2.3. Third Party Identity
+> "It is possible (see[I-D.rescorla-rtcweb-generic-idp]) to use systems of this type to authenticate RTCWEB calls, linking them to existing user notions of
+> identity (e.g., Facebook adjacencies). Calls which are authenticated in this fashion are naturally resistant even to active MITM attack by the calling site."
+> 
+> Not to get too much into semantics, I think it is important to make the distinction that users are authenticated (using whatever IdP) and calls are authorized based on the assertions provided by the Idp for the authenticated user.
+> 
+> Draft-ietf-rtcweb-security-arch-01
+> 
+> 1.Introduction
+> "The Real-Time Communications on the Web (RTCWEB) working group is tasked with standardizing protocols for real-time communications between Web browsers."
+> 
+> While there's nothing inaccurate about the statement, I would like to make it more generic because it is more than just communication between web browsers. In my opinion the WEB part in the acronym is all about using the web technologies to enable real time communications.
+> 
+> A proposed edited definition would be "... standardization protocols for enabling real-time communications within user-agents using web technologies (e.g JavaScript)".
+> 
+> 
+> 6.2 Privacy
+> 
+> I have been trying to identify the appropriate section for a rather controversial requirement:  Lawful Intercept. It is expected that service providers for RTCWeb/WebRTC will be required to provide support to lawful intercept and I think we need to capture these requirements so we can map them to the security architecture.
+> 
+> 
+> Thanks,
+> Dan
+> 
+> 
+> 
+> THOMSON2
+> On 29 May 2012 07:26, DRUTA, DAN <dd5826@att.com> wrote:
+> > I reviewed the latest version of the drafts and below are my comments/suggestions/corrections (not as comprehensive as Mark's).
+> 
+> :)  (see From: header)
+> 
+> > 4.1 Access to Local Devices.
+> > Since this describes the threat I think is important to point out the fact that even when the user provides consent it is difficult for them to determine the real reason they give the consent to a site. Take the scenario in which a site obtains consent from the user for an app that captures a clip and saves it on the user's hard drive. Later on, if the user gave permanent consent to the site, the site can obtain access to the camera for the purpose of streaming without the user knowing that. This can be confusing for users even if they trust the site.
+> 
+> Once a site has your camera, there's no fundamental difference between
+> still frame capture and video streaming (for example).  Streaming is
+> just an optimization of the recording interface already present.  A
+> site can acquire still images and upload them (using JSONP, HTTP form
+> post, whatever) one by one.  Streaming just means that they can do so
+> without clogging up my network connection with 30 JPEGs per second.
+> 
+> I had to think about this one a bit before understanding why this
+> isn't a problem.  Maybe that can be rectified by adding text.
+> 
+> The more challenging interface problem deals with the presentation of
+> permissions dialogs for specific remote users, not the browser.  The
+> security architecture draft hints that this might be necessary, but it
+> offers a far more challenging UI design problem than the above.
+> 
+> > 4.2 IP location Privacy
+> > "Note that as soon as the callee sends their ICE candidates, the callee learns the callee's IP addresses."
+> > This must be "the caller learns the callee's IP address"
+> 
+> addresses :)
+> 
+> > 6.2 Privacy
+> >
+> > I have been trying to identify the appropriate section for a rather controversial requirement:  Lawful Intercept. It is expected that service providers for RTCWeb/WebRTC will be required to provide support to lawful intercept and I think we need to capture these requirements so we can map them to the security architecture.
+> 
+> Every time I think of this, I am more convinced that there is nothing
+> that needs to be specified.  Interestingly, the IdP proposal
+> potentially moves the onus for meeting these requirements to the IdP,
+> ... impersonation being the key.

@@ -30,7 +30,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-02"
+<rfc category="std" docName="draft-ietf-rtcweb-security-03"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTC-Web Security">Security Considerations for RTC-Web</title>
@@ -57,7 +57,7 @@
       </address>
     </author>
 
-    <date day="12" month="March" year="2012" />
+    <date day="04" month="January" year="2012" />
 
     <area>RAI</area>
 
@@ -199,13 +199,11 @@
 	Conventionally, we refer to either WEB ATTACKERS, who are able to induce
 	you to visit their sites but do not control the network, and NETWORK
 	ATTACKERS, who are able to control your network. Network attackers correspond
-	to the <xref target="RFC3552"/> "Internet Threat Model". In general, it
-	is desirable to build a system which is secure against both kinds of
-	attackers, but realistically many sites do not run HTTPS <xref target="RFC2818"/> and so
-	our ability to defend against network attackers is necessarily somewhat
-	limited. Most of the rest of this section is devoted to web attackers,
-	with the assumption that protection against network attackers is 
-	provided by running HTTPS.
+	to the <xref target="RFC3552"/> "Internet Threat Model". Note that
+	for HTTP traffic, a network attacker is also a Web attacker,
+	since it can inject traffic as if it were any non-HTTPS Web
+	site. Thus, when analyzing HTTP connections, we must assume
+	that traffic is going to the attacker.
       </t>
       <section title="Access to Local Resources" anchor="sec.resources">
 	<t>
@@ -299,20 +297,47 @@
 	  be the scope of user consent.
 	</t>
 	<t>
-	  For the rest of this discussion we assume that the user is somehow
-	  going to grant consent to some entity (e.g., a social networking site)
-	  to initiate a call on his behalf. This consent may be limited to a 
-	  single call or may be a general consent. In order for the user to
+	  In order for the user to
 	  make an intelligent decision about whether to allow a call
 	  (and hence his camera and microphone input to be routed somewhere),
 	  he must understand either who is requesting access, where the media
-	  is going, or both. So, for instance, one might imagine that at
-	  the time access to camera and microphone is requested, the user
-	  is shown a dialog that says "site X has requested access to camera
-	  and microphone, yes or no" (though note that this type of in-flow
-	  interface violates one of the guidelines in <xref target="sec.web-security"/>).
-	  The user's decision will of course be based on his opinion of Site X.
-	  However, as discussed below, this is a complicated concept.
+	  is going, or both. As detailed below, there are two basic conceptual
+	  models:
+	</t>
+	<t>
+	  <list>
+	    <t>You are sending your media to entity A because you want to
+	    talk to Entity A (e.g., your mother).</t>.
+	    <t>Entity A (e.g., a calling service) asks to access the user's devices with the assurance
+	    that it will transfer the media to entity B (e.g., your mother)</t>
+	  </list>
+	</t>
+	<t>
+	  In either case, identity is at the heart of any consent decision.
+	  Moreover, identity is all that the browser can meaningfully enforce;
+	  if you are calling A, A can simply forward the media to C. Similarly,
+	  if you authorize A to place a call to B, A can call C instead.
+	  In either case, all the browser is able to do is verify and check
+	  authorization for whoever is controlling where the media goes.
+	  Even so, there are a variety of different consent scenarios
+	  that motivate different technical consent mechanisms.
+	  We discuss these mechanisms in the sections below.
+	</t>
+	<t>
+	  It's important to understand that consent to access local devices
+	  is largely orthogonal to consent to transmit various kinds of
+	  data over the network (see <xref target="sec.rtc-comm-consent"/>.
+	  Consent for device access is largely a matter of protecting
+	  the user's privacy from malicious sites. By contrast, 
+	  consent to send network traffic is about preventing the
+	  user's browser from being used to attack its local network.
+	  Thus, we need to ensure communications consent even if the
+	  site is not able to access the camera and microphone at
+	  all (hence WebSockets's consent mechanism) and similarly
+	  we need to be concerned with the site accessing the 
+	  user's camera and microphone even if the data is to be
+	  sent back to the site via conventional HTTP-based network
+	  mechanisms such as HTTP POST.
 	</t>
 	<section title="Calling Scenarios and User Expectations">
 	  <t>
@@ -339,10 +364,20 @@
 	      With any kind of service where the user may use the same 
 	      service to talk to many different people, there is a question
 	      about whether the user can know who they are talking to.
-	      In general, this is difficult as most of the user interface is presented by
-	      the calling site. However, communications security mechanisms
-	      can be used to give some assurance, as described in 
-	      <xref target="sec.during-attack"/>.
+	      If I grant permission to calling service A to make calls
+	      on my behalf, then I am implicitly granting it permission
+	      to bug my computer whenever it wants. This suggests another
+	      consent model in which a site is authorized to make calls
+	      but only to certain target entities (identified via 
+	      media-plane cryptographic mechanisms as described in 
+	      <xref target="sec.during-attack"/> and especially
+	      <xref target="sec.third-party-id"/>.) Note that the
+	      question of consent here is related to but 
+	      distinct from the question of peer identity: I
+	      might be willing to allow a calling site to in general
+	      initiate calls on my behalf but still have some calls
+	      via that site where I can be sure that the site is not 
+	      listening in.
 	    </t>
 	  </section>
 	  <section title="Calling the Site You're On">
@@ -404,6 +439,10 @@
 	  </section>
 	</section>
 	<section title="Origin-Based Security">
+	<t>
+	  Now that we have seen another use case, we can start to reason about
+	  the security requirements.
+	</t>
 	<t>
 	  As discussed in <xref target="sec.same-origin"/>, the basic unit of
 	  Web sandboxing is the origin, and so it is natural to scope consent
@@ -467,7 +506,8 @@
 	  able to conveniently call my friends. If consent is tied to particular
 	  communications endpoints, then my risk is limited. Naturally, it
 	  is somewhat challenging to design UI primitives which express this sort
-	  of policy.
+	  of policy. The problem becomes even more challenging in multi-user
+	  calling cases.
 	</t>
 	</section>
 
@@ -841,7 +881,7 @@
 	      content warnings.
 	    </t>
 	  </section>
-	  <section title="Third Party Identity">
+	  <section title="Third Party Identity" anchor="sec.third-party-id">
 	    <t>
 	      The conventional approach to providing communications identity
 	      has of course been to have some third party identity system
@@ -858,6 +898,31 @@
 	      (e.g., Facebook adjacencies). Calls which are authenticated
 	      in this fashion are naturally resistant even to active MITM attack
 	      by the calling site.
+	    </t>
+	  </section>
+
+	  <section title="Page Access to Media" anchor="sec.page-access">
+	    <t>
+	      Identifying the identity of the far media endpoint is a
+	      necessary but not sufficient condition for providing media
+	      security. In RTCWEB, media flows are rendered into
+	      HTML5 MediaStreams which can be manipulated by the calling
+	      site. Obviously, if the site can modify or view the media,
+	      then the user is not getting the level of assurance they
+	      would expect from being able to authenticate their peer.
+	      In many cases, this is acceptable because the user values
+	      site-based special effects over complete security from the
+	      site. However, there are also cases where users wish to
+	      know that the site cannot interfere. In order to facilitate
+	      that, it will be necessary to provide features whereby
+	      the site can verifiably give up access to the media streams.
+	      This verification must be possible both from the local
+	      side and the remote side. I.e., I must be able to verify 
+	      that the person I am calling has engaged a secure media
+	      mode. In order to achieve this it will be necessary to
+	      cryptographically bind an indication of the local media
+	      access policy into the cryptographic authentication
+	      procedures detailed in the previous sections.
 	    </t>
 	  </section>
 	</section>
