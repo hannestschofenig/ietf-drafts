@@ -886,6 +886,14 @@
 	      such indicators even in the rather more dire case of mixed
 	      content warnings.
 	    </t>
+	    <t>
+	      Despite these difficulties, users should be afforded an opportunity
+	      to view an SAS or fingerprint where available, as it is the
+	      only mechanism for the user to directly verify the peer's
+	      identity without trusting any third party identity
+	      system (assuming, of course, that they trust their
+	      own software).
+	    </t>
 	  </section>
 	  <section title="Third Party Identity" anchor="sec.third-party-id">
 	    <t>
@@ -893,7 +901,8 @@
 	      has of course been to have some third party identity system
 	      (e.g., PKI) to authenticate the endpoints. Such mechanisms
 	      have proven to be too cumbersome for use by typical users
-	      (and nearly too cumbersome for administrators). However,
+	      (and nearly too cumbersome for administrators).
+	      However,
 	      a new generation of Web-based identity providers (BrowserID, Federated Google Login,
 	      Facebook Connect, OAuth, OpenID, WebFinger), has recently been developed
 	      and use Web technologies to provide lightweight (from the user's
@@ -908,6 +917,18 @@
               Calls which are authenticated
 	      in this fashion are naturally resistant even to active MITM attack
 	      by the calling site.
+	    </t>
+	    <t>
+	      Note that there is one special case in which PKI-style certificates
+	      do provide a practical solution: calls from end-users to 
+	      large sites. For instance, if you are making a call
+	      to Amazon.com, then Amazon can easily get a certificate
+	      to authenticate their media traffic, just as they get
+	      one to authenticate their Web traffic. This does not provide
+	      additional security value in cases in which the calling site
+	      and the media peer are one in the same, but might be useful
+	      in cases in which third parties (e.g., ad networks or
+	      retailers) arrange for calls but do not participate in them.
 	    </t>
 	  </section>
 

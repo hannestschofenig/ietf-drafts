@@ -35,7 +35,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-arch-01"
+<rfc category="std" docName="draft-ietf-rtcweb-security-arch-02"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTCWEB Sec. Arch.">RTCWEB Security Architecture</title>
@@ -62,7 +62,7 @@
       </address>
     </author>
 
-    <date day="12" month="March" year="2012" />
+    <date day="5" month="June" year="2012" />
 
     <area>RAI</area>
 
@@ -690,8 +690,9 @@
 	  and DTLS-SRTP <xref target="RFC5763"/><xref target="RFC5764"/>. All data
 	  channels MUST be secured via DTLS. DTLS-SRTP MUST be offered
 	  for every media channel and MUST be the default; i.e., if 
-	  an implementation receives an offer for DTLS-SRTP and SDES and/or
-	  plain RTP, DTLS-SRTP MUST be selected.
+	  an implementation receives an offer for DTLS-SRTP and SDES,
+	  DTLS-SRTP MUST be selected. Media traffic MUST NOT be sent
+	  over plain (unencrypted) RTP.
 	</t>
 	<t>
 	  [OPEN ISSUE: What should the settings be here? MUST?]
@@ -750,14 +751,13 @@
 	      microphone audio and camera video.</t>
 
 	      <t> The "security characteristics" MUST include an indication as to
-	      whether or not the transmission is cryptographically protected and
-	      whether that protection is based on a key
-	      that was delivered out-of-band
-	      (from a server) or was generated as a result of a pairwise
+	      whether the cryptographic keys were delivered out-of-band
+	      (from a server) or were generated as a result of a pairwise
 	      negotiation.
 	      </t>
 
-	      <t>If the far endpoint was directly verified  (see <xref target="sec.proposal.direct.peer"/>)
+	      <t>If the far endpoint was directly verified, either via a third-party
+	      verifiable X.509 certificate or via a Web IdP mechanism (see <xref target="sec.proposal.direct.peer"/>)
 	      the "security characteristics" MUST include the verified information.</t>
 	    </list>
 	  </t>
@@ -767,14 +767,11 @@
 	  </t>
 	  <t>
 	    <list style="symbols">	      
-	      <t>If the transmission is cryptographically protected, the
-	      The algorithms in use (For example: "AES-CBC" or "Null Cipher".)</t>
+	      <t>The cryptographic algorithms in use (For example: "AES-CBC" or "Null Cipher".)</t>
 
-	      <t>If the transmission is cryptographically protected, the "security
-	      characteristics" MUST indicate whether PFS is provided.</t>
+	      <t>The "security characteristics" MUST indicate whether PFS is provided.</t>
 
-	      <t>If the transmission is cryptographically protected via
-	      an end-to-end mechanism the "security characteristics"
+	      <t>The "security characteristics"
 	      MUST include some mechanism to allow an out-of-band verification
 	      of the peer, such as a certificate fingerprint or an SAS.</t>
 	    </list>
@@ -886,6 +883,14 @@
 	are more suitable for general use. Note, however, that
 	a malicious signaling service can strip off any such
 	identity assertions, though it cannot forge new ones.
+	Note that all of the third-party security mechanisms available
+	(whether X.509 certificates or a third-party IdP) rely on
+	the security of the third party--this is of course also true
+	of your connection to the Web site itself. Users who wish to
+	assure themselves of security against a malicious identity
+	provider MUST verify peer credentials directly, e.g., by
+	checking the peer's fingerprint against a value delivered out
+	of band.
       </t>
     </section>
     
@@ -959,8 +964,18 @@
 	used in this case.
       </t>
       <t>
-	[TODO: Write up Magnus's ICE forking attack when we get some
-	clarity on it.]
+	Yet another attack, suggested by Magnus Westerlund,
+	is for the attacker to cross-connect offers and answers
+	as follows. It induces the victim to make a call
+	and then uses its control of other users browsers
+	to get them to attempt a call to someone. It then 
+	translates their offers into apparent answers to
+	the victim, which looks like large-scale parallel forking.
+	The victim still responds to ICE responses and 
+	now the browsers all try to send media to the victim.
+	[[ OPEN ISSUE: How do we address this? ]]
+      </t>
+      <t>
         [TODO: Should we have a mechanism for verifying total expected
         bandwidth]
       </t>
@@ -1072,8 +1087,6 @@ On Thu, Sep 22, 2011 at 5:45 AM, Magnus Westerlund <magnus.westerlund@ericsson.c
 </rfc>
 
 
-<!-- TODO: X.509-level DTLS authentication -->
-<!-- TODO: Fingerprint for E2E -->
 <!-- Continuing consent per Magnus -->
 
 <!-- TODO: Require key destruction -->
