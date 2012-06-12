@@ -1,0 +1,979 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[normalem]{ulem}
+\usepackage[usenames]{color}
+\usepackage{algpseudocode}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 83} 
+\fancyfoot[C]{\tiny RTCWeb Security}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+
+\centerslidestrue
+
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}RTCWEB Security}\\
+\vspace{.2in}
+\large{{IETF 83.5}} \\
+\vspace{3em}
+\large{
+\begin{tabular}{c}
+Eric Rescorla \\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+\end{slide}
+
+\centerslidesfalse
+
+
+\begin{slide}
+\heading{Overview}
+
+\begin{itemize}
+\item Communications consent and DoS prevention
+  \begin{itemize}
+  \item Consent freshness--what is required?
+  \item Simulated forking
+  \item Traffic rate limiting
+  \end{itemize}
+
+\item Identity Protocol Details
+
+\item Resolution of issues raised in reviews (Thomson, Druta)
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Communications Consent Overview}
+
+\begin{itemize}
+\item Consensus to use ICE for initial consent
+  \begin{itemize}
+  \item Sufficient for prevention of cross-protocol attack
+  \item Not so great protection against packet-based DoS
+  \end{itemize}
+
+\item Open issues
+  \begin{itemize}
+  \item What is required for continuing consent?
+  \item Should we limit sender rate?
+  \item What about simulated forking?
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Consent Freshness}
+
+\begin{itemize}
+\item As specified, ICE only checks at start of session
+\item Keepalives just keep the NAT binding open
+  \begin{itemize}
+  \item But aren't confirmed
+  \item Or authenticated
+  \end{itemize}
+
+\item What if I no longer wish to receive traffic?
+  \begin{itemize}
+  \item General agreement, some sort of keepalive
+  \item Check every $X$ seconds
+  \item If I don't receive a keepalive after $Y$ seconds must stop transmitting
+    \begin{itemize}
+    \item Can re-start ICE if needed
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Concrete Proposal: \texttt{draft-muthu-behave-consent-freshness-00}}
+
+\vspace{-.25in}
+\begin{itemize}
+\item Defines a new ICE method, \verb^Consent^
+  \begin{itemize}
+  \item Simple request/response
+  \item No username/password or message integrity
+  \end{itemize}
+
+\item Why not just use STUN binding Request?
+  \begin{itemize}
+  \item Binding requests require integrity checks
+  \end{itemize}
+\end{itemize}
+
+\begin{quote}
+``One of the reasons for ICE choosing STUN Binding indications for
+keepalives is because Binding indication allows integrity to be
+disabled, allowing for better performance.  This is useful for large-
+scale endpoints, such as PSTN gateways and SBCs as described in
+Appendix B section B.10 of the ICE specification.''
+\end{quote}
+
+\end{slide}
+
+
+\begin{slide}
+
+\heading{Consent Algorithm}
+
+{\scriptsize
+\begin{algorithmic}[1]
+  \Repeat  
+     \State $T \gets now()$
+     \State $Failures \gets 0$
+     \Repeat
+     \State $T2 \gets now()$
+     \State Start STUN Consent transaction
+     \If{Success}
+        \State go to 16
+     \EndIf
+     \State $Failures \gets Failures + 1$
+     \If{$Failures == 3$ or $T_M < (now() - T)$}
+         \State Stop transmitting; exit
+     \EndIf
+     \State Wait until $T2 + T_c$
+     \Until{False}
+     \State Wait till $T + T_c$
+  \Until{Call ends.}
+\end{algorithmic}
+}
+
+\begin{itemize}
+\item Proposed values: $T_m = 30, T_c = 15$
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Duration of Unwanted Traffic}
+
+\begin{itemize}
+\item Assume we have initial consent and then receiver goes offline
+  \begin{itemize}
+  \item On average next check will be at $T_c/2$ (worst case $T_c$)
+  \item Takes around $T_m$ to fail
+    \begin{itemize}
+    \item Complicated interaction of $T_c$, $T_m$ and ICE RTO
+    \item Worst-case is about $2T_m$
+    \end{itemize}
+
+\end{itemize}
+
+\item With RFC 5389 parameters, a transaction fails after $39500$ ms
+  \begin{itemize}
+  \item Expected duration of unwanted traffic is $47$ s
+  \item This seems awful long
+  \end{itemize}
+\item 
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Is a MAC needed?}
+
+\begin{itemize}
+\item ICE Binding Requests are authenticated with a MAC
+  \begin{itemize}
+  \item Based on ufrag and password
+  \end{itemize}
+
+\item \verb^Consent^ as currently specified does not have a MAC
+  \begin{itemize}
+  \item All security is from the 96-bit STUN transaction ID
+  \item ... must be pseudorandomly generated
+  \item This is plenty of security against an off-path attacker
+  \end{itemize}
+
+\item An on-path attacker can simulate consent even if the victim is not responding
+  \begin{itemize}
+  \item MAC requires attacker to have username and password as well
+  \end{itemize}
+
+\item Not clear if there is a concrete attack that requires MAC
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{DoS via Excessive Traffic}
+
+{\centering
+\noindent\includegraphics[width=4in]{excessive-traffic.png}
+}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Why does this work?}
+
+\begin{itemize}
+\item ICE only verifies connectivity
+  \begin{itemize}
+  \item But anything can be sent over that channel
+  \end{itemize}
+
+
+\item SDP parameters are under the control of the attacker
+  \begin{itemize}
+  \item And that is what controls bit rate
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{No user consent required (?)}
+
+\begin{itemize}
+\item We just need a source of high bandwidth data
+  \begin{itemize}
+  \item We (probably) can't use a datachannel because it's congestion controlled
+  \item And the sequence numbers are unpredictable (allegedly)
+  \end{itemize}
+
+\item But media probably is not
+
+\item It's not video that requires user consent
+  \begin{itemize}
+  \item ... but access to the camera
+  \end{itemize}
+
+\item Set up a bogus MediaStream blob that generates continuous patterns
+  \begin{itemize}
+  \item Use it to source the data
+  \item This shouldn't trigger consent dialogs
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{How serious is this issue?}
+
+\begin{itemize}
+  \item Basically another version of voice hammer
+  \item Short duration
+    \begin{itemize}
+    \item If we have consent freshness then $< 1$ minute
+    \end{itemize}
+
+  \item But very scalable
+    \begin{itemize}
+    \item I can mount this using an ad network or any other traffic fishing system
+    \item No user consent required
+    \item Not self-throttling (unlike HTTP-based attacks)
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Proposed Solutions}
+
+\begin{itemize}
+\item Indicate maximum bandwidth in ICE checks?
+\item Move other metadata into ICE checks?
+\item Use short initial interval for consent checks?
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Simulated Forking [Westerlund]}
+
+{\centering
+\noindent\includegraphics[width=4in]{simulated-forking.png}
+}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Proposed Solutions}
+
+\begin{itemize}
+\item Rate limit the number of outstanding ICE connections you respond to?
+  \begin{itemize}
+  \item Based on unique ufrag/passwords
+  \end{itemize}
+
+\item If using DTLS you can rate limit the number of DTLS associations
+  \begin{itemize}
+  \item Not clear that this is better than ICE
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Reminder What are we trying to accomplish with Identity?}
+
+\begin{itemize}
+\item Allow Alice and Bob to have a secure call
+  \begin{itemize}
+  \item Authenticated with their identity providers
+  \item On any site
+    \begin{itemize}
+    \item Even untrusted/partially trusted ones
+    \end{itemize}
+  \end{itemize}
+
+\item Advantages
+  \begin{itemize}
+  \item Use one identity on any calling site
+  \item Security against active attack by calling site
+  \item Support for federated cases
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Reminder: Overall Topology}
+\vspace{-.4in}
+
+{\center
+\hspace{.75in} \includegraphics[width=2.8in]{idp-arch}
+}
+
+\end{slide}
+
+\begin{slide}
+\heading{What needs to be defined}
+
+\begin{itemize}
+\item Information from the signaling message that is authenticated [IETF]
+  \begin{itemize}
+  \item Minimally: DTLS-SRTP fingerprint
+  \item Generic carrier for identity assertion
+  \item Depends on signaling protocol
+  \end{itemize}
+
+\item Interface from PeerConnection to the IdP [IETF]
+  \begin{itemize}
+  \item A specific set of messages to exchange
+  \item Sent via \verb^postMessage()^ or WebIntents
+  \end{itemize}
+
+\item JavaScript calling interfaces to PeerConnection [W3C]
+  \begin{itemize}
+  \item Specify the IdP
+  \item Interrogate the connection identity information
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Data to be authenticated}
+
+\begin{itemize}
+\item JSON dictionary with one value: fingerprint
+\end{itemize}
+
+\begin{verbatim}
+       {
+          "fingerprint": 
+            {
+              "algorithm":"SHA-1",
+              "digest":"4A:AD:B9:B1:3F:...:E5:7C:AB"
+            }
+       }
+\end{verbatim}
+
+\begin{itemize}
+\item Note: this format is trivially the same as the a-line format
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Wire format for identity assertions}
+
+\begin{small}
+\begin{verbatim}
+       "identity":{
+            "idp":{     // Standardized
+               "domain":"idp.example.org", // Identity domain
+               "method":"default"          // Domain-specific method
+            },
+            "assertion": "..."             // IdP-specific
+       }
+\end{verbatim}
+\end{small}
+\end{slide}
+
+
+\begin{slide}
+\heading{Open issue: how is identity assertion carried?}
+
+\begin{itemize}
+\item Delivered separately to application
+  \begin{itemize}
+  \item Requires application to manage the data
+  \end{itemize}
+
+\item Along with SDP in \verb^createOffer()/createAnswer()^
+  \begin{itemize}
+  \item This only works with the ``dictionary'' form
+  \item And doesn't guarantee fate-sharing with SDP
+  \end{itemize}
+
+\item Best option: put it in an a-line
+  \begin{itemize}
+  \item Fate-shares with SDP
+  \item Can tag to individual a-lines if necessary
+  \item Potentially SIP compatible (though not with existing endpoints)
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Concrete Proposal: Opaque Value}
+
+\begin{itemize}
+\item Just base-64 the data and shove it in an a-line
+  \begin{itemize}
+  \item e.g., ``identity''
+  \item Like ICE candidates can apply to entire SDP or individual m-lines
+  \end{itemize}
+\end{itemize}
+
+\begin{verbatim}
+a = identity: <base-64ed of JSON>
+\end{verbatim}
+
+\begin{itemize}
+\item Alternative: actually render the identity information
+  \begin{itemize}
+  \item But we need to potentially escape stuff anyway, so encapsulated is easier
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{A concrete example}
+
+{\footnotesize
+\begin{verbatim}
+   v=0
+   o=- 1181923068 1181923196 IN IP4 ua1.example.com
+   s=example1
+   c=IN IP4 ua1.example.com
+   a=setup:actpass
+   a=fingerprint: SHA-1 \
+     4A:AD:B9:B1:3F:82:18:3B:54:02:12:DF:3E:5D:49:6B:19:E5:7C:AB
+   a=identity: 6XCJib2JAZXhhbXBsZS5vcmdcIiwKICAgICAgICAgICAgICAg\
+               ICAgICAgICAgXCJjb250ZW50c1wiOlwiYWJjZGVmZ2hpamtsb\
+               W5vcHFyc3R1dnd5
+   t=0 0
+   m=audio 6056 RTP/AVP 0
+   a=sendrecv
+   a=tcap:1 UDP/TLS/RTP/SAVP RTP/AVP
+   a=pcfg:1 t=1
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Generic Downward Interface\\(Implemented by PeerConnection)}
+
+\begin{itemize}
+\item Instantiate ``IdP Proxy'' with JS from IdP
+  \begin{itemize}
+  \item Probably invisible IFRAME
+  \item Maybe a WebIntent
+  \item[] {\small \url{https://<idp-domain>/.well-known/idp-proxy/<protocol>}}
+  \end{itemize}
+
+\item Send (standardized) messages to IdP proxy via \verb^postMessage()^
+  \begin{itemize}
+  \item ``\verb^SIGN^'' to get assertion
+  \item ``\verb^VERIFY^'' to verify assertion
+  \end{itemize}
+
+\item IdP proxy responds 
+  \begin{itemize}
+  \item ``\verb^SUCCESS^'' with answer
+  \item ``\verb^ERROR^'' with error
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Signature Messages}
+
+\begin{tiny}
+\begin{verbatim}
+       PeerConnection -> IdP proxy:
+         {
+           "type":"SIGN",
+            "id":1,
+            "contents":
+              "{\"fingerprint\":{\"algorithm\":\"SHA-1\",
+              \"digest\":\"4A:AD:B9:B1:3F:...:E5:7C:AB\"}}"
+         }
+
+       IdPProxy -> PeerConnection:
+         {
+           "type":"SUCCESS",
+           "id":1,
+           "message": {
+             "idp":{
+               "domain": "example.org"
+               "protocol": "bogus"
+             },
+             "assertion": "..." // opaque
+           }
+         }
+\end{verbatim}
+\end{tiny}
+\end{slide}
+
+
+\begin{slide}
+\heading{Verification Process}
+
+\begin{tiny}
+\begin{verbatim}
+         PeerConnection -> IdP Proxy:
+           {
+             "type":"VERIFY",
+             "id":2,
+             "message": "..." // opaque
+           }
+
+         IdP Proxy -> PeerConnection:
+           {
+            "type":"SUCCESS",
+            "id":2,
+            "message": {
+              "identity" : {
+                "name" : "bob@example.org",
+                "displayname" : "Bob"
+              },
+              "contents":
+                "{\"fingerprint\":{\"algorithm\":\"SHA-1\",
+                \"digest\":\"4A:AD:B9:B1:3F:...:E5:7C:AB\"}}"
+              }
+           }
+\end{verbatim}
+\end{tiny}
+\end{slide}
+
+\begin{slide}
+\heading{Meaning of Successful Verification}
+
+\begin{itemize}
+\item IdP has verified assertion
+  \begin{itemize}
+  \item Identity is given in ``identity''
+  \item ``name'' is the actual identity (RFC822 format) [OPEN ISSUE]
+  \item ``displayname'' is a human-readable string
+  \end{itemize}
+
+\item Contents is the original message the AP passed in
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Processing Successful Verifications}
+
+\begin{itemize}
+\item Authoritative IdPs
+  \begin{itemize}
+  \item RHS of \verb^identity.name^ matches IdP domain
+  \item No more checks needed
+  \end{itemize}
+
+\item Third-party IdPs
+  \begin{itemize}
+  \item RHS of \verb^identity.name^ does not match IdP domain
+  \item IdP MUST be trusted by policy
+  \end{itemize}
+
+\item These checks performed by PeerConnection
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{New API points needed}
+
+\begin{itemize}
+\item Set the desired IdP and identity
+\item Pre-generate an assertion (performance)
+\item Interrogate a validated assertion
+\end{itemize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Set desired IdP and identity}
+
+\begin{verbatim}
+void SetIdentityProvider (
+                          DOMString Provider,
+                          optional DOMString protocol,
+                          optional DOMSTring username
+                         );
+\end{verbatim}
+
+\vspace{1ex}
+
+\noindent\begin{itemize}
+\item[] \verb^provider^ -- domain name of the provider
+\item[] \verb^protocol^ -- the protocol name (locally meaningful)
+\item[] \verb^username^ -- the desired user name
+\end{itemize}
+
+\vspace{1ex}
+\begin{itemize}
+\item OPEN ISSUE: relationship to user settings (who wins)?
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Pre-Generate Assertions}
+
+\begin{verbatim}
+void GenerateIdentityAssertion (
+                                AssertionSuccessCallback success,
+                                PeerConnectionErrorCallback error
+                               );
+\end{verbatim}
+
+\vspace{1ex}
+
+\begin{itemize}
+\item Idea here is to generate identity assertion ahead of time
+  \begin{itemize}
+  \item Same reason as we want to start ICE gathering early
+  \end{itemize}
+
+\item This works because we only need DTLS fingerprint at this time
+\item What should be passed to the callback? anything?
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Interrogate a valid assertion}
+
+\begin{verbatim}
+readonly attribute IdentityAssertion peeridentity;
+
+interface IdentityAssertion {
+  attribute DOMString name; // The peer identity (rfc822-style)
+  attribute DOMString displayname; // Human-readable
+};
+\end{verbatim}
+
+\vspace{1ex}
+
+\begin{itemize}
+\item If identity was not used, this attribute is null
+\item OPEN ISSUE: Do we need an event for identity verification?
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Recap of reviews}
+
+\begin{itemize}
+\item Reviews from Martin Thomson, Dan Druta
+\item Latest drafts attempt to address their issues
+\item I probably missed stuff
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{HTTPS versus HTTP Threat Model}
+
+
+{\scriptsize
+\begin{quote}
+``Obviously, the standard class of problems with unsecured HTTP exist, but
+within the context of this application, there aren't that many more that
+this enables.  The example in S4.1.3 is not unique to this application.
+It applies to any user consent that is tied to a particular web origin.
+
+In comparison to possibly visiting and \_using\_ a site operated by a web
+attacker, this is not substantially worse, or requiring significantly
+more effort to analyze.
+
+Of course, the only safe assumption is that you are talking to a web
+attacker when using unsecured HTTP.'' -- Thomson
+\end{quote}
+
+New text:
+\begin{quote}
+Conventionally, we refer to either WEB ATTACKERS, who are able to
+induce you to visit their sites but do not control the network, and
+NETWORK ATTACKERS, who are able to control your network.  Network
+attackers correspond to the [RFC3552] "Internet Threat Model".  Note
+that for HTTP traffic, a network attacker is also a Web attacker,
+since it can inject traffic as if it were any non-HTTPS Web site.
+Thus, when analyzing HTTP connections, we must assume that traffic is
+going to the attacker.
+\end{quote}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Consent}
+
+{\scriptsize
+\begin{quote}
+``I think that it has been well-established that consent is required for
+access to input devices (e.g., camera/microphone).  The implication from
+S4.1 is that this is sufficient as well as necessary.  There is one
+crucial piece of the argument that is absent:
+
+\begin{quote}
+A site with access to camera or microphone could send media either to
+itself or any site that indicates consent (see CORS).  Sending media
+over HTTP or thewebsocketprotocol is likely to perform less well than
+is ideal, but it would work.'' -- Thomson
+\end{quote}
+\end{quote}
+
+Some new text here:
+
+\begin{quote}
+It's important to understand that consent to access local devices is
+largely orthogonal to consent to transmit various kinds of data over
+the network (see Section 4.2.  Consent for device access is largely a
+matter of protecting the user's privacy from malicious sites.  By
+contrast, consent to send network traffic is about preventing the
+user's browser from being used to attack its local network.  Thus, we
+need to ensure communications consent even if the site is not able to
+access the camera and microphone at all (hence WebSockets's consent
+mechanism) and similarly we need to be concerned with the site
+accessing the user's camera and microphone even if the data is to be
+sent back to the site via conventional HTTP-based network mechanisms
+such as HTTP POST.
+\end{quote}
+}
+\end{slide}
+
+\begin{slide}
+\heading{Calls from non-same-Origin IFRAMEs}
+
+{\footnotesize
+\begin{quote}
+``I've seen a range of responses from sites.  Some sites vet advertisers
+carefully, others could care less as long as the money flows.  Those
+that vet have usually been stung once already.
+
+If reputation is important to you, then it is your responsibility to
+safeguard your own reputation.  If you rely on others, then you can
+use technical measures (checking, etc...), or simply rely on their own
+desire to safeguard their reputation.
+
+In summary, I don't see a need for a specific technical solution to
+this problem.''
+\end{quote}
+}
+
+\begin{itemize}
+\item Should non-same-origin IFRAMEs notify the enclosing frame
+\item Proposed resolution: remove the text
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{IP Address Hiding (relay)}
+
+\begin{itemize}
+\item Current requirements
+  \begin{itemize}
+  \item API to suppress negotiation until call is answered (can be done with SDP editing)
+  \item API to suppress non-relay candidates (now done via constraints)
+  \end{itemize}
+
+{\footnotesize
+  \begin{quote}
+``Section 5.4 stipulates requirements that I don't think are reasonable.
+ Including discussion on the subject, including countermeasures, with
+a conclusion that there are no requirements on the API would be good.
+However, guidance for site implementers would be sensible.'' -- Thomson
+\end{quote}
+}
+\end{itemize}
+
+\begin{itemize}
+\item Note sure how to proceed here
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Persistent Consent and HTTP}
+
+{\footnotesize
+  \begin{quote}
+``You already established that - in the presence of a network attacker -
+consent to foo.com is equivalent to consent to bar.net.  Therefore, it
+seems reasonable to regard the two as being equivalent.  Once you make
+that leap, then it is easy to see that you don't have enough
+granularity to make any consent meaningful.  So you have to conclude
+that providing a (persistent) consent for non-HTTPS sites is
+pointless.'' -- Thomson
+\end{quote}
+}
+
+\begin{itemize}
+\item I don't agree they are equivalent
+  \begin{itemize}
+  \item Web attackers do exist
+  \end{itemize}
+
+\item Do we want to forbid persistent consent for HTTP?
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Identity and Linkability}
+
+{\footnotesize
+  \begin{quote}
+``What about identity?  While you are in the business of creating an
+identity system, wouldn't it be nice if the site you are using
+couldn't identify the people using that site?  Imagine that you are
+able to create an assertion that you are
+dhouhqed08gslkn209eejit8sfsdo@rtfm.com (that well known IdP), which is
+translated (by the IdP validator) to a ekr@rtfm.com only in the
+browser chrome...''
+\end{quote}}
+                        
+\begin{itemize}
+\item This is compatible with the proposed identity system
+\item Though requires that the IdP validator verify the RP's identity
+\item I'll add some text
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Access to Local Devices}
+
+\vspace{-.25in}
+{\footnotesize
+\begin{quote}
+``Since this describes the threat I think is important to point out
+the fact that even when the user provides consent it is difficult
+for them to determine the real reason they give the consent to a
+site. Take the scenario in which a site obtains consent from the
+user for an app that captures a clip and saves it on the user's hard
+drive. Later on, if the user gave permanent consent to the site, the
+site can obtain access to the camera for the purpose of streaming
+without the user knowing that. This can be confusing for users even
+if they trust the site.'' -- Druta
+\end{quote}
+}
+
+\begin{itemize}
+\item General limitation of technical consent mechanisms
+  \begin{itemize}
+  \item Once I let you take my media and send it somewhere it's
+    hard to constrain what you do with it
+   \end{itemize}
+
+ \item Same thing is generally true with, e.g., image upload, Facebook wall
+ \item This is what privacy policies are for
+\end{itemize}
+
+\end{slide}
+
+\end{document}
