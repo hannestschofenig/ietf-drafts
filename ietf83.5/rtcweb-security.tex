@@ -178,7 +178,7 @@ Appendix B section B.10 of the ICE specification.''
 
 \begin{slide}
 
-\heading{Consent Algorithm}
+\heading{\texttt{draft-mutha} Consent Algorithm}
 
 {\scriptsize
 \begin{algorithmic}[1]
@@ -229,7 +229,8 @@ Appendix B section B.10 of the ICE specification.''
   \item Expected duration of unwanted traffic is $47$ s
   \item This seems awful long
   \end{itemize}
-\item 
+
+\item We probably to shorten these parameters
 \end{itemize}
 \end{slide}
 
@@ -267,6 +268,9 @@ Appendix B section B.10 of the ICE specification.''
 \noindent\includegraphics[width=4in]{excessive-traffic.png}
 }
 \end{slide}
+
+
+
 
 
 
@@ -334,14 +338,110 @@ Appendix B section B.10 of the ICE specification.''
 \end{slide}
 
 
-
 \begin{slide}
-\heading{Proposed Solutions}
+\heading{... But}
 
 \begin{itemize}
-\item Indicate maximum bandwidth in ICE checks?
-\item Move other metadata into ICE checks?
-\item Use short initial interval for consent checks?
+\item ICE implementations already need to implement Binding Requests
+\end{itemize}
+
+\begin{quote}
+``Though Binding Indications are used for keepalives,
+an agent MUST be prepared to receive a connectivity check as well.
+If a connectivity check is received, a response is generated as
+discussed in [RFC5389], but there is no impact on ICE processing
+otherwise.'' [RFC 5245; Section 10]
+\end{quote}
+
+\begin{itemize}
+\item So Binding Requests will work better with non-RTCWEB equipment
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{A related problem: liveness testing}
+
+\begin{itemize}
+\item Applications want to detect connection failure
+  \begin{itemize}
+  \item This needs to happen on a shorter time scale than consent
+  \item How much dead air will people tolerate? ($< 5 seconds$)
+  \end{itemize}
+
+\item Proposal: configurable minimal \emph{received} traffic spacing
+  \begin{itemize}
+  \item If no packet is received in that time, send a Binding Request
+  \item Application failure signaled on Binding Request failure
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Combined Consent/Liveness Proposal I:\\Shorten STUN timers}
+
+  \begin{itemize}
+  \item Proposal: $Rc = 5$, $Rm = 4$. Use measured RTO, minimum $200 ms$
+  \item Example: Packets transmitted at $0, 200, 600, 1400, 3000$; transaction fails at $4600ms$
+  \item Rationale
+    \begin{itemize}
+    \item If our RTT is $> 5s$, that's not going to be a very good user experience
+    \end{itemize}
+  \end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Combined Consent/Liveness Proposal II:\\Both checks done via binding requests}
+
+  \begin{itemize}
+  \item Consent timer: $T_{c}$ (default = $20s$, no more than $30s$)
+  \item Packet receipt timer: $T_{r}$ (no less than $500 ms$); configurable
+  \item When either timer expires start a STUN transaction
+  \item When a STUN transaction succeeds, re-start both timers
+  \item When a STUN transaction fails
+    \begin{itemize}
+    \item If transaction was started by $T_c$, stop sending, abort
+    \item ... else, notify application of failure, but keep sending
+    \end{itemize}
+
+  \item $T_r$ is also reset by receiving any packet from the other side
+  \end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{What API points do we need?}
+
+\begin{itemize}
+\item Ability to set keepalive frequency (individually on each stream?)
+\item A consent transaction has failed and so I am not transmitting on stream $M$
+\item A liveness check has failed on stream $M$
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Proposed API}
+
+\begin{verbatim}
+// Do a liveness check every 500ms and call callback if it fails
+pc.setLivenessCheck(500, m, function(m) {
+   // media stream m has apparently failed
+});
+
+
+//
+pc.onstreamfailed = function(m) {
+   // media steam consent check has failed
+}
+\end{verbatim}
+
+\begin{itemize}
+\item Would a constraint + event combination be better?
 \end{itemize}
 
 \end{slide}
