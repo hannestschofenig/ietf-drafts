@@ -3,8 +3,9 @@
 
 Network Working Group                                        E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                          July 08, 2012
-Expires:  January 9, 2013
+Updates:  6222 (if approved)                               July 09, 2012
+Intended status:  Standards Track
+Expires:  January 10, 2013
 
 
                Random algorithm for RTP CNAME generation
@@ -46,16 +47,17 @@ Status of this Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on January 9, 2013.
-
-Copyright Notice
+   This Internet-Draft will expire on January 10, 2013.
 
 
 
-Rescorla                 Expires January 9, 2013                [Page 1]
+
+Rescorla                Expires January 10, 2013                [Page 1]
 
 Internet-Draft                Random CNAMEs                    July 2012
 
+
+Copyright Notice
 
    Copyright (c) 2012 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
@@ -106,9 +108,7 @@ Internet-Draft                Random CNAMEs                    July 2012
 
 
 
-
-
-Rescorla                 Expires January 9, 2013                [Page 2]
+Rescorla                Expires January 10, 2013                [Page 2]
 
 Internet-Draft                Random CNAMEs                    July 2012
 
@@ -117,16 +117,18 @@ Table of Contents
 
    1.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . . . 4
    2.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . . . 4
-   3.  Comparison to RFC 6222 Algorithm  . . . . . . . . . . . . . . . 5
-     3.1.  Ease of implementation  . . . . . . . . . . . . . . . . . . 5
-     3.2.  Format  . . . . . . . . . . . . . . . . . . . . . . . . . . 5
-     3.3.  Uniqueness  . . . . . . . . . . . . . . . . . . . . . . . . 5
-   4.  Security Considerations . . . . . . . . . . . . . . . . . . . . 5
-   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 5
-     5.1.  Normative References  . . . . . . . . . . . . . . . . . . . 5
-     5.2.  Informative References  . . . . . . . . . . . . . . . . . . 6
-   Appendix A.  Linkability of the RFC 6222 algorithm  . . . . . . . . 6
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 7
+     2.1.  Linkability of the RFC 6222 algorithm . . . . . . . . . . . 5
+   3.  Alternative Algorithm . . . . . . . . . . . . . . . . . . . . . 6
+     3.1.  Comparison to RFC 6222 Algorithm  . . . . . . . . . . . . . 6
+       3.1.1.  Ease of implementation  . . . . . . . . . . . . . . . . 6
+       3.1.2.  Format  . . . . . . . . . . . . . . . . . . . . . . . . 6
+       3.1.3.  Uniqueness  . . . . . . . . . . . . . . . . . . . . . . 7
+       3.1.4.  Linkability . . . . . . . . . . . . . . . . . . . . . . 7
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . . . 7
+   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+     5.1.  Normative References  . . . . . . . . . . . . . . . . . . . 7
+     5.2.  Informative References  . . . . . . . . . . . . . . . . . . 8
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . . . 8
 
 
 
@@ -162,9 +164,7 @@ Table of Contents
 
 
 
-
-
-Rescorla                 Expires January 9, 2013                [Page 3]
+Rescorla                Expires January 10, 2013                [Page 3]
 
 Internet-Draft                Random CNAMEs                    July 2012
 
@@ -181,14 +181,15 @@ Internet-Draft                Random CNAMEs                    July 2012
    [RFC6222] defines a set of algorithms for generating unique RTP
    CNAMES [RFC3550].  Although these algorithms attempt to provide some
    privacy, the CNAMEs they generate are still potentially linkable, as
-   acknowledged in the security considerations section.  This document
-   describes a simpler algorithm which produces an identifier which is
-   compatible with RFC 6222 identifiers and is in fact indistinguishable
-   from them without significant computational effort,
+   acknowledged in the security considerations section of RFC 6222.
+   This document describes a simpler algorithm which produces an
+   identifier which is compatible with RFC 6222 identifiers and is in
+   fact indistinguishable from them without significant computational
+   effort,
 
    RFC 6222 Section 4.2 requires:
 
-  An RTP endpoint that wishes to generate a per-session RTCP CNAME MUST
+ " An RTP endpoint that wishes to generate a per-session RTCP CNAME MUST
   use the following method:
 
     o  For every new RTP session, a new CNAME is generated following the
@@ -200,49 +201,143 @@ Internet-Draft                Random CNAMEs                    July 2012
     cannot change over the life of an RTP session [RFC3550]; hence,
     only the initial SSRC value chosen by the endpoint is used.  The
     "user@" part of the RTCP CNAME is omitted when generating
-    per-session RTCP CNAMEs.
+    per-session RTCP CNAMEs."
 
-   The algorithm in Section 5 is a cryptographic hash of the following
-   input values:
+   The algorithm in Section 5 of RFC 6222 is a cryptographic hash of the
+   following input values:
 
    o  The current time in 64-bit NTP format
    o  An EUI-64 or 48-bit MAC address [RFC4291].
    o  The initial SSRC and source and destination address/port quartets
 
    The result of this process is a random-appearing binary value which
-   can then be converted to a CNAME by the process described above.  In
-   this document, we propose an alternative approach based on simply
-   generating a cryptographically pseudorandom value.  Implementations
-   conformant with this specification MAY replace the algorithm in
-   Section 5 with a 96-bit value generated using a cryptographic random
-   number generator [RFC4096].
+   can then be converted to a CNAME by the process described above.
+   Unfortunately, in many settings the input values do not provide
+   sufficient entropy, thus making it possible to determine if multiple
+   CNAME values were generated on the same machine.
 
 
 
 
-Rescorla                 Expires January 9, 2013                [Page 4]
+
+Rescorla                Expires January 10, 2013                [Page 4]
 
 Internet-Draft                Random CNAMEs                    July 2012
 
 
-3.  Comparison to RFC 6222 Algorithm
+2.1.  Linkability of the RFC 6222 algorithm
 
-3.1.  Ease of implementation
+   While the output of the RFC6222 algorithm is with high probability
+   unique, it is not clearly unlinkable.  Consider the case where we
+   have two CNAMEs C1 and C2 and we wish to determine whether they were
+   generated by the same endpoint.  This situation might occur if
+   multiple calls were made from some anonymous location like a domestic
+   violence shelter.  For instance, the attacker receives a call from an
+   unknown location and then calls a number of candidate locations in an
+   attempt to determine if they are the same.  Starting with C1, the
+   attacker exhaustively searches all the potential input values to find
+   a set which hashes to C1.  He then can simply search the nearby input
+   space and if the result is C2, he knows that the calls involve the
+   same endpoint.
+
+   The complexity of this attack is directly related to the entropy of
+   the input variables.  At minimum the attacker knows:
+
+   o  The destination IP address and port exactly.
+   o  The timestamp (from the RTP header) to within a few seconds.  With
+      a typical 100 ticks/second clock, this represents about 10 bits of
+      entropy at most (and potentially more like 2-3 bits)
+   o  The SSRC (from the RTP header).
+
+   This leaves the primary sources of entropy as the source IP address/
+   port and the MAC/EUI-64 address.  RFC 6222 is unclear on which IP
+   address/port is to be used, but there are three main possibilities:
+
+   o  A relayed address/port (known to the attacker) by looking at the
+      RTP.  [Note we are assuming that a media relay is used otherwise
+      linkability is trivial.]
+   o  The local IP address (most likely chosen from a very small number
+      of local addresses in the the 10.0.x.x. or 192.168.x.x range.).
+      As residential NATs generally assign addresses in sequence and
+      phones are often the first item to reboot addresses 10.0.0.1,
+      192.168.0.1, and 192.168.1.1 are very common with the first 5
+      addresses in each range representing a large fraction of all
+      devices.
+   o  The public IP address of the peer--hard to guess but easy to
+      determine with a scan and not really a natural choice.
+
+   Similarly, the port in use is often not chosen randomly but often
+   from a small set of initial ports chosen by the implementation (by
+   default Cisco devices often use 16000-16004.  Thus, while in
+   principle there are 48 bits of randomness in the IP and port, in
+   practice they may offer no entropy (in the case where the relayed
+   address is used as the RFC 6222 input) or only 7 bits (where the
+   local address is used but the client is behind a residential NAT and
+
+
+
+Rescorla                Expires January 10, 2013                [Page 5]
+
+Internet-Draft                Random CNAMEs                    July 2012
+
+
+   uses a limited port range.)
+
+   Similarly, while in principle the MAC address has 48 bits of entropy,
+   in practice devices are easily fingerprinted and once the
+   manufacturer is known, the MAC address is restricted to the much
+   narrower range assigned to the manufacturer, which are again often
+   assigned in sequence (on the order of 20-32 bits).
+
+   Thus, in order to mount the initial attack, the attacker need search
+   somewhere between 20-30 bits (if the relayed address is known) and 70
+   bits.  On the upper end, there is no real linkability problem, but on
+   the lower end linkability is practical.  The lower-end case is
+   relevant to many residential and small business settings (exactly the
+   kind operated by DV shelters) with "natural" implementations of RFC
+   6222.
+
+
+3.  Alternative Algorithm
+
+   In this document, we propose an alternative approach based on simply
+   generating a cryptographically pseudorandom value.  Implementations
+   conformant with this specification MAY replace the algorithm in
+   Section 5 with a random value generated using a cryptographic random
+   number generator [RFC4096].  This value MUST be at least 96 bits but
+   MAY be longer (see Section 4 for analysis of the length).
+
+3.1.  Comparison to RFC 6222 Algorithm
+
+3.1.1.  Ease of implementation
 
    The biggest bottleneck to implementation of this algorithm is the
-   availability of an appropriate CSPRNG.  However, many implementations
-   already have this capability.  In particular RTCWEB implementations
+   availability of an appropriate cryptographically secure PRNG
+   (CSPRNG).  In any setting whcih already has a secure PRNG, this
+   algorithm described is far simpler, and many implementations already
+   have this capability.  SIP stacks [RFC3261] are required to use
+   cryptographically random numbers to generate To and From tags
+   (Section 19.3).  RTCWEB implementations
    [I-D.ietf-rtcweb-security-arch] will need to have secure PRNGs to
-   implement ICE [RFC5245] and DTLS-SRTP [RFC5764].  Thus, the algorithm
-   described here is far simpler.
+   implement ICE [RFC5245] and DTLS-SRTP [RFC5764].  And of course
+   essentially every Web browser already supports TLS, which requires a
+   secure PRNG.
 
-3.2.  Format
+3.1.2.  Format
 
-   The output produced by this algorithm is a string of random bits,
-   indistinguishable from the output of the RFC6222 algorithm without
-   significant computation (see Appendix A).
+   The output produced by this algorithm is a string of random bits.  If
+   it is of length 96 bits, it is indistinguishable from the output of
+   the RFC6222 algorithm without significant computation (see
+   Section 2.1).
 
-3.3.  Uniqueness
+
+
+Rescorla                Expires January 10, 2013                [Page 6]
+
+Internet-Draft                Random CNAMEs                    July 2012
+
+
+3.1.3.  Uniqueness
 
    One concern that is often raised whenever random numbers are proposed
    is that of uniqueness.  However, for the purposes of statistical
@@ -251,11 +346,28 @@ Internet-Draft                Random CNAMEs                    July 2012
    strings colliding are the same as those of any two random strings
    colliding (or else this constitutes a weakness in the hash.)
 
+3.1.4.  Linkability
+
+   A basic design criterion of a good CSPRNG is that it not be possible
+   to distinguish its output from random values.  Clearly, identifying
+   two outputs as being from the same CSPRNG would violate this
+   requirement In order to mount the attack described in Section 2.1
+   would require exhaustively searching the seed space of the PRNG.  Any
+   conditions under which this was practical would represent a severe
+   threat to the security of the CSPRNG if used in any communications
+   security setting.
+
 
 4.  Security Considerations
 
    The privacy properties of the algorithm described here are as strong
-   or stronger than those of the RFC6222 algorithm.
+   or stronger than those of the RFC6222 algorithm.  Because of the
+   properties of the PRNG, there is no significant privacy/linkability
+   difference between long and short CNAMEs.  However, the requirement
+   to generate unique CNAMEs implies a certain minimum length.  A length
+   of 96-bits allows on the order of 2^{40} CNAMEs globally before there
+   is a large chance of collision (there is about a 50% chance of one
+   collision after 2^{48} CNAMEs).
 
 
 5.  References
@@ -276,7 +388,7 @@ Internet-Draft                Random CNAMEs                    July 2012
 
 
 
-Rescorla                 Expires January 9, 2013                [Page 5]
+Rescorla                Expires January 10, 2013                [Page 7]
 
 Internet-Draft                Random CNAMEs                    July 2012
 
@@ -292,6 +404,11 @@ Internet-Draft                Random CNAMEs                    July 2012
               draft-ietf-rtcweb-security-arch-02 (work in progress),
               June 2012.
 
+   [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
+              A., Peterson, J., Sparks, R., Handley, M., and E.
+              Schooler, "SIP: Session Initiation Protocol", RFC 3261,
+              June 2002.
+
    [RFC4291]  Hinden, R. and S. Deering, "IP Version 6 Addressing
               Architecture", RFC 4291, February 2006.
 
@@ -303,70 +420,6 @@ Internet-Draft                Random CNAMEs                    July 2012
    [RFC5764]  McGrew, D. and E. Rescorla, "Datagram Transport Layer
               Security (DTLS) Extension to Establish Keys for the Secure
               Real-time Transport Protocol (SRTP)", RFC 5764, May 2010.
-
-
-Appendix A.  Linkability of the RFC 6222 algorithm
-
-   While the output of the RFC6222 algorithm is with high probability
-   unique, it is not clearly unlinkable.  This situation might occur if
-   multiple calls were made from some anonymous location like a domestic
-   violence shelter.  For instance, the attacker receives a call from an
-   unknown location and then calls a number of candidate locations in an
-   attempt to determine if they are the same.
-
-   Consider the case where we have two CNAMEs C1 and C2 and we wish to
-   determine whether they were generated by the same endpoint.  Starting
-   with C1, the attacker exhaustively searches all the potential input
-   values to find a set which hashes to C1.  He then can simply search
-   the nearby input space and if the result is C2, he then knows that
-   the calls involve the same endpoint.
-
-   The complexity of this attack is directly related to the entropy of
-   the input variables.  At minimum the attacker knows:
-
-   o  The destination IP address and port exactly.
-   o  The timestamp (from the RTP header) to within a few seconds.  With
-      a typical 100 ticks/second clock, this represents about 10 bits of
-      entropy at most (and potentially more like 2-3 bits)
-
-
-
-
-Rescorla                 Expires January 9, 2013                [Page 6]
-
-Internet-Draft                Random CNAMEs                    July 2012
-
-
-   o  The SSRC (from the RTP header).
-
-   This leaves the primary sources of entropy as the source IP address/
-   port and the MAC/EUI-64 address.  RFC 6222 is unclear on which IP
-   address/port is to be used, but there are three main possibilities:
-
-      A relayed address/port (known to the attacker) by looking at the
-      RTP.  [Note we are assuming that a media relay is used otherwise
-      linkability is trivial.]
-      The local IP address (most likely chosen from a very small number
-      of local addresses in the the 10.0.x.x. or 192.168.x.x range.).
-      The public IP address of the peer--hard to guess but easy to
-      determine with a scan.
-
-   Similarly, the port in use is often not chosen randomly but often
-   from a small set of initial ports chosen by the implementation.
-   Thus, while in principle there are 48 bits of randomness in the IP
-   and port, in the best case they are chosen from a much smaller set
-   and in the worst case are known completely by the attacker.
-
-   Similarly, while in principle the MAC address has 48 bits of entropy,
-   in practice devices are easily fingerprinted and once the
-   manufacturer is known, the MAC address is restricted to the much
-   narrower range assigned to the manufacturer (on the order of 20-32
-   bits).
-
-   Thus, in order to mount the initial attack, the attacker need search
-   somewhere between 30 bits (if the relayed address is known) and 70
-   bits.  On the upper end, there is no real linkability problem, but on
-   the lower end linkability is practical.
 
 
 Author's Address
@@ -388,5 +441,8 @@ Author's Address
 
 
 
-Rescorla                 Expires January 9, 2013                [Page 7]
+
+
+
+Rescorla                Expires January 10, 2013                [Page 8]
 
