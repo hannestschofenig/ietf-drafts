@@ -36,7 +36,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-arch-04"
+<rfc category="std" docName="draft-ietf-rtcweb-security-arch-05"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTCWEB Sec. Arch.">RTCWEB Security Architecture</title>
@@ -1337,6 +1337,7 @@
  	  },
 	  "assertion":\"{\"identity\":\"bob@example.org\",
 	                 \"contents\":\"abcdefghijklmnopqrstuvwyz\",
+                         \"request_origin\":\"rtcweb://peerconnection\",
                          \"signature\":\"010203040506\"}"
         }
       }
@@ -1373,7 +1374,16 @@
 		  IdP's perspective. Details of this are provided in
 		  <xref target="sec.id-format"/></t>
 		  <t hangText="contents">The original unmodified string
-		  provided by the AP in the original SIGN request.
+		  provided by the AP in the original SIGN request.</t>
+		  <t hangText="request_origin">The original origin of
+		  the SIGN request on the AP side as determined by
+		  the origin of the PostMessage call. The IdP MUST somehow
+		  arrange to propagate this information as part of the
+		  assertion. The receiving PeerConnection MUST verify that
+		  this value is "rtcweb://peerconnection" (which implies
+		  that PeerConnection must arrange that its messages to the
+		  IdP proxy are from this origin.)
+		  [[ OPEN ISSUE: Can a URI person help make a better URI.]]
 		  </t>
 		</list>
 	      </t>
@@ -1393,6 +1403,7 @@
           "origin":"https://calling-service.example.com/",
 	  "message":\"{\"identity\":\"bob@example.org\",
 	               \"contents\":\"abcdefghijklmnopqrstuvwyz\",
+                       \"request_origin\":\"rtcweb://peerconnection\",
                        \"signature\":\"010203040506\"}"
         }
 
@@ -1405,6 +1416,7 @@
 	     "name" : "bob@example.org",
 	     "displayname" : "Bob"
 	   },
+           "request_origin":"rtcweb://peerconnection",
 	   "contents":"abcdefghijklmnopqrstuvwyz"
 	 }
         }
@@ -1621,7 +1633,7 @@
 	that RPs will accept.
       </t>
 
-<!--      <section title="PeerConnection Origin Check" anchor="sec.pc-origin">
+      <section title="PeerConnection Origin Check" anchor="sec.pc-origin">
 	<t>
 	  Fundamentally, the IdP proxy is just a piece of HTML and JS
 	  loaded by the browser, so nothing stops a Web attacker o
@@ -1632,9 +1644,15 @@
 	  a page tied to a Web attacker. Thus, while an attacker
 	  can instantiate the IdP proxy, they cannot send messages
 	  from an appropriate origin and so cannot create acceptable
-	  assertions. [[OPEN ISSUE: Where is this enforced? ]]
+	  assertions. This origin check is enforced on the relying
+	  party side, not on the authenticating party side. The reason
+	  for this is to take the burden of knowing which origins
+	  are valid off of the IdP, thus making this mechanism
+	  extensible to other applications besides RTCWEB. The
+	  IdP simply needs to gather the origin information
+	  (from the posted message) and attach it to the assertion.
 	</t>
-      </section> -->
+      </section>
 
       <section title="IdP Well-known URI" anchor="sec.sec-idp-uri">
 	<t>
@@ -1738,8 +1756,9 @@
     </t>
     <t>
     <list style="symbols">
-      <t>Editorial cleanup.</t>
+      <t>Move origin check from IdP to RP per discussion in YVR.</t>
       <t>Clarified treatment of X.509-level identities.</t>
+      <t>Editorial cleanup.</t>
     </list>
     </t>
   </section>
