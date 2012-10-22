@@ -36,7 +36,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-arch-04"
+<rfc category="std" docName="draft-ietf-rtcweb-security-arch-03"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTCWEB Sec. Arch.">RTCWEB Security Architecture</title>
@@ -63,7 +63,7 @@
       </address>
     </author>
 
-    <date day="22" month="October" year="2012" />
+    <date day="16" month="July" year="2012" />
 
     <area>RAI</area>
 
@@ -181,7 +181,8 @@
 	<t>
 	  <list style="symbols">
 	    <t>Calling services: Web sites whose origin we can verify
-	    (in practice this means HTTPS).</t>
+	    (optimally via HTTPS, but in some cases because we are on
+	    a topologically restricted network, such as behind a firewall).</t>
 	    <t>Other users: RTCWEB peers whose origin we can verify 
 	    cryptographically (optimally via DTLS-SRTP).</t>
 	  </list>
@@ -335,12 +336,7 @@
 	<t>
 	  In the current W3C API, once some streams have been added,
 	  Alice's browser + JS generates a signaling message
-	  The format of this data is currently undefined. It may
-	  be a complete message as defined by ROAP 
-	  <xref target="I-D.jennings-rtcweb-signaling"/>
-	  or separate media description and transport messages 
-	  as defined in <xref target="I-D.ietf-rtcweb-jsep"/> or may be
-	  assembled piecemeal by the JS. In either case, it will contain:
+	  <xref target="I-D.ietf-rtcweb-jsep"/> contianing:
 	</t>
 	<t>
 	  <list style="symbols">
@@ -351,8 +347,6 @@
 	  </list>
 	</t>
 	<t>
-	  [Note that it is currently unclear where JSEP will eventually put
-	  this information, in the SDP or in the transport info.]
 	  Prior to sending out the signaling message, the PeerConnection code
 	  contacts the identity service and obtains an assertion binding
 	  Alice's identity to her fingerprint. The exact details depend on
@@ -477,11 +471,8 @@
 	  specifies periodic STUN keepalizes but only if media is not flowing.
 	  Because the consent issue is more difficult here, we 
 	  require RTCWeb implementations to periodically send keepalives.
-	  As described in <xref target="sec.proposal.communications.consent"/>,
-	  these keepalives MUST be based on the consent freshness
-	  mechanism specified in [I-D.muthu-behave-consent-freshness].  If a
-	  keepalive fails and no new ICEchannels can be established, then the
-	  session is terminated.
+	  If a keepalive fails and no new ICE channels can be established, then 
+	  the session is terminated.
 	</t>
       </section>
     </section>
@@ -552,11 +543,11 @@
 	  <t hangText="API Requirement:">
 	    The API MUST provide a mechanism for the requesting JS to
 	    indicate which of these forms of permissions it is 
-	    requesting. This allows the client to know what sort
-	    of user interface experience to provide, i.e., to allow
-	    the client to clearly indicate to the user what he is
-	    agreeing to.
-	    In particular,
+	    requesting. This allows the browser to know what sort
+	    of user interface experience to provide to the user,
+	    including what permissions to request from the user
+	    and hence that to enforce later.
+	    For instance,
 	    browsers might display a non-invasive door hanger
 	    ("some features of this site may not work..." when
 	    asking for long-term permissions) but a more 
@@ -617,7 +608,7 @@
 	  SHOULD also provide a policy by which a user can authorize calls 
 	  only to specific counterparties. Specifically, the implementation
 	  SHOULD provide the following interfaces/controls:
-	</t>	 
+	</t>
 	<t>
 	  <list style="symbols">
 	    <t>Allow future calls to this verified user.</t>
@@ -637,8 +628,7 @@
 	<t>
 	  Browser client implementations of RTCWEB MUST implement ICE.
 	  Server gateway implementations which operate only at public IP
-	  addresses may implement ICE-Lite instead of ICE but MUST
-	  implement one of the two.
+	  addresses MUST implement either full ICE or ICE-Lite.
 	</t>
 	<t>
 	  Browser implementations MUST verify reachability via ICE 
@@ -650,18 +640,19 @@
 	  the split between ICE in JS and ICE in the browser. The
 	  above text is written the way it is for editorial convenience and will
 	  be modified appropriately if the WG decides on ICE in the JS.]
+	  The JS MUST NOT be permitted to control the local ufrag and password,
+	  though it of course knows it.
 	</t>
 	<t>
-	  Implementations MUST send keepalives no less frequently than
-	  every 30
-	  seconds regardless of whether traffic is flowing or not. If
-	  a keepalive fails then the implementation MUST either attempt to
-	  find a new valid path via ICE or terminate media for that
-	  ICE component. Note that ICE <xref target="RFC5245"/>; Section 10
-	  keepalives use STUN Binding Indications which are one-way and
-	  therefore not sufficient. Instead, the consent freshness
-	  mechanism <xref target="I-D.muthu-behave-consent-freshness"/> MUST
-	  be used.
+	  While continuing consent is required, 
+	  that ICE <xref target="RFC5245"/>; Section 10
+	  keepalives STUN Binding Indications are one-way and
+	  therefore not sufficient. 
+	  The current WG consensus is to use ICE Binding Requests 
+	  for continuing consent freshness. ICE already requires that
+	  implementations respond to such requests, so this approach is maximally
+	  compatible. A separate document will profile the ICE timers
+	  to be used [[TODO: insert REF here when available.]]
 	</t>
       </section>
       <section title="IP Location Privacy" anchor="sec.proposal.ip.location.privacy">
@@ -701,17 +692,23 @@
 	    The API MUST provide a mechanism for the calling application JS to
 	    indicate that only TURN candidates are to be used. This
 	    prevents the peer from learning one's IP address at all.
+	  </t>
+	</list>
+	</t>
+
+	<t><list style="hanging">
+	  <t hangText="API Requirement:">
 	    The API MUST provide a mechanism for the calling application
 	    to reconfigure an existing call to add non-TURN candidates.
-	    Taken together, these requirements allow ICE negotiation to start immediately on
+	    Taken together, this and the previous requirement allow ICE negotiation to start immediately on
 	    incoming call notification, thus reducing post-dial delay, but also to avoid
 	    disclosing the user's IP address until they have
 	    decided to answer. They also allow users to completely hide their IP address
 	    for the duration of the call. Finally, they allow a mechanism for the user to
-	    optimize performance by reconfiguring to allow non-TURN candidates during an active call if
+	    optimize performance by reconfiguring to allow non-turn candidates during an active call if
 	    the user decides they no longer need to hide their IP address
 	  </t>
-</list></t>
+	</list></t>
       </section>
 
       <section title="Communications Security" anchor="sec.proposal.comsec">
@@ -726,7 +723,7 @@
 	</t>
 	<t>
 	  [OPEN ISSUE: What should the settings be here? MUST?]
-	  Implementations MAY support SDES and RTP for media traffic
+	  Implementations MAY support SDES for media traffic
 	  for backward compatibility purposes.
 	</t>
 	<!-- OPEN ISSUE: DTLS-SRTP key origin scoping? -->
@@ -779,17 +776,18 @@
 
 	      <t>If the far endpoint was directly verified, either via a third-party
 	      verifiable X.509 certificate or via a Web IdP mechanism (see <xref target="sec.generic.idp"/>)
-	      the "security characteristics" MUST include the verified information.
-	      </t>
+	      the "security characteristics" MUST include the verified information.</t>
 	    </list>
 	  </t>
+	  <t></t>
 	  <t>
 	    The following properties are more likely to require some "drill-down"
 	    from the user:
 	  </t>
 	  <t>
 	    <list style="symbols">	      
-	      <t>The security characteristics MUST indicate the cryptographic algorithms in use (For example: "AES-CBC" or "Null Cipher".)</t>
+	      <t> The "security characteristics" MUST indicate the cryptographic algorithms
+	       in use (For example:  "AES-CBC" or "Null Cipher".)</t>
 
 	      <t>The "security characteristics" MUST indicate whether PFS is provided.</t>
 
@@ -815,8 +813,8 @@
 	<t>
 	  Recently, a number of Web-based identity technologies (OAuth, BrowserID, Facebook
 	  Connect), etc. have been developed. While the details vary, what 
-	  these technologies share is that they have a Web-based (i.e., HTTP/HTTPS
-	  identity provider) which attests to your identity. For instance,
+	  these technologies share is that they have a Web-based (i.e., HTTP/HTTPS)
+	  identity provider which attests to your identity. For instance,
 	  if I have an account at example.org, I could use the example.org identity
 	  provider to prove to others that I was alice@example.org.
 	  The development of these technologies allows us to separate calling
@@ -834,37 +832,7 @@
 	  be imitated by the calling site.
 	</t>
 	<t>
-	  In order to make this work, we must standardize the following 
-	  items:
-	</t>
-	<t>
-	  <list style="symbols">
-	    <t>
-	      The precise information from the signaling message that
-	      must be cryptographically bound to the user's identity
-	      and a mechanism for carrying assertions in JSEP
-	      messages. <xref target="sec.jsep-binding"/>
-	    </t>
-	    
-	    <t>
-	      The interface to the IdP. <xref target="sec.protocol-details"/>
-	      specifies a specific protocol mechanism which allows the
-	      use of any identity protocol without requiring specific
-	      further protocol support in the browser 
-	    </t>
-	    <t>
-	      The JavaScript interfaces which the calling application can
-	      use to specify the IdP to use to generate assertions and
-	      to discover what assertions were received. 
-	    </t>
-	  </list>
-	</t>
-	<t>
-	  The first two items are defined in this document. The final one
-	  is defined in the companion W3C WebRTC API specification [TODO:REF]
-	</t>
-	<t>
-	The mechanisms in this
+	The mechanisms defined in this
 	document do not require the browser to implement any 
 	particular identity protocol or to support any particular
 	IdP. Instead, this document provides a generic interface
@@ -1033,7 +1001,39 @@
 	     did not exist at the time the browser was written.
 	   </t>
 	</section>
-
+	
+	<section title="Items for Standardization" anchor="sec.standardized">
+	  <t>
+	    In order to make this work, we must standardize the following 
+	    items:
+	  </t>
+	  <t>
+	    <list style="symbols">
+	      <t>
+		The precise information from the signaling message that
+		must be cryptographically bound to the user's identity
+		and a mechanism for carrying assertions in JSEP
+		messages. <xref target="sec.jsep-binding"/>
+	      </t>
+	      
+	      <t>
+		The interface to the IdP. <xref target="sec.protocol-details"/>
+		specifies a specific protocol mechanism which allows the
+		use of any identity protocol without requiring specific
+		further protocol support in the browser 
+	      </t>
+	      <t>
+		The JavaScript interfaces which the calling application can
+		use to specify the IdP to use to generate assertions and
+		to discover what assertions were received. 
+	      </t>
+	    </list>
+	  </t>
+	  <t>
+	    The first two items are defined in this document. The final one
+	    is defined in the companion W3C WebRTC API specification [TODO:REF]
+	  </t>
+	</section>
 	<section title="Binding Identity Assertions to JSEP Offer/Answer Transactions" anchor="sec.jsep-binding">
 
 	  <section title="Input to Assertion Generation Process">
@@ -1048,11 +1048,11 @@
 	     <figure>
  <artwork><![CDATA[
  {
-   "fingerprint" : {
-         {
+   "fingerprint" : 
+   {
             "algorithm":"SHA-1",
             "digest":"4A:AD:B9:B1:3F:...:E5:7C:AB"
-          }
+    }
  }
   ]]>
  </artwork>
@@ -1175,8 +1175,8 @@
 	  <section title="IdP Proxy Setup" anchor="sec.iframe-setup">
 	      <t>
 		In order to perform an identity transaction, the PeerConnection
-		must first create an IdP proxy. As stated above, the details
-		of this are specified in the W3C API document. From the
+		must first create an IdP proxy. While the details
+		of this are specified in the W3C API document, from the 
 		perspective of this specification, however, the relevant
 		facts are:
 	      </t>
@@ -1207,6 +1207,9 @@
 		{ "type":"READY" }
 		]]></artwork>
 	      </figure>
+	     <t>
+	       [[ OPEN ISSUE: if the W3C half of this converges on WebIntents, then
+	       the READY message will not be necessary.]]</t>
 	      <t>
 		Once the PeerConnection object receives the ready message,
 		it can send commands to the IdP proxy.
@@ -1237,7 +1240,7 @@
 		</t>
 		<figure>
 		  <artwork><![CDATA[
-		  https://example.com/.well-known/idp-proxy/example
+  https://example.com/.well-known/idp-proxy/example
 		  ]]></artwork>
 		</figure>
 		<section title="Authenticating Party">
@@ -1297,24 +1300,24 @@
 		</list>
 	      </t>
 	      <t>
-		<xref target="fig.assert-request"/> shows an
-		example transaction, with the message 
-		"abcde..." being signed and bound to identity
-		"ekr@example.org". In this case, the message has presumably
-		been
-		digitally signed/MACed in some way that the IdP can
-		later verify it, but this is an implementation detail
-		and out of scope of this document. Line breaks are inserted
-		solely for readability.
-	      </t>
+	  <xref target="fig.assert-request"/> shows an
+	  example transaction, with the message 
+	  "abcde..." (remember, the messages are opaque at this layer) being signed and bound to identity
+	  "ekr@example.org". In this case, the message has presumably
+	  been
+	  digitally signed/MACed in some way that the IdP can
+	  later verify it, but this is an implementation detail
+	  and out of scope of this document. Line breaks are inserted
+	  solely for readability.</t>
 	      
 	      <figure title="Example assertion request" anchor="fig.assert-request">
 		<artwork><![CDATA[
     PeerConnection -> IdP proxy:
       {
         "type":"SIGN",
-        "id":1,
-        "message":"abcdefghijklmnopqrstuvwyz"
+         "id":1,
+         "origin":"https://calling-service.example.com/",
+         "message":"abcdefghijklmnopqrstuvwyz"
       }
       
     IdPProxy -> PeerConnection:
@@ -1381,6 +1384,7 @@
         {
           "type":"VERIFY",
           "id":2,
+          "origin":"https://calling-service.example.com/",
 	  "message":\"{\"identity\":\"bob@example.org\",
 	               \"contents\":\"abcdefghijklmnopqrstuvwyz\",
                        \"signature\":\"010203040506\"}"
@@ -1401,7 +1405,7 @@
 ]]>
 		</artwork>
 	      </figure>
-
+	      
 	      <section title="Identity Formats" anchor="sec.id-format">
 		<t>
 		  Identities passed from the IdP proxy to the PeerConnection
@@ -1444,6 +1448,8 @@
 		  relies on trust in the IdP. In future,
 		  we may define other fields to allow the IdP to
 		  provide more information to the browser.
+		  [[OPEN ISSUE: Should this field exist? Is it
+		  confusing? ]]
 		</t>
 	      </section>
 	      
@@ -1496,7 +1502,7 @@
 	the security of the third party--this is of course also true
 	of your connection to the Web site itself. Users who wish to
 	assure themselves of security against a malicious identity
-	provider can only do so by verifing peer credentials directly, e.g., by
+	provider can only do so by verifying peer credentials directly, e.g., by
 	checking the peer's fingerprint against a value delivered out
 	of band.
       </t>
@@ -1568,8 +1574,9 @@
 	potentially causing overload.
 	Muxing multiple media flows over a single transport makes 
 	it harder to individually suppress a single flow by denying
-	ICE keepalives. Media-level (RTCP) mechanisms must be
-	used in this case.
+	ICE keepalives. Either media-level (RTCP) mechanisms must be
+	used or the implementation must deny responses entirely,
+	thus termnating the call.
       </t>
       <t>
 	Yet another attack, suggested by Magnus Westerlund,
@@ -1581,15 +1588,15 @@
 	the victim, which looks like large-scale parallel forking.
 	The victim still responds to ICE responses and 
 	now the browsers all try to send media to the victim.
-	[[ OPEN ISSUE: How do we address this? ]]
-      </t>
-      <t>
-        [TODO: Should we have a mechanism for verifying total expected
-        bandwidth]
+	Implementations can defend themselves from this attack
+	by only responding to ICE Binding Requests for a limited
+	number of remote ufrags (this is the reason for
+	the requirement that the JS not be able to control
+	the ufrag and password).
       </t>
       <t>
 	Note that attacks based on confusing one end or the other about
-	consent are possible primarily even in the face of the
+	consent are possible even in the face of the
 	third-party identity mechanism as long as major parts of 
 	the signaling messages are not signed. On the other hand,
 	signing the entire message severely restricts the capabilities
@@ -1608,7 +1615,7 @@
 	that RPs will accept.
       </t>
 
-      <section title="PeerConnection Origin Check" anchor="sec.pc-origin">
+<!--      <section title="PeerConnection Origin Check" anchor="sec.pc-origin">
 	<t>
 	  Fundamentally, the IdP proxy is just a piece of HTML and JS
 	  loaded by the browser, so nothing stops a Web attacker o
@@ -1621,7 +1628,7 @@
 	  from an appropriate origin and so cannot create acceptable
 	  assertions. [[OPEN ISSUE: Where is this enforced? ]]
 	</t>
-      </section>
+      </section> -->
 
       <section title="IdP Well-known URI" anchor="sec.sec-idp-uri">
 	<t>
@@ -1714,21 +1721,9 @@
     <t>
       Bernard Aboba, Harald Alvestrand, Dan Druta,
       Cullen Jennings, Hadriel Kaplan, Matthew Kaufman,
-      Jim McEachern,
-      Martin Thomson, Magnus Westerland.
+      Jim McEachem, Martin Thomson, Magnus Westerland.
     </t>
   </section>
-  <section title="Changes since -03">
-    <t>
-      The following changes have been made since the -02 draft.
-    </t>
-    <t>
-      <list style="symbols">
-	<t>Editorial changes</t>
-      </list>
-    </t>
-  </section>
-
   <section title="Changes since -02">
     <t>
       The following changes have been made since the -02 draft.
@@ -1738,6 +1733,8 @@
 	<t>Forbid persistent HTTP permissions.</t>
 	<t>Clarified the text in S 5.4 to clearly refer to requirements on the API to provide functionality to the site.</t>
 	<t>Fold in the IETF portion of draft-rescorla-rtcweb-generic-idp</t>
+	<t>Retarget the continuing consent section to assume Binding Requests</t>
+	<t>Editorial improvements</t>
       </list>
     </t>
   </section>
