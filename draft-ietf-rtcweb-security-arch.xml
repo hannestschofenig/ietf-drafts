@@ -36,7 +36,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-arch-03"
+<rfc category="std" docName="draft-ietf-rtcweb-security-arch-04"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTCWEB Sec. Arch.">RTCWEB Security Architecture</title>
@@ -63,7 +63,7 @@
       </address>
     </author>
 
-    <date day="16" month="July" year="2012" />
+    <date day="22" month="October" year="2012" />
 
     <area>RAI</area>
 
@@ -471,6 +471,9 @@
 	  specifies periodic STUN keepalizes but only if media is not flowing.
 	  Because the consent issue is more difficult here, we 
 	  require RTCWeb implementations to periodically send keepalives.
+	  As described in Section 5.3, these
+	  keepalives MUST be based on the consent freshness mechanism specified
+	  in <xref target="I-D.muthu-behave-consent-freshness"/>.
 	  If a keepalive fails and no new ICE channels can be established, then 
 	  the session is terminated.
 	</t>
@@ -543,10 +546,10 @@
 	  <t hangText="API Requirement:">
 	    The API MUST provide a mechanism for the requesting JS to
 	    indicate which of these forms of permissions it is 
-	    requesting. This allows the browser to know what sort
+	    requesting. This allows the browser client to know what sort
 	    of user interface experience to provide to the user,
 	    including what permissions to request from the user
-	    and hence that to enforce later.
+	    and hence what to enforce later.
 	    For instance,
 	    browsers might display a non-invasive door hanger
 	    ("some features of this site may not work..." when
@@ -652,7 +655,7 @@
 	  for continuing consent freshness. ICE already requires that
 	  implementations respond to such requests, so this approach is maximally
 	  compatible. A separate document will profile the ICE timers
-	  to be used [[TODO: insert REF here when available.]]
+	  to be used; see <xref target="I-D.muthu-behave-consent-freshness"/>.
 	</t>
       </section>
       <section title="IP Location Privacy" anchor="sec.proposal.ip.location.privacy">
@@ -776,7 +779,10 @@
 
 	      <t>If the far endpoint was directly verified, either via a third-party
 	      verifiable X.509 certificate or via a Web IdP mechanism (see <xref target="sec.generic.idp"/>)
-	      the "security characteristics" MUST include the verified information.</t>
+	      the "security characteristics" MUST include the verified information.
+	      X.509 identities and Web IdP identities
+	      have similar semantics and should be displayed in a similar way.
+	      </t>
 	    </list>
 	  </t>
 	  <t></t>
@@ -1721,9 +1727,26 @@
     <t>
       Bernard Aboba, Harald Alvestrand, Dan Druta,
       Cullen Jennings, Hadriel Kaplan, Matthew Kaufman,
-      Jim McEachem, Martin Thomson, Magnus Westerland.
+      Jim McEachern, Martin Thomson, Magnus Westerland.
     </t>
   </section>
+
+  <section title="Changes since -03">
+    <t>Version -04 was a version control mistake. Please ignore.</t>
+    <t>
+      The following changes have been made since the -04 draft.	
+    </t>
+    <t>
+    <list style="symbols">
+      <t>Editorial cleanup.</t>
+      <t>Clarified treatment of X.509-level identities.</t>
+    </list>
+    </t>
+  </section>
+
+  <section title="Changes since -03">
+  </section>
+  
   <section title="Changes since -02">
     <t>
       The following changes have been made since the -02 draft.
