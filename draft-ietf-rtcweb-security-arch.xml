@@ -1843,9 +1843,10 @@
 	  other entity with access to the user's authentication data)
 	  attests to the request and hence to the fingerprint.
 	  It does not demonstrate that the browser has access to the
-	  associated private key. However, there does not appear to
-	  be any significant attack associated with attaching one's
-	  identity to a key that the user does not control, so
+	  associated private key. However, attaching one's
+	  identity to a key that the user does not control does
+	  not appear to provide substantial leverage to an attacker,
+	  so
 	  a proof of possession is omitted for simplicity.
 	</t>
       </section>
@@ -1946,6 +1947,7 @@
   </section>
 
 
+  <section title="Changes">
   <section title="Changes since -05">
     <t>
       The following changes have been made since the -05 draft.	
@@ -1992,7 +1994,7 @@
       </list>
     </t>
   </section>
-
+  </section>
   </middle>
 
   <back>

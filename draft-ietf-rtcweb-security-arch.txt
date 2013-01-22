@@ -154,13 +154,13 @@ Table of Contents
          5.7.4.4.  Security of Third-Party IdPs . . . . . . . . . . . 34
          5.7.4.5.  Web Security Feature Interactions  . . . . . . . . 35
    6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 35
-   7.  Changes since -05  . . . . . . . . . . . . . . . . . . . . . . 35
-   8.  Changes since -03  . . . . . . . . . . . . . . . . . . . . . . 36
-   9.  Changes since -03  . . . . . . . . . . . . . . . . . . . . . . 36
-   10. Changes since -02  . . . . . . . . . . . . . . . . . . . . . . 36
-   11. References . . . . . . . . . . . . . . . . . . . . . . . . . . 36
-     11.1. Normative References . . . . . . . . . . . . . . . . . . . 36
-     11.2. Informative References . . . . . . . . . . . . . . . . . . 37
+   7.  Changes  . . . . . . . . . . . . . . . . . . . . . . . . . . . 35
+     7.1.  Changes since -05  . . . . . . . . . . . . . . . . . . . . 36
+     7.2.  Changes since -03  . . . . . . . . . . . . . . . . . . . . 36
+     7.3.  Changes since -03  . . . . . . . . . . . . . . . . . . . . 36
+     7.4.  Changes since -02  . . . . . . . . . . . . . . . . . . . . 36
+   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+     8.1.  Normative References . . . . . . . . . . . . . . . . . . . 36
 
 
 
@@ -169,11 +169,11 @@ Rescorla                  Expires July 16, 2013                 [Page 3]
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
+     8.2.  Informative References . . . . . . . . . . . . . . . . . . 37
    Appendix A.  Example IdP Bindings to Specific Protocols  . . . . . 38
      A.1.  BrowserID  . . . . . . . . . . . . . . . . . . . . . . . . 38
      A.2.  OAuth  . . . . . . . . . . . . . . . . . . . . . . . . . . 41
    Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 42
-
 
 
 
@@ -1859,10 +1859,10 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    Note that this check only asserts that the browser (or some other
    entity with access to the user's authentication data) attests to the
    request and hence to the fingerprint.  It does not demonstrate that
-   the browser has access to the associated private key.  However, there
-   does not appear to be any significant attack associated with
-   attaching one's identity to a key that the user does not control, so
-   a proof of possession is omitted for simplicity.
+   the browser has access to the associated private key.  However,
+   attaching one's identity to a key that the user does not control does
+   not appear to provide substantial leverage to an attacker, so a proof
+   of possession is omitted for simplicity.
 
 5.7.4.2.  IdP Well-known URI
 
@@ -1949,9 +1949,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    Thomson, Magnus Westerland.
 
 
-7.  Changes since -05
+7.  Changes
 
-   The following changes have been made since the -05 draft.
+
 
 
 
@@ -1961,13 +1961,16 @@ Rescorla                  Expires July 16, 2013                [Page 35]
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
+7.1.  Changes since -05
+
+   The following changes have been made since the -05 draft.
+
    o  Response to comments from Richard Barnes
    o  More explanation of the IdP security properties and the federation
       use case.
    o  Editorial cleanup.
 
-
-8.  Changes since -03
+7.2.  Changes since -03
 
    Version -04 was a version control mistake.  Please ignore.
 
@@ -1977,11 +1980,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    o  Clarified treatment of X.509-level identities.
    o  Editorial cleanup.
 
+7.3.  Changes since -03
 
-9.  Changes since -03
-
-
-10.  Changes since -02
+7.4.  Changes since -02
 
    The following changes have been made since the -02 draft.
 
@@ -1993,9 +1994,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    o  Editorial improvements
 
 
-11.  References
+8.  References
 
-11.1.  Normative References
+8.1.  Normative References
 
    [I-D.ietf-rtcweb-security]
               Rescorla, E., "Security Considerations for RTC-Web",
@@ -2008,7 +2009,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
               draft-muthu-behave-consent-freshness-02 (work in
               progress), January 2013.
 
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
 
 
 
@@ -2017,6 +2017,7 @@ Rescorla                  Expires July 16, 2013                [Page 36]
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
 
    [RFC2818]  Rescorla, E., "HTTP Over TLS", RFC 2818, May 2000.
@@ -2044,7 +2045,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
               December 2011.
 
-11.2.  Informative References
+8.2.  Informative References
 
    [I-D.ietf-rtcweb-jsep]
               Uberti, J. and C. Jennings, "Javascript Session
@@ -2064,7 +2065,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
    [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
               A., Peterson, J., Sparks, R., Handley, M., and E.
-              Schooler, "SIP: Session Initiation Protocol", RFC 3261,
 
 
 
@@ -2073,6 +2073,7 @@ Rescorla                  Expires July 16, 2013                [Page 37]
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
+              Schooler, "SIP: Session Initiation Protocol", RFC 3261,
               June 2002.
 
    [RFC5705]  Rescorla, E., "Keying Material Exporters for Transport
@@ -2107,7 +2108,6 @@ A.1.  BrowserID
    can be verified directly or with a Web service provided by the
    identity provider.  It's relatively easy to extend this functionality
    to authenticate RTCWEB calls, as shown below.
-
 
 
 
