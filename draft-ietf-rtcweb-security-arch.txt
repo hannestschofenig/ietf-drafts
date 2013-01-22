@@ -3,8 +3,8 @@
 
 RTCWEB                                                       E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                       January 12, 2013
-Expires:  July 16, 2013
+Intended status:  Standards Track                       January 22, 2013
+Expires:  July 26, 2013
 
 
                       RTCWEB Security Architecture
@@ -52,7 +52,7 @@ Status of this Memo
 
 
 
-Rescorla                  Expires July 16, 2013                 [Page 1]
+Rescorla                  Expires July 26, 2013                 [Page 1]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -61,7 +61,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on July 16, 2013.
+   This Internet-Draft will expire on July 26, 2013.
 
 Copyright Notice
 
@@ -108,7 +108,7 @@ Copyright Notice
 
 
 
-Rescorla                  Expires July 16, 2013                 [Page 2]
+Rescorla                  Expires July 26, 2013                 [Page 2]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -164,7 +164,7 @@ Table of Contents
 
 
 
-Rescorla                  Expires July 16, 2013                 [Page 3]
+Rescorla                  Expires July 26, 2013                 [Page 3]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -220,7 +220,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                 [Page 4]
+Rescorla                  Expires July 26, 2013                 [Page 4]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -276,7 +276,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                 [Page 5]
+Rescorla                  Expires July 26, 2013                 [Page 5]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -332,7 +332,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                 [Page 6]
+Rescorla                  Expires July 26, 2013                 [Page 6]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -388,7 +388,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                 [Page 7]
+Rescorla                  Expires July 26, 2013                 [Page 7]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -444,7 +444,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                 [Page 8]
+Rescorla                  Expires July 26, 2013                 [Page 8]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -500,7 +500,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                 [Page 9]
+Rescorla                  Expires July 26, 2013                 [Page 9]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -556,7 +556,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 10]
+Rescorla                  Expires July 26, 2013                [Page 10]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -612,7 +612,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 11]
+Rescorla                  Expires July 26, 2013                [Page 11]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -668,7 +668,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 12]
+Rescorla                  Expires July 26, 2013                [Page 12]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -724,7 +724,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 13]
+Rescorla                  Expires July 26, 2013                [Page 13]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -780,7 +780,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 14]
+Rescorla                  Expires July 26, 2013                [Page 14]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -836,7 +836,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 15]
+Rescorla                  Expires July 26, 2013                [Page 15]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -892,7 +892,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 16]
+Rescorla                  Expires July 26, 2013                [Page 16]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -948,7 +948,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 17]
+Rescorla                  Expires July 26, 2013                [Page 17]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1004,7 +1004,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 18]
+Rescorla                  Expires July 26, 2013                [Page 18]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1060,7 +1060,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 19]
+Rescorla                  Expires July 26, 2013                [Page 19]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1116,7 +1116,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 20]
+Rescorla                  Expires July 26, 2013                [Page 20]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1172,7 +1172,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 21]
+Rescorla                  Expires July 26, 2013                [Page 21]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1228,7 +1228,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 22]
+Rescorla                  Expires July 26, 2013                [Page 22]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1284,7 +1284,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 23]
+Rescorla                  Expires July 26, 2013                [Page 23]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1340,7 +1340,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 24]
+Rescorla                  Expires July 26, 2013                [Page 24]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1396,7 +1396,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 25]
+Rescorla                  Expires July 26, 2013                [Page 25]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1452,7 +1452,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 26]
+Rescorla                  Expires July 26, 2013                [Page 26]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1508,7 +1508,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 27]
+Rescorla                  Expires July 26, 2013                [Page 27]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1564,7 +1564,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 28]
+Rescorla                  Expires July 26, 2013                [Page 28]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1620,7 +1620,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 29]
+Rescorla                  Expires July 26, 2013                [Page 29]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1676,7 +1676,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 30]
+Rescorla                  Expires July 26, 2013                [Page 30]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1732,7 +1732,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 31]
+Rescorla                  Expires July 26, 2013                [Page 31]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1788,7 +1788,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 32]
+Rescorla                  Expires July 26, 2013                [Page 32]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1844,7 +1844,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 33]
+Rescorla                  Expires July 26, 2013                [Page 33]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1900,7 +1900,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 34]
+Rescorla                  Expires July 26, 2013                [Page 34]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -1956,7 +1956,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 35]
+Rescorla                  Expires July 26, 2013                [Page 35]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2012,7 +2012,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 36]
+Rescorla                  Expires July 26, 2013                [Page 36]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2068,7 +2068,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 37]
+Rescorla                  Expires July 26, 2013                [Page 37]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2124,7 +2124,7 @@ A.1.  BrowserID
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 38]
+Rescorla                  Expires July 26, 2013                [Page 38]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2180,7 +2180,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 39]
+Rescorla                  Expires July 26, 2013                [Page 39]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2236,7 +2236,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 40]
+Rescorla                  Expires July 26, 2013                [Page 40]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2292,7 +2292,7 @@ A.2.  OAuth
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 41]
+Rescorla                  Expires July 26, 2013                [Page 41]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2348,5 +2348,5 @@ Author's Address
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 42]
+Rescorla                  Expires July 26, 2013                [Page 42]
 

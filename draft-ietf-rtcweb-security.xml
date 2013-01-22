@@ -30,7 +30,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-03"
+<rfc category="std" docName="draft-ietf-rtcweb-security-04"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTC-Web Security">Security Considerations for RTC-Web</title>
@@ -57,7 +57,7 @@
       </address>
     </author>
 
-    <date day="04" month="January" year="2012" />
+    <date day="22" month="January" year="2013" />
 
     <area>RAI</area>
 
