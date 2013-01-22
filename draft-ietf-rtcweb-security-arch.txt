@@ -129,10 +129,10 @@ Table of Contents
      5.1.  Origin and Web Security Issues . . . . . . . . . . . . . . 14
      5.2.  Device Permissions Model . . . . . . . . . . . . . . . . . 14
      5.3.  Communications Consent . . . . . . . . . . . . . . . . . . 16
-     5.4.  IP Location Privacy  . . . . . . . . . . . . . . . . . . . 16
-     5.5.  Communications Security  . . . . . . . . . . . . . . . . . 17
+     5.4.  IP Location Privacy  . . . . . . . . . . . . . . . . . . . 17
+     5.5.  Communications Security  . . . . . . . . . . . . . . . . . 18
      5.6.  Web-Based Peer Authentication  . . . . . . . . . . . . . . 19
-       5.6.1.  Trust Relationships: IdPs, APs, and RPs  . . . . . . . 19
+       5.6.1.  Trust Relationships: IdPs, APs, and RPs  . . . . . . . 20
        5.6.2.  Overview of Operation  . . . . . . . . . . . . . . . . 21
        5.6.3.  Items for Standardization  . . . . . . . . . . . . . . 23
        5.6.4.  Binding Identity Assertions to JSEP Offer/Answer
@@ -148,19 +148,19 @@ Table of Contents
        5.7.3.  Denial of Service  . . . . . . . . . . . . . . . . . . 32
        5.7.4.  IdP Authentication Mechanism . . . . . . . . . . . . . 33
          5.7.4.1.  PeerConnection Origin Check  . . . . . . . . . . . 33
-         5.7.4.2.  IdP Well-known URI . . . . . . . . . . . . . . . . 33
+         5.7.4.2.  IdP Well-known URI . . . . . . . . . . . . . . . . 34
          5.7.4.3.  Privacy of IdP-generated identities and the
-                   hosting site . . . . . . . . . . . . . . . . . . . 33
+                   hosting site . . . . . . . . . . . . . . . . . . . 34
          5.7.4.4.  Security of Third-Party IdPs . . . . . . . . . . . 34
-         5.7.4.5.  Web Security Feature Interactions  . . . . . . . . 34
+         5.7.4.5.  Web Security Feature Interactions  . . . . . . . . 35
    6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 35
-   7.  Changes since -03  . . . . . . . . . . . . . . . . . . . . . . 35
-   8.  Changes since -03  . . . . . . . . . . . . . . . . . . . . . . 35
-   9.  Changes since -02  . . . . . . . . . . . . . . . . . . . . . . 35
-   10. References . . . . . . . . . . . . . . . . . . . . . . . . . . 35
-     10.1. Normative References . . . . . . . . . . . . . . . . . . . 35
-     10.2. Informative References . . . . . . . . . . . . . . . . . . 36
-   Appendix A.  Example IdP Bindings to Specific Protocols  . . . . . 37
+   7.  Changes since -05  . . . . . . . . . . . . . . . . . . . . . . 35
+   8.  Changes since -03  . . . . . . . . . . . . . . . . . . . . . . 36
+   9.  Changes since -03  . . . . . . . . . . . . . . . . . . . . . . 36
+   10. Changes since -02  . . . . . . . . . . . . . . . . . . . . . . 36
+   11. References . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+     11.1. Normative References . . . . . . . . . . . . . . . . . . . 36
+     11.2. Informative References . . . . . . . . . . . . . . . . . . 37
 
 
 
@@ -169,10 +169,10 @@ Rescorla                  Expires July 16, 2013                 [Page 3]
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
-     A.1.  BrowserID  . . . . . . . . . . . . . . . . . . . . . . . . 37
-     A.2.  OAuth  . . . . . . . . . . . . . . . . . . . . . . . . . . 40
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 41
-
+   Appendix A.  Example IdP Bindings to Specific Protocols  . . . . . 38
+     A.1.  BrowserID  . . . . . . . . . . . . . . . . . . . . . . . . 38
+     A.2.  OAuth  . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 42
 
 
 
@@ -545,7 +545,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    This sort of identity service is becoming increasingly common in the
    Web environment in technologies such (BrowserID, Federated Google
    Login, Facebook Connect, OAuth, OpenID, WebFinger), and is often
-   provided as a side effect service of user's ordinary accounts with
+   provided as a side effect service of a user's ordinary accounts with
    some service.  In this example, we show Alice and Bob using a
    separate identity service, though the identity service may be the
    same entity as the calling service or there may be no identity
@@ -584,10 +584,10 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
    o  Media channel information
    o  ICE candidates
-   o  A fingerprint attribute binding the communication to Alice's
-      public key [RFC5763].  Note that this key may simply be
-      ephemerally generated for this call or specific to this domain,
-      and Alice may have a large number of such keys.
+   o  A fingerprint attribute binding the communication to a key pair
+      [RFC5763].  Note that this key may simply be ephemerally generated
+      for this call or specific to this domain, and Alice may have a
+      large number of such keys.
 
    Prior to sending out the signaling message, the PeerConnection code
    contacts the identity service and obtains an assertion binding
@@ -608,7 +608,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    so Bob's browser contacts Alice's identity provider (again, this is
    done in a generic way so the browser has no specific knowledge of the
    IdP) to verify the assertion.  This allows the browser to display a
-   trusted element in the browser Chrome indicating that a call is
+   trusted element in the browser chrome indicating that a call is
 
 
 
@@ -635,12 +635,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    At this point, Alice and Bob each know that the other party wants to
    have a secure call with them.  Based purely on the interface provided
    by the signaling server, they know that the signaling server claims
-   that the call is from Alice to Bob. Because the far end sent an
-   identity assertion along with their message, they know that this is
-   verifiable from the IdP as well.  Note that if the call is federated,
-   as shown in Figure 4 then Alice is able to verify Bob's identity in a
-   way that is not mediated by either her signaling server or Bob's.
-   Rather, she verifies it directly with Bob's IdP.
+   that the call is from Alice to Bob. This level of security is
+   provided merely by having the fingerprint in the message and having
+   that message received securely from the signaling server.  Because
+   the far end sent an identity assertion along with their message, they
+   know that this is verifiable from the IdP as well.  Note that if the
+   call is federated, as shown in Figure 4 then Alice is able to verify
+   Bob's identity in a way that is not mediated by either her signaling
+   server or Bob's.  Rather, she verifies it directly with Bob's IdP.
 
    Of course, the call works perfectly well if either Alice or Bob
    doesn't have a relationship with an IdP; they just get a lower level
@@ -653,7 +655,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 4.2.  Media Consent Verification
 
-   As described in ([I-D.ietf-rtcweb-security]; Section 4.2) Media
+   As described in ([I-D.ietf-rtcweb-security]; Section 4.2) media
    consent verification is provided via ICE.  Thus, Alice and Bob
    perform ICE checks with each other.  At the completion of these
    checks, they are ready to send non-ICE data.
@@ -663,8 +665,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    is willing to exchange traffic with her and (b) that either Bob is at
    the IP address which she has verified via ICE or there is an attacker
    who is on-path to that IP address detouring the traffic.  Note that
-   it is not possible for an attacker who is on-path between Alice and
-   Bob but not attached to the signaling service to spoof these checks
 
 
 
@@ -673,8 +673,10 @@ Rescorla                  Expires July 16, 2013                [Page 12]
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
-   because they do not have the ICE credentials.  Bob's security
-   guarantees with respect to Alice are the dual of this.
+   it is not possible for an attacker who is on-path between Alice and
+   Bob but not attached to the signaling service to spoof these checks
+   because they do not have the ICE credentials.  Bob's has the same
+   security guarantees with respect to Alice.
 
 4.3.  DTLS Handshake
 
@@ -719,14 +721,15 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    Section 5.3, these keepalives MUST be based on the consent freshness
    mechanism specified in [I-D.muthu-behave-consent-freshness].  If a
    keepalive fails and no new ICE channels can be established, then the
-   session is terminated.
-
 
 
 
 Rescorla                  Expires July 16, 2013                [Page 13]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
+   session is terminated.
 
 
 5.  Detailed Technical Description
@@ -774,9 +777,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    Because HTTP origins cannot be securely established against network
    attackers, implementations MUST NOT allow the setting of permanent
    access permissions for HTTP origins.  Implementations MAY also opt to
-   refuse all permissions grants for HTTP origins, but it is RECOMMENDED
-   that currently they support one-time camera/microphone access.
-
 
 
 
@@ -785,15 +785,23 @@ Rescorla                  Expires July 16, 2013                [Page 14]
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
-   In addition, they SHOULD support requests for access to a single
-   communicating peer.  E.g., "Call customerservice@ford.com".  The
-   semantics of this request are that the media stream from the camera
-   and microphone will only be routed through a connection which has
-   been cryptographically verified (through the IdP mechanism or an
-   X.509 certificate in the DTLS-SRTP handshake) as being associated
-   with the stated identity.  Browsers servicing such requests SHOULD
-   clearly indicate that identity to the user when asking for
-   permission.
+   refuse all permissions grants for HTTP origins, but it is RECOMMENDED
+   that currently they support one-time camera/microphone access.
+
+   In addition, they SHOULD support requests for access that promise
+   that media from this grant will be sent to a single communicating
+   peer (obviously there could be other requests for other peers).
+   E.g., "Call customerservice@ford.com".  The semantics of this request
+   are that the media stream from the camera and microphone will only be
+   routed through a connection which has been cryptographically verified
+   (through the IdP mechanism or an X.509 certificate in the DTLS-SRTP
+   handshake) as being associated with the stated identity.  Browsers
+   servicing such requests SHOULD clearly indicate that identity to the
+   user when asking for permission.  The idea behind this type of
+   permissions is that a user might have a fairly narrow list of peers
+   he is willing to communicate with, e.g., "my mother" rather than
+   "anyone on Facebook".  Narrow permissions grants allow the browser to
+   do that enforcement.
 
    API Requirement:  The API MUST provide a mechanism for the requesting
       JS to indicate which of these forms of permissions it is
@@ -821,6 +829,18 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       device access, and provide a UI means to immediately stop camera/
       microphone input without the JS being able to prevent it.
 
+
+
+
+
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 15]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
    UI Requirement:  If the UI indication of camera/microphone use are
       displayed in the browser such that minimizing the browser window
       would hide the indication, or the JS creating an overlapping
@@ -833,13 +853,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    user approval.  Because sites can always tunnel data through the
    server, further restrictions on the data channel do not provide any
    additional security. (though see Section 5.3 for a related issue).
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 15]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
 
    Implementations which support some form of direct user authentication
    SHOULD also provide a policy by which a user can authorize calls only
@@ -876,6 +889,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    keepalives STUN Binding Indications are one-way and therefore not
    sufficient.  The current WG consensus is to use ICE Binding Requests
    for continuing consent freshness.  ICE already requires that
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 16]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
    implementations respond to such requests, so this approach is
    maximally compatible.  A separate document will profile the ICE
    timers to be used; see [I-D.muthu-behave-consent-freshness].
@@ -889,14 +910,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    section are intended to mitigate this issue.  Note that these
    requirements are NOT intended to protect the user's IP address from a
    malicious site.  In general, the site will learn at least a user's
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 16]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    server reflexive address from any HTTP transaction.  Rather, these
    requirements are intended to allow a site to cooperate with the user
    to hide the user's IP address from the other side of the call.
@@ -930,6 +943,16 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       turn candidates during an active call if the user decides they no
       longer need to hide their IP address
 
+
+
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 17]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
 5.5.  Communications Security
 
    Implementations MUST implement DTLS [RFC4347] and DTLS-SRTP
@@ -942,16 +965,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    [OPEN ISSUE:  What should the settings be here?  MUST?]
    Implementations MAY support SDES for media traffic for backward
    compatibility purposes.
-
-
-
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 17]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
 
    API Requirement:  The API MUST provide a mechanism to indicate that a
       fresh DTLS key pair is to be generated for a specific call.  This
@@ -988,6 +1001,15 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
          identities have similar semantics and should be displayed in a
          similar way.
 
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 18]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
+
       The following properties are more likely to require some "drill-
       down" from the user:
 
@@ -998,16 +1020,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       *  The "security characteristics" MUST include some mechanism to
          allow an out-of-band verification of the peer, such as a
          certificate fingerprint or an SAS.
-
-
-
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 18]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
 
 5.6.  Web-Based Peer Authentication
 
@@ -1045,6 +1057,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    introduced without change to either the browser or the calling
    service.  This avoids the need to make a commitment to any particular
    identity protocol, although browsers may opt to directly implement
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 19]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
    some identity protocols in order to provide superior performance or
    UI properties.
 
@@ -1054,17 +1074,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
    Authenticating Party (AP):  The entity which is trying to establish
       its identity.
-
-
-
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 19]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
 
    Identity Provider (IdP):  The entity which is vouching for the AP's
       identity.
@@ -1104,15 +1113,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       potentially be multiple IdPs attesting to the same section of the
       identity space.  Probably the best-known example of a third-party
       identity provider is SSL certificates, where there are a large
-      number of CAs all of whom can attest to any domain name.
-
-   If an AP is authenticating via an authoritative IdP, then the RP does
-   not need to explicitly configure trust inthe IdP at all, because the
-   identity mechanism can directly the IdP indeed made the relevant
-   identity assertion (a function provided by the mechanisms in this
-   document), then any assertion it makes about an identity for which it
-   is authoritative is directly verifiable.  Note that this does not
-   mean that the IdP might not lie, but that is a trustworthiness
 
 
 
@@ -1121,8 +1121,17 @@ Rescorla                  Expires July 16, 2013                [Page 20]
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
-   judgement that the user can make at the time he looks at the
-   identity.
+      number of CAs all of whom can attest to any domain name.
+
+   If an AP is authenticating via an authoritative IdP, then the RP does
+   not need to explicitly configure trust in the IdP at all.  The
+   identity mechanism can directly verify that the IdP indeed made the
+   relevant identity assertion (a function provided by the mechanisms in
+   this document), and any assertion it makes about an identity for
+   which it is authoritative is directly verifiable.  Note that this
+   does not mean that the IdP might not lie, but that is a
+   trustworthiness judgement that the user can make at the time he looks
+   at the identity.
 
    By contrast, if an AP is authenticating via a third-party IdP, the RP
    needs to explicitly trust that IdP (hence the need for an explicit
@@ -1152,15 +1161,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    The same IdP JS "endpoint" is used for both functions but of course a
    given IdP might behave differently and load new JS to perform one
    function or the other.
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1705,11 +1705,38 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    do so by verifying peer credentials directly, e.g., by checking the
    peer's fingerprint against a value delivered out of band.
 
+   In order to protect against malicious content JavaScript, that
+   JavaScript MUST NOT be allowed to have direct access to---or perform
+   computations with---DTLS keys.  For instance, if content JS were able
+   to compute digital signatures, then it would be possible for content
+   JS to get an identity assertion for a browser's generated key and
+   then use that assertion plus a signature by the key to authenticate a
+   call protected under an ephemeral DH key controlled by the content
+   JS, thus violating the security guarantees otherwise provided by the
+   IdP mechanism.  Note that it is not sufficient merely to deny the
+   content JS direct access to the keys, as some have suggested doing
+   with the WebCrypto API.  The JS must also not be allowed to perform
+   operations that would be valid for a DTLS endpoint.  By far the
+   safest approach is simply to deny the ability to perform any
+   operations that depend on secret information associated with the key.
+   Operations that depend on public information, such as exporting the
+   public key are of course safe.
+
 5.7.2.  Privacy
 
    The requirements in this document are intended to allow:
 
    o  Users to participate in calls without revealing their location.
+
+
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 31]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
    o  Potential callees to avoid revealing their location and even
       presence status prior to agreeing to answer a call.
 
@@ -1726,16 +1753,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    implementations SHOULD arrange to route the media as well as the
    signaling through Tor. [Currently this will produce very suboptimal
    performance.]
-
-
-
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 31]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
 
 5.7.3.  Denial of Service
 
@@ -1768,6 +1785,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    it harder to individually suppress a single flow by denying ICE
    keepalives.  Either media-level (RTCP) mechanisms must be used or the
    implementation must deny responses entirely, thus termnating the
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 32]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
    call.
 
    Yet another attack, suggested by Magnus Westerlund, is for the
@@ -1785,14 +1810,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    Note that attacks based on confusing one end or the other about
    consent are possible even in the face of the third-party identity
    mechanism as long as major parts of the signaling messages are not
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 32]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    signed.  On the other hand, signing the entire message severely
    restricts the capabilities of the calling application, so there are
    difficult tradeoffs here.
@@ -1814,15 +1831,38 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    own IFRAME, loading the IdP proxy HTML/JS, and requesting a
    signature.  In order to prevent this attack, we require that all
    signatures be tied to a specific origin ("rtcweb://...") which cannot
-   be produced by a page tied to a Web attacker.  Thus, while an
-   attacker can instantiate the IdP proxy, they cannot send messages
-   from an appropriate origin and so cannot create acceptable
-   assertions.  This origin check is enforced on the relying party side,
-   not on the authenticating party side.  The reason for this is to take
-   the burden of knowing which origins are valid off of the IdP, thus
-   making this mechanism extensible to other applications besides
-   RTCWEB.  The IdP simply needs to gather the origin information (from
-   the posted message) and attach it to the assertion.
+   be produced by content JavaScript.  Thus, while an attacker can
+   instantiate the IdP proxy, they cannot send messages from an
+   appropriate origin and so cannot create acceptable assertions.  I.e.,
+   the assertion request must have come from the browser.  This origin
+   check is enforced on the relying party side, not on the
+   authenticating party side.  The reason for this is to take the burden
+   of knowing which origins are valid off of the IdP, thus making this
+   mechanism extensible to other applications besides RTCWEB.  The IdP
+   simply needs to gather the origin information (from the posted
+   message) and attach it to the assertion.
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 33]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
+   Note that although this origin check is enforced on the RP side and
+   not at the IdP, it is absolutely imperative that it be done.  The
+   mechanisms in this document rely on the browser enforcing access
+   restrictions on the DTLS keys and assertion requests which do not
+   come with the right origin may be from content JS rather than from
+   browsers, and therefore those access restrcitions cannot be assumed.
+
+   Note that this check only asserts that the browser (or some other
+   entity with access to the user's authentication data) attests to the
+   request and hence to the fingerprint.  It does not demonstrate that
+   the browser has access to the associated private key.  However, there
+   does not appear to be any significant attack associated with
+   attaching one's identity to a key that the user does not control, so
+   a proof of possession is omitted for simplicity.
 
 5.7.4.2.  IdP Well-known URI
 
@@ -1841,14 +1881,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    logged in with Facebook Connect and is then authenticating their call
    with a Facebook identity.  However, in other case, the user may not
    have already revealed their identity to the site.  In general, IdPs
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 33]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    SHOULD either verify that the user is willing to have their identity
    revealed to the site (e.g., through the usual IdP permissions dialog)
    or arrange that the identity information is only available to known
@@ -1865,6 +1897,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    limited.  Most IdPs, even those which issue unqualified identities
    such as Facebook, can be recast as authoritative IdPs (e.g.,
    123456@facebook.com).  However, in such cases, the user interface
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 34]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
    implications are not entirely desirable.  One intermediate approach
    is to have special (potentially user configurable) UI for large
    authoritative IdPs, thus allowing the user to instantly grasp that
@@ -1897,14 +1937,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    Some browsers allow users to block third party cookies (cookies
    associated with origins other than the top level page) for privacy
    reasons.  Any IdP which uses cookies to persist logins will be broken
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 34]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    by third-party cookie blocking.  One option is to accept this as a
    limitation; another is to have the PeerConnection object disable
    third-party cookie blocking for the IdP proxy.
@@ -1912,12 +1944,30 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 6.  Acknowledgements
 
-   Bernard Aboba, Harald Alvestrand, Dan Druta, Cullen Jennings, Hadriel
-   Kaplan, Matthew Kaufman, Jim McEachern, Martin Thomson, Magnus
-   Westerland.
+   Bernard Aboba, Harald Alvestrand, Richard Barnes, Dan Druta, Cullen
+   Jennings, Hadriel Kaplan, Matthew Kaufman, Jim McEachern, Martin
+   Thomson, Magnus Westerland.
 
 
-7.  Changes since -03
+7.  Changes since -05
+
+   The following changes have been made since the -05 draft.
+
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 35]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
+   o  Response to comments from Richard Barnes
+   o  More explanation of the IdP security properties and the federation
+      use case.
+   o  Editorial cleanup.
+
+
+8.  Changes since -03
 
    Version -04 was a version control mistake.  Please ignore.
 
@@ -1928,10 +1978,10 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    o  Editorial cleanup.
 
 
-8.  Changes since -03
+9.  Changes since -03
 
 
-9.  Changes since -02
+10.  Changes since -02
 
    The following changes have been made since the -02 draft.
 
@@ -1943,9 +1993,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    o  Editorial improvements
 
 
-10.  References
+11.  References
 
-10.1.  Normative References
+11.1.  Normative References
 
    [I-D.ietf-rtcweb-security]
               Rescorla, E., "Security Considerations for RTC-Web",
@@ -1953,20 +2003,20 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
               June 2012.
 
    [I-D.muthu-behave-consent-freshness]
+              Perumal, M., Wing, D., R, R., and H. Kaplan, "STUN Usage
+              for Consent Freshness",
+              draft-muthu-behave-consent-freshness-02 (work in
+              progress), January 2013.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 35]
+Rescorla                  Expires July 16, 2013                [Page 36]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
-              Perumal, M., Wing, D., and H. Kaplan, "STUN Usage for
-              Consent Freshness and Session Liveness",
-              draft-muthu-behave-consent-freshness-01 (work in
-              progress), July 2012.
-
-   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
 
    [RFC2818]  Rescorla, E., "HTTP Over TLS", RFC 2818, May 2000.
@@ -1994,7 +2044,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
               December 2011.
 
-10.2.  Informative References
+11.2.  Informative References
 
    [I-D.ietf-rtcweb-jsep]
               Uberti, J. and C. Jennings, "Javascript Session
@@ -2009,20 +2059,20 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
    [I-D.kaufman-rtcweb-security-ui]
               Kaufman, M., "Client Security User Interface Requirements
-
-
-
-Rescorla                  Expires July 16, 2013                [Page 36]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
               for RTCWEB", draft-kaufman-rtcweb-security-ui-00 (work in
               progress), June 2011.
 
    [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
               A., Peterson, J., Sparks, R., Handley, M., and E.
               Schooler, "SIP: Session Initiation Protocol", RFC 3261,
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 37]
+
+Internet-Draft              RTCWEB Sec. Arch.               January 2013
+
+
               June 2002.
 
    [RFC5705]  Rescorla, E., "Keying Material Exporters for Transport
@@ -2068,7 +2118,13 @@ A.1.  BrowserID
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 37]
+
+
+
+
+
+
+Rescorla                  Expires July 16, 2013                [Page 38]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2124,7 +2180,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 38]
+Rescorla                  Expires July 16, 2013                [Page 39]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2180,7 +2236,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 39]
+Rescorla                  Expires July 16, 2013                [Page 40]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2236,7 +2292,7 @@ A.2.  OAuth
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 40]
+Rescorla                  Expires July 16, 2013                [Page 41]
 
 Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
@@ -2292,5 +2348,5 @@ Author's Address
 
 
 
-Rescorla                  Expires July 16, 2013                [Page 41]
+Rescorla                  Expires July 16, 2013                [Page 42]
 

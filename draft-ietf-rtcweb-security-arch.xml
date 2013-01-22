@@ -36,7 +36,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-arch-05"
+<rfc category="std" docName="draft-ietf-rtcweb-security-arch-06"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="RTCWEB Sec. Arch.">RTCWEB Security Architecture</title>
@@ -63,7 +63,7 @@
       </address>
     </author>
 
-    <date day="22" month="October" year="2012" />
+    <date day="12" month="January" year="2013" />
 
     <area>RAI</area>
 
@@ -134,6 +134,35 @@
                   +-----------+            +-----------+
  	]]></artwork>
       </figure>
+      <t>
+	A more complicated system might allow for interdomain calling,
+	as shown in <xref target="fig.multidomain"/>.
+	The protocol to be used between the domains
+	is not standardized by RTCWEB, but given the installed
+	base and the form of the RTCWEB API is likely to be something
+	SDP-based like SIP or XMPP.
+      </t>
+      <figure title="A multidomain RTCWEB system" anchor="fig.multidomain">
+	<artwork><![CDATA[
+                 +--------------+             +--------------+
+                 |              | SIP,XMPP,...|              |
+                 |  Web Server  |<----------->|  Web Server  |
+                 |              |             |              |
+                 +--------------+             +--------------+
+                        ^	                      ^ 
+                        |	                      |
+                  HTTP  |	                      |  HTTP
+                        |	                      |
+                        v	                      v
+                        JS API                    JS API
+                  +-----------+                  +-----------+
+                  |           |        Media     |           |
+                  |  Browser  |<---------------->|  Browser  |
+                  |           |                  |           |                  
+                  +-----------+                  +-----------+
+ 	]]></artwork>
+      </figure>
+
       <t>
 	This system presents a number of new security challenges,
 	which are analyzed in <xref target="I-D.ietf-rtcweb-security"/>.
@@ -244,21 +273,38 @@
       </t>
       <t>
 	For the purposes of this example, we assume the topology shown
-	in the figure below. This topology is derived from the 
+	in the figures below. This topology is derived from the 
 	topology shown in <xref target="fig.simple"/>, but separates
 	Alice and Bob's identities from the process of signaling.
 	Specifically, Alice and Bob have relationships with 
-	some Identity Provider (IdP) 
-	that supports a protocol such OpenID or BrowserID) that 
-	can be used to attest to their identity.
-	This separation isn't particularly important in "closed world"
+	some Identity Provider (IdP) that supports a protocol such
+	as OpenID or BrowserID) that can be used to demonstrate
+	their identity to other parties. For instance, Alice might
+	have an account with a social network which she can then
+	use to authenticate to other web sites without explicitly
+	having an account with those sites; this is a fairly conventional
+	pattern on the Web. <xref target="sec.trust-relationships"/>
+	provides an overview of Identity Providers and the relevant terminology.
+      </t>
+      <t>
+	This separation of identity provision and signaling
+	isn't particularly important in "closed world"
 	cases where Alice and Bob are users on the same social network and have
-	identities based on that network. However, there are important
+	identities based on that domain (<xref target="fig.proposal.idp"/>)
+	However, there are important
 	settings where that is not the case, such as
-	federation (calls from one network to another) and
+	federation (calls from one domain to another; <xref target="fig.proposal-federated.idp"/>) and
 	calling on untrusted sites, such as where two users who have
 	a relationship via a given social network want to call each
 	other on another, untrusted, site, such as a poker site. 
+      </t>
+      <t>
+	Note that the servers themselves are also authenticated by an external
+	identity service, the SSL/TLS certificate infrastructure (not shown).
+	As is conventional in the Web, all identities are ultimately rooted
+	that system. For instance, when an IdP makes an identity assertion,
+	the Relying Party consuming that assertion is able to verify because
+	it is able to connect to the IdP via HTTPS.
       </t>
       <figure title="A call with IdP-based identity" anchor="fig.proposal.idp">
 	<artwork><![CDATA[
@@ -290,9 +336,50 @@
                   +-----------+            +-----------+
  	]]></artwork>
       </figure>
+      <t>
+	<xref target="fig.proposal-federated.idp"/> shows essentially
+	the same calling scenario but with a call between two 
+	separate domains (i.e., a federated case). As mentioned
+	above, the domains communicate by some unspecified
+	protocol and providing separate signaling and identity
+	allows for calls to be authenticated regardless of
+	the details of the inter-domain protocol.
+      </t>
+      <figure title="A federated call with IdP-based identity" anchor="fig.proposal-federated.idp">
+	<artwork><![CDATA[
+           +----------------+    Unspecified    +----------------+
+           |                |      protocol     |                |
+           |    Signaling   |<----------------->|    Signaling   |
+           |    Server      |  (SIP, XMPP, ...) |    Server      |
+           |                |                   |                |
+           +----------------+                   +----------------+
+                    ^                                   ^  
+                    |                                   |
+              HTTPS |                                   | HTTPS
+                    |                                   |
+                    |                                   |
+                    v                                   v
+                 JS API                               JS API
+           +-----------+                             +-----------+
+           |           |             Media           |           |
+     Alice |  Browser  |<--------------------------->|  Browser  | Bob
+           |           |           DTLS-SRTP         |           |
+           +-----------+                             +-----------+
+                 ^      ^--+                      +--^     ^		        
+                 |         |                      |        |
+		 v         |                      |        v
+           +-----------+   |                      |  +-----------+
+           |           |<-------------------------+  |           |
+           |   IdP     |   |                         |    IdP    |
+           |           |   +------------------------>|           |
+           +-----------+                             +-----------+
+ 	]]></artwork>
+      </figure>
+      
       
       <section title="Initial Signaling">
 	<t>
+	  For simplicity, assume the topology in <xref target="fig.proposal.idp"/>.
 	  Alice and Bob are both users of a common calling service; they
 	  both have approved the calling service to make calls (we 
 	  defer the discussion of device access permissions till later).
@@ -303,11 +390,11 @@
 	  common in the Web environment in technologies such
 	  (BrowserID, Federated Google Login,
 	  Facebook Connect, OAuth, OpenID, WebFinger), and
-	  is often provided as a side effect service of your ordinary
+	  is often provided as a side effect service of a user's ordinary
 	  accounts with some service. In this example, we show Alice and
-	  Bob using a separate identity service, though they may
-	  actually be using the same identity service as calling service
-	  or have no identity service at all.
+	  Bob using a separate identity service, though the identity service
+	  may be the same entity as the calling service or there may
+	  be no identity service at all.
 	</t>
 	<t>
 	  Alice is logged onto the calling service and decides to call Bob.
@@ -336,14 +423,16 @@
 	<t>
 	  In the current W3C API, once some streams have been added,
 	  Alice's browser + JS generates a signaling message
-	  <xref target="I-D.ietf-rtcweb-jsep"/> contianing:
+	  <xref target="I-D.ietf-rtcweb-jsep"/> containing:
 	</t>
 	<t>
 	  <list style="symbols">
 	    <t>Media channel information</t>
 	    <t>ICE candidates</t>
-	    <t>A fingerprint attribute binding the communication to Alice's public key
-	    <xref target="RFC5763"/></t>
+	    <t>A fingerprint attribute binding the communication to a key pair
+	    <xref target="RFC5763"/>. Note that this key may simply be
+	    ephemerally generated for this call or specific to this domain,
+	    and Alice may have a large number of such keys.</t>
 	  </list>
 	</t>
 	<t>
@@ -368,8 +457,8 @@
 	  identity assertion and so Bob's browser contacts Alice's identity provider
 	  (again, this is done in a generic way so the browser has no 
 	  specific knowledge of the IdP) to verify the assertion. This
-	  allows the browser to display a trusted element indicating that
-	  a call is coming in from Alice. If Alice is in Bob's address book,
+	  allows the browser to display a trusted element in the browser chrome
+	  indicating that a call is coming in from Alice. If Alice is in Bob's address book,
 	  then this interface might also include her real name, a picture, etc.
 	  The calling site will also provide
 	  some user interface element (e.g., a button) to allow Bob to
@@ -391,11 +480,24 @@
 	  At this point, Alice and Bob each know that the other party wants to
 	  have a secure call with them. Based purely on the interface provided
 	  by the signaling server, they know that the signaling server claims
-	  that the call is from Alice to Bob. Because the far end sent an identity
+	  that the call is from Alice to Bob. This level of security is provided
+	  merely by having the fingerprint in the message and having that message
+	  received securely from the signaling server.
+	  Because the far end sent an identity
 	  assertion along with their message, they know that this is verifiable
-	  from the IdP as well. Of course, the call works perfectly well if
+	  from the IdP as well. Note that if the call is federated, as shown in
+	  <xref target="fig.proposal-federated.idp"/> then Alice is able to
+	  verify Bob's identity in a way that is not mediated by either
+	  her signaling server or Bob's. Rather, she verifies it directly
+	  with Bob's IdP.
+	</t>
+	<t>
+	  Of course, the call works perfectly well if
 	  either Alice or Bob doesn't have a relationship with an IdP; they
-	  just get a lower level of assurance. Moreover, Alice might wish
+	  just get a lower level of assurance. I.e., they simply
+	  have whatever information their calling site claims about
+	  the caller/calllee's identity.
+	  Moreover, Alice might wish
 	  to make an anonymous call through an anonymous calling site, 
 	  in which case she would of course just not provide any identity
 	  assertion and the calling site would mask her identity from Bob.
@@ -405,8 +507,7 @@
 	<t>
 	  As described in 
 	  (<xref target="I-D.ietf-rtcweb-security"/>; Section 4.2)
-	  This proposal specifies that media consent
-	  verification be performed via ICE.
+	  media consent verification is provided via ICE.
 	  Thus, Alice and Bob perform ICE checks with each other.
 	  At the completion of these checks, they are ready to
 	  send non-ICE data.
@@ -418,10 +519,11 @@
 	  traffic with her and (b) that either Bob is at the IP address
 	  which she has verified via ICE or there is an attacker who
 	  is on-path to that IP address detouring the traffic. Note that
-	  it is not possible for an attacker who is on-path but not
+	  it is not possible for an attacker who is on-path between Alice
+	  and Bob but not
 	  attached to the signaling service to spoof these checks
-	  because they do not have the ICE credentials. Bob's security
-	  guarantees with respect to Alice are the converse of this.
+	  because they do not have the ICE credentials. Bob's has the
+	  same security guarantees with respect to Alice.
 	</t>
       </section>
 
@@ -446,12 +548,14 @@
 	  of secure data and/or media channels with keys which are 
 	  not known to any third-party attacker. If Alice and
 	  Bob authenticated via their IdPs, then they also know
-	  that the signaling service is not attacking them. Even
+	  that the signaling service is not mounting a man-in-the-middle
+	  attack on theor traffic. Even
 	  if they do not use an IdP, as long as
 	  they have minimal trust in the signaling service not to
 	  perform a man-in-the-middle attack, they know that their
 	  communications are secure against the signaling service as
-	  well.
+	  well (i.e., that the signaling service cannot mount a
+	  passive attack on the communications).
 	</t>
 	
       </section>
@@ -467,7 +571,9 @@
 	<t>
 	  The one remaining security property we need to establish is
 	  "consent freshness", i.e., allowing Alice to verify that Bob
-	  is still prepared to receive her communications. ICE 
+	  is still prepared to receive her communications so that Alice
+	  does not continue to send large traffic volumes to entities
+	  which went abruptly offline. ICE 
 	  specifies periodic STUN keepalizes but only if media is not flowing.
 	  Because the consent issue is more difficult here, we 
 	  require RTCWeb implementations to periodically send keepalives.
@@ -493,11 +599,12 @@
 	</t>
 	<t>
 	  Many web browsers currently forbid by default any active mixed content
-	  on HTTPS pages. I.e., when JS is loaded from an HTTP origin onto
-	  an HTTPS page, an error is displayed and the content is not
+	  on HTTPS pages. That is, when JavaScript is loaded from an HTTP origin onto
+	  an HTTPS page, an error is displayed and the HTTP content is not
 	  executed unless the user overrides the error. Any browser
 	  which enforces such a policy will also not permit access
-	  to RTCWEB functionality from mixed content pages. It is 
+	  to RTCWEB functionality from mixed content pages (because they
+	  never display mixed content). It is 
 	  RECOMMENDED that browsers which allow active mixed content
 	  nevertheless disable RTCWEB functionality in mixed content
 	  settings.
@@ -509,8 +616,11 @@
 	  to become mixed content during the duration of the call. 
 	  Implementations MAY choose to terminate the call or display
 	  a warning at that point, but it is also permissible to
-	  ignore this condition. This is a deliberate implementation
-	  complexity versus security tradeoff.
+	  ignore this condition. The major risk here is that
+	  the newly arrived insecure JS might redirect media to a location
+	  controlled by the attacker.
+	  This is a deliberate implementation
+	  complexity versus security tradeoff. 
           [[ OPEN ISSUE:: Should we be more aggressive about this?]]
 	</t>
       </section>
@@ -537,10 +647,22 @@
 	  camera/microphone access.
 	</t>
 	<t>
-	  In addition, they SHOULD support requests for access to 
-	  a single communicating peer. E.g., "Call customerservice@ford.com".
+	  In addition, they SHOULD support requests for access that
+	  promise that media from this grant will be sent to a single communicating peer
+	  (obviously there could be other requests for other peers).
+	  E.g., "Call customerservice@ford.com".
+	  The semantics of this request are that the media stream from
+	  the camera and microphone will only be routed through
+	  a connection which has been cryptographically verified
+	  (through the IdP mechanism or an X.509 certificate in the
+	  DTLS-SRTP handshake) as being associated with the stated
+	  identity.
 	  Browsers servicing such requests SHOULD clearly indicate that 
 	  identity to the user when asking for permission.
+	  The idea behind this type of permissions is that a user might
+	  have a fairly narrow list of peers he is willing to communicate
+	  with, e.g., "my mother" rather than "anyone on Facebook". Narrow
+	  permissions grants allow the browser to do that enforcement.
 	</t>
 	<t><list style="hanging">
 	  <t hangText="API Requirement:">
@@ -580,7 +702,7 @@
 	    The UI MUST clearly indicate when the user's camera
 	    and microphone are in use.  This indication MUST NOT be
 	    suppressable by the JS and MUST clearly indicate how to terminate
-	    a call, and provide a UI means to immediately stop camera/microphone
+	    device access, and provide a UI means to immediately stop camera/microphone
 	    input without the JS being able to prevent it.
 	  </t>
 	</list></t>
@@ -591,7 +713,8 @@
 	    If the UI indication of camera/microphone use are displayed
 	    in the browser such that minimizing the browser window would hide the
 	    indication, or the JS creating an overlapping window would hide the
-	    indication, then the browser SHOULD stop camera and microphone input.
+	    indication, then the browser SHOULD stop camera and microphone input
+	    when the indication is hidden.
 	    [Note: this may not be necessary in systems that are non-windows-based
 	    but that have good notifications support, such as phones.]
 	  </t>
@@ -876,7 +999,13 @@
 	    an account relationship with. 
 	    This can either be something that the user configures into
 	    the browser or that is configured at the calling site and
-	    then provided to the PeerConnection by the calling site.
+	    then provided to the PeerConnection by the Web application
+	    at the calling site. The use case for having this information
+	    configured into the browser is that the user may "log into"
+	    the browser to bind it to some identity. This is becoming
+	    common in new browsers. However, it should also be possible
+	    for the IdP information to simply be provided by the calling
+	    application.
 	  </t>
 	  <t>
 	    At a high level there are two kinds of IdPs:
@@ -911,12 +1040,15 @@
 
 	  <t>
 	    If an AP is authenticating via an authoritative IdP, then 
-	    the RP does not need to explicitly trust the IdP at all:
-	    as long as the RP knows how to verify that the IdP 
-	    indeed made the relevant identity assertion (a function
-	    provided by the mechanisms in this document), then
+	    the RP does not need to explicitly configure trust in the IdP at all.
+	    The identity mechanism can directly verify
+	    that the IdP indeed made the relevant identity assertion (a function
+	    provided by the mechanisms in this document), and
 	    any assertion it makes about an identity for which 
-	    it is authoritative is directly verifiable.
+	    it is authoritative is directly verifiable. Note that
+	    this does not mean that the IdP might not lie, but that
+	    is a trustworthiness judgement that the user can make
+	    at the time he looks at the identity.
 	  </t>
 	  <t>
 	    By contrast, if an AP is authenticating via a third-party
@@ -944,6 +1076,20 @@
 	    an isolated security context within the browser
 	    and the PeerConnection
 	    talks to it via a secure message passing channel.
+	  </t>
+	  <t>
+	    Note that there are two logically separate functions here:
+	  </t>
+	  <t>
+	    <list style="symbols">
+	      <t>Identity assertion generation.</t>
+	      <t>Identity assertion verification.</t>
+	    </list>
+	  </t>
+	  <t>
+	    The same IdP JS "endpoint" is used for both functions but
+	    of course a given IdP might behave differently and load
+	    new JS to perform one function or the other.
 	  </t>
 	  <figure>
  <artwork><![CDATA[
@@ -1078,7 +1224,7 @@
 	  </section>
 	  <section title="Carrying Identity Assertions">
 	    <t>
-	      Once an IdP has generated an assertion,
+	      Once an IdP has generated an assertion, it is attached to
 	      the JSEP message. This is done by adding a new a-line to the
 	      SDP, of the form a=identity. The sole contents of this value
 	      are a base-64-encoded version of the identity assertion.
@@ -1109,9 +1255,14 @@
 	    <t>
 	      Each identity attribute should be paired (and attests to) with an a=fingerprint 
 	      attribute and therefore can exist either at the session or media level.
-	      Multiple identity attributes may appear at either level, though implementations
-	      are discouraged from doing this unless they have a clear idea of what
-	      security claim they intend to be making.
+	      Multiple identity attributes may appear at either level, though it is
+	      RECOMMENDED that implementations
+	      not do this, because it becomes very unclear what security claim that
+	      they are making and the UI guidelines above become unclear. Browsers
+	      MAY choose refuse to display any identity indicators in the face
+	      of multiple identity attributes with different identities
+	      but SHOULD process multiple attributes with the same identity
+	      as described above.
 	    </t>
 	    </section>
 	</section>
@@ -1222,6 +1373,11 @@
 	      </t>
 	      <section title="Determining the IdP URI" anchor="sec.idp-uri">
 		<t>
+		  In order to ensure that the IdP is under control of the
+		  domain owner rather than someone who merely has an account
+		  on the domain owner's server (e.g., in shared hosting
+		  scenarios), the IdP JavaScript is hosted at a deterministic
+		  location based on the IdP's domain name.
 		  Each IdP proxy instance is associated with two values:
 		</t>
 		<t>
@@ -1524,6 +1680,26 @@
 	checking the peer's fingerprint against a value delivered out
 	of band.
       </t>
+
+      <t>
+	In order to protect against malicious content JavaScript, that
+	JavaScript MUST NOT be allowed to have direct access to---or perform
+	computations with---DTLS keys. For instance, if content JS were
+	able to compute digital signatures, then it would be possible
+	for content JS to get an identity assertion for a browser's
+	generated key and then use that assertion plus a signature by
+	the key to authenticate a call protected under an ephemeral
+	DH key controlled by the content JS, thus violating the security
+	guarantees otherwise provided by the IdP mechanism. Note that
+	it is not sufficient merely to deny the content JS direct access to
+	the keys, as some have suggested doing with the WebCrypto API.
+	The JS must also not be allowed to perform operations that would
+	be valid for a DTLS endpoint. By far the safest approach is simply
+	to deny the ability to perform any operations that depend on
+	secret information associated with the key. Operations that depend
+	on public information, such as exporting the public key are of course
+	safe.
+      </t>
     </section>
     
     <section title="Privacy">
@@ -1641,16 +1817,36 @@
 	  and requesting a signature. In order to prevent this attack,
 	  we require that all signatures be tied to a specific 
 	  origin ("rtcweb://...") which cannot be produced by
-	  a page tied to a Web attacker. Thus, while an attacker
+	  content JavaScript. Thus, while an attacker
 	  can instantiate the IdP proxy, they cannot send messages
 	  from an appropriate origin and so cannot create acceptable
-	  assertions. This origin check is enforced on the relying
+	  assertions. I.e., the assertion request must have come
+	  from the browser. This origin check is enforced on the relying
 	  party side, not on the authenticating party side. The reason
 	  for this is to take the burden of knowing which origins
 	  are valid off of the IdP, thus making this mechanism
 	  extensible to other applications besides RTCWEB. The
 	  IdP simply needs to gather the origin information
 	  (from the posted message) and attach it to the assertion.
+	</t>
+	<t>
+	  Note that although this origin check is enforced on the RP
+	  side and not at the IdP, it is absolutely imperative that
+	  it be done. The mechanisms in this document rely on the
+	  browser enforcing access restrictions on the DTLS keys
+	  and assertion requests which do not come with the right
+	  origin may be from content JS rather than from browsers,
+	  and therefore those access restrcitions cannot be assumed.
+	</t>
+	<t>
+	  Note that this check only asserts that the browser (or some
+	  other entity with access to the user's authentication data)
+	  attests to the request and hence to the fingerprint.
+	  It does not demonstrate that the browser has access to the
+	  associated private key. However, there does not appear to
+	  be any significant attack associated with attaching one's
+	  identity to a key that the user does not control, so
+	  a proof of possession is omitted for simplicity.
 	</t>
       </section>
 
@@ -1743,9 +1939,24 @@
       </section>
   <section title="Acknowledgements">
     <t>
-      Bernard Aboba, Harald Alvestrand, Dan Druta,
+      Bernard Aboba, Harald Alvestrand, Richard Barnes, Dan Druta,
       Cullen Jennings, Hadriel Kaplan, Matthew Kaufman,
       Jim McEachern, Martin Thomson, Magnus Westerland.
+    </t>
+  </section>
+
+
+  <section title="Changes since -05">
+    <t>
+      The following changes have been made since the -05 draft.	
+    </t>
+    <t>
+    <list style="symbols">
+      <t>Response to comments from Richard Barnes</t>
+      <t>More explanation of the IdP security properties and the
+      federation use case.</t>
+      <t>Editorial cleanup.</t>
+    </list>
     </t>
   </section>
 
@@ -1762,7 +1973,8 @@
     </list>
     </t>
   </section>
-
+  
+  
   <section title="Changes since -03">
   </section>
   
