@@ -1,0 +1,125 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[framemethod=TikZ]{mdframed}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 85} 
+\fancyfoot[C]{\tiny Random CNAMEs}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}Rationally reconstructing Plan A}\\
+\vspace{.2in}
+\vspace{3em}
+\large{
+\begin{tabular}{c}
+Eric Rescorla\\
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+\centerslidesfalse 
+
+
+\begin{slide}
+\heading{Desirable Properties (\texttt{draft-jennings-mmusic-media-req-00})}
+
+\begin{itemize}
+\item Push as many media flows as possible over one transport 5-tuple
+\item Negotiate with both new and old endpoints without multiple O/A exchanges
+  \begin{itemize}
+  \item Or at least get media flowing with one exchange
+  \end{itemize}
+\item Be able to independently negotiate media parameters for each flow
+  \begin{itemize}
+  \item Even when multiplexed
+  \end{itemize}
+\item Allow for a very large (>> 100) number of media flows
+\item Add new tracks without worrying about glare
+\item Somehow directly reference individual WebRTC tracks
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Bundle solves a lot of this stuff}
+
+\begin{itemize}
+\item Push as many media flows as possible over one transport 5-tuple
+\item Negotiate with both new and old endpoints without multiple O/A exchanges
+  \begin{itemize}
+  \item Or at least get media flowing with one exchange
+  \end{itemize}
+\item Be able to independently negotiate media parameters for each flow
+  \begin{itemize}
+  \item Even when multiplexed
+\end{itemize}
+\item[]
+\item But....
+  \begin{itemize}
+  \item How what about large numbers of flows?
+  \item 
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\end{document}
