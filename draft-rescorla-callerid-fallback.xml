@@ -388,12 +388,24 @@ Call from 1.111.111.1111 ---------------------------------------------->
           properties described above are about the best we can do.
           However, if Alice and Bob are both VoIP capable, then
           there is an opportunity to provide a higher quality of
-          service and security.
+          service and security. The basic idea is that the CDR
+          contains rendezvous information for Alice (e.g.,
+          Alice's SIP URI). Once Bob has verified Alice's CDR,
+          he can initiate a VoIP connection directly to Alice,
+          thus bypassing the PSTN. This connection can be initiated
+          either in serial (i.e., instead of ringing the phone)
+          or in parallel (i.e., starting with a POTS call and
+          then switching over to the VoIP call.)
         </t>
       </section>
     </section>
 
-    <section title="Security Considerations" anchor="sec.priv-cons">
+    <section title="Privacy Considerations" anchor="sec.priv-cons">
+      <t>
+      </t>
+    </section>
+
+    <section title="Security Considerations" anchor="sec.sec-cons">
       <t>
       </t>
     </section>
