@@ -158,7 +158,6 @@
           <t>Each phone number in the system--or perhaps a gateway acting
           on its behalf--is associated with a set of credentials which
           can be used to prove ownership of that number.</t>
-          <t></t>
           <t>A centralized verification server which a caller and a callee
           can use to jointly establish the provenance of the call.</t>
         </list>
@@ -263,7 +262,7 @@ Call from 1.111.111.1111 ---------------------------------------------->
         it can then alert Bob to the incoming call and show
         Alice's caller-id information.
       </t>
-      <section title="Substitution Attacks">
+      <section title="Substitution Attacks" anchor="sec.substitution">
         <t>
           The security properties of this mechanism are fairly limited:
           all that receipt of the CDR proves is that Alice tried to
@@ -402,11 +401,72 @@ Call from 1.111.111.1111 ---------------------------------------------->
 
     <section title="Privacy Considerations" anchor="sec.priv-cons">
       <t>
+        The mechanism described here is designed to ensure that arbitrary
+        third parties do not get records of who is calling who. In
+        order to protect against disclosure of this information to network
+        attackers, the CDRs must either be encrypted when stored or
+        encrypted in transit, e.g., with TLS.
+      </t>
+      <t>
+        The basic mechanism described in <xref target="sec.solution-overview"/>
+        allows the VS to get complete calling records. It might be possible
+        to build a federated VS which would somewhat limit the information
+        available to any specific VS, but this is not a complete solution.
+        The approach described in <xref target="sec.privacy-mode"/>
+        has superior properties in this respect: the only information
+        that the VS learns is how many calls a given caller makes
+        and the IP addresses of the caller/callee. A system like Tor
+        could be used to hide their IP addresses. In order to avoid
+        the VS knowing the number of calls made by a given caller,
+        some sort of Private Information Retrieval mechanism would
+        need, to be used; a trivial version would be to
+        store CDRs indexed by number prefix rather than by complete number.
+        Obviously, this would come at an increased cost in bandwidth.
       </t>
     </section>
 
     <section title="Security Considerations" anchor="sec.sec-cons">
       <t>
+        The primary attack we seek to prevent is an attacker convincing
+        the callee that a given call is from some other caller C. There
+        are two scenarios to be concerned with:
+      </t>
+      <t>
+        <list style="symbols">
+          <t>The attacker wishes to simulate a call when none exists.</t>
+          <t>The attacker wishes to substitute himself for an existing call as described
+          in <xref target="sec.substitution"/>
+        </t>
+        </list>
+      </t>
+      <t>
+        If an attacker can inject fake CDRs into the VS or in the communication
+        from the VS to the callee, he can mount either attack. In order to
+        prevent this, either the communication to the VS should be secured
+        in transport (e.g., with TLS) or the CDRs should be digitally signed
+        by the caller and verified by the callee. For privacy and
+        robustness reasons, both are preferable. In particular, if only
+        transport security is used, then a compromised VS can
+        forge call origination information.
+      </t>
+      <t>
+        The entire system depends on the security of the authentication
+        infrastructure. If the authentication credentials for a given
+        number are compromised, then an attacker can impersonate
+        calls from that number.
+      </t>
+      <t>
+        The substitution attack if <xref target="sec.substitution"/> is
+        possible unless some mechanism stronger than simple time
+        coincidence is used for associating the media with the
+        authentication information. In practice, this means
+        using VoIP rather than POTS, as described in
+        <xref target="sec.voip-escalation"/>. Minimally, if
+        the transport parameters are bound to the CDR (if only transitively
+        via the SIP URI), then an attacker will find it more difficult
+        to substitute his own media. Optimally, the media should be
+        protected with SRTP and the parameters should
+        be cryptographically bound to the CDR.
       </t>
     </section>
 
