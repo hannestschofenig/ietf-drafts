@@ -157,7 +157,7 @@
         <list style="symbols">
           <t>Each phone number in the system--or perhaps a gateway acting
           on its behalf--is associated with a set of credentials which
-          can be used to prove ownership of that number</t>
+          can be used to prove ownership of that number.</t>
           <t></t>
           <t>A centralized verification server which a caller and a callee
           can use to jointly establish the provenance of the call.</t>
@@ -306,6 +306,80 @@ Call from CS (forged caller-id info)  -------------------------------->
         attempt to verify the attacker's call (and succeed since they
         are indistinguishable) and the CS's call will go to
         busy/voice mail/call waiting.
+      </t>
+      </section>
+
+      <section title="Privacy Mode" anchor="sec.privacy-mode">
+        <t>
+          The major privacy drawback with the design listed above
+          is that the verification server learns about every call.
+          However we are willing to make somewhat stronger assumptions about
+          user credentials, we can provide significantly stronger
+          privacy protections. Instead of merely assuming that the
+          user has some credential we assume that their credential
+          is in the form of an asymmetric key pair (or pairs) which can be
+          used for both signature and encryption. Further, we assume
+          that there is some central directory of the credentials
+          which are associated with any number.
+        </t>
+        <t>
+          Under these conditions, we can make three minor modifications
+          to the protocol which signficantly enhance privacy:
+        </t>
+        <t>
+          <list style="symbols">
+            <t>Each CDR is stored only under the caller's number.</t>
+            <t>CDRs are encrypted under the callee's private key.</t>
+            <t>If someone requests a nonexistent CDR from the VS,
+            it returns a randomly generated CDR.</t>
+          </list>
+        </t>
+        <t>
+          The new protocol is shown below:
+        </t>
+      <figure>
+        <artwork align="left" alt="" height="" name="" type="" width=""
+                 xml:space="preserve"><![CDATA[
+Alice                       Verification Server                     Bob
+-----------------------------------------------------------------------
+<-  Authenticate as 1.111.111.1111  ---->
+
+Store E(1.222.222.2222,1.111.111.1111) ->
+
+Call from 1.111.111.1111 ---------------------------------------------->
+
+
+                                    <-------------- Retrieve call record
+                                                         1.111.111.1111?
+
+                                    E(1.222.222.2222,1.111.111.1111) -->
+
+                                               [Ring phone with callerid
+                                                       = 1.111.111.1111]
+                                      ]]></artwork>
+      </figure>
+      <t>
+        This version of the protocol works nearly the same as that
+        described in <xref target="sec.verification-service"/> but
+        because the CDR is encrypted for the callee, the VS does not
+        learn who the caller is calling. Instead, the VS simply
+        learns that the caller is calling someone and that later
+        someone retrieved the CDR. The VS might choose to use traffic
+        analysis to determine the identity of the caller and callee,
+        but they can use an anonymity network such as Tor to thwart
+        this.
+      </t>
+      <t>
+        Once the the callee retrieves the encrypted CDR, he decrypts
+        it with his private key. If the call was for him, then he
+        can read it (and likely verify a signature). If not it is
+        simply random data and can be rejected. The result is that even though we do 
+        not require callee authentication, anyone not the callee cannot determine
+        who the caller is calling. In order to reduce the risk of
+        attackers measuring the caller's call rate, the VS just
+        returns random (though consistent) replies when a nonexistent
+        CDR is requested. It is not possible for an attacker to distinguish
+        these replies from CDRs encrypted to someone other than himself.
       </t>
       </section>
       <section title="Escalation to VoIP" anchor="sec.voip-escalation">
