@@ -38,7 +38,7 @@
       </address>
     </author>
 
-    <date day="17" month="May" year="2013" />
+    <date day="29" month="May" year="2013" />
 
     <area>RAI</area>
 
@@ -69,13 +69,14 @@
     </note>
   </front>
 
-  <!--
+  
   <middle>
+<!--
     <section anchor="sec-term" title="Terminology">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
       "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-      document are to be interpreted as described in <!--<xref
-      target="RFC2119">RFC 2119</xref>.--></t>
+      document are to be interpreted as described in <xref
+      target="RFC2119">RFC 2119</xref>.</t>
     </section>
 -->
     <section title="Introduction" anchor="sec.introduction">
@@ -85,7 +86,7 @@
         SIP requests may pass through gateways, policy enforcement devices
         or other entities that receive SIP requests and effectively act as user agents, 
         re-initiating a request.  In these circumstances, intermediaries may 
-        recreate the fields protected the RFC4474 signature, making end-to
+        recreate the fields protected by the RFC4474 signature, making end-to
         end integrity impossible.  This document describes a mechanism for two 
         compliant endpoints to exchange authentication data even in the face of
         intermediaries which remove all additional call signaling meta-data.
@@ -306,7 +307,10 @@ Call from 1.111.111.1111 ---------------------------------------------->
             via OCSP). This is somewhat
             mitigated for the caller's credentials in that he can get short-term
             credentials right before placing a call which only reveals his
-            calling rate, but not who he is calling. This approach does not
+            calling rate, but not who he is calling. Alternately, the CDS can
+            verify the caller's credentials via OCSP, though of course this
+            requires the callee to trust the CDS's verification.
+            This approach does not
             work as well for the callee's credentials, but the risk there
             is more modest since an attacker would need to both have
             the callee's credentials and regularly poll the database for

@@ -1,0 +1,616 @@
+
+
+
+Network Working Group                                        E. Rescorla
+Internet-Draft                                                RTFM, Inc.
+Intended status:  Standards Track                           May 29, 2013
+Expires:  November 30, 2013
+
+
+                     Secure Caller-ID Fallback Mode
+                  draft-rescorla-callerid-fallback-00
+
+Abstract
+
+   A major challenge with RFC 4474-style identity assertions has been
+   that SIP operates in highly mediated and interworked environments.
+   SIP requests may pass through gateways, policy enforcement devices or
+   other entities that receive SIP requests and effectively act as user
+   agents, re-initiating a request.  In these circumstances,
+   intermediaries may recreate the fields protected by the RFC4474
+   signature, making end-to end integrity impossible.  This document
+   describes a mechanism for two compliant endpoints to exchange
+   authentication data even in the face of intermediaries which remove
+   all additional call signaling meta-data.
+
+Legal
+
+   THIS DOCUMENT AND THE INFORMATION CONTAINED THEREIN ARE PROVIDED ON
+   AN "AS IS" BASIS AND THE CONTRIBUTOR, THE ORGANIZATION HE/SHE
+   REPRESENTS OR IS SPONSORED BY (IF ANY), THE INTERNET SOCIETY, THE
+   IETF TRUST, AND THE INTERNET ENGINEERING TASK FORCE, DISCLAIM ALL
+   WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY
+   WARRANTY THAT THE USE OF THE INFORMATION THEREIN WILL NOT INFRINGE
+   ANY RIGHTS OR ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS
+   FOR A PARTICULAR PURPOSE.
+
+Status of this Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at http://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+
+
+
+Rescorla                Expires November 30, 2013               [Page 1]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+   This Internet-Draft will expire on November 30, 2013.
+
+Copyright Notice
+
+   Copyright (c) 2013 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+   This document may contain material from IETF Documents or IETF
+   Contributions published or made publicly available before November
+   10, 2008.  The person(s) controlling the copyright in some of this
+   material may not have granted the IETF Trust the right to allow
+   modifications of such material outside the IETF Standards Process.
+   Without obtaining an adequate license from the person(s) controlling
+   the copyright in such materials, this document may not be modified
+   outside the IETF Standards Process, and derivative works of it may
+   not be created outside the IETF Standards Process, except to format
+   it for publication as an RFC or to translate it into languages other
+   than English.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                Expires November 30, 2013               [Page 2]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+Table of Contents
+
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  4
+   2.  Operating Environment  . . . . . . . . . . . . . . . . . . . .  4
+   3.  Solution Overview  . . . . . . . . . . . . . . . . . . . . . .  5
+   4.  Phone Number Authentication  . . . . . . . . . . . . . . . . .  6
+   5.  Call Detail Service  . . . . . . . . . . . . . . . . . . . . .  6
+     5.1.  Credential Lookup  . . . . . . . . . . . . . . . . . . . .  7
+     5.2.  Federated Verification Services  . . . . . . . . . . . . .  8
+     5.3.  Substitution Attacks . . . . . . . . . . . . . . . . . . .  8
+     5.4.  Escalation to VoIP . . . . . . . . . . . . . . . . . . . .  9
+     5.5.  Storing under the callee's number  . . . . . . . . . . . . 10
+   6.  Privacy Considerations . . . . . . . . . . . . . . . . . . . . 10
+   7.  Security Considerations  . . . . . . . . . . . . . . . . . . . 10
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 11
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                Expires November 30, 2013               [Page 3]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+1.  Introduction
+
+   A major challenge with RFC 4474-style identity assertions has been
+   that SIP operates in highly mediated and interworked environments.
+   SIP requests may pass through gateways, policy enforcement devices or
+   other entities that receive SIP requests and effectively act as user
+   agents, re-initiating a request.  In these circumstances,
+   intermediaries may recreate the fields protected by the RFC4474
+   signature, making end-to end integrity impossible.  This document
+   describes a mechanism for two compliant endpoints to exchange
+   authentication data even in the face of intermediaries which remove
+   all additional call signaling meta-data.
+
+
+2.  Operating Environment
+
+   This section describes the environment in which the proposed
+   mechanism is intended to operate.  In the simplest setting, Alice is
+   calling Bob through some set of gateways and/or the PSTN.  Both Alice
+   and Bob have smart devices which we can modify, but they do not have
+   a clear connection between them:  Alice cannot inject any data into
+   the system which Bob can read, with the exception of her asserted
+   E.164 number.  Thus, this number is the only value which can be used
+   for coordination.
+
+                              +---------+
+                             /           \
+                         +---             +---+
+    +----------+        /                      \        +----------+
+    |          |       |        Gateways        |       |          |
+    |   Alice  |<----->|         and/or         |<----->|    Bob   |
+    | (caller) |       |          PSTN          |       | (callee) |
+    +----------+        \                      /        +----------+
+                         +---             +---+
+                             \           /
+                              +---------+
+
+   In a more complicated setting, Alice and/or Bob may not have a
+   programmable device, but have a programmable gateway that services
+   them, as shown below:
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                Expires November 30, 2013               [Page 4]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+                               +---------+
+                              /           \
+                          +---             +---+
+    +----------+  +--+   /                      \   +--+  +----------+
+    |          |  |  |  |        Gateways        |  |  |  |          |
+    |   Alice  |<-|GW|->|         and/or         |<-|GW|->|    Bob   |
+    | (caller) |  |  |  |          PSTN          |  |  |  | (callee) |
+    +----------+  +--+   \                      /   +--+  +----------+
+                          +---             +---+
+                              \           /
+                               +---------+
+
+   In such a case, Alice might have an analog connection to her gateway/
+   switch which is responsible for her identity.  Similarly, the gateway
+   would verify Alice's identity, generate the right caller-id
+   information and provide caller-id information to Bob using ordinary
+   POTS mechanisms.
+
+   As current envisioned, this fallback mechanism is intended to be
+   invoked when RFC4474-style signatures are unusable, broken or absent;
+   when a valid Identity header appears in a request, there is no need
+   for recipients to invoke this mechanism.  Because the caller will not
+   necessarily know what intermediaries or gateways a call will traverse
+   on its way to a callee, the caller would however use the fallback
+   mechanism described in this document as a precautionary measure
+   whenever a call is placed.
+
+
+3.  Solution Overview
+
+   Our proposed solution contains two major elements:
+
+   o  Each phone number in the system--or perhaps a gateway acting on
+      its behalf--is associated with credentials which can be used to
+      prove ownership of that number.
+   o  A centralized Call Detail Service (CDS) which a caller and a
+      callee can use to jointly establish the provenance of the call.
+
+   Prior to placing a call, the caller contacts the CDS and stores a
+   record indicating his intention to call the callee.  Once the callee
+   receives the indication of an incoming call, he contacts the CDS to
+   verify the validity of the call.  If that check succeeds, he can then
+   present the callerid information as valid.  Otherwise, the call is
+   unverifiable.  Note that this does not necessarily mean that the call
+   is bogus; because we expect incremental deployment many legitimate
+   calls will be unverifiable.
+
+
+
+
+
+Rescorla                Expires November 30, 2013               [Page 5]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+4.  Phone Number Authentication
+
+   Each phone number in the system is associated with a set of
+   credentials which can be used to prove ownership of that number.  For
+   purposes of exposition we will assume that ownership is associated
+   with the endpoint (e.g., a smartphone) but it might well be
+   associated with a gateway acting for the endpoint instead.  The
+   credentials are in the form of an asymmetric key pair or pairs
+   authenticated by a certificate chain.  The keys must be suitable for
+   both encryption and digital signature.
+
+   The enrollment process itself is described in another document [TODO:
+   REF].  For purposes of this document, we simply assume that elements
+   have somehow obtained credentials and that there is some mechanism
+   (e.g., a global directory service) for any agent in the system to
+   retrieve another agent's credentials.
+
+
+5.  Call Detail Service
+
+   An overview of the basic calling and verification process is shown
+   below.  In this diagram, we assume that Alice has the number
+   +1.111.111.1111 and Bob has the number +2.222.222.2222.
+
+Alice                       Call Detail Service                     Bob
+-----------------------------------------------------------------------
+<-  Authenticate as 1.111.111.1111  ---->
+
+Store E(1.222.222.2222,1.111.111.1111) ->
+
+Call from 1.111.111.1111 ---------------------------------------------->
+
+
+                                    <-------------- Retrieve call record
+                                                         1.111.111.1111?
+
+                                    E(1.222.222.2222,1.111.111.1111) -->
+
+                                               [Ring phone with callerid
+                                                       = 1.111.111.1111]
+
+   When Alice wishes to make a call to Bob, she must first retrieve
+   Bob's credentials.  She then contacts the CDS and authenticates to
+   prove her ownership of her E.164 number.  Once she has authenticated,
+   she then stores a Call Data Record (CDR) on the CDS.  The CDR is
+   digitally signed and then encrypted under Bob's public key.
+   (Alternatively, Alice and Bob could each have ECDH keys and the CDR
+   could be encrypted under the shared key, though this has slightly
+
+
+
+Rescorla                Expires November 30, 2013               [Page 6]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+   different privacy properties.)  The CDR would also have some sort of
+   timestamp to prevent replay.  [The CDS should expire CDRs after a
+   reasonable period of time, on the order of 10s of seconds, but a
+   timestamp provides a double-check on correct behavior of the CDS.]
+   The CDR is stored under Alice's number.  [NOTE:  It is also possible
+   to invert this and have the CDR stored under the callee's number.
+   See Section 5.5 for a discussion of this.]
+
+   Once Alice has stored the CDR, she then places the call to Bob as
+   usual.  At this point, Bob's phone would usually ring and display
+   Alice's number (+1.111.111.1111), which is provided by the usual
+   caller-id mechanisms (i.e., the CIN field of the IAM).  Instead,
+   Bob's phone transparently contacts the CDS and requests any current
+   CDRs from Alice to any number (because the target phone number is
+   encrypted, the CDS does not know the callee.)  The CDS responds with
+   any such CDRs (assuming they exists).  If no CDR exists, the CDS
+   generates a random CDR and sends it to Bob. (This helps prevent
+   queries of how many calls Alice has made).
+
+   Once Bob retrieves the encrypted CDR, he decrypts it with his private
+   key.  If the call was for him, then he can read it, and verify the
+   signature.  If not it is simply random data and can be rejected.  The
+   result is that even though we do not require callee authentication,
+   anyone not the callee cannot determine who the caller is calling.
+   Because the CDS responds with random responses if no records exist,
+   the attacker cannot distinguish these replies from CDRs encrypted to
+   someone other than himself.
+
+5.1.  Credential Lookup
+
+   In order to encrypt the CDR, the caller needs access to the callee's
+   credentials (specifically the public key).  This requires some sort
+   of directory/lookup system.  This document does not specify any
+   particular scheme, but a list of requirements would be something
+   like:
+
+   Obviously, if there is a single central database and the caller and
+   callee each contact it in real time to determine the other's
+   credentials, then this represents a real privacy risk, as the central
+   database learns about each call.  A number of mechanisms are
+   potentially available to mitigate this:
+
+   o  Have endpoints pre-fetch credentials for potential counterparties
+      (e.g., their address book or the entire database).
+   o  Have caching servers in the user's network that proxy their
+      fetches and thus conceal the relationship between the user and the
+      credentials they are fetching.
+
+
+
+
+Rescorla                Expires November 30, 2013               [Page 7]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+   Clearly, there is a privacy/timeliness tradeoff in that getting
+   really up-to-date knowledge about credential validity requires
+   contacting the credential directory in real-time (e.g., via OCSP).
+   This is somewhat mitigated for the caller's credentials in that he
+   can get short-term credentials right before placing a call which only
+   reveals his calling rate, but not who he is calling.  Alternately,
+   the CDS can verify the caller's credentials via OCSP, though of
+   course this requires the callee to trust the CDS's verification.
+   This approach does not work as well for the callee's credentials, but
+   the risk there is more modest since an attacker would need to both
+   have the callee's credentials and regularly poll the database for
+   every potential caller.
+
+   We consider the exact best point in the tradeoff space to be an open
+   issue.
+
+5.2.  Federated Verification Services
+
+   The discussion above is written in terms of a single CDS, but this
+   potentially has scaling problems (as well as privacy problems, as
+   discussed in Section 6).  In practice, it is preferable to have a
+   federated CDS.  The general idea is that the appropriate credential
+   holder for a given number can also select an appropriate CDS.  The
+   address of the CDS is stored in the callee's credentials, thus
+   allowing the caller to determine the appropriate CDS for a given
+   caller prior to calling them.  Note that the caller already needs the
+   callee's credentials in order to do the encryption of the CDR.
+
+5.3.  Substitution Attacks
+
+   The security properties of this mechanism are fairly limited:  all
+   that receipt of the CDR proves is that Alice is trying to call Bob
+   (or at least was as of very recently).  It does not prove that this
+   particular incoming call is from Alice.  Consider the scenario in
+   which we have a service which provides an automatic callback to a
+   user-provided number.  In that case, the attacker can arrange for a
+   false caller-id value, as shown below:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                Expires November 30, 2013               [Page 8]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+ Attacker            Callback Service              CDS               Bob
+ -----------------------------------------------------------------------
+ Place call to Bob ---------->
+
+                             Store CDR for
+                             CS:Bob -------------->
+
+ Call from CS (forged caller-id info)  -------------------------------->
+
+                             Call from CS ---------------------------> X
+
+
+                                                     <----- Retrieve CDR
+                                                              for CS:Bob
+
+                             CDR for CS:Bob --------------------------->
+
+                                         [Ring phone with callerid = CS]
+
+   In order to mount this attack, the attacker contacts the Callback
+   Service (CS) and provides it with Bob's number.  This causes the CS
+   to initiate a call to Bob. As before, the CS contacts the CDS to
+   insert an appropriate CDR and then initiates a call to Bob. Because
+   it is a valid CS injecting the CDR, none of the security checks
+   mentioned above help.  However, the attacker simultaneously initiates
+   a call to Bob using forged caller-id information corresponding to the
+   CS.  If he wins the race with the CS, then Bob's phone will attempt
+   to verify the attacker's call (and succeed since they are
+   indistinguishable) and the CS's call will go to busy/voice mail/call
+   waiting.  Note:  in a SIP environment, the callee might notice that
+   there were multiple INVITEs and thus detect this attack.
+
+5.4.  Escalation to VoIP
+
+   If the call is to be carried over the PSTN, then the security
+   properties described above are about the best we can do.  However, if
+   Alice and Bob are both VoIP capable, then there is an opportunity to
+   provide a higher quality of service and security.  The basic idea is
+   that the CDR contains rendezvous information for Alice (e.g., Alice's
+   SIP URI).  Once Bob has verified Alice's CDR, he can initiate a VoIP
+   connection directly to Alice, thus bypassing the PSTN.  This
+   connection can be initiated either in serial (i.e., instead of
+   ringing the phone) or in parallel (i.e., starting with a POTS call
+   and then switching over to the VoIP call.)  [TODO:  How aggressive
+   should we be about this kind of bypass?  What if the user's network
+   environment is really restricted?]
+
+
+
+
+
+Rescorla                Expires November 30, 2013               [Page 9]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+5.5.  Storing under the callee's number
+
+   An alternative design (due to Richard Barnes) is to store the CDR
+   under the callee's number rather than the caller's.  This has the
+   advantage that the callee does not need to do trial decryption
+   because he knows a priori who the call is for.  How important this is
+   depends on the calling rate of the caller--if there is only one call
+   in a given interval, then this is not a big deal, but if there are
+   hundreds, then the cost to verify might be large depending on the
+   speed of the callee's processor.
+
+   A difficulty with this design is that we then do not want to validate
+   the caller (for privacy reasons) and so it now becomes hard to
+   prevent spamming of the CDS by fake callers.  It might be possible to
+   have a caller proxy service which hid caller identities, but this is
+   then another needed piece of infrastructure.
+
+
+6.  Privacy Considerations
+
+   The mechanism described here is designed to minimize how much
+   information is leaked about who is calling who.  Because CDRs are
+   encrypted, the CDS does not directly learn who is calling who.
+   However, the CDS does learn how many calls the caller is making and
+   the IP address of the callees.  The callee can use an anonymity
+   network such as Tor to hide their IP address, but we expect that this
+   will be uncommon.  Because the CDS is federated, callees can minimize
+   the information available to any specific CDS.  It is not possible to
+   hide the number of calls that that caller makes without some sort of
+   Private Information Retrieval (PIR) mechanism.
+
+   Because the caller needs to retrieve the callee's credentials/
+   certificate, there is some information leakage from the caller to the
+   directory service.  A caching/coalescence mechanism reduces this to
+   some extent, and it might in principle be possible for callers to
+   download the entire database, thus reducing the leakage.  Finally, if
+   the database is federated (as in DNS) then callees can control who
+   has knowledge that their records have been accessed.
+
+
+7.  Security Considerations
+
+   The primary attack we seek to prevent is an attacker convincing the
+   callee that a given call is from some other caller C. There are two
+   scenarios to be concerned with:
+
+
+
+
+
+
+Rescorla                Expires November 30, 2013              [Page 10]
+
+Internet-Draft             Caller-ID Fallback                   May 2013
+
+
+   o  The attacker wishes to simulate a call when none exists.
+   o  The attacker wishes to substitute himself for an existing call as
+      described in Section 5.3
+
+   If an attacker can inject fake CDRs into the CDS or in the
+   communication from the CDS to the callee, he can mount either attack.
+   In order to prevent this, either the communication to the CDS should
+   be secured in transport (e.g., with TLS) or the CDRs should be
+   digitally signed by the caller and verified by the callee.  For
+   privacy and robustness reasons, both are preferable.  In particular,
+   if only transport security is used, then a compromised CDS can forge
+   call origination information.
+
+   The entire system depends on the security of the authentication
+   infrastructure.  If the authentication credentials for a given number
+   are compromised, then an attacker can impersonate calls from that
+   number.
+
+   The substitution attack if Section 5.3 is possible unless some
+   mechanism stronger than simple time coincidence is used for
+   associating the media with the authentication information.  In
+   practice, this means using VoIP rather than POTS, as described in
+   Section 5.4.  Minimally, if the transport parameters are bound to the
+   CDR (if only transitively via the SIP URI), then an attacker will
+   find it more difficult to substitute his own media.  Optimally, the
+   media should be protected with SRTP and the parameters should be
+   cryptographically bound to the CDR.
+
+
+Author's Address
+
+   Eric Rescorla
+   RTFM, Inc.
+   2064 Edgewood Drive
+   Palo Alto, CA  94303
+   USA
+
+   Phone:  +1 650 678 2350
+   Email:  ekr@rtfm.com
+
+
+
+
+
+
+
+
+
+
+
+
+Rescorla                Expires November 30, 2013              [Page 11]
+
