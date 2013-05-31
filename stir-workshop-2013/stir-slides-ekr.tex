@@ -130,13 +130,13 @@ Eric Rescorla \\
   \item User has a dumb phone but is serviced by a programmable gateway
   \end{itemize}
 
-\item Very restricted channel between endpoints
+\item Very restricted VoIP channel between endpoints
   \begin{itemize}
   \item Effectively just a PSTN call
   \item Caller cannot reliably control caller-id information (CIN field)
   \end{itemize}
 
-\item Each E.164 is associated with cryptographic credentials
+\item Each caller ID (e.g., E.164) is associated with cryptographic credentials
   \begin{itemize}
   \item Usable for encryption, authentication, etc.
   \end{itemize}
@@ -188,6 +188,8 @@ $$
 }
 $$
 }
+
+* Note: $E(X, Y)$ means encrypt ``Y'' for ``X''
 \end{slide}
 
 
@@ -391,46 +393,48 @@ $$
 \end{slide}
 
 
-\begin{slide}
-\heading{Escalation to VoIP}
 
-\begin{itemize}
-\item Everything here has assumed that calls are carried through PSTN
-  \begin{itemize}
-  \item What about VoIP?
-  \item Provides more features and better security (See Jon's talk)
-  \end{itemize}
+% \begin{slide}
+% \heading{Escalation to VoIP}
 
-\item CDRs can contain more than just the caller/callee number
-  \begin{itemize}
-  \item For instance, a SIP URI
-    \begin{itemize}
-    \item Similar concept to VIPR
-    \end{itemize}
-  \end{itemize}
+% \begin{itemize}
+% \item Everything here has assumed that calls are carried through PSTN
+%   \begin{itemize}
+%   \item What about VoIP?
+%   \item Provides more features and better security (See Jon's talk)
+%   \end{itemize}
 
-\item How aggressive should we be about this kind of upgrade?
-\end{itemize}
-\end{slide}
+% \item CDRs can contain more than just the caller/callee number
+%   \begin{itemize}
+%   \item For instance, a SIP URI
+%     \begin{itemize}
+%     \item Similar concept to VIPR
+%     \end{itemize}
+%   \end{itemize}
+
+% \item How aggressive should we be about this kind of upgrade?
+% \end{itemize}
+% \end{slide}
 
 
-\begin{slide}
-\heading{Why not store under callee's number? (Barnes)}
 
-\begin{itemize}
-\item No need for CDS to verify caller
-\item Avoids trial decryption stage
-\item Hard to avoid spamming of CDS
-  \begin{itemize}
-  \item Could be mitigated by authenticated proxies?
-  \end{itemize}
+% \begin{slide}
+% \heading{Why not store under callee's number? (Barnes)}
 
-\item Doesn't let callee control privacy properties
-  \begin{itemize}
-  \item If caller doesn't use a proxy then CDS can do traffic analysis
-  \end{itemize}
-\end{itemize}
-\end{slide}
+% \begin{itemize}
+% \item No need for CDS to verify caller
+% \item Avoids trial decryption stage
+% \item Hard to avoid spamming of CDS
+%   \begin{itemize}
+%   \item Could be mitigated by authenticated proxies?
+%   \end{itemize}
+
+% \item Doesn't let callee control privacy properties
+%   \begin{itemize}
+%   \item If caller doesn't use a proxy then CDS can do traffic analysis
+%   \end{itemize}
+% \end{itemize}
+% \end{slide}
 
 
 \begin{slide}
@@ -446,7 +450,7 @@ $$
 
 \item Store under a hash of the caller's number
   \begin{itemize}
-  \item Better privacy but requires sending more traffic from CDS->callee
+  \item Better privacy but requires sending more traffic from CDS $\rightarrow$ callee
   \end{itemize}
 
 \item Store under a hash of the caller + callee's number
