@@ -392,7 +392,8 @@ Call from CS (forged caller-id info)  -------------------------------->
       <t>
         <xref target="sec.overview"/> provides a broad sketch of
         an approach. In this section, we consider some potential
-        enhancements.
+        enhancements. Readers can feel free to skip this section,
+	as it is not necessary to get the flavor of the document.
       </t>
       
       <section title="Encrypted CPRs">
