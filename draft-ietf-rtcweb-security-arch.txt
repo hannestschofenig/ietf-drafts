@@ -3,29 +3,20 @@
 
 RTCWEB                                                       E. Rescorla
 Internet-Draft                                                RTFM, Inc.
-Intended status:  Standards Track                       January 22, 2013
-Expires:  July 26, 2013
+Intended status:  Standards Track                          July 14, 2013
+Expires:  January 15, 2014
 
 
-                      RTCWEB Security Architecture
-                   draft-ietf-rtcweb-security-arch-06
+                      WebRTC Security Architecture
+                   draft-ietf-rtcweb-security-arch-07
 
 Abstract
 
    The Real-Time Communications on the Web (RTCWEB) working group is
    tasked with standardizing protocols for enabling real-time
-   communications within user-agents using web technologies (e.g
-   JavaScript).  The major use cases for RTCWEB technology are real-time
-   audio and/or video calls, Web conferencing, and direct data transfer.
-   Unlike most conventional real-time systems (e.g., SIP-based soft
-   phones) RTCWEB communications are directly controlled by some Web
-   server, which poses new security challenges.  For instance, a Web
-   browser might expose a JavaScript API which allows a server to place
-   a video call.  Unrestricted access to such an API would allow any
-   site which a user visited to "bug" a user's computer, capturing any
-   activity which passed in front of their camera.  [I-D.ietf-rtcweb-
-   security] defines the RTCWEB threat model.  This document defines an
-   architecture which provides security within that threat model.
+   communications within user-agents using web technologies (commonly
+   called "WebRTC").  This document defines the security architecture
+   for
 
 Legal
 
@@ -49,23 +40,23 @@ Status of this Memo
    Drafts is at http://datatracker.ietf.org/drafts/current/.
 
    Internet-Drafts are draft documents valid for a maximum of six months
-
-
-
-Rescorla                  Expires July 26, 2013                 [Page 1]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on July 26, 2013.
+   This Internet-Draft will expire on January 15, 2014.
 
 Copyright Notice
 
    Copyright (c) 2013 IETF Trust and the persons identified as the
+
+
+
+Rescorla                Expires January 15, 2014                [Page 1]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -108,9 +99,18 @@ Copyright Notice
 
 
 
-Rescorla                  Expires July 26, 2013                 [Page 2]
+
+
+
+
+
+
+
+
+
+Rescorla                Expires January 15, 2014                [Page 2]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 Table of Contents
@@ -129,10 +129,10 @@ Table of Contents
      5.1.  Origin and Web Security Issues . . . . . . . . . . . . . . 14
      5.2.  Device Permissions Model . . . . . . . . . . . . . . . . . 14
      5.3.  Communications Consent . . . . . . . . . . . . . . . . . . 16
-     5.4.  IP Location Privacy  . . . . . . . . . . . . . . . . . . . 17
-     5.5.  Communications Security  . . . . . . . . . . . . . . . . . 18
+     5.4.  IP Location Privacy  . . . . . . . . . . . . . . . . . . . 16
+     5.5.  Communications Security  . . . . . . . . . . . . . . . . . 17
      5.6.  Web-Based Peer Authentication  . . . . . . . . . . . . . . 19
-       5.6.1.  Trust Relationships: IdPs, APs, and RPs  . . . . . . . 20
+       5.6.1.  Trust Relationships: IdPs, APs, and RPs  . . . . . . . 19
        5.6.2.  Overview of Operation  . . . . . . . . . . . . . . . . 21
        5.6.3.  Items for Standardization  . . . . . . . . . . . . . . 23
        5.6.4.  Binding Identity Assertions to JSEP Offer/Answer
@@ -151,34 +151,31 @@ Table of Contents
          5.7.4.2.  IdP Well-known URI . . . . . . . . . . . . . . . . 34
          5.7.4.3.  Privacy of IdP-generated identities and the
                    hosting site . . . . . . . . . . . . . . . . . . . 34
-         5.7.4.4.  Security of Third-Party IdPs . . . . . . . . . . . 34
+         5.7.4.4.  Security of Third-Party IdPs . . . . . . . . . . . 35
          5.7.4.5.  Web Security Feature Interactions  . . . . . . . . 35
-   6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 35
-   7.  Changes  . . . . . . . . . . . . . . . . . . . . . . . . . . . 35
-     7.1.  Changes since -05  . . . . . . . . . . . . . . . . . . . . 36
-     7.2.  Changes since -03  . . . . . . . . . . . . . . . . . . . . 36
+     5.8.  IANA Considerations  . . . . . . . . . . . . . . . . . . . 36
+   6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 36
+   7.  Changes  . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+     7.1.  Changes since -06  . . . . . . . . . . . . . . . . . . . . 36
+     7.2.  Changes since -05  . . . . . . . . . . . . . . . . . . . . 36
      7.3.  Changes since -03  . . . . . . . . . . . . . . . . . . . . 36
-     7.4.  Changes since -02  . . . . . . . . . . . . . . . . . . . . 36
-   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 36
-     8.1.  Normative References . . . . . . . . . . . . . . . . . . . 36
+     7.4.  Changes since -03  . . . . . . . . . . . . . . . . . . . . 36
+     7.5.  Changes since -02  . . . . . . . . . . . . . . . . . . . . 37
 
 
 
-Rescorla                  Expires July 26, 2013                 [Page 3]
+Rescorla                Expires January 15, 2014                [Page 3]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-     8.2.  Informative References . . . . . . . . . . . . . . . . . . 37
-   Appendix A.  Example IdP Bindings to Specific Protocols  . . . . . 38
-     A.1.  BrowserID  . . . . . . . . . . . . . . . . . . . . . . . . 38
-     A.2.  OAuth  . . . . . . . . . . . . . . . . . . . . . . . . . . 41
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 42
-
-
-
-
-
+   8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 37
+     8.1.  Normative References . . . . . . . . . . . . . . . . . . . 37
+     8.2.  Informative References . . . . . . . . . . . . . . . . . . 38
+   Appendix A.  Example IdP Bindings to Specific Protocols  . . . . . 39
+     A.1.  BrowserID  . . . . . . . . . . . . . . . . . . . . . . . . 39
+     A.2.  OAuth  . . . . . . . . . . . . . . . . . . . . . . . . . . 42
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 43
 
 
 
@@ -220,19 +217,22 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                 [Page 4]
+
+
+
+Rescorla                Expires January 15, 2014                [Page 4]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 1.  Introduction
 
-   The Real-Time Communications on the Web (RTCWEB) working group is
+   The Real-Time Communications on the Web (WebRTC) working group is
    tasked with standardizing protocols for real-time communications
-   between Web browsers.  The major use cases for RTCWEB technology are
+   between Web browsers.  The major use cases for WebRTC technology are
    real-time audio and/or video calls, Web conferencing, and direct data
    transfer.  Unlike most conventional real-time systems, (e.g., SIP-
-   based[RFC3261] soft phones) RTCWEB communications are directly
+   based[RFC3261] soft phones) WebRTC communications are directly
    controlled by some Web server, as shown in Figure 1.
 
                                +----------------+
@@ -253,12 +253,12 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
                      |           |            |           |
                      +-----------+            +-----------+
 
-                     Figure 1: A simple RTCWEB system
+                     Figure 1: A simple WebRTC system
 
    A more complicated system might allow for interdomain calling, as
    shown in Figure 2.  The protocol to be used between the domains is
-   not standardized by RTCWEB, but given the installed base and the form
-   of the RTCWEB API is likely to be something SDP-based like SIP or
+   not standardized by WebRTC, but given the installed base and the form
+   of the WebRTC API is likely to be something SDP-based like SIP or
    XMPP.
 
 
@@ -276,9 +276,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                 [Page 5]
+Rescorla                Expires January 15, 2014                [Page 5]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
                     +--------------+             +--------------+
@@ -298,11 +298,11 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
                      |           |                  |           |
                      +-----------+                  +-----------+
 
-                   Figure 2: A multidomain RTCWEB system
+                   Figure 2: A multidomain WebRTC system
 
    This system presents a number of new security challenges, which are
    analyzed in [I-D.ietf-rtcweb-security].  This document describes a
-   security architecture for RTCWEB which addresses the threats and
+   security architecture for WebRTC which addresses the threats and
    requirements described in that document.
 
 
@@ -332,9 +332,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                 [Page 6]
+Rescorla                Expires January 15, 2014                [Page 6]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    categories:  those which can be authenticated by the browser and thus
@@ -349,7 +349,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    o  Calling services:  Web sites whose origin we can verify (optimally
       via HTTPS, but in some cases because we are on a topologically
       restricted network, such as behind a firewall).
-   o  Other users:  RTCWEB peers whose origin we can verify
+   o  Other users:  WebRTC peers whose origin we can verify
       cryptographically (optimally via DTLS-SRTP).
 
    Note that merely being authenticated does not make these entities
@@ -388,9 +388,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                 [Page 7]
+Rescorla                Expires January 15, 2014                [Page 7]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    media privacy with the minimal level of trust in the calling service.
@@ -426,7 +426,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    Note that the servers themselves are also authenticated by an
    external identity service, the SSL/TLS certificate infrastructure
    (not shown).  As is conventional in the Web, all identities are
-   ultimately rooted that system.  For instance, when an IdP makes an
+   ultimately rooted in that system.  For instance, when an IdP makes an
    identity assertion, the Relying Party consuming that assertion is
    able to verify because it is able to connect to the IdP via HTTPS.
 
@@ -444,9 +444,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                 [Page 8]
+Rescorla                Expires January 15, 2014                [Page 8]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
                                +----------------+
@@ -469,7 +469,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
                      +-----------+            +-----------+
                            ^      ^--+     +--^     ^
                            |         |     |        |
-                           v         |     |         v
+                           v         |     |        v
                      +-----------+   |     |  +-----------+
                      |           |<--------+  |           |
                      |   IdP     |   |        |    IdP    |
@@ -500,9 +500,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                 [Page 9]
+Rescorla                Expires January 15, 2014                [Page 9]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
              +----------------+    Unspecified    +----------------+
@@ -556,9 +556,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 10]
+Rescorla                Expires January 15, 2014               [Page 10]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    service presents a JS UI in the form of a button next to Bob's name
@@ -568,15 +568,16 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    far.
 
    Once the PeerConnection is created, the calling service JS needs to
-   set up some media.  Because this is an audio/video call, it creates
-   two MediaStreams, one connected to an audio input and one connected
-   to a video input.  At this point the first security check is
-   required:  untrusted origins are not allowed to access the camera and
-   microphone.  In this case, because Alice is a long-term user of the
-   calling service, she has made a permissions grant (i.e., a setting in
-   the browser) to allow the calling service to access her camera and
-   microphone any time it wants.  The browser checks this setting when
-   the camera and microphone requests are made and thus allows them.
+   set up some media.  Because this is an audio/video call, it creates a
+   MediaStreams with two MediaStreamTracks, one connected to an audio
+   input and one connected to a video input.  At this point the first
+   security check is required:  untrusted origins are not allowed to
+   access the camera and microphone.  In this case, because Alice is a
+   long-term user of the calling service, she has made a permissions
+   grant (i.e., a setting in the browser) to allow the calling service
+   to access her camera and microphone any time it wants.  The browser
+   checks this setting when the camera and microphone requests are made
+   and thus allows them.
 
    In the current W3C API, once some streams have been added, Alice's
    browser + JS generates a signaling message [I-D.ietf-rtcweb-jsep]
@@ -608,29 +609,28 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    so Bob's browser contacts Alice's identity provider (again, this is
    done in a generic way so the browser has no specific knowledge of the
    IdP) to verify the assertion.  This allows the browser to display a
-   trusted element in the browser chrome indicating that a call is
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 11]
+Rescorla                Expires January 15, 2014               [Page 11]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
+   trusted element in the browser chrome indicating that a call is
    coming in from Alice.  If Alice is in Bob's address book, then this
    interface might also include her real name, a picture, etc.  The
    calling site will also provide some user interface element (e.g., a
    button) to allow Bob to answer the call, though this is most likely
    not part of the trusted UI.
 
-   If Bob agrees [I am ignoring early media for now], a PeerConnection
-   is instantiated with the message from Alice's side.  Then, a similar
-   process occurs as on Alice's browser:  Bob's browser verifies that
-   the calling service is approved, the media streams are created, and a
-   return signaling message containing media information, ICE
-   candidates, and a fingerprint is sent back to Alice via the signaling
-   service.  If Bob has a relationship with an IdP, the message will
-   also come with an identity assertion.
+   If Bob agrees a PeerConnection is instantiated with the message from
+   Alice's side.  Then, a similar process occurs as on Alice's browser:
+   Bob's browser verifies that the calling service is approved, the
+   media streams are created, and a return signaling message containing
+   media information, ICE candidates, and a fingerprint is sent back to
+   Alice via the signaling service.  If Bob has a relationship with an
+   IdP, the message will also come with an identity assertion.
 
    At this point, Alice and Bob each know that the other party wants to
    have a secure call with them.  Based purely on the interface provided
@@ -668,9 +668,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 12]
+Rescorla                Expires January 15, 2014               [Page 12]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    it is not possible for an attacker who is on-path between Alice and
@@ -696,7 +696,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    data and/or media channels with keys which are not known to any
    third-party attacker.  If Alice and Bob authenticated via their IdPs,
    then they also know that the signaling service is not mounting a man-
-   in-the-middle attack on theor traffic.  Even if they do not use an
+   in-the-middle attack on their traffic.  Even if they do not use an
    IdP, as long as they have minimal trust in the signaling service not
    to perform a man-in-the-middle attack, they know that their
    communications are secure against the signaling service as well
@@ -724,9 +724,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 13]
+Rescorla                Expires January 15, 2014               [Page 13]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    session is terminated.
@@ -736,7 +736,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 5.1.  Origin and Web Security Issues
 
-   The basic unit of permissions for RTCWEB is the origin [RFC6454].
+   The basic unit of permissions for WebRTC is the origin [RFC6454].
    Because the security of the origin depends on being able to
    authenticate content from that origin, the origin can only be
    securely established if data is transferred over HTTPS [RFC2818].
@@ -749,20 +749,18 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    HTTP origin onto an HTTPS page, an error is displayed and the HTTP
    content is not executed unless the user overrides the error.  Any
    browser which enforces such a policy will also not permit access to
-   RTCWEB functionality from mixed content pages (because they never
-   display mixed content).  It is RECOMMENDED that browsers which allow
-   active mixed content nevertheless disable RTCWEB functionality in
-   mixed content settings. [[ OPEN ISSUE:  Should this be a 2119 MUST?
-   It's not clear what set of conditions would make this OK, other than
-   that browser manufacturers have traditionally been permissive here
-   here.]]  Note that it is possible for a page which was not mixed
-   content to become mixed content during the duration of the call.
-   Implementations MAY choose to terminate the call or display a warning
-   at that point, but it is also permissible to ignore this condition.
-   The major risk here is that the newly arrived insecure JS might
-   redirect media to a location controlled by the attacker.  This is a
-   deliberate implementation complexity versus security tradeoff. [[
-   OPEN ISSUE::  Should we be more aggressive about this?]]
+   WebRTC functionality from mixed content pages (because they never
+   display mixed content).  Browsers which allow active mixed content
+   MUST nevertheless disable WebRTC functionality in mixed content
+   settings.
+
+   Note that it is possible for a page which was not mixed content to
+   become mixed content during the duration of the call.
+   Implementations MUST either choose to terminate the call or display a
+   warning at that point.  The major risk here is that the newly arrived
+   insecure JS might redirect media to a location controlled by the
+   attacker.  This is a deliberate implementation complexity versus
+   security tradeoff.
 
 5.2.  Device Permissions Model
 
@@ -777,16 +775,15 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    Because HTTP origins cannot be securely established against network
    attackers, implementations MUST NOT allow the setting of permanent
    access permissions for HTTP origins.  Implementations MAY also opt to
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 14]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    refuse all permissions grants for HTTP origins, but it is RECOMMENDED
    that currently they support one-time camera/microphone access.
+
+
+
+Rescorla                Expires January 15, 2014               [Page 14]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
 
    In addition, they SHOULD support requests for access that promise
    that media from this grant will be sent to a single communicating
@@ -829,18 +826,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       device access, and provide a UI means to immediately stop camera/
       microphone input without the JS being able to prevent it.
 
-
-
-
-
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 15]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    UI Requirement:  If the UI indication of camera/microphone use are
       displayed in the browser such that minimizing the browser window
       would hide the indication, or the JS creating an overlapping
@@ -848,6 +833,13 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       camera and microphone input when the indication is hidden.  [Note:
       this may not be necessary in systems that are non-windows-based
       but that have good notifications support, such as phones.]
+
+
+
+Rescorla                Expires January 15, 2014               [Page 15]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
 
    Clients MAY permit the formation of data channels without any direct
    user approval.  Because sites can always tunnel data through the
@@ -870,7 +862,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 5.3.  Communications Consent
 
-   Browser client implementations of RTCWEB MUST implement ICE.  Server
+   Browser client implementations of WebRTC MUST implement ICE.  Server
    gateway implementations which operate only at public IP addresses
    MUST implement either full ICE or ICE-Lite.
 
@@ -878,25 +870,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    sending any non-ICE packets to a given destination.  Implementations
    MUST NOT provide the ICE transaction ID to JavaScript during the
    lifetime of the transaction (i.e., during the period when the ICE
-   stack would accept a new response for that transaction).  [Note:
-   this document takes no position on the split between ICE in JS and
-   ICE in the browser.  The above text is written the way it is for
-   editorial convenience and will be modified appropriately if the WG
-   decides on ICE in the JS.]  The JS MUST NOT be permitted to control
-   the local ufrag and password, though it of course knows it.
+   stack would accept a new response for that transaction).  The JS MUST
+   NOT be permitted to control the local ufrag and password, though it
+   of course knows it.
 
    While continuing consent is required, that ICE [RFC5245]; Section 10
    keepalives STUN Binding Indications are one-way and therefore not
    sufficient.  The current WG consensus is to use ICE Binding Requests
    for continuing consent freshness.  ICE already requires that
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 16]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    implementations respond to such requests, so this approach is
    maximally compatible.  A separate document will profile the ICE
    timers to be used; see [I-D.muthu-behave-consent-freshness].
@@ -908,6 +889,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    especially for mobile devices.  This has negative privacy
    consequences in some circumstances.  The API requirements in this
    section are intended to mitigate this issue.  Note that these
+
+
+
+Rescorla                Expires January 15, 2014               [Page 16]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
    requirements are NOT intended to protect the user's IP address from a
    malicious site.  In general, the site will learn at least a user's
    server reflexive address from any HTTP transaction.  Rather, these
@@ -929,7 +918,8 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    API Requirement:  The API MUST provide a mechanism for the calling
       application JS to indicate that only TURN candidates are to be
       used.  This prevents the peer from learning one's IP address at
-      all.
+      all.  This mechanism MUST also permit suppression of the related
+      address field, since that leaks local addresses.
 
    API Requirement:  The API MUST provide a mechanism for the calling
       application to reconfigure an existing call to add non-TURN
@@ -942,16 +932,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       the user to optimize performance by reconfiguring to allow non-
       turn candidates during an active call if the user decides they no
       longer need to hide their IP address
-
-
-
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 17]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
 
 5.5.  Communications Security
 
@@ -966,12 +946,21 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    Implementations MAY support SDES for media traffic for backward
    compatibility purposes.
 
+
+
+Rescorla                Expires January 15, 2014               [Page 17]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
    API Requirement:  The API MUST provide a mechanism to indicate that a
       fresh DTLS key pair is to be generated for a specific call.  This
       is intended to allow for unlinkability.  Note that there are also
       settings where it is attractive to use the same keying material
       repeatedly, especially those with key continuity-based
-      authentication.
+      authentication.  Unless the user specifically configures an
+      external key pair, different key pairs MUST be used for each
+      origin.  (This avoids creating a super-cookie.)
 
    API Requirement:  When DTLS-SRTP is used, the API MUST NOT permit the
       JS to obtain the negotiated keying material.  This requirement
@@ -979,8 +968,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
    UI Requirements:    A user-oriented client MUST provide an
       "inspector" interface which allows the user to determine the
-      security characteristics of the media. [largely derived from
-      [I-D.kaufman-rtcweb-security-ui]
+      security characteristics of the media.
       The following properties SHOULD be displayed "up-front" in the
       browser chrome, i.e., without requiring the user to ask for them:
 
@@ -1001,25 +989,25 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
          identities have similar semantics and should be displayed in a
          similar way.
 
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 18]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
-
       The following properties are more likely to require some "drill-
       down" from the user:
 
       *  The "security characteristics" MUST indicate the cryptographic
          algorithms in use (For example:  "AES-CBC" or "Null Cipher".)
+         However, if Null ciphers are used, that MUST be presented to
+         the user at the top-level UI.
       *  The "security characteristics" MUST indicate whether PFS is
          provided.
       *  The "security characteristics" MUST include some mechanism to
          allow an out-of-band verification of the peer, such as a
          certificate fingerprint or an SAS.
+
+
+
+Rescorla                Expires January 15, 2014               [Page 18]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
 
 5.6.  Web-Based Peer Authentication
 
@@ -1057,14 +1045,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    introduced without change to either the browser or the calling
    service.  This avoids the need to make a commitment to any particular
    identity protocol, although browsers may opt to directly implement
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 19]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    some identity protocols in order to provide superior performance or
    UI properties.
 
@@ -1074,6 +1054,17 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
    Authenticating Party (AP):  The entity which is trying to establish
       its identity.
+
+
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 19]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
 
    Identity Provider (IdP):  The entity which is vouching for the AP's
       identity.
@@ -1113,14 +1104,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       potentially be multiple IdPs attesting to the same section of the
       identity space.  Probably the best-known example of a third-party
       identity provider is SSL certificates, where there are a large
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 20]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
       number of CAs all of whom can attest to any domain name.
 
    If an AP is authenticating via an authoritative IdP, then the RP does
@@ -1130,6 +1113,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    this document), and any assertion it makes about an identity for
    which it is authoritative is directly verifiable.  Note that this
    does not mean that the IdP might not lie, but that is a
+
+
+
+Rescorla                Expires January 15, 2014               [Page 20]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
    trustworthiness judgement that the user can make at the time he looks
    at the identity.
 
@@ -1172,9 +1163,18 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 21]
+
+
+
+
+
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 21]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
          +------------------------------------+
@@ -1228,9 +1228,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 22]
+Rescorla                Expires January 15, 2014               [Page 22]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 5.6.3.  Items for Standardization
@@ -1248,7 +1248,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       assertions were received.
 
    The first two items are defined in this document.  The final one is
-   defined in the companion W3C WebRTC API specification [TODO:REF]
+   defined in the companion W3C WebRTC API specification [webrtc-api].
 
 5.6.4.  Binding Identity Assertions to JSEP Offer/Answer Transactions
 
@@ -1271,7 +1271,8 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
    The "algorithm" and digest values correspond directly to the
-   algorithm and digest in the a=fingerprint line of the SDP.
+   algorithm and digest values in the a=fingerprint line of the SDP.
+   [RFC4572].
 
    Note:  this structure does not need to be interpreted by the IdP or
    the IdP proxy.  It is consumed solely by the RP's browser.  The IdP
@@ -1283,10 +1284,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-
-Rescorla                  Expires July 26, 2013                [Page 23]
+Rescorla                Expires January 15, 2014               [Page 23]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 5.6.4.2.  Carrying Identity Assertions
@@ -1340,9 +1340,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 24]
+Rescorla                Expires January 15, 2014               [Page 24]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
                  {
@@ -1396,9 +1396,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 25]
+Rescorla                Expires January 15, 2014               [Page 25]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    o  The JS runs in the IdP's security context with the base page
@@ -1452,9 +1452,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 26]
+Rescorla                Expires January 15, 2014               [Page 26]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    is attesting to.  Thus, the AP somehow supplies the IdP information
@@ -1483,7 +1483,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    defined above, but are opaque from the perspective of the IdP.
 
    A successful response to a "SIGN" message contains a message field
-   which is a JS dictionary dictionary consisting of two fields:
+   which is a JS dictionary consisting of two fields:
 
    idp:  A dictionary containing the domain name of the provider and the
       protocol string
@@ -1508,9 +1508,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 27]
+Rescorla                Expires January 15, 2014               [Page 27]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
     PeerConnection -> IdP proxy:
@@ -1564,9 +1564,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 28]
+Rescorla                Expires January 15, 2014               [Page 28]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    identity  The identity of the AP from the IdP's perspective.  Details
@@ -1620,9 +1620,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 29]
+Rescorla                Expires January 15, 2014               [Page 29]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 5.6.5.2.3.1.  Identity Formats
@@ -1676,9 +1676,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 30]
+Rescorla                Expires January 15, 2014               [Page 30]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    mechanisms by any attacker who can modify the signaling traffic.  If
@@ -1732,9 +1732,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 31]
+Rescorla                Expires January 15, 2014               [Page 31]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    o  Potential callees to avoid revealing their location and even
@@ -1749,10 +1749,18 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    status and (absent the use of a technology like Tor) their IP
    address, they can violate the users privacy at will.  Users who wish
    privacy against the calling sites they are using must use separate
-   privacy enhancing technologies such as Tor. Combined RTCWEB/Tor
+   privacy enhancing technologies such as Tor. Combined WebRTC/Tor
    implementations SHOULD arrange to route the media as well as the
-   signaling through Tor. [Currently this will produce very suboptimal
-   performance.]
+   signaling through Tor. Currently this will produce very suboptimal
+   performance.
+
+   Additionally, any identifier which persists across multiple calls is
+   potentially a problem for privacy, especially for anonymous calling
+   services.  Such services SHOULD instruct the browser to use separate
+   DTLS keys for each call and also to use TURN throughout the call.
+   Otherwise, the other side will learn linkable information.
+   Additionally, browsers SHOULD implement the privacy-preserving CNAME
+   generation mode of [I-D.ietf-avtcore-6222bis].
 
 5.7.3.  Denial of Service
 
@@ -1760,7 +1768,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    mitigate denial of service attacks in which an attacker uses clients
    to send large amounts of traffic to a victim without the consent of
    the victim.  While these mechanisms are sufficient to protect victims
-   who have not implemented RTCWEB at all, RTCWEB implementations need
+   who have not implemented WebRTC at all, WebRTC implementations need
    to be more careful.
 
    Consider the case of a call center which accepts calls via RTCWeb.
@@ -1770,12 +1778,20 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    does not need consent, he can use that directly.  Since ICE will
    complete, browsers can then be induced to send large amounts of data
    to the victim call center if it supports the data channel at all.
-   Preventing this attack requires that automated RTCWEB
+   Preventing this attack requires that automated WebRTC
    implemementations implement sensible flow control and have the
    ability to triage out (i.e., stop responding to ICE probes on) calls
    which are behaving badly, and especially to be prepared to remotely
    throttle the data channel in the absence of plausible audio and video
    (which the attacker cannot control).
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 32]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
 
    Another related attack is for the signaling service to swap the ICE
    candidates for the audio and video streams, thus forcing a browser to
@@ -1785,14 +1801,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    it harder to individually suppress a single flow by denying ICE
    keepalives.  Either media-level (RTCP) mechanisms must be used or the
    implementation must deny responses entirely, thus termnating the
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 32]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    call.
 
    Yet another attack, suggested by Magnus Westerlund, is for the
@@ -1833,21 +1841,22 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    signatures be tied to a specific origin ("rtcweb://...") which cannot
    be produced by content JavaScript.  Thus, while an attacker can
    instantiate the IdP proxy, they cannot send messages from an
+
+
+
+Rescorla                Expires January 15, 2014               [Page 33]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
    appropriate origin and so cannot create acceptable assertions.  I.e.,
    the assertion request must have come from the browser.  This origin
    check is enforced on the relying party side, not on the
    authenticating party side.  The reason for this is to take the burden
    of knowing which origins are valid off of the IdP, thus making this
-   mechanism extensible to other applications besides RTCWEB.  The IdP
+   mechanism extensible to other applications besides WebRTC.  The IdP
    simply needs to gather the origin information (from the posted
    message) and attach it to the assertion.
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 33]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
 
    Note that although this origin check is enforced on the RP side and
    not at the IdP, it is absolutely imperative that it be done.  The
@@ -1888,6 +1897,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    The "origin" field of the signature request can be used to check that
    the user has agreed to disclose their identity to the calling site;
    because it is supplied by the PeerConnection it can be trusted to be
+
+
+
+Rescorla                Expires January 15, 2014               [Page 34]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
    correct.
 
 5.7.4.4.  Security of Third-Party IdPs
@@ -1897,14 +1914,6 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    limited.  Most IdPs, even those which issue unqualified identities
    such as Facebook, can be recast as authoritative IdPs (e.g.,
    123456@facebook.com).  However, in such cases, the user interface
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 34]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    implications are not entirely desirable.  One intermediate approach
    is to have special (potentially user configurable) UI for large
    authoritative IdPs, thus allowing the user to instantly grasp that
@@ -1942,26 +1951,43 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    third-party cookie blocking for the IdP proxy.
 
 
+
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 35]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
+5.8.  IANA Considerations
+
+   [TODO:  IANA registration for Identity header.]
+
+
 6.  Acknowledgements
 
    Bernard Aboba, Harald Alvestrand, Richard Barnes, Dan Druta, Cullen
    Jennings, Hadriel Kaplan, Matthew Kaufman, Jim McEachern, Martin
-   Thomson, Magnus Westerland.
+   Thomson, Magnus Westerland.  Matthew Kaufman provided the UI material
+   in Section 5.5.
 
 
 7.  Changes
 
+7.1.  Changes since -06
 
+   Replaced RTCWEB and RTC-Web with WebRTC, except when referring to the
+   IETF WG
 
+   Assorted editorial work.
 
+   Forbade use in mixed content as discussed in Orlando.
 
+   Added a requirement to surface NULL ciphers to the top-level.
 
-Rescorla                  Expires July 26, 2013                [Page 35]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
-7.1.  Changes since -05
+7.2.  Changes since -05
 
    The following changes have been made since the -05 draft.
 
@@ -1970,7 +1996,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
       use case.
    o  Editorial cleanup.
 
-7.2.  Changes since -03
+7.3.  Changes since -03
 
    Version -04 was a version control mistake.  Please ignore.
 
@@ -1980,9 +2006,18 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    o  Clarified treatment of X.509-level identities.
    o  Editorial cleanup.
 
-7.3.  Changes since -03
+7.4.  Changes since -03
 
-7.4.  Changes since -02
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 36]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
+7.5.  Changes since -02
 
    The following changes have been made since the -02 draft.
 
@@ -1998,24 +2033,22 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 8.1.  Normative References
 
+   [I-D.ietf-avtcore-6222bis]
+              Begen, A., Perkins, C., Wing, D., and E. Rescorla,
+              "Guidelines for Choosing RTP Control Protocol (RTCP)
+              Canonical Names (CNAMEs)", draft-ietf-avtcore-6222bis-06
+              (work in progress), July 2013.
+
    [I-D.ietf-rtcweb-security]
               Rescorla, E., "Security Considerations for RTC-Web",
-              draft-ietf-rtcweb-security-03 (work in progress),
-              June 2012.
+              draft-ietf-rtcweb-security-04 (work in progress),
+              January 2013.
 
    [I-D.muthu-behave-consent-freshness]
               Perumal, M., Wing, D., R, R., and H. Kaplan, "STUN Usage
               for Consent Freshness",
-              draft-muthu-behave-consent-freshness-02 (work in
-              progress), January 2013.
-
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 36]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
+              draft-muthu-behave-consent-freshness-03 (work in
+              progress), February 2013.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119, March 1997.
@@ -2025,8 +2058,20 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    [RFC4347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security", RFC 4347, April 2006.
 
+   [RFC4572]  Lennox, J., "Connection-Oriented Media Transport over the
+              Transport Layer Security (TLS) Protocol in the Session
+              Description Protocol (SDP)", RFC 4572, July 2006.
+
    [RFC4627]  Crockford, D., "The application/json Media Type for
               JavaScript Object Notation (JSON)", RFC 4627, July 2006.
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 37]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
 
    [RFC5245]  Rosenberg, J., "Interactive Connectivity Establishment
               (ICE): A Protocol for Network Address Translator (NAT)
@@ -2045,12 +2090,19 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
               December 2011.
 
+   [webrtc-api]
+              Bergkvist, Burnett, Jennings, Narayanan, "WebRTC 1.0:
+              Real-time Communication Between Browsers", October 2011.
+
+              Available at
+              http://dev.w3.org/2011/webrtc/editor/webrtc.html
+
 8.2.  Informative References
 
    [I-D.ietf-rtcweb-jsep]
               Uberti, J. and C. Jennings, "Javascript Session
-              Establishment Protocol", draft-ietf-rtcweb-jsep-02 (work
-              in progress), October 2012.
+              Establishment Protocol", draft-ietf-rtcweb-jsep-03 (work
+              in progress), February 2013.
 
    [I-D.jennings-rtcweb-signaling]
               Jennings, C., Rosenberg, J., and R. Jesup, "RTCWeb Offer/
@@ -2065,18 +2117,18 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
    [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
               A., Peterson, J., Sparks, R., Handley, M., and E.
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 37]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
               Schooler, "SIP: Session Initiation Protocol", RFC 3261,
               June 2002.
 
    [RFC5705]  Rescorla, E., "Keying Material Exporters for Transport
+
+
+
+Rescorla                Expires January 15, 2014               [Page 38]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
               Layer Security (TLS)", RFC 5705, March 2010.
 
    [RFC6455]  Fette, I. and A. Melnikov, "The WebSocket Protocol",
@@ -2107,7 +2159,7 @@ A.1.  BrowserID
    is passed back to the relying party for verification.  The assertion
    can be verified directly or with a Web service provided by the
    identity provider.  It's relatively easy to extend this functionality
-   to authenticate RTCWEB calls, as shown below.
+   to authenticate WebRTC calls, as shown below.
 
 
 
@@ -2124,9 +2176,13 @@ A.1.  BrowserID
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 38]
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 39]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    +----------------------+                     +----------------------+
@@ -2180,9 +2236,9 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 39]
+Rescorla                Expires January 15, 2014               [Page 40]
 
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
    6.  The PeerConnection returns the signed information to the calling
@@ -2190,23 +2246,19 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    7.  The signed assertion gets sent over the wire to Bob's browser
        (via the signaling service) as part of the call setup.
 
-   Obviously, the format of the signed assertion varies depending on
-   what signaling style the WG ultimately adopts.  However, for
-   concreteness, if something like ROAP were adopted, then the entire
-   message might look like:
+   The offer might look something like:
 
       {
-        "messageType":"OFFER",
-        "callerSessionId":"13456789ABCDEF",
-        "seq": 1
-        "sdp":"
-      v=0\n
+        "type":"OFFER",
+        "sdp":
+     "v=0\n
       o=- 2890844526 2890842807 IN IP4 192.0.2.1\n
       s= \n
       c=IN IP4 192.0.2.1\n
       t=2873397496 2873404696\n
       m=audio 49170 RTP/AVP 0\n
       a=fingerprint: SHA-1 \
+      a=identity [[base-64 encoding of...
       4A:AD:B9:B1:3F:82:18:3B:54:02:12:DF:3E:5D:49:6B:19:E5:7C:AB\n",
        "identity":{
             "idp":{     // Standardized
@@ -2224,7 +2276,7 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
                  \"public-key\": \"<ekrs-public-key>\",
                  \"valid-until\": 1308860561861,
                }" // certificate is signed by example.org
-            }
+            }]]"
       }
 
    Note that while the IdP here is specified as "browserid.org", the
@@ -2233,16 +2285,17 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
    browserid.org delegates the right to be authoritative (what BrowserID
    calls primary) to individual domains.
 
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 40]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
    On Bob's side, he receives the signed assertion as part of the call
    setup message and a similar procedure happens to verify it.
+
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 41]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
 
    1.  The calling JS instantiates a PeerConnection and provides it the
        relevant signaling information, including the signed assertion.
@@ -2264,10 +2317,10 @@ A.2.  OAuth
 
    While OAuth is not directly designed for user-to-user authentication,
    with a little lateral thinking it can be made to serve.  We use the
-   following mapping of OAuth concepts to RTCWEB concepts:
+   following mapping of OAuth concepts to WebRTC concepts:
 
               +----------------------+----------------------+
-              | OAuth                | RTCWEB               |
+              | OAuth                | WebRTC               |
               +----------------------+----------------------+
               | Client               | Relying party        |
               | Resource owner       | Authenticating party |
@@ -2284,19 +2337,6 @@ A.2.  OAuth
    the resource from the identity provider, thus verifying the binding
    between Alice and the call.
 
-
-
-
-
-
-
-
-
-Rescorla                  Expires July 26, 2013                [Page 41]
-
-Internet-Draft              RTCWEB Sec. Arch.               January 2013
-
-
            Alice                       IdP                       Bob
            ---------------------------------------------------------
            Call-Id, Fingerprint  ------->
@@ -2305,6 +2345,14 @@ Internet-Draft              RTCWEB Sec. Arch.               January 2013
                                         <----- Get Token + Auth Code
                                         Token --------------------->
                                         <------------- Get call-info
+
+
+
+Rescorla                Expires January 15, 2014               [Page 42]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
                                         Call-Id, Fingerprint ------>
 
    This is a modified version of a common OAuth flow, but omits the
@@ -2348,5 +2396,13 @@ Author's Address
 
 
 
-Rescorla                  Expires July 26, 2013                [Page 42]
+
+
+
+
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 43]
 

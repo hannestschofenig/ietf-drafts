@@ -6,6 +6,7 @@
 <!ENTITY RFC3261 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3261.xml">
 <!ENTITY RFC5479 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5479.xml">
 <!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
+<!ENTITY RFC4572 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4572.xml">
 <!ENTITY RFC4568 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4568.xml">
 <!ENTITY RFC5763 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5763.xml">
 <!ENTITY RFC5764 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5764.xml">
@@ -24,6 +25,7 @@
 
 <!ENTITY I-D.kaufman-rtcweb-security-ui SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.kaufman-rtcweb-security-ui">
 <!ENTITY I-D.jennings-rtcweb-signaling SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.jennings-rtcweb-signaling">
+<!ENTITY I-D.ietf-avtcore-6222bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avtcore-6222bis">
 ]>
 
 <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
@@ -36,7 +38,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-arch-06"
+<rfc category="std" docName="draft-ietf-rtcweb-security-arch-07"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="WebRTC Sec. Arch.">WebRTC Security Architecture</title>
@@ -63,7 +65,7 @@
       </address>
     </author>
 
-    <date day="22" month="January" year="2013" />
+    <date day="14" month="July" year="2013" />
 
     <area>RAI</area>
 
@@ -291,7 +293,7 @@
       <t>
 	Note that the servers themselves are also authenticated by an external
 	identity service, the SSL/TLS certificate infrastructure (not shown).
-	As is conventional in the Web, all identities are ultimately rooted
+	As is conventional in the Web, all identities are ultimately rooted in
 	that system. For instance, when an IdP makes an identity assertion,
 	the Relying Party consuming that assertion is able to verify because
 	it is able to connect to the IdP via HTTPS.
@@ -318,7 +320,7 @@
                   +-----------+            +-----------+
                         ^      ^--+     +--^     ^		        
                         |         |     |        |
-			v         |     |         v
+			v         |     |        v
                   +-----------+   |     |  +-----------+
                   |           |<--------+  |           |
 		  |   IdP     |   |        |    IdP    |
@@ -399,7 +401,8 @@
 	<t>
 	  Once the PeerConnection is created, the calling service JS 
 	  needs to set up some media. Because this is an audio/video
-	  call, it creates two MediaStreams, one connected to an
+	  call, it creates a MediaStreams with two MediaStreamTracks,
+	  one connected to an
 	  audio input and one connected to a video input. At this
 	  point the first security check is required: untrusted
 	  origins are not allowed to access the camera and microphone.
@@ -456,7 +459,7 @@
 	  trusted UI.
 	</t>
 	<t>
-	  If Bob agrees [I am ignoring early media for now], 
+	  If Bob agrees
 	  a PeerConnection is instantiated with the message from Alice's side.
 	  Then, a similar process
 	  occurs as on Alice's browser: Bob's browser verifies that the calling
@@ -539,7 +542,7 @@
 	  not known to any third-party attacker. If Alice and
 	  Bob authenticated via their IdPs, then they also know
 	  that the signaling service is not mounting a man-in-the-middle
-	  attack on theor traffic. Even
+	  attack on their traffic. Even
 	  if they do not use an IdP, as long as
 	  they have minimal trust in the signaling service not to
 	  perform a man-in-the-middle attack, they know that their
@@ -594,24 +597,20 @@
 	  executed unless the user overrides the error. Any browser
 	  which enforces such a policy will also not permit access
 	  to WebRTC functionality from mixed content pages (because they
-	  never display mixed content). It is 
-	  RECOMMENDED that browsers which allow active mixed content
+	  never display mixed content). 
+	  Browsers which allow active mixed content MUST
 	  nevertheless disable WebRTC functionality in mixed content
 	  settings.
-	  [[ OPEN ISSUE: Should this be a 2119 MUST? It's not clear
-	  what set of conditions would make this OK, other than 
-	  that browser manufacturers have traditionally been permissive here
-	  here.]]
+	</t>
+	<t>
 	  Note that it is possible for a page which was not mixed content
 	  to become mixed content during the duration of the call. 
-	  Implementations MAY choose to terminate the call or display
-	  a warning at that point, but it is also permissible to
-	  ignore this condition. The major risk here is that
+	  Implementations MUST either choose to terminate the call or display
+	  a warning at that point. The major risk here is that
 	  the newly arrived insecure JS might redirect media to a location
 	  controlled by the attacker.
 	  This is a deliberate implementation
 	  complexity versus security tradeoff. 
-          [[ OPEN ISSUE:: Should we be more aggressive about this?]]
 	</t>
       </section>
 
@@ -752,10 +751,7 @@
 	  Implementations MUST NOT provide the ICE transaction ID
 	  to JavaScript during the lifetime of the transaction
           (i.e., during the period when the ICE stack would accept
-          a new response for that transaction). [Note: this document takes no position on
-	  the split between ICE in JS and ICE in the browser. The
-	  above text is written the way it is for editorial convenience and will
-	  be modified appropriately if the WG decides on ICE in the JS.]
+          a new response for that transaction).
 	  The JS MUST NOT be permitted to control the local ufrag and password,
 	  though it of course knows it.
 	</t>
@@ -808,6 +804,8 @@
 	    The API MUST provide a mechanism for the calling application JS to
 	    indicate that only TURN candidates are to be used. This
 	    prevents the peer from learning one's IP address at all.
+	    This mechanism MUST also permit suppression of the related
+	    address field, since that leaks local addresses.
 	  </t>
 	</list>
 	</t>
@@ -846,11 +844,14 @@
 	<t><list style="hanging">
 	  <t hangText="API Requirement:">
 	    The API MUST provide a mechanism to indicate that a fresh
-	    DTLS key pair is to be generated for a specific call. 
+	    DTLS key pair is to be generated for a specific call.
 	    This is intended to allow for unlinkability. Note that
 	    there are also settings where it is attractive to use
 	    the same keying material repeatedly, especially those
 	    with key continuity-based authentication.
+	    Unless the user specifically configures an external
+	    key pair, different key pairs MUST be used for each
+	    origin. (This avoids creating a super-cookie.)
 	  </t>
 	</list></t>
 
@@ -863,12 +864,11 @@
 	  </t>
 	</list></t>
 
-
 	<t><list style="hanging">
 	  <t hangText="UI Requirements: ">
 	    A user-oriented client MUST provide an "inspector" interface which
 	    allows the user to determine the security characteristics of the
-	    media. [largely derived from <xref target="I-D.kaufman-rtcweb-security-ui"/>
+	    media.
 	  </t>
 	  <t>
 	    The following properties SHOULD be displayed "up-front" in the browser
@@ -906,7 +906,8 @@
 	  <t>
 	    <list style="symbols">	      
 	      <t> The "security characteristics" MUST indicate the cryptographic algorithms
-	       in use (For example:  "AES-CBC" or "Null Cipher".)</t>
+	       in use (For example:  "AES-CBC" or "Null Cipher".) However, if
+	      Null ciphers are used, that MUST be presented to the user at the top-level UI.</t>
 
 	      <t>The "security characteristics" MUST indicate whether PFS is provided.</t>
 
@@ -1173,7 +1174,8 @@
 	  </t>
 	  <t>
 	    The first two items are defined in this document. The final one
-	    is defined in the companion W3C WebRTC API specification [TODO:REF]
+	    is defined in the companion W3C WebRTC API specification
+	    <xref target="webrtc-api"/>.
 	  </t>
 	</section>
 	<section title="Binding Identity Assertions to JSEP Offer/Answer Transactions" anchor="sec.jsep-binding">
@@ -1201,7 +1203,8 @@
  </figure>
 	    <t>
 	      The "algorithm" and digest values correspond directly to the
-	      algorithm and digest in the a=fingerprint line of the SDP.
+	      algorithm and digest values in the a=fingerprint line of the SDP.
+	      <xref target="RFC4572"/>.
 	    </t>
 	    <t>
 	      Note: this structure does not need to be interpreted by the
@@ -1439,8 +1442,7 @@
 	      </t>
 	      <t>
 		A successful response to a "SIGN" message contains
-		a message field which is a JS dictionary 
-		dictionary consisting of two fields:
+		a message field which is a JS dictionary consisting of two fields:
 	      </t>
 	      <t>
 		<list style="hanging">
@@ -1717,7 +1719,17 @@
 	are using must use separate privacy enhancing technologies
 	such as Tor. Combined WebRTC/Tor implementations SHOULD
 	arrange to route the media as well as the signaling through
-	Tor. [Currently this will produce very suboptimal performance.]
+	Tor. Currently this will produce very suboptimal performance.
+      </t>
+      <t>
+	Additionally, any identifier which persists across multiple
+	calls is potentially a problem for privacy, especially for
+	anonymous calling services. Such services SHOULD instruct
+	the browser to use separate DTLS keys for each call
+	and also to use TURN throughout the call. Otherwise,
+	the other side will learn linkable information.
+	Additionally, browsers SHOULD implement the privacy-preserving
+	CNAME generation mode of <xref target="I-D.ietf-avtcore-6222bis"/>.
       </t>
     </section>
 
@@ -1927,17 +1939,30 @@
       </section>
     </section>
   </section>
+  <section title="IANA Considerations">
+    <t>[TODO: IANA registration for Identity header.]</t>
+  </section>
+
       </section>
   <section title="Acknowledgements">
     <t>
       Bernard Aboba, Harald Alvestrand, Richard Barnes, Dan Druta,
       Cullen Jennings, Hadriel Kaplan, Matthew Kaufman,
       Jim McEachern, Martin Thomson, Magnus Westerland.
+      Matthew Kaufman provided the UI material in <xref target="sec.proposal.comsec"/>.
     </t>
   </section>
 
 
   <section title="Changes">
+    <section title="Changes since -06">
+      <t>Replaced RTCWEB and RTC-Web with WebRTC, except when referring to the IETF WG</t>
+      <t>Assorted editorial work.</t>
+      <t>Forbade use in mixed content as discussed in Orlando.</t>
+      <t>Added a requirement to surface NULL ciphers to the top-level.</t>
+
+
+    </section>
   <section title="Changes since -05">
     <t>
       The following changes have been made since the -05 draft.	
@@ -1996,12 +2021,31 @@
       &RFC6454;
       &RFC5245;
       &RFC4347;
+      &RFC4572;
       &RFC5763;
       &RFC5764;
       &RFC4627;
 
+
       &I-D.ietf-rtcweb-security;
       &I-D.muthu-behave-consent-freshness;
+      &I-D.ietf-avtcore-6222bis;
+      <reference anchor="webrtc-api">
+        <front>
+          <title>WebRTC 1.0: Real-time Communication Between Browsers</title>
+
+          <author fullname="W3C editors"
+                  surname="Bergkvist, Burnett, Jennings, Narayanan">
+            <organization>W3C</organization>
+          </author>
+
+          <date day="4" month="October" year="2011" />
+        </front>
+
+        <annotation>Available at
+        http://dev.w3.org/2011/webrtc/editor/webrtc.html</annotation>
+      </reference>
+
     </references>
     <references title="Informative References">
       &RFC3261;
@@ -2113,25 +2157,21 @@
       </list>
       </t>
       <t>
-	Obviously, the format of the signed assertion varies depending
-	on what signaling style the WG ultimately adopts. However, for
-	concreteness, if something like ROAP were adopted, then the
-	entire message might look like:
+	The offer might look something like:
       </t>
       <figure>
 	<artwork><![CDATA[
    {
-     "messageType":"OFFER",
-     "callerSessionId":"13456789ABCDEF",
-     "seq": 1
-     "sdp":"
-   v=0\n
+     "type":"OFFER",
+     "sdp":
+  "v=0\n
    o=- 2890844526 2890842807 IN IP4 192.0.2.1\n
    s= \n
    c=IN IP4 192.0.2.1\n
    t=2873397496 2873404696\n
    m=audio 49170 RTP/AVP 0\n
    a=fingerprint: SHA-1 \
+   a=identity [[base-64 encoding of...
    4A:AD:B9:B1:3F:82:18:3B:54:02:12:DF:3E:5D:49:6B:19:E5:7C:AB\n",
     "identity":{
          "idp":{     // Standardized
@@ -2149,7 +2189,7 @@
               \"public-key\": \"<ekrs-public-key>\",
               \"valid-until\": 1308860561861,
             }" // certificate is signed by example.org
-	 }
+	 }]]"
    }
  	]]></artwork>
       </figure>
@@ -2271,10 +2311,10 @@ On Thu, Sep 22, 2011 at 5:45 AM, Magnus Westerlund <magnus.westerlund@ericsson.c
 
 -->
 
-	    <!-- drill down -->
+<!-- TODO
+
+
+
+-->
 </rfc>
 
-
-<!-- Continuing consent per Magnus -->
-
-<!-- TODO: Require key destruction -->
