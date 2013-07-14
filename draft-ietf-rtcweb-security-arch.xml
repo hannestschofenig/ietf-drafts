@@ -193,7 +193,6 @@
 	can be authenticated by the browser and thus are partly trusted--though
 	to the minimum extent necessary--and
 	those which cannot be authenticated and thus are untrusted.
-	This is a natural extension of the end-to-end principle.
       </t>
       <section title="Authenticated Entities" anchor="sec.proposal.authenticated">
 	<t>
@@ -771,8 +770,7 @@
 	<t>
 	  A side effect of the default
 	  ICE behavior is that the peer learns one's IP address, which leaks
-	  large amounts of location information, especially for mobile 
-	  devices. This has
+	  large amounts of location information. This has
 	  negative privacy consequences in some circumstances. The API requirements
 	  in this section are intended to mitigate this issue. Note that
 	  these requirements are NOT intended to protect the user's IP address
@@ -823,6 +821,15 @@
 	    the user decides they no longer need to hide their IP address
 	  </t>
 	</list></t>
+
+	<t>
+	  Note that some enterprises may operate proxies and/or NATs designed to hide
+	  internal IP addresses from the outside world. WebRTC provides no explicit
+	  mechanism to allow this function. Either such enterprises need to
+	  proxy the HTTP/HTTPS and modify the SDP and/or the JS, or there needs
+	  to be browser support to set the "TURN-only" policy regardless of
+	  the site's preferences.
+	</t>
       </section>
 
       <section title="Communications Security" anchor="sec.proposal.comsec">
@@ -1238,10 +1245,8 @@
      cmdcIixcImNvbnRlbnRzXCI6XCJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3l6XCIs \
      XCJzaWduYXR1cmVcIjpcIjAxMDIwMzA0MDUwNlwifSJ9Cg==
    t=0 0
-   m=audio 6056 RTP/AVP 0
+   m=audio 6056 RTP/SAVP 0
    a=sendrecv
-   a=tcap:1 UDP/TLS/RTP/SAVP RTP/AVP
-   a=pcfg:1 t=1
 ]]>
 		</artwork>
 	    </figure>
@@ -1286,7 +1291,8 @@
 	      an "id" field which MUST be unique for that PeerConnection
 	      object. Any responses from the IdP proxy MUST contain
 	      the same id in response, which allows the PeerConnection
-	      to correlate requests and responses.
+	      to correlate requests and responses, in case there are
+	      multiple requests/responses outstanding to the same proxy.
 	    </t>
 	    <t>
 	      All requests from the PeerConnection object MUST contain
@@ -1315,6 +1321,7 @@
 	      <figure title="Example error" anchor="fig.example-error">
 		<artwork><![CDATA[
 		{
+		  "id":"1",
 		  "type":"ERROR",
 		  "error":"Signature verification failed"
 		}
@@ -1492,6 +1499,11 @@
 		]]>
 		</artwork>
 	      </figure>
+
+	      <t>
+		The message structure is serialized, base64-encoded,
+		and placed in an a=identity attribute.
+	      </t>
 	    </section>
 
 	    <section title="Verifying Assertions" anchor="sec.verify-assert">
@@ -1530,7 +1542,8 @@
 		  assertion. The receiving PeerConnection MUST verify that
 		  this value is "rtcweb://peerconnection" (which implies
 		  that PeerConnection must arrange that its messages to the
-		  IdP proxy are from this origin.)
+		  IdP proxy are from this origin.) See <xref target="sec.pc-origin"/>
+		  for the security purpose of this field.
 		  [[ OPEN ISSUE: Can a URI person help make a better URI.]]
 		  </t>
 		</list>
@@ -1685,6 +1698,7 @@
 	guarantees otherwise provided by the IdP mechanism. Note that
 	it is not sufficient merely to deny the content JS direct access to
 	the keys, as some have suggested doing with the WebCrypto API.
+	<xref target="webcrypto"/>.
 	The JS must also not be allowed to perform operations that would
 	be valid for a DTLS endpoint. By far the safest approach is simply
 	to deny the ability to perform any operations that depend on
@@ -2005,6 +2019,7 @@
 	<t>Clarified the text in S 5.4 to clearly refer to requirements on the API to provide functionality to the site.</t>
 	<t>Fold in the IETF portion of draft-rescorla-rtcweb-generic-idp</t>
 	<t>Retarget the continuing consent section to assume Binding Requests</t>
+	<t>Added some more privacy and linkage text in various places.</t>
 	<t>Editorial improvements</t>
       </list>
     </t>
@@ -2030,6 +2045,22 @@
       &I-D.ietf-rtcweb-security;
       &I-D.muthu-behave-consent-freshness;
       &I-D.ietf-avtcore-6222bis;
+      <reference anchor="webcrypto">
+        <front>
+          <title>Web Cryptography API</title>
+
+          <author fullname="W3C editors"
+                  surname="Dahl, Sleevi">
+            <organization>W3C</organization>
+          </author>
+
+          <date day="25" month="June" year="2013" />
+        </front>
+
+        <annotation>Available at
+        http://www.w3.org/TR/WebCryptoAPI/</annotation>
+      </reference>
+
       <reference anchor="webrtc-api">
         <front>
           <title>WebRTC 1.0: Real-time Communication Between Browsers</title>
@@ -2071,6 +2102,7 @@
     </references>
 
     <section title="Example IdP Bindings to Specific Protocols">
+      <t>[[TODO: These still need some cleanup.]]</t>
       <t>
 	This section provides some examples of how the
 	mechanisms described in this document could be used

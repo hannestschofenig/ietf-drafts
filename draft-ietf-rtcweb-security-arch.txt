@@ -132,7 +132,7 @@ Table of Contents
      5.4.  IP Location Privacy  . . . . . . . . . . . . . . . . . . . 16
      5.5.  Communications Security  . . . . . . . . . . . . . . . . . 17
      5.6.  Web-Based Peer Authentication  . . . . . . . . . . . . . . 19
-       5.6.1.  Trust Relationships: IdPs, APs, and RPs  . . . . . . . 19
+       5.6.1.  Trust Relationships: IdPs, APs, and RPs  . . . . . . . 20
        5.6.2.  Overview of Operation  . . . . . . . . . . . . . . . . 21
        5.6.3.  Items for Standardization  . . . . . . . . . . . . . . 23
        5.6.4.  Binding Identity Assertions to JSEP Offer/Answer
@@ -339,8 +339,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    categories:  those which can be authenticated by the browser and thus
    are partly trusted--though to the minimum extent necessary--and those
-   which cannot be authenticated and thus are untrusted.  This is a
-   natural extension of the end-to-end principle.
+   which cannot be authenticated and thus are untrusted.
 
 3.1.  Authenticated Entities
 
@@ -385,6 +384,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    various security elements interact and what guarantees are provided
    to the user.  The example in this section is a "best case" scenario
    in which we provide the maximal amount of user authentication and
+   media privacy with the minimal level of trust in the calling service.
 
 
 
@@ -393,7 +393,6 @@ Rescorla                Expires January 15, 2014                [Page 7]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   media privacy with the minimal level of trust in the calling service.
    Simpler versions with lower levels of security are also possible and
    are noted in the text where applicable.  It's also important to
    recognize the tension between security (or performance) and privacy.
@@ -429,6 +428,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    ultimately rooted in that system.  For instance, when an IdP makes an
    identity assertion, the Relying Party consuming that assertion is
    able to verify because it is able to connect to the IdP via HTTPS.
+
 
 
 
@@ -885,10 +885,10 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 5.4.  IP Location Privacy
 
    A side effect of the default ICE behavior is that the peer learns
-   one's IP address, which leaks large amounts of location information,
-   especially for mobile devices.  This has negative privacy
-   consequences in some circumstances.  The API requirements in this
-   section are intended to mitigate this issue.  Note that these
+   one's IP address, which leaks large amounts of location information.
+   This has negative privacy consequences in some circumstances.  The
+   API requirements in this section are intended to mitigate this issue.
+   Note that these requirements are NOT intended to protect the user's
 
 
 
@@ -897,15 +897,14 @@ Rescorla                Expires January 15, 2014               [Page 16]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   requirements are NOT intended to protect the user's IP address from a
-   malicious site.  In general, the site will learn at least a user's
-   server reflexive address from any HTTP transaction.  Rather, these
-   requirements are intended to allow a site to cooperate with the user
-   to hide the user's IP address from the other side of the call.
-   Hiding the user's IP address from the server requires some sort of
-   explicit privacy preserving mechanism on the client (e.g., Torbutton
-   [https://www.torproject.org/torbutton/]) and is out of scope for this
-   specification.
+   IP address from a malicious site.  In general, the site will learn at
+   least a user's server reflexive address from any HTTP transaction.
+   Rather, these requirements are intended to allow a site to cooperate
+   with the user to hide the user's IP address from the other side of
+   the call.  Hiding the user's IP address from the server requires some
+   sort of explicit privacy preserving mechanism on the client (e.g.,
+   Torbutton [https://www.torproject.org/torbutton/]) and is out of
+   scope for this specification.
 
    API Requirement:  The API MUST provide a mechanism to allow the JS to
       suppress ICE negotiation (though perhaps to allow candidate
@@ -933,18 +932,19 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       turn candidates during an active call if the user decides they no
       longer need to hide their IP address
 
+   Note that some enterprises may operate proxies and/or NATs designed
+   to hide internal IP addresses from the outside world.  WebRTC
+   provides no explicit mechanism to allow this function.  Either such
+   enterprises need to proxy the HTTP/HTTPS and modify the SDP and/or
+   the JS, or there needs to be browser support to set the "TURN-only"
+   policy regardless of the site's preferences.
+
 5.5.  Communications Security
 
    Implementations MUST implement DTLS [RFC4347] and DTLS-SRTP
    [RFC5763][RFC5764].  All data channels MUST be secured via DTLS.
    DTLS-SRTP MUST be offered for every media channel and MUST be the
    default; i.e., if an implementation receives an offer for DTLS-SRTP
-   and SDES, DTLS-SRTP MUST be selected.  Media traffic MUST NOT be sent
-   over plain (unencrypted) RTP.
-
-   [OPEN ISSUE:  What should the settings be here?  MUST?]
-   Implementations MAY support SDES for media traffic for backward
-   compatibility purposes.
 
 
 
@@ -952,6 +952,13 @@ Rescorla                Expires January 15, 2014               [Page 17]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
+
+   and SDES, DTLS-SRTP MUST be selected.  Media traffic MUST NOT be sent
+   over plain (unencrypted) RTP.
+
+   [OPEN ISSUE:  What should the settings be here?  MUST?]
+   Implementations MAY support SDES for media traffic for backward
+   compatibility purposes.
 
    API Requirement:  The API MUST provide a mechanism to indicate that a
       fresh DTLS key pair is to be generated for a specific call.  This
@@ -992,6 +999,17 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       The following properties are more likely to require some "drill-
       down" from the user:
 
+
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 18]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
+
       *  The "security characteristics" MUST indicate the cryptographic
          algorithms in use (For example:  "AES-CBC" or "Null Cipher".)
          However, if Null ciphers are used, that MUST be presented to
@@ -1001,13 +1019,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       *  The "security characteristics" MUST include some mechanism to
          allow an out-of-band verification of the peer, such as a
          certificate fingerprint or an SAS.
-
-
-
-Rescorla                Expires January 15, 2014               [Page 18]
-
-Internet-Draft              WebRTC Sec. Arch.                  July 2013
-
 
 5.6.  Web-Based Peer Authentication
 
@@ -1046,17 +1057,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    service.  This avoids the need to make a commitment to any particular
    identity protocol, although browsers may opt to directly implement
    some identity protocols in order to provide superior performance or
-   UI properties.
-
-5.6.1.  Trust Relationships: IdPs, APs, and RPs
-
-   Any federated identity protocol has three major participants:
-
-   Authenticating Party (AP):  The entity which is trying to establish
-      its identity.
-
-
-
 
 
 
@@ -1065,6 +1065,14 @@ Rescorla                Expires January 15, 2014               [Page 19]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
+   UI properties.
+
+5.6.1.  Trust Relationships: IdPs, APs, and RPs
+
+   Any federated identity protocol has three major participants:
+
+   Authenticating Party (AP):  The entity which is trying to establish
+      its identity.
 
    Identity Provider (IdP):  The entity which is vouching for the AP's
       identity.
@@ -1106,14 +1114,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       identity provider is SSL certificates, where there are a large
       number of CAs all of whom can attest to any domain name.
 
-   If an AP is authenticating via an authoritative IdP, then the RP does
-   not need to explicitly configure trust in the IdP at all.  The
-   identity mechanism can directly verify that the IdP indeed made the
-   relevant identity assertion (a function provided by the mechanisms in
-   this document), and any assertion it makes about an identity for
-   which it is authoritative is directly verifiable.  Note that this
-   does not mean that the IdP might not lie, but that is a
-
 
 
 Rescorla                Expires January 15, 2014               [Page 20]
@@ -1121,6 +1121,13 @@ Rescorla                Expires January 15, 2014               [Page 20]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
+   If an AP is authenticating via an authoritative IdP, then the RP does
+   not need to explicitly configure trust in the IdP at all.  The
+   identity mechanism can directly verify that the IdP indeed made the
+   relevant identity assertion (a function provided by the mechanisms in
+   this document), and any assertion it makes about an identity for
+   which it is authoritative is directly verifiable.  Note that this
+   does not mean that the IdP might not lie, but that is a
    trustworthiness judgement that the user can make at the time he looks
    at the identity.
 
@@ -1152,13 +1159,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    The same IdP JS "endpoint" is used for both functions but of course a
    given IdP might behave differently and load new JS to perform one
    function or the other.
-
-
-
-
-
-
-
 
 
 
@@ -1309,10 +1309,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       cmdcIixcImNvbnRlbnRzXCI6XCJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3l6XCIs \
       XCJzaWduYXR1cmVcIjpcIjAxMDIwMzA0MDUwNlwifSJ9Cg==
     t=0 0
-    m=audio 6056 RTP/AVP 0
+    m=audio 6056 RTP/SAVP 0
     a=sendrecv
-    a=tcap:1 UDP/TLS/RTP/SAVP RTP/AVP
-    a=pcfg:1 t=1
 
 
    Each identity attribute should be paired (and attests to) with an
@@ -1334,9 +1332,11 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    formatted using JSON [RFC4627].  For instance, the PeerConnection
    would request a signature with the following "SIGN" message:
 
-
-
-
+                 {
+                   "type":"SIGN",
+                   "id": "1",
+                   "origin":"https://calling-site.example.com",
+                   "message":"012345678abcdefghijkl"
 
 
 
@@ -1345,11 +1345,6 @@ Rescorla                Expires January 15, 2014               [Page 24]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-                 {
-                   "type":"SIGN",
-                   "id": "1",
-                   "origin":"https://calling-site.example.com",
-                   "message":"012345678abcdefghijkl"
                  }
 
    All messages MUST contain a "type" field which indicates the general
@@ -1358,7 +1353,9 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    All requests from the PeerConnection object MUST contain an "id"
    field which MUST be unique for that PeerConnection object.  Any
    responses from the IdP proxy MUST contain the same id in response,
-   which allows the PeerConnection to correlate requests and responses.
+   which allows the PeerConnection to correlate requests and responses,
+   in case there are multiple requests/responses outstanding to the same
+   proxy.
 
    All requests from the PeerConnection object MUST contain an "origin"
    field containing the origin of the JS which initiated the PC (i.e.,
@@ -1379,6 +1376,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    containing additional information about what happened.  For instance:
 
                    {
+                     "id":"1",
                      "type":"ERROR",
                      "error":"Signature verification failed"
                    }
@@ -1392,6 +1390,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    in the W3C API document, from the perspective of this specification,
    however, the relevant facts are:
 
+   o  The JS runs in the IdP's security context with the base page
+      retrieved from the URL specified in Section 5.6.5.2.1
 
 
 
@@ -1401,8 +1401,6 @@ Rescorla                Expires January 15, 2014               [Page 25]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   o  The JS runs in the IdP's security context with the base page
-      retrieved from the URL specified in Section 5.6.5.2.1
    o  The usual browser sandbox isolation mechanisms MUST be enforced
       with respect to the IdP proxy.
    o  JS running in the IdP proxy MUST be able to send and receive
@@ -1449,6 +1447,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    How an AP determines the appropriate IdP domain is out of scope of
    this specification.  In general, however, the AP has some actual
    account relationship with the IdP, as this identity is what the IdP
+   is attesting to.  Thus, the AP somehow supplies the IdP information
+   to the browser.  Some potential mechanisms include:
 
 
 
@@ -1456,9 +1456,6 @@ Rescorla                Expires January 15, 2014               [Page 26]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
-
-   is attesting to.  Thus, the AP somehow supplies the IdP information
-   to the browser.  Some potential mechanisms include:
 
    o  Provided by the user directly.
    o  Selected from some set of IdPs known to the calling site.  E.g., a
@@ -1508,6 +1505,9 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 
+
+
+
 Rescorla                Expires January 15, 2014               [Page 27]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
@@ -1540,6 +1540,9 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
                     Figure 6: Example assertion request
 
+   The message structure is serialized, base64-encoded, and placed in an
+   a=identity attribute.
+
 5.6.5.2.3.  Verifying Assertions
 
    In order to verify an assertion, an RP sends a "VERIFY" message to
@@ -1561,9 +1564,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 
-
-
-
 Rescorla                Expires January 15, 2014               [Page 28]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
@@ -1579,8 +1579,9 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       assertion.  The receiving PeerConnection MUST verify that this
       value is "rtcweb://peerconnection" (which implies that
       PeerConnection must arrange that its messages to the IdP proxy are
-      from this origin.) [[ OPEN ISSUE:  Can a URI person help make a
-      better URI.]]
+      from this origin.)  See Section 5.7.4.1 for the security purpose
+      of this field. [[ OPEN ISSUE:  Can a URI person help make a better
+      URI.]]
 
    Figure 7 shows an example transaction.  Line breaks are inserted
    solely for readability.
@@ -1613,7 +1614,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
                   Figure 7: Example verification request
-
 
 
 
@@ -1715,9 +1715,9 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    JS, thus violating the security guarantees otherwise provided by the
    IdP mechanism.  Note that it is not sufficient merely to deny the
    content JS direct access to the keys, as some have suggested doing
-   with the WebCrypto API.  The JS must also not be allowed to perform
-   operations that would be valid for a DTLS endpoint.  By far the
-   safest approach is simply to deny the ability to perform any
+   with the WebCrypto API. [webcrypto].  The JS must also not be allowed
+   to perform operations that would be valid for a DTLS endpoint.  By
+   far the safest approach is simply to deny the ability to perform any
    operations that depend on secret information associated with the key.
    Operations that depend on public information, such as exporting the
    public key are of course safe.
@@ -2026,6 +2026,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       the API to provide functionality to the site.
    o  Fold in the IETF portion of draft-rescorla-rtcweb-generic-idp
    o  Retarget the continuing consent section to assume Binding Requests
+   o  Added some more privacy and linkage text in various places.
    o  Editorial improvements
 
 
@@ -2067,7 +2068,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 
-
 Rescorla                Expires January 15, 2014               [Page 37]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
@@ -2089,6 +2089,11 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
               December 2011.
+
+   [webcrypto]
+              Dahl, Sleevi, "Web Cryptography API", June 2013.
+
+              Available at http://www.w3.org/TR/WebCryptoAPI/
 
    [webrtc-api]
               Bergkvist, Burnett, Jennings, Narayanan, "WebRTC 1.0:
@@ -2116,11 +2121,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
               progress), June 2011.
 
    [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
-              A., Peterson, J., Sparks, R., Handley, M., and E.
-              Schooler, "SIP: Session Initiation Protocol", RFC 3261,
-              June 2002.
-
-   [RFC5705]  Rescorla, E., "Keying Material Exporters for Transport
 
 
 
@@ -2129,6 +2129,11 @@ Rescorla                Expires January 15, 2014               [Page 38]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
+              A., Peterson, J., Sparks, R., Handley, M., and E.
+              Schooler, "SIP: Session Initiation Protocol", RFC 3261,
+              June 2002.
+
+   [RFC5705]  Rescorla, E., "Keying Material Exporters for Transport
               Layer Security (TLS)", RFC 5705, March 2010.
 
    [RFC6455]  Fette, I. and A. Melnikov, "The WebSocket Protocol",
@@ -2139,6 +2144,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 Appendix A.  Example IdP Bindings to Specific Protocols
+
+   [[TODO:  These still need some cleanup.]]
 
    This section provides some examples of how the mechanisms described
    in this document could be used with existing authentication protocols
@@ -2160,13 +2167,6 @@ A.1.  BrowserID
    can be verified directly or with a Web service provided by the
    identity provider.  It's relatively easy to extend this functionality
    to authenticate WebRTC calls, as shown below.
-
-
-
-
-
-
-
 
 
 
