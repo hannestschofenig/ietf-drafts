@@ -126,7 +126,7 @@ Table of Contents
    5.  Some Potential Enhancements  . . . . . . . . . . . . . . . . .  9
      5.1.  Encrypted CPRs . . . . . . . . . . . . . . . . . . . . . .  9
      5.2.  Signed CPRs  . . . . . . . . . . . . . . . . . . . . . . .  9
-     5.3.  Credential Lookup  . . . . . . . . . . . . . . . . . . . .  9
+     5.3.  Credential Lookup  . . . . . . . . . . . . . . . . . . . . 10
      5.4.  Federated Verification Services  . . . . . . . . . . . . . 10
      5.5.  Escalation to VoIP . . . . . . . . . . . . . . . . . . . . 10
    6.  Security Considerations  . . . . . . . . . . . . . . . . . . . 11
@@ -459,7 +459,9 @@ Internet-Draft             Caller-ID Fallback                  July 2013
 5.  Some Potential Enhancements
 
    Section 4 provides a broad sketch of an approach.  In this section,
-   we consider some potential enhancements.
+   we consider some potential enhancements.  Readers can feel free to
+   skip this section, as it is not necessary to get the flavor of the
+   document.
 
 5.1.  Encrypted CPRs
 
@@ -492,11 +494,9 @@ Internet-Draft             Caller-ID Fallback                  July 2013
    originator cannot make bogus calls appear to be valid but can still
    make valid calls appear to be bogus by removing the relevant CPRs.
 
-5.3.  Credential Lookup
 
-   In order to encrypt the CPR, the caller needs access to the callee's
-   credentials (specifically the public key).  This requires some sort
-   of directory/lookup system.  This document does not specify any
+
+
 
 
 
@@ -505,6 +505,11 @@ Rescorla                Expires January 14, 2014                [Page 9]
 Internet-Draft             Caller-ID Fallback                  July 2013
 
 
+5.3.  Credential Lookup
+
+   In order to encrypt the CPR, the caller needs access to the callee's
+   credentials (specifically the public key).  This requires some sort
+   of directory/lookup system.  This document does not specify any
    particular scheme, but a list of requirements would be something
    like:
 
@@ -548,11 +553,6 @@ Internet-Draft             Caller-ID Fallback                  July 2013
 
    If the call is to be carried over the PSTN, then the security
    properties described above are about the best we can do.  However, if
-   Alice and Bob are both VoIP capable, then there is an opportunity to
-   provide a higher quality of service and security.  The basic idea is
-   that the CPR contains rendezvous information for Alice (e.g., Alice's
-   SIP URI).  Once Bob has verified Alice's CPR, he can initiate a VoIP
-   connection directly to Alice, thus bypassing the PSTN.  Mechanisms of
 
 
 
@@ -561,6 +561,11 @@ Rescorla                Expires January 14, 2014               [Page 10]
 Internet-Draft             Caller-ID Fallback                  July 2013
 
 
+   Alice and Bob are both VoIP capable, then there is an opportunity to
+   provide a higher quality of service and security.  The basic idea is
+   that the CPR contains rendezvous information for Alice (e.g., Alice's
+   SIP URI).  Once Bob has verified Alice's CPR, he can initiate a VoIP
+   connection directly to Alice, thus bypassing the PSTN.  Mechanisms of
    this type are out of scope of this document.
 
 
@@ -587,11 +592,6 @@ Author's Address
 
    Phone:  +1 650 678 2350
    Email:  ekr@rtfm.com
-
-
-
-
-
 
 
 
