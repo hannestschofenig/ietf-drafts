@@ -11,7 +11,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-rescorla-callerid-fallback-00"
+<rfc category="std" docName="draft-rescorla-stir-fallback-00"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="Caller-ID Fallback">Secure Caller-ID Fallback Mode</title>
@@ -38,7 +38,7 @@
       </address>
     </author>
 
-    <date day="29" month="May" year="2013" />
+    <date day="13" month="July" year="2013" />
 
     <area>RAI</area>
 
@@ -81,15 +81,43 @@
 -->
     <section title="Introduction" anchor="sec.introduction">
       <t>
-        A major challenge with RFC 4474-style identity assertions has been
-        that SIP operates in highly mediated and interworked environments.
-        SIP requests may pass through gateways, policy enforcement devices
-        or other entities that receive SIP requests and effectively act as user agents, 
-        re-initiating a request.  In these circumstances, intermediaries may 
-        recreate the fields protected by the RFC4474 signature, making end-to
-        end integrity impossible.  This document describes a mechanism for two 
-        compliant endpoints to exchange authentication data even in the face of
-        intermediaries which remove all additional call signaling meta-data.
+        A natural design for providing caller authentication is to attach
+        a signature to the call setup messages (e.g., a SIP INVITE).
+        This is incompatible with much of the existing
+        communications environment. Most calls still from telephone numbers
+        traverse the PSTN at
+        some point. Broadly, these calls fall into one of three categories:
+      </t>
+      <t>
+        <list style="symbols">
+          <t>One or both of the endpoints is actually a PSTN endpoint.</t>
+          <t>Both of the endpoints are non-PSTN (SIP, Jingle, ...) but
+          the callpasses through the PSTN at some point.</t>
+          <t>Non-PSTN calls which do not transit the PSTN at all.</t>
+        </list>
+      </t>
+      <t>
+        The first two categories represent the vast majority of these
+        calls. The network elements that operate the PSTN are legacy
+        devices that are unlikely to change at this point. However,
+        these devices are also unlikely to pass signatures--or indeed
+        any inband signaling data--intact. In many cases they will
+        strip the signatures; in others, they will damage them to
+        the point where they cannot be verified. In either case,
+        any in-band authentication scheme does not seem practical
+        in the current environment.
+      </t>
+      <t>
+        While the core network of the PSTN remains fixed, the
+        endpoints of the telephone network are becoming increasingly
+        programmable and sophisticated. Landline "plain old telephone service"
+        deployments, especially in the developed world, are shrinking, and
+        increasingly being replaced by three classes of intelligent devices:
+        smart phones, IP PBXs, and terminal adapters. All three are general
+        purpose computers, and typically all three have Internet access as
+        well as access to the PSTN. This provides a potential avenue
+        for building an authentication system that changes only the endpoints
+        while leaving the PSTN intact.
       </t>
     </section>
     <section title="Operating Environment" anchor="sec.environment">
@@ -148,65 +176,83 @@
         information and provide caller-id information to Bob using ordinary
         POTS mechanisms.
       </t>
+<!--
       <t>
         As current envisioned, this fallback mechanism is intended to
         be invoked when RFC4474-style signatures are unusable, broken or
         absent; when a valid Identity header appears in a request, there is no
-        need for recipients to invoke this mechanism. Because the caller will not necessarily know what
-        intermediaries or gateways a call will traverse on its way to a
-        callee, the caller would however use the fallback mechanism described
-        in this document as a precautionary measure whenever a call is
-        placed.
+        need for recipients to invoke this mechanism. Because the caller will
+        not necessarily know what intermediaries or gateways a call will
+        traverse on its way to a callee, the caller would however use the
+        fallback mechanism described in this document as a precautionary
+        measure whenever a call is placed.
       </t>
+-->
     </section>
-    <section title="Solution Overview" anchor="sec.solution-overview">
+
+    <section title="Architectural Options" anchor="sec.arch-options">
       <t>
-        Our proposed solution contains two major elements:
+        Because endpoints cannot communicate directly, any solution
+        must involve some rendezvous mechanism to allow endpoints to
+        communicate. We call this rendezvous service a
+        "call placement service" (CPS).
+        In principle they could communicate any information,
+        but minimally we expect it to include a "call placement record"
+        (CPR) that describes the caller, callee, and the time of the
+        call. The callee can use the existence of a CPR for a given
+        incoming call as rough validation of the asserted origin
+        of that call. (See <xref target="sec.sec-cons"/> for limitations
+        of this design.)
+      </t>
+      <t>
+        There are roughly two plausible dataflow architectures for the CPS:
       </t>
       <t>
         <list style="symbols">
-          <t>Each phone number in the system--or perhaps a gateway acting
-          on its behalf--is associated with credentials which
-          can be used to prove ownership of that number.</t>
-          <t>A centralized Call Detail Service (CDS) which a caller and a callee
-          can use to jointly establish the provenance of the call.</t>
+          <t>The callee registers with the CPS. When the caller wishes
+          to place a call to the callee, it sends the CPR to the CPS
+          which forwards it to the callee.</t>
+          
+          <t>The caller stores the CPR with the CPS at the time of
+          call placement. When the callee receives the call, it
+          contacts the CPS and retrieves the CDR.</t>
         </list>
       </t>
+
       <t>
-        Prior to placing a call, the caller contacts the CDS
-        and stores a record indicating his intention to call
-        the callee. Once the callee receives the indication of an
-        incoming call, he contacts the CDS to verify
-        the validity of the call. If that check succeeds, he can
-        then present the callerid information as valid. Otherwise,
-        the call is unverifiable. Note that this does not necessarily mean
-        that the call is bogus; because we expect incremental
-        deployment many legitimate calls will be unverifiable.
+        While the first architecture is roughly isomorphic to current
+        VoIP protocols, it shares their drawbacks. Specifically, the
+        callee must maintain a full-time connection to the CPS to
+        serve as a notification channel. This comes with the usual
+        networking costs to the callee and is especially problemtatic
+        for mobile endpoints. Thus, we focus on second architecture
+        in which the PSTN incoming call serves as the notification
+        and the callee can then contact the CPS to retrieve the CPR.
       </t>
     </section>
-
-    <section title="Phone Number Authentication" anchor="sec.authentication">
+    <section title="Strawman Architecture" anchor="sec.overview">
       <t>
-        Each phone number in the system is associated with a set of
-        credentials which can be used to prove ownership of that number. For
-        purposes of exposition we will assume that ownership is associated
-        with the endpoint (e.g., a smartphone) but it might well be associated
-        with a gateway acting for the endpoint instead.
-        The credentials are in the form of an asymmetric key pair
-        or pairs authenticated by a certificate chain. The keys
-        must be suitable for both encryption and digital signature.
+        In this section, we discuss a strawman architecture
+        along the lines described in the previous section.
+        This discussion is deliberately sketchy, focusing
+        on broad concepts and skipping over details. The intent
+        here is merely to provide a rough concept, not a complete
+        solution.
       </t>
+      <section title="Phone Number Authentication" anchor="sec.authentication">
       <t>
-        The enrollment process itself is described in another document
-        [TODO: REF]. For purposes of this document, we simply
-        assume that elements have somehow obtained credentials
-        and that there is some mechanism (e.g., a global directory
-        service) for any agent in the system to retrieve
-        another agent's credentials.
+        We start from the premise that each phone number in the system
+        is associated with a set of credentials which can be used to prove
+        ownership of that number. For purposes of exposition we will assume
+        that ownership is associated with the endpoint (e.g., a smartphone)
+        but it might well be associated with a gateway acting for the endpoint
+        instead. It might be the case that multiple entities are able to act for
+        a given number, provided that they have the appropriate authority.
+        The question of how an entity is determined to have control of
+        a given number is out of scope for this document.
       </t>
     </section>
-
-    <section title="Call Detail Service" anchor="sec.verification-service">
+    <section title="Call Placement Service" anchor="sec.verification-service">
       <t>
         An overview of the basic calling and verification process is
         shown below. In this diagram, we assume that Alice has the number
@@ -215,11 +261,11 @@
       <figure>
         <artwork align="left" alt="" height="" name="" type="" width=""
                  xml:space="preserve"><![CDATA[
-Alice                       Call Detail Service                     Bob
+Alice                       Call Placement Service                  Bob
 -----------------------------------------------------------------------
 <-  Authenticate as 1.111.111.1111  ---->
 
-Store E(1.222.222.2222,1.111.111.1111) ->
+Store (1.222.222.2222,1.111.111.1111) ->
 
 Call from 1.111.111.1111 ---------------------------------------------->
 
@@ -227,58 +273,57 @@ Call from 1.111.111.1111 ---------------------------------------------->
                                     <-------------- Retrieve call record
                                                          1.111.111.1111?
 
-                                    E(1.222.222.2222,1.111.111.1111) -->
+                                     (1.222.222.2222,1.111.111.1111) -->
 
                                                [Ring phone with callerid
                                                        = 1.111.111.1111]
                                       ]]></artwork>
       </figure>
       <t>
-        When Alice wishes to make a call to Bob, she must first retrieve
-        Bob's credentials. She then contacts
-        the CDS and authenticates to prove
-        her ownership of her E.164 number. Once she has authenticated,
-        she then stores a Call Data Record (CDR) on the CDS. The CDR
-        is digitally signed and then encrypted under Bob's public
-        key. (Alternatively, Alice and Bob could each have ECDH
-        keys and the CDR could be encrypted under the shared key,
-        though this has slightly different privacy properties.)
-        The CDR would also have some sort of timestamp to prevent
-        replay. [The CDS should expire CDRs after a reasonable
-        period of time, on the order of 10s of seconds, but a
-        timestamp provides a double-check on correct behavior of
-        the CDS.]
-        The CDR is stored under Alice's number.
-        [NOTE: It is also possible to invert this and have
-        the CDR stored under the callee's number. See
-        <xref target="sec.store-callee"/> for a discussion of this.]
+        When Alice wishes to make a call to Bob, she contacts
+        the CPS and authenticates to prove her ownership of her
+        E.164 number. Once she has authenticated,
+        she then stores a Call Placement Record (CPR) on the CPS.
+        The CPR should also have some sort of timestamp to prevent
+        replay. The CPR is stored under Alice's number.
       </t>
       <t>
-        Once Alice has stored the CDR, she then places the call to Bob
-        as usual. At this point, Bob's phone would usually ring and
-        display Alice's number (+1.111.111.1111), which is provided
-        by the usual caller-id mechanisms (i.e., the CIN field of the IAM).
-        Instead, Bob's phone transparently contacts the CDS
-        and requests any current CDRs from Alice to any number
-        (because the target phone number is encrypted, the CDS
-        does not know the callee.) The CDS responds with any such
-        CDRs (assuming they exists). If no CDR exists, the
-        CDS generates a random CDR and sends it to Bob. (This helps
-        prevent queries of how many calls Alice has made).
+        Once Alice has stored the CPR, she then places the call to Bob
+        as usual. At this point, Bob's phone would usually ring and display
+        Alice's number (+1.111.111.1111), which is provided by the usual
+        caller-id mechanisms (i.e., the CIN field of the IAM).  Instead, Bob's
+        phone transparently contacts the CPS and requests any current CPRs
+        from Alice. The CPS responds with any such CPRs (assuming they
+        exists). If such a CPR exists, he can
+        then present the callerid information as valid. Otherwise,
+        the call is unverifiable. Note that this does not necessarily mean
+        that the call is bogus; because we expect incremental
+        deployment many legitimate calls will be unverifiable
       </t>
+    </section>
+    <section title="Federated Verification Services" anchor="sec.vs-federation">
       <t>
-        Once Bob retrieves the encrypted CDR, he decrypts
-        it with his private key. If the call was for him, then he
-        can read it, and verify the signature. If not it is
-        simply random data and can be rejected. The result is that even though we do 
-        not require callee authentication, anyone not the callee cannot determine
-        who the caller is calling. Because the CDS responds with
-        random responses if no records exist, the attacker cannot distinguish
-        these replies from CDRs encrypted to someone other than himself.
+        The discussion above is written in terms of a single CPS, but
+        this potentially has scaling problems, as well as allowing
+        the CPS to learn about every call. These issues can be
+        alleviated by having a federated CPS. The difficulty then becomes
+        the need to have some way to discover the CPS, which implies
+        some sort of public directory. If such a directory exists, it
+        could also be used for credential lookup, which is useful for
+        some privacy-preserving variants of this scheme.
+      </t>
+    </section>
+    </section>
+    <section title="Some Potential Details">
+      <t>
+        <xref target="sec.overview"/> provides a broad sketch of
+        an approach. In this section, we consider some potential
+        design details.
+        
       </t>
       <section title="Credential Lookup" anchor="sec.cred-lookup">
         <t>
-          In order to encrypt the CDR, the caller needs access to the
+          In order to encrypt the CPR, the caller needs access to the
           callee's credentials (specifically the public key). This
           requires some sort of directory/lookup system.
           This document does not specify any particular scheme,
@@ -301,47 +346,30 @@ Call from 1.111.111.1111 ---------------------------------------------->
           </list>
         </t>
         <t>
-            Clearly, there is a privacy/timeliness tradeoff in that getting
-            really up-to-date knowledge about credential validity requires
-            contacting the credential directory in real-time (e.g.,
-            via OCSP). This is somewhat
-            mitigated for the caller's credentials in that he can get short-term
-            credentials right before placing a call which only reveals his
-            calling rate, but not who he is calling. Alternately, the CDS can
-            verify the caller's credentials via OCSP, though of course this
-            requires the callee to trust the CDS's verification.
-            This approach does not
-            work as well for the callee's credentials, but the risk there
-            is more modest since an attacker would need to both have
-            the callee's credentials and regularly poll the database for
-            every potential caller.
+          Clearly, there is a privacy/timeliness tradeoff in that getting
+          really up-to-date knowledge about credential validity requires
+          contacting the credential directory in real-time (e.g.,
+          via OCSP). This is somewhat
+          mitigated for the caller's credentials in that he can get short-term
+          credentials right before placing a call which only reveals his
+          calling rate, but not who he is calling. Alternately, the CPS can
+          verify the caller's credentials via OCSP, though of course this
+          requires the callee to trust the CPS's verification.
+          This approach does not
+          work as well for the callee's credentials, but the risk there
+          is more modest since an attacker would need to both have
+          the callee's credentials and regularly poll the database for
+          every potential caller.
         </t>
         <t>
-            We consider the exact best point in the tradeoff space to be an
-            open issue.
-        </t>
-      </section>
-      <section title="Federated Verification Services" anchor="sec.vs-federation">
-        <t>
-          The discussion above is written in terms of a single
-          CDS, but this potentially has scaling
-          problems (as well as privacy problems, as discussed in
-          <xref target="sec.priv-cons"/>). In practice,
-          it is preferable to have a federated CDS.
-          The general idea is that the appropriate
-          credential holder for a given number can also
-          select an appropriate CDS. The
-          address of the CDS is stored in the callee's credentials,
-          thus allowing the caller to determine the appropriate
-          CDS for a given caller prior to calling them.
-          Note that the caller already needs the callee's credentials
-          in order to do the encryption of the CDR.
+          We consider the exact best point in the tradeoff space to be an
+          open issue.
         </t>
       </section>
       <section title="Substitution Attacks" anchor="sec.substitution">
         <t>
           The security properties of this mechanism are fairly limited:
-          all that receipt of the CDR proves is that Alice is
+          all that receipt of the CPR proves is that Alice is
           trying to call Bob (or at least was as of very recently).
           It does not prove that this particular incoming
           call is from Alice. Consider the scenario in which we have
@@ -352,11 +380,11 @@ Call from 1.111.111.1111 ---------------------------------------------->
         <figure>
         <artwork align="left" alt="" height="" name="" type="" width=""
                  xml:space="preserve"><![CDATA[
-Attacker            Callback Service              CDS               Bob
+Attacker            Callback Service              CPS               Bob
 -----------------------------------------------------------------------
 Place call to Bob ---------->
 
-                            Store CDR for
+                            Store CPR for
                             CS:Bob -------------->
 
 Call from CS (forged caller-id info)  -------------------------------->
@@ -364,10 +392,10 @@ Call from CS (forged caller-id info)  -------------------------------->
                             Call from CS ---------------------------> X
 
 
-                                                    <----- Retrieve CDR
+                                                    <----- Retrieve CPR
                                                              for CS:Bob
 
-                            CDR for CS:Bob --------------------------->
+                            CPR for CS:Bob --------------------------->
 
                                         [Ring phone with callerid = CS]
                                       ]]></artwork>
@@ -375,9 +403,9 @@ Call from CS (forged caller-id info)  -------------------------------->
       <t>
         In order to mount this attack, the attacker contacts the Callback
         Service (CS) and provides it with Bob's number. This causes the CS
-        to initiate a call to Bob. As before, the CS contacts the CDS
-        to insert an appropriate CDR and then initiates a call to
-        Bob. Because it is a valid CS injecting the CDR, none of
+        to initiate a call to Bob. As before, the CS contacts the CPS
+        to insert an appropriate CPR and then initiates a call to
+        Bob. Because it is a valid CS injecting the CPR, none of
         the security checks mentioned above help.
         However, the attacker simultaneously initiates a call to
         Bob using forged caller-id information corresponding to the
@@ -395,9 +423,9 @@ Call from CS (forged caller-id info)  -------------------------------->
           properties described above are about the best we can do.
           However, if Alice and Bob are both VoIP capable, then
           there is an opportunity to provide a higher quality of
-          service and security. The basic idea is that the CDR
+          service and security. The basic idea is that the CPR
           contains rendezvous information for Alice (e.g.,
-          Alice's SIP URI). Once Bob has verified Alice's CDR,
+          Alice's SIP URI). Once Bob has verified Alice's CPR,
           he can initiate a VoIP connection directly to Alice,
           thus bypassing the PSTN. This connection can be initiated
           either in serial (i.e., instead of ringing the phone)
@@ -407,42 +435,19 @@ Call from CS (forged caller-id info)  -------------------------------->
           user's network environment is really restricted?]
         </t>
       </section>
-
-      <section title="Storing under the callee's number" anchor="sec.store-callee">
-        <t>
-          An alternative design (due to Richard Barnes) is to store the
-          CDR under the callee's number rather than the caller's.
-          This has the advantage that the callee does not need to
-          do trial decryption because he knows a priori who the call
-          is for. How important this is depends on the calling rate
-          of the caller--if there is only one call in a given interval,
-          then this is not a big deal, but if there are hundreds, then
-          the cost to verify might be large depending on the speed of
-          the callee's processor.
-        </t>
-        <t>
-          A difficulty with this design is that we then do not want
-          to validate the caller (for privacy reasons) and so it now
-          becomes hard to prevent spamming of the CDS by fake
-          callers. It might be possible to have a caller proxy
-          service which hid caller identities, but this is then
-          another needed piece of infrastructure.
-        </t>
-      </section>
     </section>
-
     <section title="Privacy Considerations" anchor="sec.priv-cons">
       <t>
         The mechanism described here is designed to minimize how much
-        information is leaked about who is calling who. Because CDRs
-        are encrypted, the CDS does not directly learn who is
-        calling who. However, the CDS does learn how many calls
+        information is leaked about who is calling who. Because CPRs
+        are encrypted, the CPS does not directly learn who is
+        calling who. However, the CPS does learn how many calls
         the caller is making and the IP address of the callees.
         The callee can use an anonymity network such as
         Tor to hide their IP address, but we expect that this will
         be uncommon.
-        Because the CDS is federated, callees can minimize the information
-        available to any specific CDS.
+        Because the CPS is federated, callees can minimize the information
+        available to any specific CPS.
         It is not possible to hide the number of calls that that caller
         makes without some sort of Private Information Retrieval (PIR)
         mechanism.
@@ -475,13 +480,13 @@ Call from CS (forged caller-id info)  -------------------------------->
         </list>
       </t>
       <t>
-        If an attacker can inject fake CDRs into the CDS or in the communication
-        from the CDS to the callee, he can mount either attack. In order to
-        prevent this, either the communication to the CDS should be secured
-        in transport (e.g., with TLS) or the CDRs should be digitally signed
+        If an attacker can inject fake CPRs into the CPS or in the communication
+        from the CPS to the callee, he can mount either attack. In order to
+        prevent this, either the communication to the CPS should be secured
+        in transport (e.g., with TLS) or the CPRs should be digitally signed
         by the caller and verified by the callee. For privacy and
         robustness reasons, both are preferable. In particular, if only
-        transport security is used, then a compromised CDS can
+        transport security is used, then a compromised CPS can
         forge call origination information.
       </t>
       <t>
@@ -497,16 +502,21 @@ Call from CS (forged caller-id info)  -------------------------------->
         authentication information. In practice, this means
         using VoIP rather than POTS, as described in
         <xref target="sec.voip-escalation"/>. Minimally, if
-        the transport parameters are bound to the CDR (if only transitively
+        the transport parameters are bound to the CPR (if only transitively
         via the SIP URI), then an attacker will find it more difficult
         to substitute his own media. Optimally, the media should be
         protected with SRTP and the parameters should
-        be cryptographically bound to the CDR.
+        be cryptographically bound to the CPR.
       </t>
     </section>
 
     </middle>
     <back>
+      <section title="Acknowledgements">
+        <t>Jon Peterson provided some of the text in this document.
+        The ideas in this document come out of discussions with Richard Barnes,
+        Cullen Jennings, and Jon Peterson.</t>
+      </section>
     </back>
   </rfc>
 
