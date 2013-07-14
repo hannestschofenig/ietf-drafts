@@ -121,17 +121,17 @@ Table of Contents
    4.  Strawman Architecture  . . . . . . . . . . . . . . . . . . . .  6
      4.1.  Phone Number Authentication  . . . . . . . . . . . . . . .  6
      4.2.  Call Placement Service . . . . . . . . . . . . . . . . . .  6
-     4.3.  Federated Verification Services  . . . . . . . . . . . . .  7
-   5.  Some Potential Details . . . . . . . . . . . . . . . . . . . .  8
-     5.1.  Credential Lookup  . . . . . . . . . . . . . . . . . . . .  8
-     5.2.  Substitution Attacks . . . . . . . . . . . . . . . . . . .  8
-     5.3.  Escalation to VoIP . . . . . . . . . . . . . . . . . . . .  9
-   6.  Privacy Considerations . . . . . . . . . . . . . . . . . . . . 10
-   7.  Security Considerations  . . . . . . . . . . . . . . . . . . . 10
+     4.3.  Security Analysis  . . . . . . . . . . . . . . . . . . . .  7
+       4.3.1.  Substitution Attacks . . . . . . . . . . . . . . . . .  8
+   5.  Some Potential Enhancements  . . . . . . . . . . . . . . . . .  9
+     5.1.  Encrypted CPRs . . . . . . . . . . . . . . . . . . . . . .  9
+     5.2.  Signed CPRs  . . . . . . . . . . . . . . . . . . . . . . .  9
+     5.3.  Credential Lookup  . . . . . . . . . . . . . . . . . . . .  9
+     5.4.  Federated Verification Services  . . . . . . . . . . . . . 10
+     5.5.  Escalation to VoIP . . . . . . . . . . . . . . . . . . . . 10
+   6.  Security Considerations  . . . . . . . . . . . . . . . . . . . 11
    Appendix A.  Acknowledgements  . . . . . . . . . . . . . . . . . . 11
    Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 11
-
-
 
 
 
@@ -174,12 +174,12 @@ Internet-Draft             Caller-ID Fallback                  July 2013
    A natural design for providing caller authentication is to attach a
    signature to the call setup messages (e.g., a SIP INVITE).  This is
    incompatible with much of the existing communications environment.
-   Most calls still from telephone numbers traverse the PSTN at some
+   Most calls from telephone numbers still traverse the PSTN at some
    point.  Broadly, these calls fall into one of three categories:
 
    o  One or both of the endpoints is actually a PSTN endpoint.
-   o  Both of the endpoints are non-PSTN (SIP, Jingle, ...) but the
-      callpasses through the PSTN at some point.
+   o  Both of the endpoints are non-PSTN (SIP, Jingle, ...) but the call
+      transits the PSTN at some point.
    o  Non-PSTN calls which do not transit the PSTN at all.
 
    The first two categories represent the vast majority of these calls.
@@ -269,7 +269,7 @@ Internet-Draft             Caller-ID Fallback                  July 2013
    expect it to include a "call placement record" (CPR) that describes
    the caller, callee, and the time of the call.  The callee can use the
    existence of a CPR for a given incoming call as rough validation of
-   the asserted origin of that call.  (See Section 7 for limitations of
+   the asserted origin of that call.  (See Section 6 for limitations of
    this design.)
 
    There are roughly two plausible dataflow architectures for the CPS:
@@ -293,9 +293,9 @@ Internet-Draft             Caller-ID Fallback                  July 2013
    maintain a full-time connection to the CPS to serve as a notification
    channel.  This comes with the usual networking costs to the callee
    and is especially problemtatic for mobile endpoints.  Thus, we focus
-   on second architecture in which the PSTN incoming call serves as the
-   notification and the callee can then contact the CPS to retrieve the
-   CPR.
+   on the second architecture in which the PSTN incoming call serves as
+   the notification channel and the callee can then contact the CPS to
+   retrieve the CPR.
 
 
 4.  Strawman Architecture
@@ -346,8 +346,10 @@ Store (1.222.222.2222,1.111.111.1111) ->
 Call from 1.111.111.1111 ---------------------------------------------->
 
 
+                               <-  Authenticate as 1.222.222.2222  ---->
+
                                     <-------------- Retrieve call record
-                                                         1.111.111.1111?
+                                                    from 1.111.111.1111?
 
                                      (1.222.222.2222,1.111.111.1111) -->
 
@@ -372,19 +374,17 @@ Call from 1.111.111.1111 ---------------------------------------------->
    we expect incremental deployment many legitimate calls will be
    unverifiable
 
-4.3.  Federated Verification Services
+4.3.  Security Analysis
 
-   The discussion above is written in terms of a single CPS, but this
-   potentially has scaling problems, as well as allowing the CPS to
-   learn about every call.  These issues can be alleviated by having a
-   federated CPS.  The difficulty then becomes the need to have some way
-   to discover the CPS, which implies some sort of public directory.  If
-   such a directory exists, it could also be used for credential lookup,
-   which is useful for some privacy-preserving variants of this scheme.
+   The primary attack we seek to prevent is an attacker convincing the
+   callee that a given call is from some other caller C. There are two
+   scenarios to be concerned with:
 
+   o  The attacker wishes to simulate a call when none exists.
+   o  The attacker wishes to substitute himself for an existing call as
+      described in Section 4.3.1
 
-
-
+   If an attacker can inject fake CPRs into the CPS or in the
 
 
 
@@ -393,16 +393,118 @@ Rescorla                Expires January 14, 2014                [Page 7]
 Internet-Draft             Caller-ID Fallback                  July 2013
 
 
-5.  Some Potential Details
+   communication from the CPS to the callee, he can mount either attack.
+   In order to prevent this, either the communication to the CPS should
+   be secured in transport (e.g., with TLS) or the CPRs should be
+   digitally signed by the caller and verified by the callee
+   (Section 5.2.  For privacy and robustness reasons, both are
+   preferable.  In particular, if only transport security is used, then
+   a compromised CPS can forge call origination information.
+
+   The entire system depends on the security of the authentication
+   infrastructure.  If the authentication credentials for a given number
+   are compromised, then an attacker can impersonate calls from that
+   number.
+
+4.3.1.  Substitution Attacks
+
+   All that receipt of the CPR proves is that Alice is trying to call
+   Bob (or at least was as of very recently).  It does not prove that
+   this particular incoming call is from Alice.  Consider the scenario
+   in which we have a service which provides an automatic callback to a
+   user-provided number.  In that case, the attacker can arrange for a
+   false caller-id value, as shown below:
+
+ Attacker            Callback Service              CPS               Bob
+ -----------------------------------------------------------------------
+ Place call to Bob ---------->
+
+                             Store CPR for
+                             CS:Bob -------------->
+
+ Call from CS (forged caller-id info)  -------------------------------->
+
+                             Call from CS ---------------------------> X
+
+
+                                                     <----- Retrieve CPR
+                                                              for CS:Bob
+
+                             CPR for CS:Bob --------------------------->
+
+                                         [Ring phone with callerid = CS]
+
+   In order to mount this attack, the attacker contacts the Callback
+   Service (CS) and provides it with Bob's number.  This causes the CS
+   to initiate a call to Bob. As before, the CS contacts the CPS to
+   insert an appropriate CPR and then initiates a call to Bob. Because
+   it is a valid CS injecting the CPR, none of the security checks
+   mentioned above help.  However, the attacker simultaneously initiates
+   a call to Bob using forged caller-id information corresponding to the
+
+
+
+Rescorla                Expires January 14, 2014                [Page 8]
+
+Internet-Draft             Caller-ID Fallback                  July 2013
+
+
+   CS.  If he wins the race with the CS, then Bob's phone will attempt
+   to verify the attacker's call (and succeed since they are
+   indistinguishable) and the CS's call will go to busy/voice mail/call
+   waiting.  Note:  in a SIP environment, the callee might notice that
+   there were multiple INVITEs and thus detect this attack.
+
+
+5.  Some Potential Enhancements
 
    Section 4 provides a broad sketch of an approach.  In this section,
-   we consider some potential design details.
+   we consider some potential enhancements.
 
-5.1.  Credential Lookup
+5.1.  Encrypted CPRs
+
+   In the system described in Section 4, the CPS learns the CPRs for
+   every call, which is undesirable from a privacy perspective.  The
+   situation can be improved by having the caller store encrypted CPRs.
+   A number of schemes are possible, but for concreteness we sketch one
+   possibility.
+
+   The general idea is that each user's credentials are not just
+   suitable for authentication to the CPS but also are an asymmetric key
+   pair suitable for use in an encryption mode.  When Alice wants to
+   store a CPR for Bob she retrieves Bob's credentials (see Section 5.3)
+   and then encrypts the CPR under Bob's public key.  [The encryption
+   needs to be done in such a way that if you don't have Bob's key, the
+   message is indistinguishable from random.  This is straightforward,
+   but not compatible with typical secure message formats, which tend to
+   indicate the recipient's identity.]  The CPR is then stored with the
+   CPS under Alice's identity.  When Bob receives a call, he just asks
+   the CPR (anonymously) for any calls from Alice to anyone.  He then
+   trial-decrypts each and if any of them is for him, he proceeds as
+   before.  In this way, the CPR learns Alice's call velocity but not
+   who she is calling.
+
+5.2.  Signed CPRs
+
+   In the system described in Section 4, the CPS can forge CPRs.  This
+   threat can be removed by having the CPR signed by the originator
+   along with a timestamp.  If such a signature is required, the
+   originator cannot make bogus calls appear to be valid but can still
+   make valid calls appear to be bogus by removing the relevant CPRs.
+
+5.3.  Credential Lookup
 
    In order to encrypt the CPR, the caller needs access to the callee's
    credentials (specifically the public key).  This requires some sort
    of directory/lookup system.  This document does not specify any
+
+
+
+Rescorla                Expires January 14, 2014                [Page 9]
+
+Internet-Draft             Caller-ID Fallback                  July 2013
+
+
    particular scheme, but a list of requirements would be something
    like:
 
@@ -434,57 +536,15 @@ Internet-Draft             Caller-ID Fallback                  July 2013
    We consider the exact best point in the tradeoff space to be an open
    issue.
 
-5.2.  Substitution Attacks
+5.4.  Federated Verification Services
 
-   The security properties of this mechanism are fairly limited:  all
-   that receipt of the CPR proves is that Alice is trying to call Bob
-   (or at least was as of very recently).  It does not prove that this
-   particular incoming call is from Alice.  Consider the scenario in
-   which we have a service which provides an automatic callback to a
+   The discussion above is written in terms of a single CPS, but this
+   potentially has scaling problems, as well as allowing the CPS to
+   learn about every call.  These issues can be alleviated by having a
+   federated CPS.  If a credential lookup service is already available,
+   the CPS location can also be stored in the callee's credentials.
 
-
-
-Rescorla                Expires January 14, 2014                [Page 8]
-
-Internet-Draft             Caller-ID Fallback                  July 2013
-
-
-   user-provided number.  In that case, the attacker can arrange for a
-   false caller-id value, as shown below:
-
- Attacker            Callback Service              CPS               Bob
- -----------------------------------------------------------------------
- Place call to Bob ---------->
-
-                             Store CPR for
-                             CS:Bob -------------->
-
- Call from CS (forged caller-id info)  -------------------------------->
-
-                             Call from CS ---------------------------> X
-
-
-                                                     <----- Retrieve CPR
-                                                              for CS:Bob
-
-                             CPR for CS:Bob --------------------------->
-
-                                         [Ring phone with callerid = CS]
-
-   In order to mount this attack, the attacker contacts the Callback
-   Service (CS) and provides it with Bob's number.  This causes the CS
-   to initiate a call to Bob. As before, the CS contacts the CPS to
-   insert an appropriate CPR and then initiates a call to Bob. Because
-   it is a valid CS injecting the CPR, none of the security checks
-   mentioned above help.  However, the attacker simultaneously initiates
-   a call to Bob using forged caller-id information corresponding to the
-   CS.  If he wins the race with the CS, then Bob's phone will attempt
-   to verify the attacker's call (and succeed since they are
-   indistinguishable) and the CS's call will go to busy/voice mail/call
-   waiting.  Note:  in a SIP environment, the callee might notice that
-   there were multiple INVITEs and thus detect this attack.
-
-5.3.  Escalation to VoIP
+5.5.  Escalation to VoIP
 
    If the call is to be carried over the PSTN, then the security
    properties described above are about the best we can do.  However, if
@@ -492,67 +552,7 @@ Internet-Draft             Caller-ID Fallback                  July 2013
    provide a higher quality of service and security.  The basic idea is
    that the CPR contains rendezvous information for Alice (e.g., Alice's
    SIP URI).  Once Bob has verified Alice's CPR, he can initiate a VoIP
-   connection directly to Alice, thus bypassing the PSTN.  This
-   connection can be initiated either in serial (i.e., instead of
-   ringing the phone) or in parallel (i.e., starting with a POTS call
-   and then switching over to the VoIP call.)  [TODO:  How aggressive
-   should we be about this kind of bypass?  What if the user's network
-
-
-
-Rescorla                Expires January 14, 2014                [Page 9]
-
-Internet-Draft             Caller-ID Fallback                  July 2013
-
-
-   environment is really restricted?]
-
-
-6.  Privacy Considerations
-
-   The mechanism described here is designed to minimize how much
-   information is leaked about who is calling who.  Because CPRs are
-   encrypted, the CPS does not directly learn who is calling who.
-   However, the CPS does learn how many calls the caller is making and
-   the IP address of the callees.  The callee can use an anonymity
-   network such as Tor to hide their IP address, but we expect that this
-   will be uncommon.  Because the CPS is federated, callees can minimize
-   the information available to any specific CPS.  It is not possible to
-   hide the number of calls that that caller makes without some sort of
-   Private Information Retrieval (PIR) mechanism.
-
-   Because the caller needs to retrieve the callee's credentials/
-   certificate, there is some information leakage from the caller to the
-   directory service.  A caching/coalescence mechanism reduces this to
-   some extent, and it might in principle be possible for callers to
-   download the entire database, thus reducing the leakage.  Finally, if
-   the database is federated (as in DNS) then callees can control who
-   has knowledge that their records have been accessed.
-
-
-7.  Security Considerations
-
-   The primary attack we seek to prevent is an attacker convincing the
-   callee that a given call is from some other caller C. There are two
-   scenarios to be concerned with:
-
-   o  The attacker wishes to simulate a call when none exists.
-   o  The attacker wishes to substitute himself for an existing call as
-      described in Section 5.2
-
-   If an attacker can inject fake CPRs into the CPS or in the
-   communication from the CPS to the callee, he can mount either attack.
-   In order to prevent this, either the communication to the CPS should
-   be secured in transport (e.g., with TLS) or the CPRs should be
-   digitally signed by the caller and verified by the callee.  For
-   privacy and robustness reasons, both are preferable.  In particular,
-   if only transport security is used, then a compromised CPS can forge
-   call origination information.
-
-   The entire system depends on the security of the authentication
-   infrastructure.  If the authentication credentials for a given number
-   are compromised, then an attacker can impersonate calls from that
-   number.
+   connection directly to Alice, thus bypassing the PSTN.  Mechanisms of
 
 
 
@@ -561,15 +561,13 @@ Rescorla                Expires January 14, 2014               [Page 10]
 Internet-Draft             Caller-ID Fallback                  July 2013
 
 
-   The substitution attack if Section 5.2 is possible unless some
-   mechanism stronger than simple time coincidence is used for
-   associating the media with the authentication information.  In
-   practice, this means using VoIP rather than POTS, as described in
-   Section 5.3.  Minimally, if the transport parameters are bound to the
-   CPR (if only transitively via the SIP URI), then an attacker will
-   find it more difficult to substitute his own media.  Optimally, the
-   media should be protected with SRTP and the parameters should be
-   cryptographically bound to the CPR.
+   this type are out of scope of this document.
+
+
+6.  Security Considerations
+
+   This entire document is about security, but the detailed security
+   properties depend on having a single concrete scheme to analyze.
 
 
 Appendix A.  Acknowledgements
@@ -589,6 +587,8 @@ Author's Address
 
    Phone:  +1 650 678 2350
    Email:  ekr@rtfm.com
+
+
 
 
 

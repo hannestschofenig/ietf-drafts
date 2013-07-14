@@ -84,7 +84,7 @@
         A natural design for providing caller authentication is to attach
         a signature to the call setup messages (e.g., a SIP INVITE).
         This is incompatible with much of the existing
-        communications environment. Most calls still from telephone numbers
+        communications environment. Most calls from telephone numbers still
         traverse the PSTN at
         some point. Broadly, these calls fall into one of three categories:
       </t>
@@ -92,7 +92,7 @@
         <list style="symbols">
           <t>One or both of the endpoints is actually a PSTN endpoint.</t>
           <t>Both of the endpoints are non-PSTN (SIP, Jingle, ...) but
-          the callpasses through the PSTN at some point.</t>
+          the call transits the PSTN at some point.</t>
           <t>Non-PSTN calls which do not transit the PSTN at all.</t>
         </list>
       </t>
@@ -225,8 +225,8 @@
         callee must maintain a full-time connection to the CPS to
         serve as a notification channel. This comes with the usual
         networking costs to the callee and is especially problemtatic
-        for mobile endpoints. Thus, we focus on second architecture
-        in which the PSTN incoming call serves as the notification
+        for mobile endpoints. Thus, we focus on the second architecture
+        in which the PSTN incoming call serves as the notification channel
         and the callee can then contact the CPS to retrieve the CPR.
       </t>
     </section>
@@ -270,8 +270,10 @@ Store (1.222.222.2222,1.111.111.1111) ->
 Call from 1.111.111.1111 ---------------------------------------------->
 
 
+                               <-  Authenticate as 1.222.222.2222  ---->
+
                                     <-------------- Retrieve call record
-                                                         1.111.111.1111?
+                                                    from 1.111.111.1111?
 
                                      (1.222.222.2222,1.111.111.1111) -->
 
@@ -301,75 +303,42 @@ Call from 1.111.111.1111 ---------------------------------------------->
         deployment many legitimate calls will be unverifiable
       </t>
     </section>
-    <section title="Federated Verification Services" anchor="sec.vs-federation">
+    <section title="Security Analysis" anchor="sec.sec-analysis">
       <t>
-        The discussion above is written in terms of a single CPS, but
-        this potentially has scaling problems, as well as allowing
-        the CPS to learn about every call. These issues can be
-        alleviated by having a federated CPS. The difficulty then becomes
-        the need to have some way to discover the CPS, which implies
-        some sort of public directory. If such a directory exists, it
-        could also be used for credential lookup, which is useful for
-        some privacy-preserving variants of this scheme.
+        The primary attack we seek to prevent is an attacker convincing
+        the callee that a given call is from some other caller C. There
+        are two scenarios to be concerned with:
       </t>
-    </section>
-    </section>
-    <section title="Some Potential Details">
       <t>
-        <xref target="sec.overview"/> provides a broad sketch of
-        an approach. In this section, we consider some potential
-        design details.
-        
+        <list style="symbols">
+          <t>The attacker wishes to simulate a call when none exists.</t>
+          <t>The attacker wishes to substitute himself for an existing call as described
+          in <xref target="sec.substitution"/>
+        </t>
+        </list>
       </t>
-      <section title="Credential Lookup" anchor="sec.cred-lookup">
-        <t>
-          In order to encrypt the CPR, the caller needs access to the
-          callee's credentials (specifically the public key). This
-          requires some sort of directory/lookup system.
-          This document does not specify any particular scheme,
-          but a list of requirements would be something like:
-        </t>
-        <t>
-          Obviously, if there is a single central database and the
-          caller and callee each contact it in real time to determine the
-          other's credentials, then this represents a real privacy risk,
-          as the central database learns about each call. A number
-          of mechanisms are potentially available to mitigate this:
-        </t>
-        <t>
-          <list style="symbols">
-            <t>Have endpoints pre-fetch credentials for potential counterparties
-            (e.g., their address book or the entire database).</t>
-            <t>Have caching servers in the user's network that proxy their
-            fetches and thus conceal the relationship between the user
-            and the credentials they are fetching.</t>
-          </list>
-        </t>
-        <t>
-          Clearly, there is a privacy/timeliness tradeoff in that getting
-          really up-to-date knowledge about credential validity requires
-          contacting the credential directory in real-time (e.g.,
-          via OCSP). This is somewhat
-          mitigated for the caller's credentials in that he can get short-term
-          credentials right before placing a call which only reveals his
-          calling rate, but not who he is calling. Alternately, the CPS can
-          verify the caller's credentials via OCSP, though of course this
-          requires the callee to trust the CPS's verification.
-          This approach does not
-          work as well for the callee's credentials, but the risk there
-          is more modest since an attacker would need to both have
-          the callee's credentials and regularly poll the database for
-          every potential caller.
-        </t>
-        <t>
-          We consider the exact best point in the tradeoff space to be an
-          open issue.
-        </t>
-      </section>
+      <t>
+        If an attacker can inject fake CPRs into the CPS or in the communication
+        from the CPS to the callee, he can mount either attack. In order to
+        prevent this, either the communication to the CPS should be secured
+        in transport (e.g., with TLS) or the CPRs should be digitally signed
+        by the caller and verified by the callee (<xref target="sec.signed-cpr"/>. For privacy and
+        robustness reasons, both are preferable. In particular, if only
+        transport security is used, then a compromised CPS can
+        forge call origination information.
+      </t>
+
+
+
+      <t>
+        The entire system depends on the security of the authentication
+        infrastructure. If the authentication credentials for a given
+        number are compromised, then an attacker can impersonate
+        calls from that number.
+      </t>
       <section title="Substitution Attacks" anchor="sec.substitution">
         <t>
-          The security properties of this mechanism are fairly limited:
-          all that receipt of the CPR proves is that Alice is
+	  All that receipt of the CPR proves is that Alice is
           trying to call Bob (or at least was as of very recently).
           It does not prove that this particular incoming
           call is from Alice. Consider the scenario in which we have
@@ -417,6 +386,110 @@ Call from CS (forged caller-id info)  -------------------------------->
         and thus detect this attack.
       </t>
       </section>
+    </section>
+    </section>
+    <section title="Some Potential Enhancements">
+      <t>
+        <xref target="sec.overview"/> provides a broad sketch of
+        an approach. In this section, we consider some potential
+        enhancements.
+      </t>
+      
+      <section title="Encrypted CPRs">
+	<t>
+	  In the system described in <xref target="sec.overview"/>,
+	  the CPS learns the CPRs for every call, which is undesirable
+	  from a privacy perspective. The situation can be improved
+	  by having the caller store encrypted CPRs. A number of
+	  schemes are possible, but for concreteness we sketch one
+	  possibility.
+	</t>
+	<t>
+	  The general idea is that each user's credentials are
+	  not just suitable for authentication to the CPS but also
+	  are an asymmetric key pair suitable for use in an
+	  encryption mode. When Alice wants to store a CPR
+	  for Bob she retrieves Bob's credentials (see <xref target="sec.cred-lookup"/>)
+	  and then encrypts the CPR under Bob's public key.
+	  [The encryption needs to be done in such a way that if you don't
+	  have Bob's key, the message is indistinguishable from random.
+	  This is straightforward, but not compatible with typical
+	  secure message formats, which tend to indicate the recipient's
+	  identity.]
+	  The CPR is then stored with the CPS under Alice's identity.
+	  When Bob receives a call, he just asks the CPR (anonymously)
+	  for any calls from Alice to anyone. He then trial-decrypts
+	  each and if any of them is for him, he proceeds as before.
+	  In this way, the CPR learns Alice's call velocity but
+	  not who she is calling.
+	</t>
+      </section>
+      <section title="Signed CPRs" anchor="sec.signed-cpr">
+	<t>
+	  In the system described in <xref target="sec.overview"/>,
+	  the CPS can forge CPRs. This threat can be removed by
+	  having the CPR signed by the originator along with
+	  a timestamp. If such a signature is required, the originator
+	  cannot make bogus calls appear to be valid but can still make
+	  valid calls appear to be bogus by removing the relevant
+	  CPRs.
+	</t>
+      </section>
+      <section title="Credential Lookup" anchor="sec.cred-lookup">
+        <t>
+          In order to encrypt the CPR, the caller needs access to the
+          callee's credentials (specifically the public key). This
+          requires some sort of directory/lookup system.
+          This document does not specify any particular scheme,
+          but a list of requirements would be something like:
+        </t>
+        <t>
+          Obviously, if there is a single central database and the
+          caller and callee each contact it in real time to determine the
+          other's credentials, then this represents a real privacy risk,
+          as the central database learns about each call. A number
+          of mechanisms are potentially available to mitigate this:
+        </t>
+        <t>
+          <list style="symbols">
+            <t>Have endpoints pre-fetch credentials for potential counterparties
+            (e.g., their address book or the entire database).</t>
+            <t>Have caching servers in the user's network that proxy their
+            fetches and thus conceal the relationship between the user
+            and the credentials they are fetching.</t>
+          </list>
+        </t>
+        <t>
+          Clearly, there is a privacy/timeliness tradeoff in that getting
+          really up-to-date knowledge about credential validity requires
+          contacting the credential directory in real-time (e.g.,
+          via OCSP). This is somewhat
+          mitigated for the caller's credentials in that he can get short-term
+          credentials right before placing a call which only reveals his
+          calling rate, but not who he is calling. Alternately, the CPS can
+          verify the caller's credentials via OCSP, though of course this
+          requires the callee to trust the CPS's verification.
+          This approach does not
+          work as well for the callee's credentials, but the risk there
+          is more modest since an attacker would need to both have
+          the callee's credentials and regularly poll the database for
+          every potential caller.
+        </t>
+        <t>
+          We consider the exact best point in the tradeoff space to be an
+          open issue.
+        </t>
+      </section>
+      <section title="Federated Verification Services" anchor="sec.vs-federation">
+      <t>
+        The discussion above is written in terms of a single CPS, but
+        this potentially has scaling problems, as well as allowing
+        the CPS to learn about every call. These issues can be
+        alleviated by having a federated CPS. If a credential lookup
+	service is already available, the CPS location can also be
+	stored in the callee's credentials.
+      </t>
+      </section>
       <section title="Escalation to VoIP" anchor="sec.voip-escalation">
         <t>
           If the call is to be carried over the PSTN, then the security
@@ -427,16 +500,19 @@ Call from CS (forged caller-id info)  -------------------------------->
           contains rendezvous information for Alice (e.g.,
           Alice's SIP URI). Once Bob has verified Alice's CPR,
           he can initiate a VoIP connection directly to Alice,
-          thus bypassing the PSTN. This connection can be initiated
-          either in serial (i.e., instead of ringing the phone)
-          or in parallel (i.e., starting with a POTS call and
-          then switching over to the VoIP call.) [TODO: How aggressive
-          should we be about this kind of bypass? What if the
-          user's network environment is really restricted?]
+          thus bypassing the PSTN. Mechanisms of this type are
+	  out of scope of this document.
         </t>
       </section>
     </section>
-    <section title="Privacy Considerations" anchor="sec.priv-cons">
+    <section title="Security Considerations" anchor="sec.sec-cons">
+      <t>
+	This entire document is about security, but the detailed
+	security properties depend on having a single concrete
+	scheme to analyze.
+      </t>
+    </section>
+<!--    <section title="Privacy Considerations" anchor="sec.priv-cons">
       <t>
         The mechanism described here is designed to minimize how much
         information is leaked about who is calling who. Because CPRs
@@ -464,51 +540,7 @@ Call from CS (forged caller-id info)  -------------------------------->
         who has knowledge that their records have been accessed.
       </t>
     </section>
-
-    <section title="Security Considerations" anchor="sec.sec-cons">
-      <t>
-        The primary attack we seek to prevent is an attacker convincing
-        the callee that a given call is from some other caller C. There
-        are two scenarios to be concerned with:
-      </t>
-      <t>
-        <list style="symbols">
-          <t>The attacker wishes to simulate a call when none exists.</t>
-          <t>The attacker wishes to substitute himself for an existing call as described
-          in <xref target="sec.substitution"/>
-        </t>
-        </list>
-      </t>
-      <t>
-        If an attacker can inject fake CPRs into the CPS or in the communication
-        from the CPS to the callee, he can mount either attack. In order to
-        prevent this, either the communication to the CPS should be secured
-        in transport (e.g., with TLS) or the CPRs should be digitally signed
-        by the caller and verified by the callee. For privacy and
-        robustness reasons, both are preferable. In particular, if only
-        transport security is used, then a compromised CPS can
-        forge call origination information.
-      </t>
-      <t>
-        The entire system depends on the security of the authentication
-        infrastructure. If the authentication credentials for a given
-        number are compromised, then an attacker can impersonate
-        calls from that number.
-      </t>
-      <t>
-        The substitution attack if <xref target="sec.substitution"/> is
-        possible unless some mechanism stronger than simple time
-        coincidence is used for associating the media with the
-        authentication information. In practice, this means
-        using VoIP rather than POTS, as described in
-        <xref target="sec.voip-escalation"/>. Minimally, if
-        the transport parameters are bound to the CPR (if only transitively
-        via the SIP URI), then an attacker will find it more difficult
-        to substitute his own media. Optimally, the media should be
-        protected with SRTP and the parameters should
-        be cryptographically bound to the CPR.
-      </t>
-    </section>
+-->
 
     </middle>
     <back>
