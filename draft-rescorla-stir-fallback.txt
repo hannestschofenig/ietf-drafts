@@ -21,7 +21,8 @@ Abstract
    signature, making end-to end integrity impossible.  This document
    describes a mechanism for two compliant endpoints to exchange
    authentication data even in the face of intermediaries which remove
-   all additional call signaling meta-data.
+   all additional call signaling meta-data or which translate from SIP
+   into protocols incapable of understanding identity meta-data (e.g.,
 
 Legal
 
@@ -48,7 +49,6 @@ Status of this Memo
    and may be updated, replaced, or obsoleted by other documents at any
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
-
 
 
 

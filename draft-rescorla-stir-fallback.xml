@@ -54,7 +54,9 @@
         recreate the fields protected by the RFC4474 signature, making end-to
         end integrity impossible.  This document describes a mechanism for two 
         compliant endpoints to exchange authentication data even in the face of
-        intermediaries which remove all additional call signaling meta-data.
+        intermediaries which remove all additional call signaling meta-data
+	or which translate from SIP into protocols incapable of understanding
+	identity meta-data (e.g., 
       </t>
     </abstract>
     <note title="Legal">
