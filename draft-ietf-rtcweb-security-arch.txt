@@ -159,7 +159,7 @@ Table of Contents
      7.1.  Changes since -06  . . . . . . . . . . . . . . . . . . . . 36
      7.2.  Changes since -05  . . . . . . . . . . . . . . . . . . . . 36
      7.3.  Changes since -03  . . . . . . . . . . . . . . . . . . . . 36
-     7.4.  Changes since -03  . . . . . . . . . . . . . . . . . . . . 36
+     7.4.  Changes since -03  . . . . . . . . . . . . . . . . . . . . 37
      7.5.  Changes since -02  . . . . . . . . . . . . . . . . . . . . 37
 
 
@@ -171,7 +171,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 37
      8.1.  Normative References . . . . . . . . . . . . . . . . . . . 37
-     8.2.  Informative References . . . . . . . . . . . . . . . . . . 38
+     8.2.  Informative References . . . . . . . . . . . . . . . . . . 39
    Appendix A.  Example IdP Bindings to Specific Protocols  . . . . . 39
      A.1.  BrowserID  . . . . . . . . . . . . . . . . . . . . . . . . 39
      A.2.  OAuth  . . . . . . . . . . . . . . . . . . . . . . . . . . 42
@@ -233,7 +233,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    real-time audio and/or video calls, Web conferencing, and direct data
    transfer.  Unlike most conventional real-time systems, (e.g., SIP-
    based[RFC3261] soft phones) WebRTC communications are directly
-   controlled by some Web server, as shown in Figure 1.
+   controlled by some Web server, via a JavaScript (JS) API as shown in
+   Figure 1.
 
                                +----------------+
                                |                |
@@ -258,8 +259,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    A more complicated system might allow for interdomain calling, as
    shown in Figure 2.  The protocol to be used between the domains is
    not standardized by WebRTC, but given the installed base and the form
-   of the WebRTC API is likely to be something SDP-based like SIP or
-   XMPP.
+   of the WebRTC API is likely to be something SDP-based like SIP.
 
 
 
@@ -347,7 +347,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    o  Calling services:  Web sites whose origin we can verify (optimally
       via HTTPS, but in some cases because we are on a topologically
-      restricted network, such as behind a firewall).
+      restricted network, such as behind a firewall, and can infer
+      authentication from firewall behavior).
    o  Other users:  WebRTC peers whose origin we can verify
       cryptographically (optimally via DTLS-SRTP).
 
@@ -362,7 +363,9 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    call, but he doesn't want Dr. Evil to be able to access his camera
    and microphone other than during the call.  The point here is that we
    must first identify other elements before we can determine whether
-   and how much to trust them.
+   and how much to trust them.  Additionally, sometimes we need to
+   identify the communicating peer before we know what policies to
+   apply.
 
    It's also worth noting that there are settings where authentication
    is non-cryptographic, such as other machines behind a firewall.
@@ -382,9 +385,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    This section describes a typical RTCWeb session and shows how the
    various security elements interact and what guarantees are provided
-   to the user.  The example in this section is a "best case" scenario
-   in which we provide the maximal amount of user authentication and
-   media privacy with the minimal level of trust in the calling service.
 
 
 
@@ -393,6 +393,9 @@ Rescorla                Expires January 15, 2014                [Page 7]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
+   to the user.  The example in this section is a "best case" scenario
+   in which we provide the maximal amount of user authentication and
+   media privacy with the minimal level of trust in the calling service.
    Simpler versions with lower levels of security are also possible and
    are noted in the text where applicable.  It's also important to
    recognize the tension between security (or performance) and privacy.
@@ -411,7 +414,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    network which she can then use to authenticate to other web sites
    without explicitly having an account with those sites; this is a
    fairly conventional pattern on the Web. Section 5.6.1 provides an
-   overview of Identity Providers and the relevant terminology.
+   overview of Identity Providers and the relevant terminology.  Alice
+   and Bob might have relationships with different IdPs as well.
 
    This separation of identity provision and signaling isn't
    particularly important in "closed world" cases where Alice and Bob
@@ -428,10 +432,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    ultimately rooted in that system.  For instance, when an IdP makes an
    identity assertion, the Relying Party consuming that assertion is
    able to verify because it is able to connect to the IdP via HTTPS.
-
-
-
-
 
 
 
@@ -465,25 +465,25 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
                      +-----------+            +-----------+
                      |           |    Media   |           |
                Alice |  Browser  |<---------->|  Browser  | Bob
-                     |           | (DTLS-SRTP)|           |
+                     |           | (DTLS+SRTP)|           |
                      +-----------+            +-----------+
                            ^      ^--+     +--^     ^
                            |         |     |        |
                            v         |     |        v
                      +-----------+   |     |  +-----------+
                      |           |<--------+  |           |
-                     |   IdP     |   |        |    IdP    |
+                     |   IdP1    |   |        |    IdP2   |
                      |           |   +------->|           |
                      +-----------+            +-----------+
 
                  Figure 3: A call with IdP-based identity
 
    Figure 4 shows essentially the same calling scenario but with a call
-   between two separate domains (i.e., a federated case).  As mentioned
-   above, the domains communicate by some unspecified protocol and
-   providing separate signaling and identity allows for calls to be
-   authenticated regardless of the details of the inter-domain protocol.
-
+   between two separate domains (i.e., a federated case), as in
+   Figure 2.  As mentioned above, the domains communicate by some
+   unspecified protocol and providing separate signaling and identity
+   allows for calls to be authenticated regardless of the details of the
+   inter-domain protocol.
 
 
 
@@ -521,14 +521,14 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
              +-----------+                             +-----------+
              |           |             Media           |           |
        Alice |  Browser  |<--------------------------->|  Browser  | Bob
-             |           |           DTLS-SRTP         |           |
+             |           |           DTLS+SRTP         |           |
              +-----------+                             +-----------+
                    ^      ^--+                      +--^     ^
                    |         |                      |        |
                    v         |                      |        v
              +-----------+   |                      |  +-----------+
              |           |<-------------------------+  |           |
-             |   IdP     |   |                         |    IdP    |
+             |   IdP1    |   |                         |    IdP2   |
              |           |   +------------------------>|           |
              +-----------+                             +-----------+
 
@@ -572,19 +572,15 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    MediaStreams with two MediaStreamTracks, one connected to an audio
    input and one connected to a video input.  At this point the first
    security check is required:  untrusted origins are not allowed to
-   access the camera and microphone.  In this case, because Alice is a
-   long-term user of the calling service, she has made a permissions
-   grant (i.e., a setting in the browser) to allow the calling service
-   to access her camera and microphone any time it wants.  The browser
-   checks this setting when the camera and microphone requests are made
-   and thus allows them.
+   access the camera and microphone, so the browser prompts Alice for
+   permission.
 
    In the current W3C API, once some streams have been added, Alice's
    browser + JS generates a signaling message [I-D.ietf-rtcweb-jsep]
    containing:
 
    o  Media channel information
-   o  ICE candidates
+   o  Interactive Connectivity Establishment (ICE) [RFC5245] candidates
    o  A fingerprint attribute binding the communication to a key pair
       [RFC5763].  Note that this key may simply be ephemerally generated
       for this call or specific to this domain, and Alice may have a
@@ -600,15 +596,19 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    fingerprint.
 
    This message is sent to the signaling server, e.g., by XMLHttpRequest
-   [XmlHttpRequest] or by WebSockets [RFC6455] The signaling server
-   processes the message from Alice's browser, determines that this is a
-   call to Bob and sends a signaling message to Bob's browser (again,
-   the format is currently undefined).  The JS on Bob's browser
-   processes it, and alerts Bob to the incoming call and to Alice's
-   identity.  In this case, Alice has provided an identity assertion and
-   so Bob's browser contacts Alice's identity provider (again, this is
-   done in a generic way so the browser has no specific knowledge of the
-   IdP) to verify the assertion.  This allows the browser to display a
+   [XmlHttpRequest] or by WebSockets [RFC6455]. preferably over TLS
+   [RFC5246].  The signaling server processes the message from Alice's
+   browser, determines that this is a call to Bob and sends a signaling
+   message to Bob's browser (again, the format is currently undefined).
+   The JS on Bob's browser processes it, and alerts Bob to the incoming
+   call and to Alice's identity.  In this case, Alice has provided an
+   identity assertion and so Bob's browser contacts Alice's identity
+   provider (again, this is done in a generic way so the browser has no
+   specific knowledge of the IdP) to verify the assertion.  This allows
+   the browser to display a trusted element in the browser chrome
+   indicating that a call is coming in from Alice.  If Alice is in Bob's
+   address book, then this interface might also include her real name, a
+   picture, etc.  The calling site will also provide some user interface
 
 
 
@@ -617,20 +617,16 @@ Rescorla                Expires January 15, 2014               [Page 11]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   trusted element in the browser chrome indicating that a call is
-   coming in from Alice.  If Alice is in Bob's address book, then this
-   interface might also include her real name, a picture, etc.  The
-   calling site will also provide some user interface element (e.g., a
-   button) to allow Bob to answer the call, though this is most likely
-   not part of the trusted UI.
+   element (e.g., a button) to allow Bob to answer the call, though this
+   is most likely not part of the trusted UI.
 
    If Bob agrees a PeerConnection is instantiated with the message from
    Alice's side.  Then, a similar process occurs as on Alice's browser:
-   Bob's browser verifies that the calling service is approved, the
-   media streams are created, and a return signaling message containing
-   media information, ICE candidates, and a fingerprint is sent back to
-   Alice via the signaling service.  If Bob has a relationship with an
-   IdP, the message will also come with an identity assertion.
+   Bob's browser prompts him for device permission, the media streams
+   are created, and a return signaling message containing media
+   information, ICE candidates, and a fingerprint is sent back to Alice
+   via the signaling service.  If Bob has a relationship with an IdP,
+   the message will also come with an identity assertion.
 
    At this point, Alice and Bob each know that the other party wants to
    have a secure call with them.  Based purely on the interface provided
@@ -665,6 +661,10 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    is willing to exchange traffic with her and (b) that either Bob is at
    the IP address which she has verified via ICE or there is an attacker
    who is on-path to that IP address detouring the traffic.  Note that
+   it is not possible for an attacker who is on-path between Alice and
+   Bob but not attached to the signaling service to spoof these checks
+   because they do not have the ICE credentials.  Bob's has the same
+   security guarantees with respect to Alice.
 
 
 
@@ -673,24 +673,20 @@ Rescorla                Expires January 15, 2014               [Page 12]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   it is not possible for an attacker who is on-path between Alice and
-   Bob but not attached to the signaling service to spoof these checks
-   because they do not have the ICE credentials.  Bob's has the same
-   security guarantees with respect to Alice.
-
 4.3.  DTLS Handshake
 
    Once the ICE checks have completed [more specifically, once some ICE
-   checks have completed], Alice and Bob can set up a secure channel.
-   This is performed via DTLS [RFC4347] (for the data channel) and DTLS-
-   SRTP [RFC5763] for the media channel.  Specifically, Alice and Bob
-   perform a DTLS handshake on every channel which has been established
-   by ICE.  The total number of channels depends on the amount of
-   muxing; in the most likely case we are using both RTP/RTCP mux and
-   muxing multiple media streams on the same channel, in which case
-   there is only one DTLS handshake.  Once the DTLS handshake has
-   completed, the keys are exported [RFC5705] and used to key SRTP for
-   the media channels.
+   checks have completed], Alice and Bob can set up a secure channel or
+   channels.  This is performed via DTLS [RFC4347] (for the data
+   channel) and DTLS-SRTP [RFC5763] keying for SRTP [RFC3711] for the
+   media channel and SCTP over DTLS [I-D.ietf-tsvwg-sctp-dtls-encaps]
+   for data channels.  Specifically, Alice and Bob perform a DTLS
+   handshake on every channel which has been established by ICE.  The
+   total number of channels depends on the amount of muxing; in the most
+   likely case we are using both RTP/RTCP mux and muxing multiple media
+   streams on the same channel, in which case there is only one DTLS
+   handshake.  Once the DTLS handshake has completed, the keys are
+   exported [RFC5705] and used to key SRTP for the media channels.
 
    At this point, Alice and Bob know that they share a set of secure
    data and/or media channels with keys which are not known to any
@@ -721,15 +717,16 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    Section 5.3, these keepalives MUST be based on the consent freshness
    mechanism specified in [I-D.muthu-behave-consent-freshness].  If a
    keepalive fails and no new ICE channels can be established, then the
+   session is terminated.
+
+
+
 
 
 
 Rescorla                Expires January 15, 2014               [Page 13]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
-
-
-   session is terminated.
 
 
 5.  Detailed Technical Description
@@ -778,6 +775,9 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    refuse all permissions grants for HTTP origins, but it is RECOMMENDED
    that currently they support one-time camera/microphone access.
 
+   In addition, they SHOULD support requests for access that promise
+   that media from this grant will be sent to a single communicating
+
 
 
 Rescorla                Expires January 15, 2014               [Page 14]
@@ -785,20 +785,19 @@ Rescorla                Expires January 15, 2014               [Page 14]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   In addition, they SHOULD support requests for access that promise
-   that media from this grant will be sent to a single communicating
    peer (obviously there could be other requests for other peers).
    E.g., "Call customerservice@ford.com".  The semantics of this request
    are that the media stream from the camera and microphone will only be
    routed through a connection which has been cryptographically verified
    (through the IdP mechanism or an X.509 certificate in the DTLS-SRTP
-   handshake) as being associated with the stated identity.  Browsers
-   servicing such requests SHOULD clearly indicate that identity to the
-   user when asking for permission.  The idea behind this type of
-   permissions is that a user might have a fairly narrow list of peers
-   he is willing to communicate with, e.g., "my mother" rather than
-   "anyone on Facebook".  Narrow permissions grants allow the browser to
-   do that enforcement.
+   handshake) as being associated with the stated identity.  Note that
+   it is unlikely that browsers would have an X.509 certificate, but
+   servers might.  Browsers servicing such requests SHOULD clearly
+   indicate that identity to the user when asking for permission.  The
+   idea behind this type of permissions is that a user might have a
+   fairly narrow list of peers he is willing to communicate with, e.g.,
+   "my mother" rather than "anyone on Facebook".  Narrow permissions
+   grants allow the browser to do that enforcement.
 
    API Requirement:  The API MUST provide a mechanism for the requesting
       JS to indicate which of these forms of permissions it is
@@ -836,6 +835,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
 
+
 Rescorla                Expires January 15, 2014               [Page 15]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
@@ -848,8 +848,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    Implementations which support some form of direct user authentication
    SHOULD also provide a policy by which a user can authorize calls only
-   to specific counterparties.  Specifically, the implementation SHOULD
-   provide the following interfaces/controls:
+   to specific communicating peers.  Specifically, the implementation
+   SHOULD provide the following interfaces/controls:
 
    o  Allow future calls to this verified user.
    o  Allow future calls to any verified user who is in my system
@@ -864,7 +864,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    Browser client implementations of WebRTC MUST implement ICE.  Server
    gateway implementations which operate only at public IP addresses
-   MUST implement either full ICE or ICE-Lite.
+   MUST implement either full ICE or ICE-Lite [RFC5245].
 
    Browser implementations MUST verify reachability via ICE prior to
    sending any non-ICE packets to a given destination.  Implementations
@@ -941,10 +941,10 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 5.5.  Communications Security
 
-   Implementations MUST implement DTLS [RFC4347] and DTLS-SRTP
-   [RFC5763][RFC5764].  All data channels MUST be secured via DTLS.
-   DTLS-SRTP MUST be offered for every media channel and MUST be the
-   default; i.e., if an implementation receives an offer for DTLS-SRTP
+   Implementations MUST implement SRTP [RFC3711].  Implementations MUST
+   implement DTLS [RFC4347] and DTLS-SRTP [RFC5763][RFC5764] for SRTP
+   keying.  Implementations MUST implement
+   [I-D.ietf-tsvwg-sctp-dtls-encaps].
 
 
 
@@ -953,8 +953,13 @@ Rescorla                Expires January 15, 2014               [Page 17]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   and SDES, DTLS-SRTP MUST be selected.  Media traffic MUST NOT be sent
-   over plain (unencrypted) RTP.
+   All media channels MUST be secured via SRTP.  Media traffic MUST NOT
+   be sent over plain (unencrypted) RTP.  DTLS-SRTP MUST be offered for
+   every media channel and MUST be the default; i.e., if an
+   implementation receives an offer for DTLS-SRTP and SDES, DTLS-SRTP
+   MUST be selected.
+
+   All data channels MUST be secured via DTLS.
 
    [OPEN ISSUE:  What should the settings be here?  MUST?]
    Implementations MAY support SDES for media traffic for backward
@@ -996,11 +1001,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
          identities have similar semantics and should be displayed in a
          similar way.
 
-      The following properties are more likely to require some "drill-
-      down" from the user:
-
-
-
 
 
 
@@ -1009,6 +1009,9 @@ Rescorla                Expires January 15, 2014               [Page 18]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
+
+      The following properties are more likely to require some "drill-
+      down" from the user:
 
       *  The "security characteristics" MUST indicate the cryptographic
          algorithms in use (For example:  "AES-CBC" or "Null Cipher".)
@@ -1054,9 +1057,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    particular IdP.  Instead, this document provides a generic interface
    which any IdP can implement.  Thus, new IdPs and protocols can be
    introduced without change to either the browser or the calling
-   service.  This avoids the need to make a commitment to any particular
-   identity protocol, although browsers may opt to directly implement
-   some identity protocols in order to provide superior performance or
 
 
 
@@ -1065,6 +1065,9 @@ Rescorla                Expires January 15, 2014               [Page 19]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
+   service.  This avoids the need to make a commitment to any particular
+   identity protocol, although browsers may opt to directly implement
+   some identity protocols in order to provide superior performance or
    UI properties.
 
 5.6.1.  Trust Relationships: IdPs, APs, and RPs
@@ -1110,9 +1113,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       doesn't actually control the namespace, RPs need to trust that the
       IdP is correctly verifying AP identities, and there can
       potentially be multiple IdPs attesting to the same section of the
-      identity space.  Probably the best-known example of a third-party
-      identity provider is SSL certificates, where there are a large
-      number of CAs all of whom can attest to any domain name.
 
 
 
@@ -1120,6 +1120,10 @@ Rescorla                Expires January 15, 2014               [Page 20]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
+
+      identity space.  Probably the best-known example of a third-party
+      identity provider is SSL certificates, where there are a large
+      number of CAs all of whom can attest to any domain name.
 
    If an AP is authenticating via an authoritative IdP, then the RP does
    not need to explicitly configure trust in the IdP at all.  The
@@ -1159,10 +1163,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    The same IdP JS "endpoint" is used for both functions but of course a
    given IdP might behave differently and load new JS to perform one
    function or the other.
-
-
-
-
 
 
 
@@ -1778,12 +1778,12 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    does not need consent, he can use that directly.  Since ICE will
    complete, browsers can then be induced to send large amounts of data
    to the victim call center if it supports the data channel at all.
-   Preventing this attack requires that automated WebRTC
-   implemementations implement sensible flow control and have the
-   ability to triage out (i.e., stop responding to ICE probes on) calls
-   which are behaving badly, and especially to be prepared to remotely
-   throttle the data channel in the absence of plausible audio and video
-   (which the attacker cannot control).
+   Preventing this attack requires that automated WebRTC implementations
+   implement sensible flow control and have the ability to triage out
+   (i.e., stop responding to ICE probes on) calls which are behaving
+   badly, and especially to be prepared to remotely throttle the data
+   channel in the absence of plausible audio and video (which the
+   attacker cannot control).
 
 
 
@@ -1800,7 +1800,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    overload.  Muxing multiple media flows over a single transport makes
    it harder to individually suppress a single flow by denying ICE
    keepalives.  Either media-level (RTCP) mechanisms must be used or the
-   implementation must deny responses entirely, thus termnating the
+   implementation must deny responses entirely, thus terminating the
    call.
 
    Yet another attack, suggested by Magnus Westerlund, is for the
@@ -1863,7 +1863,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    mechanisms in this document rely on the browser enforcing access
    restrictions on the DTLS keys and assertion requests which do not
    come with the right origin may be from content JS rather than from
-   browsers, and therefore those access restrcitions cannot be assumed.
+   browsers, and therefore those access restrictions cannot be assumed.
 
    Note that this check only asserts that the browser (or some other
    entity with access to the user's authentication data) attests to the
@@ -1963,7 +1963,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 5.8.  IANA Considerations
 
-   [TODO:  IANA registration for Identity header.]
+   [TODO:  IANA registration for Identity header.  Or should this be in
+   MMUSIC?]
 
 
 6.  Acknowledgements
@@ -1981,11 +1982,13 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    Replaced RTCWEB and RTC-Web with WebRTC, except when referring to the
    IETF WG
 
-   Assorted editorial work.
-
    Forbade use in mixed content as discussed in Orlando.
 
    Added a requirement to surface NULL ciphers to the top-level.
+
+   Tried to clarify SRTP versus DTLS-SRTP.
+
+   Assorted editorial work.
 
 7.2.  Changes since -05
 
@@ -2004,9 +2007,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    o  Move origin check from IdP to RP per discussion in YVR.
    o  Clarified treatment of X.509-level identities.
-   o  Editorial cleanup.
-
-7.4.  Changes since -03
 
 
 
@@ -2016,6 +2016,10 @@ Rescorla                Expires January 15, 2014               [Page 36]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
+
+   o  Editorial cleanup.
+
+7.4.  Changes since -03
 
 7.5.  Changes since -02
 
@@ -2045,6 +2049,12 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
               draft-ietf-rtcweb-security-04 (work in progress),
               January 2013.
 
+   [I-D.ietf-tsvwg-sctp-dtls-encaps]
+              Jesup, R., Loreto, S., Stewart, R., and M. Tuexen, "DTLS
+              Encapsulation of SCTP Packets for RTCWEB",
+              draft-ietf-tsvwg-sctp-dtls-encaps-00 (work in progress),
+              February 2013.
+
    [I-D.muthu-behave-consent-freshness]
               Perumal, M., Wing, D., R, R., and H. Kaplan, "STUN Usage
               for Consent Freshness",
@@ -2056,6 +2066,17 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    [RFC2818]  Rescorla, E., "HTTP Over TLS", RFC 2818, May 2000.
 
+
+
+Rescorla                Expires January 15, 2014               [Page 37]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
+   [RFC3711]  Baugher, M., McGrew, D., Naslund, M., Carrara, E., and K.
+              Norrman, "The Secure Real-time Transport Protocol (SRTP)",
+              RFC 3711, March 2004.
+
    [RFC4347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security", RFC 4347, April 2006.
 
@@ -2066,17 +2087,13 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    [RFC4627]  Crockford, D., "The application/json Media Type for
               JavaScript Object Notation (JSON)", RFC 4627, July 2006.
 
-
-
-Rescorla                Expires January 15, 2014               [Page 37]
-
-Internet-Draft              WebRTC Sec. Arch.                  July 2013
-
-
    [RFC5245]  Rosenberg, J., "Interactive Connectivity Establishment
               (ICE): A Protocol for Network Address Translator (NAT)
               Traversal for Offer/Answer Protocols", RFC 5245,
               April 2010.
+
+   [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
+              (TLS) Protocol Version 1.2", RFC 5246, August 2008.
 
    [RFC5763]  Fischl, J., Tschofenig, H., and E. Rescorla, "Framework
               for Establishing a Secure Real-time Transport Protocol
@@ -2102,6 +2119,16 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
               Available at
               http://dev.w3.org/2011/webrtc/editor/webrtc.html
 
+
+
+
+
+
+Rescorla                Expires January 15, 2014               [Page 38]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
 8.2.  Informative References
 
    [I-D.ietf-rtcweb-jsep]
@@ -2121,14 +2148,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
               progress), June 2011.
 
    [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
-
-
-
-Rescorla                Expires January 15, 2014               [Page 38]
-
-Internet-Draft              WebRTC Sec. Arch.                  July 2013
-
-
               A., Peterson, J., Sparks, R., Handley, M., and E.
               Schooler, "SIP: Session Initiation Protocol", RFC 3261,
               June 2002.
@@ -2158,6 +2177,14 @@ A.1.  BrowserID
 
    BrowserID [https://browserid.org/] is a technology which allows a
    user with a verified email address to generate an assertion
+
+
+
+Rescorla                Expires January 15, 2014               [Page 39]
+
+Internet-Draft              WebRTC Sec. Arch.                  July 2013
+
+
    (authenticated by their identity provider) attesting to their
    identity (phrased as an email address).  The way that this is used in
    practice is that the relying party embeds JS in their site which
@@ -2167,23 +2194,6 @@ A.1.  BrowserID
    can be verified directly or with a Web service provided by the
    identity provider.  It's relatively easy to extend this functionality
    to authenticate WebRTC calls, as shown below.
-
-
-
-
-
-
-
-
-
-
-
-
-
-Rescorla                Expires January 15, 2014               [Page 39]
-
-Internet-Draft              WebRTC Sec. Arch.                  July 2013
-
 
    +----------------------+                     +----------------------+
    |                      |                     |                      |
@@ -2223,16 +2233,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    1.  The calling JS instantiates a PeerConnection and tells it that it
        is interested in having it authenticated via BrowserID (i.e., it
        provides "browserid.org" as the IdP name.)
-   2.  The PeerConnection instantiates the BrowserID signer in the IdP
-       proxy
-   3.  The BrowserID signer contacts Alice's identity provider,
-       authenticating as Alice (likely via a cookie).
-   4.  The identity provider returns a short-term certificate attesting
-       to Alice's identity and her short-term public key.
-   5.  The Browser-ID code signs the fingerprint and returns the signed
-       assertion + certificate to the PeerConnection.
-
-
 
 
 
@@ -2241,6 +2241,14 @@ Rescorla                Expires January 15, 2014               [Page 40]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
+   2.  The PeerConnection instantiates the BrowserID signer in the IdP
+       proxy
+   3.  The BrowserID signer contacts Alice's identity provider,
+       authenticating as Alice (likely via a cookie).
+   4.  The identity provider returns a short-term certificate attesting
+       to Alice's identity and her short-term public key.
+   5.  The Browser-ID code signs the fingerprint and returns the signed
+       assertion + certificate to the PeerConnection.
    6.  The PeerConnection returns the signed information to the calling
        JS code.
    7.  The signed assertion gets sent over the wire to Bob's browser
@@ -2281,14 +2289,6 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    Note that while the IdP here is specified as "browserid.org", the
    actual certificate is signed by example.org.  This is because
-   BrowserID is a combined authoritative/third-party system in which
-   browserid.org delegates the right to be authoritative (what BrowserID
-   calls primary) to individual domains.
-
-   On Bob's side, he receives the signed assertion as part of the call
-   setup message and a similar procedure happens to verify it.
-
-
 
 
 
@@ -2296,6 +2296,13 @@ Rescorla                Expires January 15, 2014               [Page 41]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
+
+   BrowserID is a combined authoritative/third-party system in which
+   browserid.org delegates the right to be authoritative (what BrowserID
+   calls primary) to individual domains.
+
+   On Bob's side, he receives the signed assertion as part of the call
+   setup message and a similar procedure happens to verify it.
 
    1.  The calling JS instantiates a PeerConnection and provides it the
        relevant signaling information, including the signed assertion.
@@ -2337,14 +2344,7 @@ A.2.  OAuth
    the resource from the identity provider, thus verifying the binding
    between Alice and the call.
 
-           Alice                       IdP                       Bob
-           ---------------------------------------------------------
-           Call-Id, Fingerprint  ------->
-           <------------------- Auth Code
-           Auth Code ---------------------------------------------->
-                                        <----- Get Token + Auth Code
-                                        Token --------------------->
-                                        <------------- Get call-info
+
 
 
 
@@ -2353,6 +2353,14 @@ Rescorla                Expires January 15, 2014               [Page 42]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
+           Alice                       IdP                       Bob
+           ---------------------------------------------------------
+           Call-Id, Fingerprint  ------->
+           <------------------- Auth Code
+           Auth Code ---------------------------------------------->
+                                        <----- Get Token + Auth Code
+                                        Token --------------------->
+                                        <------------- Get call-info
                                         Call-Id, Fingerprint ------>
 
    This is a modified version of a common OAuth flow, but omits the
@@ -2378,14 +2386,6 @@ Author's Address
 
    Phone:  +1 650 678 2350
    Email:  ekr@rtfm.com
-
-
-
-
-
-
-
-
 
 
 

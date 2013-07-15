@@ -4,10 +4,12 @@
 <!ENTITY RFC3552 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3552.xml">
 <!ENTITY RFC2818 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2818.xml">
 <!ENTITY RFC3261 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3261.xml">
+<!ENTITY RFC3711 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3711.xml">
 <!ENTITY RFC5479 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5479.xml">
 <!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
 <!ENTITY RFC4572 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4572.xml">
 <!ENTITY RFC4568 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4568.xml">
+<!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC5763 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5763.xml">
 <!ENTITY RFC5764 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5764.xml">
 <!ENTITY RFC4251 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4251.xml">
@@ -26,6 +28,7 @@
 <!ENTITY I-D.kaufman-rtcweb-security-ui SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.kaufman-rtcweb-security-ui">
 <!ENTITY I-D.jennings-rtcweb-signaling SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.jennings-rtcweb-signaling">
 <!ENTITY I-D.ietf-avtcore-6222bis SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-avtcore-6222bis">
+<!ENTITY I-D.ietf-tsvwg-sctp-dtls-encaps SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tsvwg-sctp-dtls-encaps">
 ]>
 
 <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
@@ -102,7 +105,8 @@
 	technology are real-time audio and/or video calls, Web conferencing,
 	and direct data transfer. Unlike most conventional real-time systems,
 	(e.g., SIP-based<xref target="RFC3261"></xref> soft phones) WebRTC
-	communications are directly controlled by some Web server, as shown in
+	communications are directly controlled by some Web server, via a
+	JavaScript (JS) API as shown in
 	<xref target="fig.simple"/>.
       </t>
       <figure title="A simple WebRTC system" anchor="fig.simple">
@@ -132,7 +136,7 @@
 	The protocol to be used between the domains
 	is not standardized by WebRTC, but given the installed
 	base and the form of the WebRTC API is likely to be something
-	SDP-based like SIP or XMPP.
+	SDP-based like SIP.
       </t>
       <figure title="A multidomain WebRTC system" anchor="fig.multidomain">
 	<artwork><![CDATA[
@@ -202,7 +206,8 @@
 	  <list style="symbols">
 	    <t>Calling services: Web sites whose origin we can verify
 	    (optimally via HTTPS, but in some cases because we are on
-	    a topologically restricted network, such as behind a firewall).</t>
+	    a topologically restricted network, such as behind a firewall, and
+	    can infer authentication from firewall behavior).</t>
 	    <t>Other users: WebRTC peers whose origin we can verify 
 	    cryptographically (optimally via DTLS-SRTP).</t>
 	  </list>
@@ -221,7 +226,9 @@
 	  Dr. Evil to be able to access his camera and
 	  microphone other than during the call. The point here is that we must
 	  first identify other elements before we can determine whether
-	  and how much to trust them.
+	  and how much to trust them. Additionally, sometimes we
+	  need to identify the communicating peer before we know what policies
+	  to apply.
 	</t>
 	<t>
 	  It's also worth noting that there are settings where 
@@ -276,6 +283,7 @@
 	having an account with those sites; this is a fairly conventional
 	pattern on the Web. <xref target="sec.trust-relationships"/>
 	provides an overview of Identity Providers and the relevant terminology.
+	Alice and Bob might have relationships with different IdPs as well.
       </t>
       <t>
 	This separation of identity provision and signaling
@@ -315,14 +323,14 @@
                   +-----------+            +-----------+
                   |           |    Media   |           |
             Alice |  Browser  |<---------->|  Browser  | Bob
-                  |           | (DTLS-SRTP)|           |
+                  |           | (DTLS+SRTP)|           |
                   +-----------+            +-----------+
                         ^      ^--+     +--^     ^		        
                         |         |     |        |
 			v         |     |        v
                   +-----------+   |     |  +-----------+
                   |           |<--------+  |           |
-		  |   IdP     |   |        |    IdP    |
+		  |   IdP1    |   |        |    IdP2   |
                   |           |   +------->|           |
                   +-----------+            +-----------+
  	]]></artwork>
@@ -330,11 +338,12 @@
       <t>
 	<xref target="fig.proposal-federated.idp"/> shows essentially
 	the same calling scenario but with a call between two 
-	separate domains (i.e., a federated case). As mentioned
+	separate domains (i.e., a federated case), as in
+	<xref target="fig.multidomain"/>. As mentioned
 	above, the domains communicate by some unspecified
 	protocol and providing separate signaling and identity
 	allows for calls to be authenticated regardless of
-	the details of the inter-domain protocol.
+	the details of the inter-domain protocol. 
       </t>
       <figure title="A federated call with IdP-based identity" anchor="fig.proposal-federated.idp">
 	<artwork><![CDATA[
@@ -354,14 +363,14 @@
            +-----------+                             +-----------+
            |           |             Media           |           |
      Alice |  Browser  |<--------------------------->|  Browser  | Bob
-           |           |           DTLS-SRTP         |           |
+           |           |           DTLS+SRTP         |           |
            +-----------+                             +-----------+
                  ^      ^--+                      +--^     ^		        
                  |         |                      |        |
 		 v         |                      |        v
            +-----------+   |                      |  +-----------+
            |           |<-------------------------+  |           |
-           |   IdP     |   |                         |    IdP    |
+           |   IdP1    |   |                         |    IdP2   |
            |           |   +------------------------>|           |
            +-----------+                             +-----------+
  	]]></artwork>
@@ -404,13 +413,8 @@
 	  one connected to an
 	  audio input and one connected to a video input. At this
 	  point the first security check is required: untrusted
-	  origins are not allowed to access the camera and microphone.
-	  In this case, because Alice is a long-term user of the
-	  calling service, she has made a permissions grant (i.e.,
-	  a setting in the browser) to
-	  allow the calling service to access her camera and microphone
-	  any time it wants. The browser checks this setting when the
-	  camera and microphone requests are made and thus allows them.
+	  origins are not allowed to access the camera and microphone,
+	  so the browser prompts Alice for permission.
 	</t>
 	<t>
 	  In the current W3C API, once some streams have been added,
@@ -420,7 +424,7 @@
 	<t>
 	  <list style="symbols">
 	    <t>Media channel information</t>
-	    <t>ICE candidates</t>
+	    <t> Interactive Connectivity Establishment (ICE) <xref target="RFC5245"/> candidates</t>
 	    <t>A fingerprint attribute binding the communication to a key pair
 	    <xref target="RFC5763"/>. Note that this key may simply be
 	    ephemerally generated for this call or specific to this domain,
@@ -440,7 +444,8 @@
 	</t>
 	<t>
 	  This message is sent to the signaling server, e.g., by XMLHttpRequest
-	  <xref target="XmlHttpRequest"/> or by WebSockets <xref target="RFC6455"/>
+	  <xref target="XmlHttpRequest"/> or by WebSockets <xref target="RFC6455"/>.
+	  preferably over TLS <xref target="RFC5246"/>.
 	  The signaling server processes the message from Alice's browser,
 	  determines that this is a call to Bob and sends a signaling
 	  message to Bob's browser (again, the format is currently undefined).
@@ -461,8 +466,8 @@
 	  If Bob agrees
 	  a PeerConnection is instantiated with the message from Alice's side.
 	  Then, a similar process
-	  occurs as on Alice's browser: Bob's browser verifies that the calling
-	  service is approved, the media streams are created, and a return
+	  occurs as on Alice's browser: Bob's browser prompts him for device
+	  permission, the media streams are created, and a return
 	  signaling message containing media information, ICE candidates, and
 	  a fingerprint is sent back to Alice via the signaling service.
 	  If Bob has a relationship with an IdP, the message will also come
@@ -523,9 +528,11 @@
 	<t>
 	  Once the ICE checks have completed [more specifically, once some 
 	  ICE checks have completed], Alice and Bob can set up a secure
-	  channel. This is performed via DTLS <xref target="RFC4347"/>
-	  (for the data channel) and DTLS-SRTP <xref target="RFC5763"/>
-	  for the media channel. Specifically, Alice and Bob perform
+	  channel or channels. This is performed via DTLS <xref target="RFC4347"/>
+	  (for the data channel) and DTLS-SRTP <xref target="RFC5763"/> keying
+	  for SRTP <xref target="RFC3711"/>
+	  for the media channel and SCTP over DTLS <xref target="I-D.ietf-tsvwg-sctp-dtls-encaps"/>
+	  for data channels. Specifically, Alice and Bob perform
 	  a DTLS handshake on every channel which has been established
 	  by ICE. The total number of channels depends on the amount of muxing;
 	  in the most likely case we are using both RTP/RTCP mux and
@@ -644,7 +651,8 @@
 	  a connection which has been cryptographically verified
 	  (through the IdP mechanism or an X.509 certificate in the
 	  DTLS-SRTP handshake) as being associated with the stated
-	  identity.
+	  identity. Note that it is unlikely that browsers would have
+	  an X.509 certificate, but servers might.
 	  Browsers servicing such requests SHOULD clearly indicate that 
 	  identity to the user when asking for permission.
 	  The idea behind this type of permissions is that a user might
@@ -720,7 +728,7 @@
 	<t>
 	  Implementations which support some form of direct user authentication
 	  SHOULD also provide a policy by which a user can authorize calls 
-	  only to specific counterparties. Specifically, the implementation
+	  only to specific communicating peers. Specifically, the implementation
 	  SHOULD provide the following interfaces/controls:
 	</t>
 	<t>
@@ -742,7 +750,7 @@
 	<t>
 	  Browser client implementations of WebRTC MUST implement ICE.
 	  Server gateway implementations which operate only at public IP
-	  addresses MUST implement either full ICE or ICE-Lite.
+	  addresses MUST implement either full ICE or ICE-Lite <xref target="RFC5245"/>.
 	</t>
 	<t>
 	  Browser implementations MUST verify reachability via ICE 
@@ -834,13 +842,22 @@
 
       <section title="Communications Security" anchor="sec.proposal.comsec">
 	<t>
+	  Implementations MUST implement SRTP <xref target="RFC3711"/>.
 	  Implementations MUST implement DTLS <xref target="RFC4347"/> 
-	  and DTLS-SRTP <xref target="RFC5763"/><xref target="RFC5764"/>. All data
-	  channels MUST be secured via DTLS. DTLS-SRTP MUST be offered
+	  and DTLS-SRTP <xref target="RFC5763"/><xref target="RFC5764"/> for
+	  SRTP keying. Implementations MUST implement
+	  <xref target="I-D.ietf-tsvwg-sctp-dtls-encaps"/>.
+	</t>
+	<t>
+	  All media channels MUST be secured via SRTP.
+	  Media traffic MUST NOT be sent over plain (unencrypted) RTP.
+	  DTLS-SRTP MUST be offered
 	  for every media channel and MUST be the default; i.e., if 
 	  an implementation receives an offer for DTLS-SRTP and SDES,
-	  DTLS-SRTP MUST be selected. Media traffic MUST NOT be sent
-	  over plain (unencrypted) RTP.
+	  DTLS-SRTP MUST be selected. 
+	</t>
+	<t>
+	  All data channels MUST be secured via DTLS. 
 	</t>
 	<t>
 	  [OPEN ISSUE: What should the settings be here? MUST?]
@@ -1767,7 +1784,7 @@
 	complete, browsers can then be induced to send large
 	amounts of data to the victim call center if it supports
 	the data channel at all. Preventing
-	this attack requires that automated WebRTC implemementations
+	this attack requires that automated WebRTC implementations
 	implement sensible flow control and have the ability to
 	triage out (i.e., stop responding to ICE probes on)
 	calls which are behaving badly, and especially to
@@ -1786,7 +1803,7 @@
 	it harder to individually suppress a single flow by denying
 	ICE keepalives. Either media-level (RTCP) mechanisms must be
 	used or the implementation must deny responses entirely,
-	thus termnating the call.
+	thus terminating the call.
       </t>
       <t>
 	Yet another attack, suggested by Magnus Westerlund,
@@ -1852,7 +1869,7 @@
 	  browser enforcing access restrictions on the DTLS keys
 	  and assertion requests which do not come with the right
 	  origin may be from content JS rather than from browsers,
-	  and therefore those access restrcitions cannot be assumed.
+	  and therefore those access restrictions cannot be assumed.
 	</t>
 	<t>
 	  Note that this check only asserts that the browser (or some
@@ -1954,7 +1971,7 @@
     </section>
   </section>
   <section title="IANA Considerations">
-    <t>[TODO: IANA registration for Identity header.]</t>
+    <t>[TODO: IANA registration for Identity header. Or should this be in MMUSIC?]</t>
   </section>
 
       </section>
@@ -1971,11 +1988,10 @@
   <section title="Changes">
     <section title="Changes since -06">
       <t>Replaced RTCWEB and RTC-Web with WebRTC, except when referring to the IETF WG</t>
-      <t>Assorted editorial work.</t>
       <t>Forbade use in mixed content as discussed in Orlando.</t>
       <t>Added a requirement to surface NULL ciphers to the top-level.</t>
-
-
+      <t>Tried to clarify SRTP versus DTLS-SRTP.</t>
+      <t>Assorted editorial work.</t>
     </section>
   <section title="Changes since -05">
     <t>
@@ -2033,7 +2049,9 @@
     <references title="Normative References">
       &RFC2119;
       &RFC2818;
+      &RFC3711;
       &RFC6454;
+      &RFC5246;
       &RFC5245;
       &RFC4347;
       &RFC4572;
@@ -2045,6 +2063,8 @@
       &I-D.ietf-rtcweb-security;
       &I-D.muthu-behave-consent-freshness;
       &I-D.ietf-avtcore-6222bis;
+      &I-D.ietf-tsvwg-sctp-dtls-encaps;
+
       <reference anchor="webcrypto">
         <front>
           <title>Web Cryptography API</title>
