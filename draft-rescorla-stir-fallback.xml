@@ -56,7 +56,7 @@
         compliant endpoints to exchange authentication data even in the face of
         intermediaries which remove all additional call signaling meta-data
 	or which translate from SIP into protocols incapable of understanding
-	identity meta-data (e.g., 
+	identity meta-data (e.g., where one side is the PSTN).
       </t>
     </abstract>
     <note title="Legal">

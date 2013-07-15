@@ -354,6 +354,45 @@
 	  sent back to the site via conventional HTTP-based network
 	  mechanisms such as HTTP POST.
 	</t>
+	<section title="Threats from Screen Sharing">
+	  <t>
+	    In addition to camera and microphone access, there has been
+	    demand for screen and/or application sharing functionality.
+	    Unfortunately, the security implications of this
+	    functionality are much harder for users to intuitively
+	    analyze than for camera and microphone access.
+	    (See http://lists.w3.org/Archives/Public/public-webrtc/2013Mar/0024.html
+	    for a full analysis.)
+	  </t>
+	  <t>
+	    The most obvious threats are simply those of "oversharing".
+	    I.e., the user may believe they are sharing a window when
+	    in fact they are sharing an application, or may forget they
+	    are sharing their whole screen, icons, notifications, and all.
+	    This is already an issue with existing screen sharing technologies
+	    and is made somewhat worse if a partially trusted site is responsible for asking
+	    for the resource to be shared rather than having the user propose it.
+	  </t>
+	  <t>
+	    A less obvious threat involves the impact of screen sharing on the
+	    Web security model. A key part of the Same Origin Policy is that
+	    HTML or JS from site A can reference content from site B and cause
+	    the browser to load it, but (unless explicitly permitted) cannot
+	    see the result. However, if a web application from a site is
+	    screen sharing the browser, then this violates that invariant,
+	    with serious security consequences. For example, an attacker site
+	    might request screen sharing and then briefly open up a new
+	    Window to the user's bank or Gmail account, using screen sharing
+	    to read the resulting displayed content. A more sophisticated
+	    attack would be open up a source view window to a site and use the
+	    screen sharing result to view anti cross-site request forgery tokens.
+	  </t>
+	  <t>
+	    These threats suggest that screen/application sharing might need
+	    a higher level of user consent than access to the camera or
+	    microphone.
+	  </t>
+	</section>
 	<section title="Calling Scenarios and User Expectations">
 	  <t>
 	    While a large number of possible calling scenarios are possible, the
@@ -1000,6 +1039,7 @@
 	  <t>Added some discussion if IP location privacy and Tor.</t>
 	  <t>Updated the "communications consent" section to reflrect draft-muthu.</t>
 	  <t>Added a section about "malicious peers".</t>
+	  <t>Added a section describing screen sharing threats.</t>
 	  <t>Assorted editorial changes.</t>
 	</list>
       </t>

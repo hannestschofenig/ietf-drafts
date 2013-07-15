@@ -718,6 +718,37 @@
 	</t>
 
 	<t>
+	  [[OPEN ISSUE: This section does not have WG consensus.
+	  Because screen/application sharing presents a more significant risk than camera and
+	  microphone access (see the discussion in <xref target="I-D.ietf-rtcweb-security"/>
+	  S 4.1.1), we require a higher level of user consent.
+	</t>
+	<t>
+	  <list style="symbols">
+	    <t>
+	      Browsers MUST not permit permanent screen or application sharing permissions to
+	      be installed as a response to a JS request for permissions. Instead,
+	      they must require some other user action such as a permissions setting
+	      or an application install experience to grant permission to a site.
+	    </t>
+	    <t>
+	      Browsers MUST provide a separate dialog request for screen/application
+	      sharing permissions even if the media request is made at the same
+	      time as camera and microphone.
+	    </t>
+
+	    <t>
+	      The browser MUST indicate any windows which are currently being shared
+	      in some unambiguous way. Windows which are not visible MUST not be
+	      shared even if the application is being shared.
+	      If the screen is being shared, then that MUST be indicated.
+	    </t>
+	  </list>
+	</t>
+	<t>
+	  -- END OF OPEN ISSUE]]
+	</t>
+	<t>
 	  Clients MAY permit the formation of data channels
 	  without any direct user approval. Because sites can always
 	  tunnel data through the server, further restrictions on the
@@ -1382,9 +1413,6 @@
 		]]></artwork>
 	      </figure>
 	     <t>
-	       [[ OPEN ISSUE: if the W3C half of this converges on WebIntents, then
-	       the READY message will not be necessary.]]</t>
-	      <t>
 		Once the PeerConnection object receives the ready message,
 		it can send commands to the IdP proxy.
 	      </t>
@@ -1951,8 +1979,7 @@
 	    a general escape hatch from popup blocking. One possibility
 	    would be to only allow popups when the user has explicitly
 	    registered a given IdP as one of theirs (this is only relevant
-	    at the AP side in any case). This is what WebIntents does, and
-	    the problem would go away if WebIntents is used.
+	    at the AP side in any case). 
 	  </t>
 	</section>
 
@@ -1991,6 +2018,7 @@
       <t>Forbade use in mixed content as discussed in Orlando.</t>
       <t>Added a requirement to surface NULL ciphers to the top-level.</t>
       <t>Tried to clarify SRTP versus DTLS-SRTP.</t>
+      <t>Added a section on screen sharing permissions.</t>
       <t>Assorted editorial work.</t>
     </section>
   <section title="Changes since -05">

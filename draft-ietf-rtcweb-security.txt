@@ -124,35 +124,35 @@ Table of Contents
            communicate  . . . . . . . . . . . . . . . . . . . . . . .  7
    4.  Security for WebRTC Applications . . . . . . . . . . . . . . .  7
      4.1.  Access to Local Devices  . . . . . . . . . . . . . . . . .  8
-       4.1.1.  Calling Scenarios and User Expectations  . . . . . . .  9
-         4.1.1.1.  Dedicated Calling Services . . . . . . . . . . . .  9
-         4.1.1.2.  Calling the Site You're On . . . . . . . . . . . .  9
-       4.1.2.  Origin-Based Security  . . . . . . . . . . . . . . . . 10
-       4.1.3.  Security Properties of the Calling Page  . . . . . . . 11
-     4.2.  Communications Consent Verification  . . . . . . . . . . . 12
-       4.2.1.  ICE  . . . . . . . . . . . . . . . . . . . . . . . . . 12
+       4.1.1.  Threats from Screen Sharing  . . . . . . . . . . . . .  9
+       4.1.2.  Calling Scenarios and User Expectations  . . . . . . .  9
+         4.1.2.1.  Dedicated Calling Services . . . . . . . . . . . .  9
+         4.1.2.2.  Calling the Site You're On . . . . . . . . . . . . 10
+       4.1.3.  Origin-Based Security  . . . . . . . . . . . . . . . . 10
+       4.1.4.  Security Properties of the Calling Page  . . . . . . . 12
+     4.2.  Communications Consent Verification  . . . . . . . . . . . 13
+       4.2.1.  ICE  . . . . . . . . . . . . . . . . . . . . . . . . . 13
        4.2.2.  Masking  . . . . . . . . . . . . . . . . . . . . . . . 13
-       4.2.3.  Backward Compatibility . . . . . . . . . . . . . . . . 13
-       4.2.4.  IP Location Privacy  . . . . . . . . . . . . . . . . . 14
+       4.2.3.  Backward Compatibility . . . . . . . . . . . . . . . . 14
+       4.2.4.  IP Location Privacy  . . . . . . . . . . . . . . . . . 15
      4.3.  Communications Security  . . . . . . . . . . . . . . . . . 15
        4.3.1.  Protecting Against Retrospective Compromise  . . . . . 16
-       4.3.2.  Protecting Against During-Call Attack  . . . . . . . . 16
+       4.3.2.  Protecting Against During-Call Attack  . . . . . . . . 17
          4.3.2.1.  Key Continuity . . . . . . . . . . . . . . . . . . 17
-         4.3.2.2.  Short Authentication Strings . . . . . . . . . . . 17
-         4.3.2.3.  Third Party Identity . . . . . . . . . . . . . . . 18
+         4.3.2.2.  Short Authentication Strings . . . . . . . . . . . 18
+         4.3.2.3.  Third Party Identity . . . . . . . . . . . . . . . 19
          4.3.2.4.  Page Access to Media . . . . . . . . . . . . . . . 19
-       4.3.3.  Malicious Peers  . . . . . . . . . . . . . . . . . . . 19
+       4.3.3.  Malicious Peers  . . . . . . . . . . . . . . . . . . . 20
      4.4.  Privacy Considerations . . . . . . . . . . . . . . . . . . 20
        4.4.1.  Correlation of Anonymous Calls . . . . . . . . . . . . 20
-       4.4.2.  Browser Fingerprinting . . . . . . . . . . . . . . . . 20
-   5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 20
-   6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 20
-   7.  Changes Since -04  . . . . . . . . . . . . . . . . . . . . . . 20
+       4.4.2.  Browser Fingerprinting . . . . . . . . . . . . . . . . 21
+   5.  Security Considerations  . . . . . . . . . . . . . . . . . . . 21
+   6.  Acknowledgements . . . . . . . . . . . . . . . . . . . . . . . 21
+   7.  Changes Since -04  . . . . . . . . . . . . . . . . . . . . . . 21
    8.  References . . . . . . . . . . . . . . . . . . . . . . . . . . 21
      8.1.  Normative References . . . . . . . . . . . . . . . . . . . 21
-     8.2.  Informative References . . . . . . . . . . . . . . . . . . 21
-   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 23
-
+     8.2.  Informative References . . . . . . . . . . . . . . . . . . 22
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 24
 
 
 
@@ -449,13 +449,47 @@ Rescorla                Expires January 16, 2014                [Page 8]
 Internet-Draft               WebRTC Security                   July 2013
 
 
-4.1.1.  Calling Scenarios and User Expectations
+4.1.1.  Threats from Screen Sharing
+
+   In addition to camera and microphone access, there has been demand
+   for screen and/or application sharing functionality.  Unfortunately,
+   the security implications of this functionality are much harder for
+   users to intuitively analyze than for camera and microphone access.
+   (See
+   http://lists.w3.org/Archives/Public/public-webrtc/2013Mar/0024.html
+   for a full analysis.)
+
+   The most obvious threats are simply those of "oversharing".  I.e.,
+   the user may believe they are sharing a window when in fact they are
+   sharing an application, or may forget they are sharing their whole
+   screen, icons, notifications, and all.  This is already an issue with
+   existing screen sharing technologies and is made somewhat worse if a
+   partially trusted site is responsible for asking for the resource to
+   be shared rather than having the user propose it.
+
+   A less obvious threat involves the impact of screen sharing on the
+   Web security model.  A key part of the Same Origin Policy is that
+   HTML or JS from site A can reference content from site B and cause
+   the browser to load it, but (unless explicitly permitted) cannot see
+   the result.  However, if a web application from a site is screen
+   sharing the browser, then this violates that invariant, with serious
+   security consequences.  For example, an attacker site might request
+   screen sharing and then briefly open up a new Window to the user's
+   bank or Gmail account, using screen sharing to read the resulting
+   displayed content.  A more sophisticated attack would be open up a
+   source view window to a site and use the screen sharing result to
+   view anti cross-site request forgery tokens.
+
+   These threats suggest that screen/application sharing might need a
+   higher level of user consent than access to the camera or microphone.
+
+4.1.2.  Calling Scenarios and User Expectations
 
    While a large number of possible calling scenarios are possible, the
    scenarios discussed in this section illustrate many of the
    difficulties of identifying the relevant scope of consent.
 
-4.1.1.1.  Dedicated Calling Services
+4.1.2.1.  Dedicated Calling Services
 
    The first scenario we consider is a dedicated calling service.  In
    this case, the user has a relationship with a calling site and
@@ -463,6 +497,14 @@ Internet-Draft               WebRTC Security                   July 2013
    to give permission for each call that the user will want to give the
    calling service long-term access to the camera and microphone.  This
    is a natural fit for a long-term consent mechanism (e.g., installing
+
+
+
+Rescorla                Expires January 16, 2014                [Page 9]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
    an app store "application" to indicate permission for the calling
    service.)  A variant of the dedicated calling service is a gaming
    site (e.g., a poker site) which hosts a dedicated calling service to
@@ -482,7 +524,7 @@ Internet-Draft               WebRTC Security                   July 2013
    behalf but still have some calls via that site where I can be sure
    that the site is not listening in.
 
-4.1.1.2.  Calling the Site You're On
+4.1.2.2.  Calling the Site You're On
 
    Another simple scenario is calling the site you're actually visiting.
    The paradigmatic case here is the "click here to talk to a
@@ -497,18 +539,10 @@ Internet-Draft               WebRTC Security                   July 2013
    Section 3.1, great care must be taken in the design of this interface
    to avoid the users just clicking through.  Note also that the user
    interface chrome must clearly display elements showing that the call
-
-
-
-Rescorla                Expires January 16, 2014                [Page 9]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    is continuing in order to avoid attacks where the calling site just
    leaves it up indefinitely but shows a Web UI that implies otherwise.
 
-4.1.2.  Origin-Based Security
+4.1.3.  Origin-Based Security
 
    Now that we have seen another use case, we can start to reason about
    the security requirements.
@@ -519,6 +553,14 @@ Internet-Draft               WebRTC Security                   July 2013
    communications (and hence to access camera and microphone) if the
    user has specifically authorized access for that origin.  It is of
    course technically possible to have coarser-scoped permissions, but
+
+
+
+Rescorla                Expires January 16, 2014               [Page 10]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
    because the Web model is scoped to origin, this creates a difficult
    mismatch.
 
@@ -553,14 +595,6 @@ Internet-Draft               WebRTC Security                   July 2013
    avoid the risk of the user blindly clicking through.
 
    The other two options are designed to restrict calls to a given
-
-
-
-Rescorla                Expires January 16, 2014               [Page 10]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    target.  Callee-oriented consent provided by the calling site not
    work well because a malicious site can claim that the user is calling
    any user of his choice.  One fix for this is to tie calls to a
@@ -575,6 +609,14 @@ Internet-Draft               WebRTC Security                   July 2013
    [I-D.ietf-rtcweb-security-arch] describes mechanisms which facilitate
    this sort of consent.
 
+
+
+
+Rescorla                Expires January 16, 2014               [Page 11]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
    Another case where media-level cryptographic identity makes sense is
    when a user really does not trust the calling site.  For instance, I
    might be worried that the calling service will attempt to bug my
@@ -584,7 +626,7 @@ Internet-Draft               WebRTC Security                   July 2013
    primitives which express this sort of policy.  The problem becomes
    even more challenging in multi-user calling cases.
 
-4.1.3.  Security Properties of the Calling Page
+4.1.4.  Security Properties of the Calling Page
 
    Origin-based security is intended to secure against web attackers.
    However, we must also consider the case of network attackers.
@@ -609,14 +651,6 @@ Internet-Draft               WebRTC Security                   July 2013
    "infect" the origin semi-permanently (e.g., with a web worker or a
    popped-up window that is hidden under the main window.) and thus be
    able to bug me long after I have left the infected network.  This
-
-
-
-Rescorla                Expires January 16, 2014               [Page 11]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    risk is created by allowing calls at all from a page fetched over
    HTTP.
 
@@ -629,6 +663,15 @@ Internet-Draft               WebRTC Security                   July 2013
    contain mixed content.  If a page from a given origin ever loads
    mixed content then it is possible for a network attacker to infect
    the browser's notion of that origin semi-permanently.
+
+
+
+
+
+Rescorla                Expires January 16, 2014               [Page 12]
+
+Internet-Draft               WebRTC Security                   July 2013
+
 
 4.2.  Communications Consent Verification
 
@@ -665,14 +708,6 @@ Internet-Draft               WebRTC Security                   July 2013
    would need to also be known and used by the STUN-receiving element to
    be useful.
 
-
-
-
-Rescorla                Expires January 16, 2014               [Page 12]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    There also needs to be some mechanism for the browser to verify that
    the target of the traffic continues to wish to receive it.  Because
    ICE keepalives are indications, they will not work here, so some
@@ -686,6 +721,14 @@ Internet-Draft               WebRTC Security                   July 2013
    Once consent is verified, there still is some concern about
    misinterpretation attacks as described by Huang et al.[huang-w2sp].
    Where TCP is used the risk is substantial due to the potential
+
+
+
+Rescorla                Expires January 16, 2014               [Page 13]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
    presence of transparent proxies and therefore if TCP is to be used,
    then WebSockets style masking MUST be employed.
 
@@ -721,14 +764,6 @@ Internet-Draft               WebRTC Security                   July 2013
    address the security issue satisfactorily.
 
    In the STUN approach, the WebRTC endpoint is able to verify that the
-
-
-
-Rescorla                Expires January 16, 2014               [Page 13]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    recipient is running some kind of STUN endpoint but unless the STUN
    responder is integrated with the ICE username/password establishment
    system, the WebRTC endpoint cannot verify that the recipient consents
@@ -742,6 +777,14 @@ Internet-Draft               WebRTC Security                   July 2013
    issue does not exist.  However, such a design is very close to an
    ICE-Lite implementation (indeed, arguably is one).  An intermediate
    approach would be to have a STUN extension that indicated that one
+
+
+
+Rescorla                Expires January 16, 2014               [Page 14]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
    was responding to WebRTC checks but not computing integrity checks
    based on the ICE credentials.  This would allow the use of standalone
    STUN servers without the risk of confusing them with legacy STUN
@@ -776,15 +819,6 @@ Internet-Draft               WebRTC Security                   July 2013
    user is on certain kinds of VPN, especially privacy-oriented systems
    such as Tor.
 
-
-
-
-
-Rescorla                Expires January 16, 2014               [Page 14]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
 4.3.  Communications Security
 
    Finally, we consider a problem familiar from the SIP world:
@@ -798,6 +832,14 @@ Internet-Draft               WebRTC Security                   July 2013
    [RFC5763]) is well understood.  However, we must examine this
    technology to the WebRTC context, where the threat model is somewhat
    different.
+
+
+
+
+Rescorla                Expires January 16, 2014               [Page 15]
+
+Internet-Draft               WebRTC Security                   July 2013
+
 
    In general, it is important to understand that unlike a conventional
    SIP proxy, the calling service (i.e., the Web server) controls not
@@ -833,14 +875,6 @@ Internet-Draft               WebRTC Security                   July 2013
    extremely difficult to prevent a trusted but malicious calling
    service from actively attacking a user's calls, either by mounting a
    MITM attack or by diverting them entirely.  (Note that this attack
-
-
-
-Rescorla                Expires January 16, 2014               [Page 15]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    applies equally to a network attacker if communications to the
    calling service are not secured.)  We discuss some potential
    approaches and why they are likely to be impractical in
@@ -855,6 +889,14 @@ Internet-Draft               WebRTC Security                   July 2013
    calling service.
 
    If the calling service has access to the traffic keying material (as
+
+
+
+Rescorla                Expires January 16, 2014               [Page 16]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
    in SDES [RFC4568]), then retrospective attack is trivial.  This form
    of attack is particularly serious in the Web context because it is
    standard practice in Web services to run extensive logging and
@@ -888,15 +930,6 @@ Internet-Draft               WebRTC Security                   July 2013
    third-party identity service as described in
    [I-D.ietf-rtcweb-security-arch].
 
-
-
-
-
-Rescorla                Expires January 16, 2014               [Page 16]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
 4.3.2.1.  Key Continuity
 
    One natural approach is to use "key continuity".  While a malicious
@@ -912,6 +945,14 @@ Internet-Draft               WebRTC Security                   July 2013
    useful in the WebRTC context.  First, much of the virtue of WebRTC
    (and any Web application) is that it is not bound to particular piece
    of client software.  Thus, it will be not only possible but routine
+
+
+
+Rescorla                Expires January 16, 2014               [Page 17]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
    for a user to use multiple browsers on different computers which will
    of course have different keying material (SACRED [RFC3760]
    notwithstanding.)  Thus, users will frequently be alerted to key
@@ -945,14 +986,6 @@ Internet-Draft               WebRTC Security                   July 2013
    discussed above) is used thereafter.
 
    Unfortunately, the SAS does not offer a practical solution to the
-
-
-
-Rescorla                Expires January 16, 2014               [Page 17]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    problem of a compromised calling service.  "Voice conversion"
    systems, which modify voice from one speaker to make it sound like
    another, are an active area of research.  These systems are already
@@ -968,6 +1001,14 @@ Internet-Draft               WebRTC Security                   July 2013
    SAS exchange prior to completing the call and so it must be
    voluntary; at most the browser will provide some UI indicator that
    the SAS has not yet been checked.  However, it it is well-known that
+
+
+
+Rescorla                Expires January 16, 2014               [Page 18]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
    when faced with optional security mechanisms, many users simply
    ignore them [whitten-johnny].
 
@@ -1001,14 +1042,6 @@ Internet-Draft               WebRTC Security                   July 2013
    in this fashion are naturally resistant even to active MITM attack by
    the calling site.
 
-
-
-
-Rescorla                Expires January 16, 2014               [Page 18]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    Note that there is one special case in which PKI-style certificates
    do provide a practical solution:  calls from end-users to large
    sites.  For instance, if you are making a call to Amazon.com, then
@@ -1024,6 +1057,14 @@ Internet-Draft               WebRTC Security                   July 2013
    Identifying the identity of the far media endpoint is a necessary but
    not sufficient condition for providing media security.  In WebRTC,
    media flows are rendered into HTML5 MediaStreams which can be
+
+
+
+Rescorla                Expires January 16, 2014               [Page 19]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
    manipulated by the calling site.  Obviously, if the site can modify
    or view the media, then the user is not getting the level of
    assurance they would expect from being able to authenticate their
@@ -1056,15 +1097,6 @@ Internet-Draft               WebRTC Security                   July 2013
    authentication, that may be useful as part of a defense against such
    attacks.
 
-
-
-
-
-Rescorla                Expires January 16, 2014               [Page 19]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
 4.4.  Privacy Considerations
 
 4.4.1.  Correlation of Anonymous Calls
@@ -1080,6 +1112,14 @@ Internet-Draft               WebRTC Security                   July 2013
    identifiers (e.g., with the same lifetime as cookies).  Moreover, the
    API should provide mechanisms to allow sites intended for anonymous
    calling to force the minting of fresh identifiers.
+
+
+
+
+Rescorla                Expires January 16, 2014               [Page 20]
+
+Internet-Draft               WebRTC Security                   July 2013
+
 
 4.4.2.  Browser Fingerprinting
 
@@ -1111,20 +1151,11 @@ Internet-Draft               WebRTC Security                   July 2013
    o  Added a privacy section considerations section.
    o  Significant edits to the SAS section to reflect Alan Johnston's
       comments.
-
-
-
-
-
-Rescorla                Expires January 16, 2014               [Page 20]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    o  Added some discussion if IP location privacy and Tor.
    o  Updated the "communications consent" section to reflrect draft-
       muthu.
    o  Added a section about "malicious peers".
+   o  Added a section describing screen sharing threats.
    o  Assorted editorial changes.
 
 
@@ -1138,6 +1169,14 @@ Internet-Draft               WebRTC Security                   July 2013
               in progress), February 2013.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+
+
+
+Rescorla                Expires January 16, 2014               [Page 21]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
               Requirement Levels", BCP 14, RFC 2119, March 1997.
 
 8.2.  Informative References
@@ -1169,14 +1208,6 @@ Internet-Draft               WebRTC Security                   July 2013
    [RFC2818]  Rescorla, E., "HTTP Over TLS", RFC 2818, May 2000.
 
    [RFC3261]  Rosenberg, J., Schulzrinne, H., Camarillo, G., Johnston,
-
-
-
-Rescorla                Expires January 16, 2014               [Page 21]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
               A., Peterson, J., Sparks, R., Handley, M., and E.
               Schooler, "SIP: Session Initiation Protocol", RFC 3261,
               June 2002.
@@ -1194,6 +1225,14 @@ Internet-Draft               WebRTC Security                   July 2013
               Framework", RFC 3760, April 2004.
 
    [RFC4251]  Ylonen, T. and C. Lonvick, "The Secure Shell (SSH)
+
+
+
+Rescorla                Expires January 16, 2014               [Page 22]
+
+Internet-Draft               WebRTC Security                   July 2013
+
+
               Protocol Architecture", RFC 4251, January 2006.
 
    [RFC4347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
@@ -1225,14 +1264,6 @@ Internet-Draft               WebRTC Security                   July 2013
               Choosing RTP Control Protocol (RTCP) Canonical Names
               (CNAMEs)", RFC 6222, April 2011.
 
-
-
-
-Rescorla                Expires January 16, 2014               [Page 22]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
    [RFC6454]  Barth, A., "The Web Origin Concept", RFC 6454,
               December 2011.
 
@@ -1250,6 +1281,13 @@ Internet-Draft               WebRTC Security                   July 2013
               L. cranor, "Crying Wolf: An Empirical Study of SSL Warning
               Effectiveness",  Proceedings of the 18th USENIX Security
               Symposium, 2009.
+
+
+
+Rescorla                Expires January 16, 2014               [Page 23]
+
+Internet-Draft               WebRTC Security                   July 2013
+
 
    [farus-conversion]
               Farrus, M., Erro, D., and J. Hernando, "Speaker
@@ -1276,19 +1314,6 @@ Internet-Draft               WebRTC Security                   July 2013
               USENIX Security Symposium, 1999.
 
 
-
-
-
-
-
-
-
-
-Rescorla                Expires January 16, 2014               [Page 23]
-
-Internet-Draft               WebRTC Security                   July 2013
-
-
 Author's Address
 
    Eric Rescorla
@@ -1299,31 +1324,6 @@ Author's Address
 
    Phone:  +1 650 678 2350
    Email:  ekr@rtfm.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
