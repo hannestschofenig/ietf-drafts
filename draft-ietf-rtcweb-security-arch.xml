@@ -409,7 +409,7 @@
 	<t>
 	  Once the PeerConnection is created, the calling service JS 
 	  needs to set up some media. Because this is an audio/video
-	  call, it creates a MediaStreams with two MediaStreamTracks,
+	  call, it creates a MediaStream with two MediaStreamTracks,
 	  one connected to an
 	  audio input and one connected to a video input. At this
 	  point the first security check is required: untrusted
@@ -519,7 +519,7 @@
 	  it is not possible for an attacker who is on-path between Alice
 	  and Bob but not
 	  attached to the signaling service to spoof these checks
-	  because they do not have the ICE credentials. Bob's has the
+	  because they do not have the ICE credentials. Bob has the
 	  same security guarantees with respect to Alice.
 	</t>
       </section>
@@ -611,12 +611,11 @@
 	<t>
 	  Note that it is possible for a page which was not mixed content
 	  to become mixed content during the duration of the call. 
-	  Implementations MUST either choose to terminate the call or display
-	  a warning at that point. The major risk here is that
+	  The major risk here is that
 	  the newly arrived insecure JS might redirect media to a location
 	  controlled by the attacker.
-	  This is a deliberate implementation
-	  complexity versus security tradeoff. 
+	  Implementations MUST either choose to terminate the call or display
+	  a warning at that point.
 	</t>
       </section>
 

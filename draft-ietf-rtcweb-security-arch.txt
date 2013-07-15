@@ -569,7 +569,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    Once the PeerConnection is created, the calling service JS needs to
    set up some media.  Because this is an audio/video call, it creates a
-   MediaStreams with two MediaStreamTracks, one connected to an audio
+   MediaStream with two MediaStreamTracks, one connected to an audio
    input and one connected to a video input.  At this point the first
    security check is required:  untrusted origins are not allowed to
    access the camera and microphone, so the browser prompts Alice for
@@ -663,7 +663,7 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    who is on-path to that IP address detouring the traffic.  Note that
    it is not possible for an attacker who is on-path between Alice and
    Bob but not attached to the signaling service to spoof these checks
-   because they do not have the ICE credentials.  Bob's has the same
+   because they do not have the ICE credentials.  Bob has the same
    security guarantees with respect to Alice.
 
 
@@ -752,12 +752,10 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    settings.
 
    Note that it is possible for a page which was not mixed content to
-   become mixed content during the duration of the call.
-   Implementations MUST either choose to terminate the call or display a
-   warning at that point.  The major risk here is that the newly arrived
-   insecure JS might redirect media to a location controlled by the
-   attacker.  This is a deliberate implementation complexity versus
-   security tradeoff.
+   become mixed content during the duration of the call.  The major risk
+   here is that the newly arrived insecure JS might redirect media to a
+   location controlled by the attacker.  Implementations MUST either
+   choose to terminate the call or display a warning at that point.
 
 5.2.  Device Permissions Model
 
@@ -777,6 +775,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    In addition, they SHOULD support requests for access that promise
    that media from this grant will be sent to a single communicating
+   peer (obviously there could be other requests for other peers).
+   E.g., "Call customerservice@ford.com".  The semantics of this request
 
 
 
@@ -785,8 +785,6 @@ Rescorla                Expires January 15, 2014               [Page 14]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   peer (obviously there could be other requests for other peers).
-   E.g., "Call customerservice@ford.com".  The semantics of this request
    are that the media stream from the camera and microphone will only be
    routed through a connection which has been cryptographically verified
    (through the IdP mechanism or an X.509 certificate in the DTLS-SRTP
@@ -833,6 +831,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       this may not be necessary in systems that are non-windows-based
       but that have good notifications support, such as phones.]
 
+   [[OPEN ISSUE:  This section does not have WG consensus.  Because
+   screen/application sharing presents a more significant risk than
 
 
 
@@ -841,8 +841,6 @@ Rescorla                Expires January 15, 2014               [Page 15]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   [[OPEN ISSUE:  This section does not have WG consensus.  Because
-   screen/application sharing presents a more significant risk than
    camera and microphone access (see the discussion in
    [I-D.ietf-rtcweb-security] S 4.1.1), we require a higher level of
    user consent.
@@ -889,6 +887,8 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
    Browser implementations MUST verify reachability via ICE prior to
    sending any non-ICE packets to a given destination.  Implementations
+   MUST NOT provide the ICE transaction ID to JavaScript during the
+   lifetime of the transaction (i.e., during the period when the ICE
 
 
 
@@ -897,8 +897,6 @@ Rescorla                Expires January 15, 2014               [Page 16]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   MUST NOT provide the ICE transaction ID to JavaScript during the
-   lifetime of the transaction (i.e., during the period when the ICE
    stack would accept a new response for that transaction).  The JS MUST
    NOT be permitted to control the local ufrag and password, though it
    of course knows it.
@@ -941,10 +939,12 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       all.  This mechanism MUST also permit suppression of the related
       address field, since that leaks local addresses.
 
-
-
-
-
+   API Requirement:  The API MUST provide a mechanism for the calling
+      application to reconfigure an existing call to add non-TURN
+      candidates.  Taken together, this and the previous requirement
+      allow ICE negotiation to start immediately on incoming call
+      notification, thus reducing post-dial delay, but also to avoid
+      disclosing the user's IP address until they have decided to
 
 
 
@@ -953,12 +953,6 @@ Rescorla                Expires January 15, 2014               [Page 17]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   API Requirement:  The API MUST provide a mechanism for the calling
-      application to reconfigure an existing call to add non-TURN
-      candidates.  Taken together, this and the previous requirement
-      allow ICE negotiation to start immediately on incoming call
-      notification, thus reducing post-dial delay, but also to avoid
-      disclosing the user's IP address until they have decided to
       answer.  They also allow users to completely hide their IP address
       for the duration of the call.  Finally, they allow a mechanism for
       the user to optimize performance by reconfiguring to allow non-
@@ -1000,6 +994,12 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
       external key pair, different key pairs MUST be used for each
       origin.  (This avoids creating a super-cookie.)
 
+   API Requirement:  When DTLS-SRTP is used, the API MUST NOT permit the
+      JS to obtain the negotiated keying material.  This requirement
+      preserves the end-to-end security of the media.
+
+
+
 
 
 
@@ -1008,10 +1008,6 @@ Rescorla                Expires January 15, 2014               [Page 18]
 
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
-
-   API Requirement:  When DTLS-SRTP is used, the API MUST NOT permit the
-      JS to obtain the negotiated keying material.  This requirement
-      preserves the end-to-end security of the media.
 
    UI Requirements:    A user-oriented client MUST provide an
       "inspector" interface which allows the user to determine the
@@ -1057,6 +1053,10 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    connected.  For instance, users may be making a call via a federated
    system where they wish to get direct authentication of the other
    side.  Alternately, they may be making a call on a site which they
+   minimally trust (such as a poker site) but to someone who has an
+   identity on a site they do trust (such as a social network.)
+
+   Recently, a number of Web-based identity technologies (OAuth,
 
 
 
@@ -1065,10 +1065,6 @@ Rescorla                Expires January 15, 2014               [Page 19]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   minimally trust (such as a poker site) but to someone who has an
-   identity on a site they do trust (such as a social network.)
-
-   Recently, a number of Web-based identity technologies (OAuth,
    BrowserID, Facebook Connect), etc. have been developed.  While the
    details vary, what these technologies share is that they have a Web-
    based (i.e., HTTP/HTTPS) identity provider which attests to your
@@ -1113,6 +1109,10 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    registers with the IdP and is able to subsequently authenticate
    directly to the IdP (e.g., with a password).  This means that the
    browser must somehow know which IdP(s) the user has an account
+   relationship with.  This can either be something that the user
+   configures into the browser or that is configured at the calling site
+   and then provided to the PeerConnection by the Web application at the
+   calling site.  The use case for having this information configured
 
 
 
@@ -1121,10 +1121,6 @@ Rescorla                Expires January 15, 2014               [Page 20]
 Internet-Draft              WebRTC Sec. Arch.                  July 2013
 
 
-   relationship with.  This can either be something that the user
-   configures into the browser or that is configured at the calling site
-   and then provided to the PeerConnection by the Web application at the
-   calling site.  The use case for having this information configured
    into the browser is that the user may "log into" the browser to bind
    it to some identity.  This is becoming common in new browsers.
    However, it should also be possible for the IdP information to simply
@@ -1169,6 +1165,10 @@ Internet-Draft              WebRTC Sec. Arch.                  July 2013
    is a significant advantage of authoritative IdPs and implies that if
    third-party IdPs are to be supported, the potential number needs to
    be fairly small.
+
+
+
+
 
 
 
