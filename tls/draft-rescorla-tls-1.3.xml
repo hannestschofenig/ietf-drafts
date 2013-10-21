@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
+<!ENTITY I-D.ietf-tls-applayerprotoneg SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-applayerprotoneg">
+<!ENTITY I-D.ray-tls-encrypted-handshake SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ray-tls-encrypted-handshake">
+<!ENTITY I-D.agl-tls-nextprotoneg SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.agl-tls-nextprotoneg">
+<!ENTITY I-D.bmoeller-tls-falsestart SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.bmoeller-tls-falsestart">
+<!ENTITY I-D.agl-tls-snapstart SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.agl-tls-snapstart">
+
+]>
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
+<?rfc toc="yes" ?>
+<?rfc symrefs="yes" ?>
+<?rfc strict="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc sortrefs="yes" ?>
+<?rfc colonspace="yes" ?>
+<?rfc rfcedstyle="no" ?>
+<!-- Don't change this. It breaks stuff -->
+<?rfc tocdepth="4"?>
+<rfc category="std" docName="draft-rescorla-stir-fallback-00"
+     ipr="pre5378Trust200902">
+  <front>
+    <title abbrev="TLS 1.3 Flows">Proposed Flows for TLS 1.3</title>
+
+    <author fullname="Eric Rescorla" initials="E.K." surname="Rescorla">
+      <organization>Mozilla</organization>
+
+      <address>
+        <postal>
+          <street>2064 Edgewood Drive</street>
+
+          <city>Palo Alto</city>
+
+          <region>CA</region>
+
+          <code>94303</code>
+
+          <country>USA</country>
+        </postal>
+
+        <phone>+1 650 678 2350</phone>
+
+        <email>ekr@rtfm.com</email>
+      </address>
+    </author>
+
+    <date day="20" month="October" year="2013" />
+
+    <area>SEC</area>
+
+    <abstract>
+      <t>
+        This document specifies some proposed new handshake flows
+        for TLS 1.3.
+      </t>
+    </abstract>
+  </front>
+
+  
+  <middle>
+    <section anchor="sec-term" title="Terminology">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+      document are to be interpreted as described in <xref
+      target="RFC2119">RFC 2119</xref>.</t>
+    </section>
+    
+    <section title="Introduction" anchor="sec.intro">
+      <t>
+        The TLS WG is specifying TLS 1.3, a revision to the TLS protocol.
+        The two major design goals for TLS 1.3 are:
+      </t>
+      <t>
+        <list style="symbols">
+          <t>Reduce the number of round trips in the handshake, providing
+             at least "zero round-trip" mode where the client can
+             send its first data message immediately without waiting for
+             any response from the server.
+          </t>
+          <t>Encrypt as much of the handshake as possible in order to
+             protect against monitoring of the handshake contents.</t>
+        </list>
+      </t>
+      <t>
+        This document proposes revisions to the handshake to achieve these
+        objectives. They are being described in a separate document
+        for ease of analysis. If they are considered acceptable, they will be
+        integrated into the main TLS document.
+      </t>
+    </section>
+    <section title="Background">
+      <t>
+        In this section we briefly review the properties of TLS 1.2 <xref target="RFC5246"/>
+      </t>
+        
+      <section title="Handshake Flows">
+      <t>
+        As a reminder, this section reproduces the two major TLS handshake variants,
+        from <xref target="RFC5246"/>. For clarity, data which is cryptographically protected by
+        the record protocol (e.g., encrypted) are shown in braces, as in
+        {Finished}.
+      </t>
+      <figure>
+        <artwork align="left" alt="" height="" name="Full handshake" type="" width=""
+                 xml:space="preserve"><![CDATA[
+      Client                                               Server
+
+      ClientHello                  -------->
+                                                      ServerHello
+                                                     Certificate*
+                                               ServerKeyExchange*
+                                              CertificateRequest*
+                                   <--------      ServerHelloDone
+      Certificate*
+      ClientKeyExchange
+      CertificateVerify*
+      [ChangeCipherSpec]
+      {Finished}                   -------->
+                                               [ChangeCipherSpec]
+                                   <--------           {Finished}
+      {Application Data}           <------->   {Application Data}
+                                 ]]></artwork>
+      </figure>
+      <t>
+      </t>
+      <figure>
+        <artwork align="left" alt="" height="" name="Resumed handshake" type="" width=""
+                 xml:space="preserve"><![CDATA[
+      Client                                                Server
+
+      ClientHello                   -------->
+                                                       ServerHello
+                                                [ChangeCipherSpec]
+                                    <--------           {Finished}
+      [ChangeCipherSpec]
+      {Finished}                     -------->
+      {Application Data}             <------->  {Application Data}
+                                 ]]></artwork>
+      </figure>
+      </section>
+      <section title="Handshake Latency">
+        <t>
+          The TLS "Full Handshake" shown above incurs 2RTT of latency:
+          the client waits for the server Finished prior to sending his
+          first application data record. The purpose of the Finished
+          is to allow the client to verify that the handshake has
+          not been tampered with, for instance that the server has not
+          mounted a downgrade attack on the cipher suite negotiation.
+          However, if the client is satisfied with the handshake
+          results (e.g., the server has selected the strongest
+          parameters offered by the client), then the client can
+          safely send its first application data immediately after
+          its own Finished (this is often called either "False Start"
+          or "Cut Through" <xref target="I-D.bmoeller-tls-falsestart"/>),
+          thus reducing the handshake latency
+          to 1RTT for a full handshake.
+        </t>
+      <figure>
+        <artwork align="left" alt="" height="" name="Cut Through/False Start" type="" width=""
+                 xml:space="preserve"><![CDATA[
+      Client                                               Server
+
+      ClientHello                  -------->
+                                                      ServerHello
+                                                     Certificate*
+                                               ServerKeyExchange*
+                                              CertificateRequest*
+                                   <--------      ServerHelloDone
+      Certificate*
+      ClientKeyExchange
+      CertificateVerify*
+      [ChangeCipherSpec]
+      {Finished}
+      {Application Data}           -------->
+
+                                               [ChangeCipherSpec]
+                                   <--------           {Finished}
+      {Application Data}           <------->   {Application Data}
+                                 ]]></artwork>
+      </figure>
+      <t>
+        This technique is not explicitly authorized by the TLS
+        specification but neither is it explicitly forbidden. A number of
+        client implementations (e.g., Chrome and Firefox) already do False
+        Start/Cut Through. However, because some servers fail if they receive
+        the Finished early, it is common to use some kind of heuristic to
+        determine whether a server is likely to fail and therefore whether
+        this optimization can be used.
+      </t>
+      <t>
+        The abbreviated handshake already succeeds in 1RTT from the client's
+        perspective.
+      </t>
+      
+      <t>
+        There have been proposals to take advantage of cached state between the
+        client and server to reduce the handshake latency to 0RTT 
+        <xref target="I-D.agl-tls-snapstart"/>. However,
+        they have not been widely adopted.
+      </t>
+      </section>
+      <section title="Plaintext Data in the Handshake">
+        <t>
+          As shown in the figures above, essentially the entire handshake
+          is in the clear. Some of these values are potentially sensitive,
+          including:
+        </t>
+        <t>
+          <list>
+            <t>The client certificate.</t>
+            <t>The server certificate (when SNI is used)</t>
+            <t>The next protocol in use <xref target="I-D.ietf-tls-applayerprotoneg"/>.</t>
+            <t>The channel ID [REF: Channel ID]</t>
+            <t>The client cipher suite list (potentially usable for client
+            fingerprinting.)</t>
+          </list>
+        </t>
+        <t>
+          There have been proposals to address this just for extensions
+          <xref target="I-D.agl-tls-nextprotoneg"/> as well as for the handshake as a whole            <xref target="I-D.ray-tls-encrypted-handshake"/>. In general, the amount of privacy protection which can be
+          provided is somewhat limited by three factors:
+        </t> 
+        <t>
+          <list>
+            <t>A fair amount of information can be gathered from traffic analysis
+            based on message size and the like.</t>
+
+            <t>Because the existing mechanisms do not encrypt these values,
+            an active attacker can generally simulate being a server which
+            does not accept whatever new handshake protection mechanisms
+            are offered and force the client back to the old, unprotected
+            mechanism. This form of active attack can be mitigated by
+            refusing to use the old mechanism, however that is not always
+            possible if one wished to retain backward compatibility.</t>
+
+            <t>Many inspection devices mount a man-in-the-middle attack
+            on the connection and therefore will be able to inspect information
+            even if it is encrypted.
+            </t>
+          </list>
+        </t>
+        <t>
+          However, there are still advantages to providing protection against
+          passive inspection. The flows in this document attempt to provide
+          this service.
+        </t>
+      </section>
+      
+      <section title="Basic Assumptions" anchor="sec.assumptions">
+        <t>
+          This section lays out the basic assumptions that motivate the
+          designs in this document (aside from the objectives in <xref target="sec.intro"/>.
+        </t>
+        <t>
+          <list style="hanging">
+            <t hangText="Retain Basic TLS Structure:">
+              The intent of this document is to retain the basic TLS
+              structure and messages, tweaking them as minimally as
+              necessary to accomplish the objectives in <xref target="sec.intro"/>.
+              Conservative design is good when working with security protocols.
+            </t>
+            <t></t>
+            <t hangText="Backward Compatibility is Required:">
+              It must be possible for TLS 1.3 implementations to interoperate with
+              TLS 1.2 and below.
+            </t>
+            <t></t>
+            <t hangText="Minimize Variation:">             
+              TLS already has a very large number of variant handshakes which makes
+              it confusing to analyze. We would like to avoid multiplying this
+              unnecessarily.
+            </t>
+            <t></t>
+            <t hangText="PFS is important but not mandatory:">
+              Perfect Forward Secrecy is an important security property, but it
+              it exists in tension with low latency (as existing mechanisms
+              depend on contributions from both sides). Accordingly, we should
+              provide PFS-compatible modes but not mandate them.
+            </t>
+            <t></t>
+            <t hangText="0-RTT modes require server-side state:">
+              The existing TLS anti-replay mechanism involves the server and
+              client jointly contributing nonces and therefore can be stateless
+              on the server (as long as a fresh nonce can be generated.)
+              Any 0-RTT mode in which
+              the client sends data along with his initial handshake message
+              must use some other mechanism to prevent replay, and this involves
+              the server keeping some state.
+            </t>
+            <t></t>
+            <t hangText="Latency is often more important than bandwidth:">
+              Because networks are getting faster but the speed of light
+              is not, it is often more important to minimize the number
+              of round trips than the number of bits on the wire.
+            </t>
+            <t></t>
+            <t hangText="Client-side computation is often cheap:">
+              In many (but not all) cases, clients can afford to do
+              a lot of cryptographic operations very cheaply.
+            </t>
+            <t hangText="Clients can and should be optimistic:">
+              When we put together the previous points, we come to the
+              conclusion that it's OK for clients to be optimistic that
+              things will succeed. So, for instance, it's OK to send
+              messages to the server that might need to be retransmitted
+              or recomputed if the server's state is not as expected.
+              This is a key element of a number of round-trip reducing
+              strategies.
+            </t>
+          </list>
+        </t>
+        </section>
+      </section>
+      <section title="Security Considerations" anchor="sec.sec-cons">
+        <t>
+          [TODO]
+        </t>
+      </section>
+
+      <section title="Acknowledgements" anchor="sec.acknowledgments">
+        <t>
+          This document borrows ideas from a large number of people,
+          including
+          Wan-Teh Chang,
+          Cullen Jennings,
+          Adam Langley,
+          Nagendra Modadugu,
+          Bodo Moeller,
+          Marsh Ray,
+          and Brian Smith.
+        </t>
+      </section>
+    </middle>
+    <back>
+    <references title="Normative References">
+      &RFC2119;
+      &RFC5246;
+    </references>
+    <references title="Informative References">
+      &I-D.ietf-tls-applayerprotoneg;
+      &I-D.ray-tls-encrypted-handshake;
+      &I-D.agl-tls-nextprotoneg;
+      &I-D.bmoeller-tls-falsestart;
+      &I-D.agl-tls-snapstart;
+    </references>
+    </back>
+  </rfc>
+
