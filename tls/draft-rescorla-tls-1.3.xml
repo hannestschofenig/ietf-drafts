@@ -7,7 +7,7 @@
 <!ENTITY I-D.agl-tls-nextprotoneg SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.agl-tls-nextprotoneg">
 <!ENTITY I-D.bmoeller-tls-falsestart SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.bmoeller-tls-falsestart">
 <!ENTITY I-D.agl-tls-snapstart SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.agl-tls-snapstart">
-
+<!ENTITY I-D.ietf-tls-cached-info SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-cached-info">
 ]>
 <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
 <?rfc toc="yes" ?>
@@ -46,7 +46,7 @@
       </address>
     </author>
 
-    <date day="20" month="October" year="2013" />
+    <date day="2" month="November" year="2013" />
 
     <area>SEC</area>
 
@@ -86,7 +86,8 @@
       <t>
         This document proposes revisions to the handshake to achieve these
         objectives. They are being described in a separate document
-        for ease of analysis. If they are considered acceptable, they will be
+        and in somewhat schematic form for ease of analysis and discussion.
+        If they are considered acceptable, they will be
         integrated into the main TLS document.
       </t>
     </section>
@@ -208,7 +209,7 @@
           including:
         </t>
         <t>
-          <list>
+          <list style="symbols">
             <t>The client certificate.</t>
             <t>The server certificate (when SNI is used)</t>
             <t>The next protocol in use <xref target="I-D.ietf-tls-applayerprotoneg"/>.</t>
@@ -223,7 +224,7 @@
           provided is somewhat limited by three factors:
         </t> 
         <t>
-          <list>
+          <list style="symbols">
             <t>A fair amount of information can be gathered from traffic analysis
             based on message size and the like.</t>
 
@@ -247,96 +248,471 @@
           this service.
         </t>
       </section>
+    </section>
       
-      <section title="Basic Assumptions" anchor="sec.assumptions">
+    <section title="Basic Assumptions" anchor="sec.assumptions">
+      <t>
+        This section lays out the basic assumptions that motivate the
+        designs in this document (aside from the objectives in <xref target="sec.intro"/>.
+      </t>
+      <t>
+        <list style="hanging">
+          <t hangText="Retain Basic TLS Structure:">
+            The intent of this document is to retain the basic TLS
+            structure and messages, tweaking them as minimally as
+            necessary to accomplish the objectives in <xref target="sec.intro"/>.
+            Conservative design is good when working with security protocols.
+          </t>
+          <t></t>
+          <t hangText="Backward Compatibility is Required:">
+            It must be possible for TLS 1.3 implementations to interoperate with
+            TLS 1.2 and below.
+          </t>
+          <t></t>
+          <t hangText="Minimize Variation:">             
+            TLS already has a very large number of variant handshakes which makes
+            it confusing to analyze. We would like to avoid multiplying this
+            unnecessarily.
+          </t>
+          <t></t>
+          <t hangText="PFS is important but not mandatory:">
+            Perfect Forward Secrecy is an important security property, but it
+            it exists in tension with low latency (as existing mechanisms
+            depend on contributions from both sides). Accordingly, we should
+            provide PFS-compatible modes but not mandate them.
+          </t>
+          <t></t>
+          <t hangText="0-RTT modes require server-side state:">
+            The existing TLS anti-replay mechanism involves the server and
+            client jointly contributing nonces and therefore can be stateless
+            on the server (as long as a fresh nonce can be generated.)
+            Any 0-RTT mode in which
+            the client sends data along with his initial handshake message
+            must use some other mechanism to prevent replay, and this involves
+            the server keeping some state.
+          </t>
+          <t></t>
+          <t hangText="Latency is often more important than bandwidth:">
+            Because networks are getting faster but the speed of light
+            is not, it is often more important to minimize the number
+            of round trips than the number of bits on the wire.
+          </t>
+          <t></t>
+          <t hangText="Client-side computation is often cheap:">
+            In many (but not all) cases, clients can afford to do
+            a lot of cryptographic operations very cheaply.
+          </t>
+          <t hangText="Clients can and should be optimistic:">
+            When we put together the previous points, we come to the
+            conclusion that it's OK for clients to be optimistic that
+            things will succeed. So, for instance, it's OK to send
+            messages to the server that might need to be retransmitted
+            or recomputed if the server's state is not as expected.
+            This is a key element of a number of round-trip reducing
+            strategies.
+          </t>
+        </list>
+      </t>
+    </section>
+        
+    <section title="New Flows" anchor="sec.new-flows">
+      <t>
+        This document includes three principal rearrangements to the handshake:
+        [TODO: Re-look at this]
+      </t>
+      <t>
+        <list style="symbols">
+          <t>
+            Move the CCS up in the handshake with respect to other
+            messages so that more of the handshake can be encrypted,
+            thus improving protection against passive handshake
+            inspection.
+          </t>
+          <t>Allow the client to send at least some of his second flight of messages
+             (ClientKeyExchange, Finished, CCS, etc.) together
+             with the first flight in the full handshake, thus improving latency.
+          </t>
+          <t>
+            Allow the client to send data prior to receiving the
+            server's messages, thus improving latency.
+          </t>
+        </list>
+      </t>
+      <t>
+        In addition, where prior versions of TLS generally assume that
+        the client is totally ignorant of the server's capabilities
+        (e.g., certificate and supported cipher suites)
+        we assume that the client either knows them or can make
+        a good guess (see [REF: Fast Track]) for
+        an early example of this.)
+      </t>
+      <t>
+        For explanatory purposes, the flows below are presented
+        in a progressive order. We should not adopt all of them,
+        but it is easier to understand the motivation if you see
+        the elements one at a time. Section XXX provides a summary
+        of the recommendations in this document.
+      </t>
+      <section title="Reduced RTT Handshakes w/o Server-Side State" anchor="sec.1rtt">
         <t>
-          This section lays out the basic assumptions that motivate the
-          designs in this document (aside from the objectives in <xref target="sec.intro"/>.
+          The basic idea behind doing a 1RTT handshake is that the
+          client has some information about the server's likely parameters.
+          Specifically, it believes it knows:
         </t>
         <t>
-          <list style="hanging">
-            <t hangText="Retain Basic TLS Structure:">
-              The intent of this document is to retain the basic TLS
-              structure and messages, tweaking them as minimally as
-              necessary to accomplish the objectives in <xref target="sec.intro"/>.
-              Conservative design is good when working with security protocols.
-            </t>
-            <t></t>
-            <t hangText="Backward Compatibility is Required:">
-              It must be possible for TLS 1.3 implementations to interoperate with
-              TLS 1.2 and below.
-            </t>
-            <t></t>
-            <t hangText="Minimize Variation:">             
-              TLS already has a very large number of variant handshakes which makes
-              it confusing to analyze. We would like to avoid multiplying this
-              unnecessarily.
-            </t>
-            <t></t>
-            <t hangText="PFS is important but not mandatory:">
-              Perfect Forward Secrecy is an important security property, but it
-              it exists in tension with low latency (as existing mechanisms
-              depend on contributions from both sides). Accordingly, we should
-              provide PFS-compatible modes but not mandate them.
-            </t>
-            <t></t>
-            <t hangText="0-RTT modes require server-side state:">
-              The existing TLS anti-replay mechanism involves the server and
-              client jointly contributing nonces and therefore can be stateless
-              on the server (as long as a fresh nonce can be generated.)
-              Any 0-RTT mode in which
-              the client sends data along with his initial handshake message
-              must use some other mechanism to prevent replay, and this involves
-              the server keeping some state.
-            </t>
-            <t></t>
-            <t hangText="Latency is often more important than bandwidth:">
-              Because networks are getting faster but the speed of light
-              is not, it is often more important to minimize the number
-              of round trips than the number of bits on the wire.
-            </t>
-            <t></t>
-            <t hangText="Client-side computation is often cheap:">
-              In many (but not all) cases, clients can afford to do
-              a lot of cryptographic operations very cheaply.
-            </t>
-            <t hangText="Clients can and should be optimistic:">
-              When we put together the previous points, we come to the
-              conclusion that it's OK for clients to be optimistic that
-              things will succeed. So, for instance, it's OK to send
-              messages to the server that might need to be retransmitted
-              or recomputed if the server's state is not as expected.
-              This is a key element of a number of round-trip reducing
-              strategies.
-            </t>
+          <list style="symbols">
+            <t>The server's preferred cipher suite.</t>
+            <t>The server's certificate and persistent ServerKeyExchange
+            parameters.</t>
           </list>
         </t>
-        </section>
-      </section>
-      <section title="Security Considerations" anchor="sec.sec-cons">
         <t>
-          [TODO]
+          The handshake below, modelled on Fast Track and some suggestions
+          from Brian Smith, exploits this fact to reduce handshake latency.
         </t>
-      </section>
+      <figure>
+             <artwork align="left" alt="" height="" name="Full handshake (fast track-ish)" type="" width=""
+                 xml:space="preserve"><![CDATA[
+      Client                                              Server
 
-      <section title="Acknowledgements" anchor="sec.acknowledgments">
-        <t>
-          This document borrows ideas from a large number of people,
-          including
-          Wan-Teh Chang,
-          Cullen Jennings,
-          Adam Langley,
-          Nagendra Modadugu,
-          Bodo Moeller,
-          Marsh Ray,
-          and Brian Smith.
-        </t>
+      ClientHello + CI
+      ClientKeyExchange            -------->
+                                                 ServerHello + CI
+                                                     Certificate*
+                                               ServerKeyExchange*
+                                                  ServerHelloDone
+                                               [ChangeCipherSpec]
+                                   <--------           {Finished}
+  
+      [ChangeCipherSpec]
+      {Finished}                   
+      {Application Data}           -------->
+      {Application Data}           <------->   {Application Data}
+
+                                 ]]></artwork>
+      </figure>
+      <t>
+        In this diagram, "CI" refers to the cached info extension
+        <xref target="I-D.ietf-tls-cached-info"/>
+        which allows the client and the server to jointly agree
+        that the client knows the servers parameters. Note that
+        currently cached info includes the server's certificate
+        but not the server's DH or ECDH parameters (Fast-Track
+        included both) and would need to be modified to support
+        this usage. However, the modification is straightforward.
+      </t>
+      <t>
+        This handshake allows the client and the server to establish
+        keys in 1RTT (from the client's perspective) and the server to start
+        transmitting upon receiving the client's first message.
+      </t>
+      <t>
+        Obviously, there is some risk that the client is incorrect
+        about the server's keying material, either because it has
+        made a mistake or the server has changed it. In this case,
+        the server responds with a ServerHello w/o the CI extension
+        and the client is forced back to the usual TLS 1.2-style
+        handshake, as below.
+      </t>
+            <figure>
+        <artwork align="left" alt="" height="" name="Full handshake" type="" width=""
+                 xml:space="preserve"><![CDATA[
+      Client                                               Server
+
+      ClientHello + CI
+      ClientKeyExchange            -------->
+                                                      ServerHello
+                                                     Certificate*
+                                               ServerKeyExchange*
+                                              CertificateRequest*
+                                   <--------      ServerHelloDone
+      Certificate*
+      ClientKeyExchange
+      CertificateVerify*
+      [ChangeCipherSpec]
+      {Finished}                   -------->
+                                               [ChangeCipherSpec]
+                                   <--------           {Finished}
+      {Application Data}           <------->   {Application Data}
+                                 ]]></artwork>
+      </figure>
+      <t>
+        This design has two major drawbacks:
+      </t>
+      <t>
+        <list style="symbols">
+          <t>We still haven't done anything to encrypt much of the
+          handshake.</t>
+          <t>It's not compatible with client authentication (which is
+          why the client authentication modes are not shown).</t>
+        </list>
+      </t>
+      <t>
+        The ultimate reason for both of these problems is replay protection
+        for the server. Specifically, we need the ServerHello containing the server's
+        Random value before we can generate the keying material needed
+        to encrypt the handshake messages.
+      </t>
+      <t>
+        Similarly, because the CertificateVerify
+        incorporates a random challenge provided by the server, it can't
+        be generated before the CertificateRequest has been provided,
+        which adds a second round-trip. One possibility would be to just
+        leave the handshake as shown above
+        and just add the CertificateRequest in the server's first flight
+        and the Certificate/CertificateVerify in the client's second flight.
+        Unfortunately, this changes the semantics of Finished so that
+        the server's Finished message no longer covers the entire
+        handshake. It's not clear what security issues this introduces,
+        but it seems undesirable.
+      </t>
+      <t>
+        A better approach seems to be to introduce another server message that just
+        confirms the first phase of the handshake. This can have the same
+        calculation as the Finished message, but would appear (unencrypted) in
+        the server's first flight, as shown below:
+      </t>
+      <figure>
+             <artwork align="left" alt="" height="" name="Full handshake (fast track-ish with client auth)" type="" width=""
+                 xml:space="preserve"><![CDATA[
+      Client                                               Server
+
+      ClientHello + CI
+      ClientKeyExchange            -------->
+                                                 ServerHello + CI
+                                                     Certificate*
+                                               ServerKeyExchange*
+                                              CertificateRequest*
+                                                  ServerHelloDone
+                                   <--------       AlmostFinished
+  
+      Certificate*
+      CertificateVerify*
+      [ChangeCipherSpec]
+      {Finished}                   
+      {Application Data}           -------->
+                                               [ChangeCipherSpec]
+                                   <--------           {Finished}
+      {Application Data}           <------->   {Application Data}
+                                 ]]></artwork>
+      </figure>
+      <t>
+        Note: this handshake is not compatible with key exchange
+        mechanisms which require a static client-side key. However,
+        these are not widely used in any case. It is compatible
+        with PFS cipher suites as long as the server uses
+        stable parameters.
+      </t>
+      <t>
+        This is a relatively modest set of modifications, which
+        mostly consists of moving the clientKeyExchange into the
+        first client flight and in the first variant, also moving
+        the server Finished up.
+      </t>
+      <t>
+        [[OPEN ISSUE: Should we move the server's CCS up to before
+        the AlmostFinished? Doesn't seem to add much value.]]
+        [[OPEN ISSUE: Need a better name for AlmostFinished.]]
+      </t>
+      <section title="Improving Privacy">
+      <t>
+        We still have not done anything to improve the privacy of
+        the handshake, however, it is possible to improve it
+        a fair bit by splitting the ServerHello and moving the
+        ServerKeyExchange and CCS messages (and hence the encryption boundary) upward
+        in a fashion similar to that suggested by Ray
+        <xref target="I-D.ray-tls-encrypted-handshake"/>.
+        This is most salient for the client authentication case,
+        as shown below.
+      </t>
+      <figure>
+             <artwork align="left" alt="" height="" name="" type="" width=""
+                 xml:space="preserve"><![CDATA[
+      Client                                               Server
+
+      ClientHello + CI
+      ClientKeyExchange            -------->
+                                                      ServerHello
+                                               ServerKeyExchange*
+                                               [ChangeCipherSpec]
+                                               {ServerExtensions}
+                                                   {Certificate*}
+                                            {CertificateRequest*}
+                                                {ServerHelloDone}
+                                   <--------     {AlmostFinished}
+
+      [ChangeCipherSpec]
+      {Certificate*}
+      {CertificateVerify*}
+      {Finished}                   
+      {Application Data}           -------->
+                                   <--------           {Finished}
+      {Application Data}           <------->   {Application Data}
+                                 ]]></artwork>
+      </figure>
+      <t>
+        The PreServerHello contains just the minimal information
+        to indicate that the client's proposed parameters are
+        acceptable (what Fast Track calls the "determining
+        parameters") with most of the information being in
+        the ServerHello (cipher suite selection, compression, etc.)
+        Thus, nearly all the information which we consider sensitive is encrypted,
+        with the exception of information which appears in the
+        client hello, which obviously cannot be protected
+        (see below). As an example, if ALPN is in use, the
+        clients offered list of next protocols is visible but
+        the server's selection is not.
+      </t>
+      <t>
+        Unfortunately, this isn't quite ideal. for two reasons.
+        First, if the CI parameters don't match, the server would
+        respond with a conventional ServerHello to force the
+        client onto the slow path, as above, which leaks a
+        lot of information. 
+      </t>
+      <t>
+        Second, even though the server's Certificate message is
+        encrypted, its identity is only protected from passive
+        attackers and even then only if SNI is not used.
+        The difficulty here is that the client can only
+        encrypt after receiving the ServerHello
+        (because that contains the anti-replay Random
+        value) but that means that we have 1RTT before
+        the SNI can be transmitted and then another
+        before the server can deliver a Certificate,
+        which brings us back to two RTTs.
+      </t>
+      <t>
+        Addressing these issues requires addressing the slow path
+        case somewhat, as shown below. If the client is wrong about
+        the server's cryptographic parameters, the server just
+        responds correcting it and the client can retransmit
+        its ClientHello with the correct parameters, as
+        shown below. 
+      </t>
+      <figure>
+             <artwork align="left" alt="" height="" name="" type="" width=""
+                 xml:space="preserve"><![CDATA[
+      Client                                               Server
+
+      ClientHello + CI
+      ClientKeyExchange            -------->
+                                                   PreServerHello
+                                   <--------   ServerKeyExchange*
+      PreClientHello + CI
+      ClientKeyExchange
+      [ChangeCipherSpec]
+      ClientHello                  -------->
+                                               [ChangeCipherSpec]
+                                                    {ServerHello}
+                                                   {Certificate*}
+                                            {CertificateRequest*}
+                                                {ServerHelloDone}
+                                   <--------     {AlmostFinished}
+
+      {Certificate*}
+      {CertificateVerify*}
+      {Finished}                   
+      {Application Data}           -------->
+                                   <--------           {Finished}
+      {Application Data}           <------->   {Application Data}
+                                 ]]></artwork>
+      </figure>
+      <t>
+        In this handshake, we also introduce a new PreClientHello
+        message to match the PreServerHello. The PreClientHello
+        contains only the Random values and the clients proposed
+        cryptographic parameters.
+      </t>
       </section>
-    </middle>
+    </section>
+    <section title="Reduced RTT Handshakes w/ Server-Side State">
+      <t>
+        Without server-side state, the best-case scenario is one
+        round trip. If we are willing to assume that the server
+        has state, we can shorten this to zero round trips
+        (though at the cost of PFS). The general principle is
+        that each client handshake contains a unique value (e.g.,
+        the ClientRandom) and the server memorizes a list of
+        which handshakes have occurred and thus can detect replay by simply checking
+        to see if a given handshake is a replay or not.
+        This idea appears in (for instance) <xref target="I-D.agl-tls-snapstart"/>.
+      </t>
+      <t>
+        If everything goes well (the server has not changed
+        its configuration, rebooted and lost its state, etc.)
+        the client can follow its initial message flight
+        (ClientHello, etc.) with encrypted data which the
+        server will process. However, as with the handshakes
+        in <xref target="sec.1rtt"/>, there is some possibility
+        that the server will reject the client's parameters,
+        in which case the client will need to fall back to
+        the slow-path.
+      </t>
+      <t>
+        The fast-path handshake is shown below:
+      </t>
+      <figure>
+        <artwork align="left" alt="" height="" name="" type="" width=""
+                 xml:space="preserve"><![CDATA[
+      Client                                               Server
+
+      ClientHello + CI
+      ClientKeyExchange
+                                                 ServerHello + CI
+                                                     Certificate*
+                                               ServerKeyExchange*
+                                              CertificateRequest*
+                                                  ServerHelloDone
+                                   <--------       AlmostFinished
+  
+      Certificate*
+      CertificateVerify*
+      [ChangeCipherSpec]
+      {Finished}                   
+      {Application Data}           -------->
+                                               [ChangeCipherSpec]
+                                   <--------           {Finished}
+      {Application Data}           <------->   {Application Data}
+                                 ]]></artwork>
+      </figure>
+
+
+
+
+    </section>
+    
+    
+    
+    </section>
+    <section title="Security Considerations" anchor="sec.sec-cons">
+      <t>
+        Everything in this document needs further analysis to determine
+        if it is OK.
+      </t>
+    </section>
+
+    <section title="Acknowledgements" anchor="sec.acknowledgments">
+      <t>
+        This document borrows ideas from a large number of people,
+        including
+        Dan Boneh,
+        Wan-Teh Chang,
+        Cullen Jennings,
+        Adam Langley,
+        Nagendra Modadugu,
+        Bodo Moeller,
+        Marsh Ray,
+        Hovav Shacham,
+        and Brian Smith.
+      </t>
+    </section>
+  </middle>
     <back>
     <references title="Normative References">
       &RFC2119;
       &RFC5246;
+      &I-D.ietf-tls-cached-info;
     </references>
     <references title="Informative References">
       &I-D.ietf-tls-applayerprotoneg;
@@ -344,6 +720,7 @@
       &I-D.agl-tls-nextprotoneg;
       &I-D.bmoeller-tls-falsestart;
       &I-D.agl-tls-snapstart;
+<!--      &I-D.shacham-tls-fast-track;-->
     </references>
     </back>
   </rfc>
