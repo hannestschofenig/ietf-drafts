@@ -1,0 +1,258 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[framemethod=TikZ]{mdframed}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny TPAC 2013} 
+\fancyfoot[C]{\tiny Identity; Security; API}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\vspace{.2in}
+\large{{Identity, Security, etc. API Issues}} \\
+\vspace{3em}
+\begin{tabular}{c}
+Eric Rescorla \\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+
+\centerslidesfalse 
+
+
+\begin{slide}
+\heading{Overview of Topics}
+
+\begin{itemize}
+\item DTLS
+\begin{itemize}
+  \item Controlling my own DTLS key
+  \item Examining remote DTLS parameters
+\end{itemize}
+
+\item Identity
+  \begin{itemize}
+  \item Examining my own identity
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{DTLS Key Control Requirements}
+
+\begin{itemize}
+\item Keys are scoped to origin
+\item Be able to use the same key repeatedly
+  \begin{itemize}
+  \item Avoid repeatedly generating keys
+  \item Enable key continuity/auditing
+  \end{itemize}
+
+\item Be able to use multiple distinct keys
+\item Be able to generate a temporary key
+\item[]
+\item Application needs to be able to control this
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{DtlsIdentity Constraint}
+
+\vspace{-.25in}
+\begin{verbatim}
+{
+  mandatory : [
+   {
+     DtlsIdentity : "ekr@example.com"
+   }
+  ] 
+}
+\end{verbatim}
+
+\begin{itemize}
+\item DTLS Keys are stored under \verb^DtlsIdentity^ value $D$
+\item If no key exists with name $D$ it is made and stored
+\item If key exists with name $D$ that key is reused
+\item ``falsy'' (\verb^false^, \verb^null^, ...) \verb^DtlsIdentity^ values never match anything
+  \begin{itemize}
+    \item ... this means make a fresh key pair for this call
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Alternative Design: use WebCrypto}
+
+\begin{itemize}
+\item JS creates a WebCrypto key
+  \begin{itemize}
+  \item \verb^pc.setDtlsKey()^ API call to impose the key
+  \item JS is responsible for figuring out what keys to use
+  \end{itemize}
+
+\item Problem: private key needs to be unavailable to JS
+  \begin{itemize}
+    \item Otherwise Identity isn't secure
+  \end{itemize}
+
+\item WebCrypto keys can be marked unexportable
+  \begin{itemize}
+  \item But this doesn't mean an unexportable key was never known
+  \end{itemize}
+
+\item This is going to need a bunch of WebCrypto bookkeeping that doesn't exist 
+yet
+\begin{itemize}
+\item Has this private key \emph{ever} been available to the JS
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{What about the other side's public key}
+
+\begin{itemize}
+\item Would be nice to know the other side's public key
+  \begin{itemize}
+    \item For key continuity
+  \end{itemize}
+
+\item We {Justin, Martin, EKR} went back and forth on this
+  \begin{itemize}
+  \item And decided that less is more
+  \end{itemize}
+
+\item Proposal: a binary version of the other side's keys
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{New API}
+
+\begin{itemize}
+\item \verb^pc.remoteCertificates^ contains a list of other side's certificates
+  \begin{itemize}
+    \item As base64-encoded (?) blobs
+  \end{itemize}
+
+\item The raw certificate can just be used as a lookup key
+  \begin{itemize}
+    \item ... or parsed with WebCrypto
+  \end{itemize}
+
+\item No claims about the browser's opinion of the certificates
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Recap: remote identity}
+
+\begin{itemize}
+\item Remote identity is directly observable
+\end{itemize}
+
+\begin{verbatim}
+dictionary RTCIdentityAssertion {
+    DOMString idp;
+    DOMString name;
+};
+\end{verbatim}
+
+\begin{itemize}
+\item Stored as \verb^pc.peerIdentity^
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{What about my own identity?}
+
+\begin{itemize}
+\item Would be nice to be able to observe this
+\item We have \verb^pc.onidentityresult^ to notify when assertion obtained
+  \begin{itemize}
+    \item It doesn't have a defined argument (``TODO'')
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Proposal}
+
+\begin{itemize}
+\item \verb^onidentityresult^ takes a \verb^RTCIdentity^ argument corresponding to the obtained identity
+\item Rename \verb^peerIdentity^ to \verb^remoteIdentity^ to match \verb^remoteDescription^
+\item \verb^localIdentity^ contains my own identity (can be \verb^null^)
+\end{itemize}
+\end{slide}
+
+\end{document}
