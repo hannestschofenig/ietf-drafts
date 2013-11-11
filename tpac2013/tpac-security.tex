@@ -92,6 +92,7 @@ Eric Rescorla \\
 \item Identity
   \begin{itemize}
   \item Examining my own identity
+  \item Channel between Chrome and content
   \end{itemize}
 \end{itemize}
 \end{slide}
@@ -253,6 +254,22 @@ dictionary RTCIdentityAssertion {
 \item Rename \verb^peerIdentity^ to \verb^remoteIdentity^ to match \verb^remoteDescription^
 \item \verb^localIdentity^ contains my own identity (can be \verb^null^)
 \end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Message Channel between chrome and content}
+
+\begin{quote}
+\emph{``The context must have a MessageChannel named window.TBD which is "entangled" to the RTCPeerConnection and is unique to that subcontext. This channel is used for messaging between the RTCPeerConnection and the IdP. All messages sent via this channel are strings, specifically the JSONified versions of JavaScript structs.''}\end{quote}
+
+\begin{itemize}
+\item This works fine in current Firefox implementation (landing soon)
+\item What should ``TBD'' be?
+\begin{itemize}
+\item Proposal: \verb^rtcwebMessageChannel^ (but I don't care)
+\end{itemize}
+\end{itemize}
+
 \end{slide}
 
 \end{document}
