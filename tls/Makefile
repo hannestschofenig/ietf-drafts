@@ -1,3 +1,5 @@
+ARROW = /Users/ekr/src/arrow/bin/arrow
+
 all: txt
 
 chbar:
@@ -13,6 +15,13 @@ contents: txt
 	rm -f contents.txt
 	perl ./mktoc.pl < tls.txt > contents.txt
 
+.PRECIOUS: %.pdf
+
+%.pdf: %.wsd
+	$(ARROW) $<
+
+%.display: %.pdf
+	open $<
 
 
 

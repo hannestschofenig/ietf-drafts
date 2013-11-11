@@ -92,7 +92,7 @@ Eric Rescorla \\
 \item Identity
   \begin{itemize}
   \item Examining my own identity
-  \item Channel between Chrome and content
+  \item Channel between chrome and content
   \end{itemize}
 \end{itemize}
 \end{slide}
@@ -118,24 +118,24 @@ Eric Rescorla \\
 
 
 \begin{slide}
-\heading{DtlsIdentity Constraint}
+\heading{DtlsKeyName Constraint}
 
 \vspace{-.25in}
 \begin{verbatim}
 {
   mandatory : [
    {
-     DtlsIdentity : "ekr@example.com"
+     DtlsKeyName : "ekr@example.com"
    }
   ] 
 }
 \end{verbatim}
 
 \begin{itemize}
-\item DTLS Keys are stored under \verb^DtlsIdentity^ value $D$
+\item DTLS Keys are stored under \verb^DtlsKeyName^ value $D$
 \item If no key exists with name $D$ it is made and stored
 \item If key exists with name $D$ that key is reused
-\item ``falsy'' (\verb^false^, \verb^null^, ...) \verb^DtlsIdentity^ values never match anything
+\item ``falsy'' (\verb^false^, \verb^null^, ...) \verb^DtlsKeyName^ values never match anything
   \begin{itemize}
     \item ... this means make a fresh key pair for this call
   \end{itemize}
