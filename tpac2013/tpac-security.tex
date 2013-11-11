@@ -4,6 +4,7 @@
 \usepackage{graphicx} 
 \usepackage{slidesec} 
 \usepackage{url}
+\usepackage{multicol}
 \usepackage[framemethod=TikZ]{mdframed}
 
 \long\def\symbolfootnote[#1]#2{\begingroup%
@@ -93,6 +94,7 @@ Eric Rescorla \\
   \begin{itemize}
   \item Examining my own identity
   \item Channel between chrome and content
+  \item \verb^noaccess^ and \verb^peerIdentity^ constraints
   \end{itemize}
 \end{itemize}
 \end{slide}
@@ -144,32 +146,66 @@ Eric Rescorla \\
 
 
 \begin{slide}
-\heading{Alternative Design: use WebCrypto}
+\heading{DTLS Key Control using WebCrypto}
 
 \begin{itemize}
-\item JS creates a WebCrypto key
+\item JS creates a key using WebCrypto
   \begin{itemize}
   \item \verb^pc.setDtlsKey()^ API call to impose the key
-  \item JS is responsible for figuring out what keys to use
   \end{itemize}
 
-\item Problem: private key needs to be unavailable to JS
+\item JS is responsible for figuring out what keys to use
   \begin{itemize}
-    \item Otherwise Identity isn't secure
+    \item Keys can be stored using usual WebCrypto mechanisms (\verb^wrap()^, \verb^unwrap()^, etc.)
   \end{itemize}
+\end{slide}
 
-\item WebCrypto keys can be marked unexportable
-  \begin{itemize}
-  \item But this doesn't mean an unexportable key was never known
-  \end{itemize}
+\begin{slide}
+\heading{WebCrypto Example}
 
-\item This is going to need a bunch of WebCrypto bookkeeping that doesn't exist 
-yet
-\begin{itemize}
-\item Has this private key \emph{ever} been available to the JS
-\end{itemize}
-\end{itemize}
+\begin{multicols}{2}
+{\tiny
+\begin{verbatim}
+function new_key(label){ 
+  // Algorithm Object
+  var algorithmKeyGen = {
+    name: "RSASSA-PKCS1-v1_5",
+    // RsaKeyGenParams
+    modulusLength: 2048,
+    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+  };
+  
+  window.crypto.subtle.generateKey(
+     algorithmKeyGen,
+     false, ["peerconnection"]).then(
+    function(key) {
+      index.put(key, label);
+      pc.setDtlsKey(key);
+    }
+  );
+};
 
+function set_key(label) {
+  var req = index.get(label);
+  req.onsuccess(
+    function() {
+      if (req.result === undefined) {
+        new_key(label);
+      }
+      else {
+        pc.setDtlsKey(req.result);
+      }
+    }
+  );
+}
+
+set_key("ekr-key");
+
+
+
+\end{verbatim}
+}
+\end{multicols}
 \end{slide}
 
 
@@ -197,14 +233,14 @@ yet
 \heading{New API}
 
 \begin{itemize}
-\item \verb^pc.remoteCertificates^ contains a list of other side's certificates
+\item \verb^pc.remoteCertificates^ contains a list of other side's certificate chain
   \begin{itemize}
-    \item As base64-encoded (?) blobs
+    \item As ArrayBuffer
   \end{itemize}
 
 \item The raw certificate can just be used as a lookup key
   \begin{itemize}
-    \item ... or parsed with WebCrypto
+    \item ... or parsed with WebCrypto (when available)
   \end{itemize}
 
 \item No claims about the browser's opinion of the certificates
@@ -223,6 +259,7 @@ yet
 dictionary RTCIdentityAssertion {
     DOMString idp;
     DOMString name;
+    // Extensible
 };
 \end{verbatim}
 
@@ -266,10 +303,55 @@ dictionary RTCIdentityAssertion {
 \item This works fine in current Firefox implementation (landing soon)
 \item What should ``TBD'' be?
 \begin{itemize}
-\item Proposal: \verb^rtcwebMessageChannel^ (but I don't care)
+\item Proposal: \verb^identityMessageChannel^ (but I don't care)
 \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{\texttt{noaccess} and \texttt{peerIdentity}}
+
+\begin{itemize}
+\item Current status
+  \begin{itemize}
+    \item Can't attach MediaStream to inappropriate sinks
+    \item ... generates errors
+  \end{itemize}
+
+\item New proposal from Martin
+  \begin{itemize}
+    \item Can attach anything anywhere
+    \item But unauthorized sinks just get silence/black
+      \begin{itemize}
+        \item Rules for ``authorized'' remain the same
+      \end{itemize}
+    \item Need API flag for ``authorized''; propose read-only \verb^.accessible^
+  \end{itemize}
 \end{itemize}
 
+\end{slide}
+
+\begin{slide}
+\heading{Modified Permissions Model}
+
+
+\begin{itemize}
+\item Allow JS to get a \verb^noaccess^ stream w/o any permissons
+  \begin{itemize}
+  \item Can map into video/audio tag
+  \item Usable for ``hair check''
+  \end{itemize}
+
+\item Permissions check when constraints change
+  \begin{itemize}
+  \item This means we need a \verb^.onaccessiblechange^ event
+  \end{itemize}
+
+\item This is generally more flexible
+  \begin{itemize}
+    \item But arguably more creepy
+  \end{itemize}
+\end{itemize}
 \end{slide}
 
 \end{document}
