@@ -158,6 +158,7 @@ Eric Rescorla \\
   \begin{itemize}
     \item Keys can be stored using usual WebCrypto mechanisms (\verb^wrap()^, \verb^unwrap()^, etc.)
   \end{itemize}
+\end{itemize}
 \end{slide}
 
 \begin{slide}
@@ -352,6 +353,116 @@ dictionary RTCIdentityAssertion {
     \item But arguably more creepy
   \end{itemize}
 \end{itemize}
+\end{slide}
+
+
+
+\centerslidestrue
+
+
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\vspace{.2in}
+\large{{What happens when you run out of resources?}} \\
+\vspace{3em}
+\begin{tabular}{c}
+Eric Rescorla \\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\centerslidesfalse 
+
+\begin{slide}
+\heading{Possible cases (mostly hardware limitations)}
+
+\begin{itemize}
+\item Fixed number of HW decoders
+\item Fixed total number of HW resources (e.g., macroblocks)
+\item Total CPU limitations
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{When do you know?}
+
+\begin{itemize}
+\item \verb^AddStream()^ (for encoders, but not sure)
+\item \verb^CreateOffer(), CreateAnswer()^ (can I create a valid offer with the known resources)
+\item \verb^SetRemote()^ (did the other side ask to send me more than I can process)
+\item When media starts to come in (if I over-allocate)???
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Proposed processing model}
+
+\begin{itemize}
+\item Iterate over tracks \emph{in order}
+\item Add any track which can be added
+\begin{itemize}
+\item Assume maximum possible resource consumption for that track
+\end{itemize}
+\item Skip any track which cannot
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Example 1}
+
+\begin{itemize}
+\item I can receive one HD stream and one SD stream
+\item Other side offers HD1, HD2, SD
+  \begin{itemize}
+    \item I accept HD1, SD
+  \end{itemize}
+
+\item Other side offers HD1, SD, HD2
+  \begin{itemize}
+    \item I accept HD1, SD
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Example 2}
+
+\begin{itemize}
+\item I can receive one HD stream \emph{or} two SD streams
+\item Other side offers HD, SD1, SD2
+  \begin{itemize}
+    \item I accept HD1
+  \end{itemize}
+
+\item Other side offers SD1, HD, SD2
+  \begin{itemize}
+    \item I accept SD1, SD2
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{How do I find out what happened?}
+
+\begin{itemize}
+\item For \verb^CreateOffer()^, 
+  \begin{itemize}
+  \item Just negotiate the maximum possible
+    \item Maybe can introspect with Stefan's doohickey
+  \end{itemize}
+
+\item For \verb^SetRemoteDescription()^ there is no notification
+  \begin{itemize}
+    \item Just negotiate the maximum possible
+    \item Not possible to introspect into what didn't get accepted
+  \end{itemize}
+\end{itemize}
+
 \end{slide}
 
 \end{document}
