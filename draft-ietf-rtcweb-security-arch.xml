@@ -79,7 +79,7 @@
         The Real-Time Communications on the Web (RTCWEB) working group is tasked
         with standardizing protocols for enabling real-time communications
         within user-agents using web technologies (commonly called
-        "WebRTC"). This document defines the security architecture for
+        "WebRTC"). This document defines the security architecture for WebRTC.
       </t>
     </abstract>
   </front>
@@ -1671,35 +1671,28 @@ PeerConnection -> IdP Proxy:
 
 IdP Proxy -> PeerConnection:
   {
-    "type":"SUCCESS",
-    "id":2,
+    "type": "SUCCESS",
+    "id": 2,
     "message": {
-      "identity" : {
-        "name" : "bob@example.org",
-        "displayname" : "Bob"
-      },
-      "contents":"abcdefghijklmnopqrstuvwyz"
+      "identity": "bob@example.org",
+      "contents": "abcdefghijklmnopqrstuvwyz"
     }
   }
-]]>
-                </artwork>
+]]></artwork>
               </figure>
 
               <section title="Identity Formats" anchor="sec.id-format">
                 <t>
                   Identities passed from the IdP proxy to the PeerConnection are
-                  structured as JSON dictionaries with one mandatory field:
-                  "name". This field MUST consist of a string representing the
-                  user's identity.  This string is in the form
-                  "&lt;user>@&lt;domain>", where <spanx
-                  style="verb">user</spanx> consists of any character except
-                  '@', and domain is an <xref target="RFC5890">internationalized
-                  domain name</xref>.
+                  passed in the <spanx style="verb">identity</spanx> field. This
+                  field MUST consist of a string representing the user's
+                  identity.  This string is in the form "&lt;user>@&lt;domain>",
+                  where <spanx style="verb">user</spanx> consists of any
+                  character except '@', and domain is an <xref
+                  target="RFC5890">internationalized domain name</xref>.
                 </t>
                 <t>
                   The PeerConnection API MUST check this string as follows:
-                </t>
-                <t>
                   <list style="numbers">
                     <t>
                       If the domain portion of the string is equal to the domain
@@ -1732,16 +1725,6 @@ IdP Proxy -> PeerConnection:
                   them to this form by escaping illegal characters and appending
                   their IdP domain (e.g., user%40133@identity.example.com), thus
                   ensuring that they are authoritative for the identity.
-                </t>
-                <t>
-                  The IdP proxy MAY also include a "displayname" field which
-                  contains a more user-friendly identity assertion.  Browsers
-                  SHOULD take care in the UI to distinguish the "name" assertion
-                  which is verifiable directly from the "displayname" which
-                  cannot be verified and thus relies on trust in the IdP. In
-                  future, we may define other fields to allow the IdP to provide
-                  more information to the browser.  [[OPEN ISSUE: Should this
-                  field exist? Is it confusing? ]]
                 </t>
               </section>
 
