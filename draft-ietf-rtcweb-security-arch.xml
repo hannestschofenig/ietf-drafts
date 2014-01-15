@@ -1247,8 +1247,8 @@
           <section title="Input to Assertion Generation Process" anchor="sec.idp-input">
             <t>
               An identity assertion binds the user's identity (as asserted by
-              the IdP) to the JSEP offer/exchange transaction and specifically
-              to the media. In order to achieve this, the PeerConnection must
+              the IdP) to the SDP offer/exchange transaction and specifically to
+              the media. In order to achieve this, the PeerConnection must
               provide the DTLS-SRTP fingerprint to be bound to the
               identity. This is provided as a JavaScript object (also known as a
               dictionary or hash) with a single <spanx
@@ -1257,23 +1257,24 @@
             <figure>
               <artwork><![CDATA[
   {
-    "fingerprint": {
+    "fingerprint": [ {
       "algorithm": "sha-256",
       "digest": "4A:AD:B9:B1:3F:...:E5:7C:AB"
-    }
+    }, {
+      "algorithm": "sha-1",
+      "digest": "74:E9:76:C8:19:...:F4:45:6B"
+    } ]
   }
-]]>
-              </artwork>
+]]></artwork>
             </figure>
             <t>
-              This object is encoded in a <xref target="RFC4627">JSON</xref>
-              string for passing to the IdP.
-            </t>
-            <t>
-              The <spanx style="verb">algorithm</spanx> and <spanx
-              style="verb">digest</spanx> values correspond directly to the
-              algorithm and digest values in the a=fingerprint line of the SDP.
-              <xref target="RFC4572"/>.
+              The <spanx style="verb">fingerprint</spanx> value is an array of
+              objects.  Each object in the array contains <spanx
+              style="verb">algorithm</spanx> and <spanx
+              style="verb">digest</spanx> values, which correspond directly to
+              the algorithm and digest values in the <spanx
+              style="verb">a=fingerprint</spanx> line of the SDP <xref
+              target="RFC4572"/>.
             </t>
             <t>
               Note: this structure does not need to be interpreted by the IdP or
@@ -1281,6 +1282,10 @@
               merely treats it as an opaque value to be attested to.  Thus, new
               parameters can be added to the assertion without modifying the
               IdP.
+            </t>
+            <t>
+              This object is encoded in a <xref target="RFC4627">JSON</xref>
+              string for passing to the IdP.
             </t>
           </section>
 
@@ -1325,8 +1330,14 @@ a=sendrecv
               with the same identity as described above.
             </t>
             <t>
-              TODO: write up paragraph on the consequences of multiple
-              a=fingerprint attributes.
+              Multiple <spanx style="verb">a=fingerprint</spanx> values can be
+              used to offer alternative certificates for a peer.  The <spanx
+              style="verb">a=identity</spanx> attribute only applies if the
+              in-use certificate for a DTLS connection is in the set of
+              fingerprints returned from the IdP when verifying an assertion.
+              This can also be guaranteed by ensuring that all a=fingerprint
+              attributes for a given media section are present in the "VERIFY"
+              response (see <xref target="sec.verify-assert"/>).
             </t>
           </section>
         </section>
