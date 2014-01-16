@@ -25,8 +25,6 @@
 <!ENTITY I-D.ietf-rtcweb-jsep SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-rtcweb-jsep.xml">
 <!ENTITY I-D.ietf-rtcweb-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-rtcweb-security.xml">
 <!ENTITY I-D.ietf-tsvwg-sctp-dtls-encaps SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tsvwg-sctp-dtls-encaps.xml">
-<!ENTITY I-D.jennings-rtcweb-signaling SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.jennings-rtcweb-signaling.xml">
-<!ENTITY I-D.kaufman-rtcweb-security-ui SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.kaufman-rtcweb-security-ui.xml">
 <!ENTITY I-D.muthu-behave-consent-freshness SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.muthu-behave-consent-freshness.xml">
 ]>
 
@@ -2181,8 +2179,6 @@
       &RFC3261;
       &RFC5705;
       &RFC6455;
-      &I-D.kaufman-rtcweb-security-ui;
-      &I-D.jennings-rtcweb-signaling;
       &I-D.ietf-rtcweb-jsep;
 
 
