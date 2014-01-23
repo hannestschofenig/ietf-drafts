@@ -2310,28 +2310,34 @@ IdP Proxy -> PeerConnection:
    s= \n
    c=IN IP4 192.0.2.1\n
    t=2873397496 2873404696\n
-   m=audio 49170 RTP/AVP 0\n
-   a=fingerprint: SHA-1 \
-   a=identity [[base-64 encoding of...
-   4A:AD:B9:B1:3F:82:18:3B:54:02:12:DF:3E:5D:49:6B:19:E5:7C:AB\n",
-    "identity":{
-         "idp":{     // Standardized
-            "domain":"browserid.org",
-            "method":"default"
-         },
-         "assertion":   // Contents are browserid-specific
-           "\"assertion\": {
-             \"digest\":\"<hash of the contents from the browser>\",
-             \"audience\": \"[TBD]\"
+   a=fingerprint:SHA-256 ...\n
+   4A:AD:B9:B1:3F:82:18:3B:54:02:12:DF:3E:5D:49:6B:19:E5:7C:AB\n
+   a=identity [[base-64 encoding of identity assertion:
+     {
+       "idp":{     // Standardized
+         "domain":"browserid.org",
+         "method":"default"
+       },
+       // Assertion contents are browserid-specific
+       "assertion": "{
+           \"assertion\": {
+             \"digest\":\"<hash of the SIGN message>\",
+             \"audience\": \"<audience>\"
              \"valid-until\": 1308859352261,
-            },
-            \"certificate\": {
-              \"email\": \"rescorla@example.org\",
-              \"public-key\": \"<ekrs-public-key>\",
-              \"valid-until\": 1308860561861,
-            }" // certificate is signed by example.org
-         }]]"
-   }
+           },
+           \"certificate\": {
+             \"email\": \"rescorla@example.org\",
+             \"public-key\": \"<ekrs-public-key>\",
+             \"valid-until\": 1308860561861,
+             \"signature\": \"<signature from example.org>\"
+           },
+           \"content\": \"<content of the SIGN message>\"
+       }"
+     }
+   ]]\n
+   m=audio 49170 RTP/AVP 0\n
+   ..."
+}
 ]]></artwork>
         </figure>
         <t>
