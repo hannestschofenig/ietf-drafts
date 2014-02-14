@@ -41,7 +41,7 @@
 <?rfc rfcedstyle="no" ?>
 <!-- Don't change this. It breaks stuff -->
 <?rfc tocdepth="4"?>
-<rfc category="std" docName="draft-ietf-rtcweb-security-arch-07"
+<rfc category="std" docName="draft-ietf-rtcweb-security-arch-08"
      ipr="pre5378Trust200902">
   <front>
     <title abbrev="WebRTC Sec. Arch.">WebRTC Security Architecture</title>
@@ -2352,7 +2352,7 @@ IdP Proxy -> PeerConnection:
    s= \n
    c=IN IP4 192.0.2.1\n
    t=2873397496 2873404696\n
-   a=fingerprint:SHA-256 ...\n
+   a=fingerprint:SHA-1 ...\n
    4A:AD:B9:B1:3F:82:18:3B:54:02:12:DF:3E:5D:49:6B:19:E5:7C:AB\n
    a=identity [[base-64 encoding of identity assertion:
      {
