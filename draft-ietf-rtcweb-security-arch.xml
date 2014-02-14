@@ -1509,11 +1509,14 @@ a=sendrecv
   https://example.com/.well-known/idp-proxy/example
   ]]></artwork>
               </figure>
+<!--  [[TODO: suggested by mt]]
+
+
               <t>
                 The IdP proxy MUST be prevented from redirecting or navigating
                 the IdP frame to another site.
               </t>
-
+-->
               <section title="Authenticating Party">
                 <t>
                   How an AP determines the appropriate IdP domain is out of
@@ -1557,8 +1560,7 @@ a=sendrecv
                 "SIGN" message.  Aside from the mandatory fields, this message
                 has a <spanx style="verb">message</spanx> field containing a
                 string.  The string contains a JSON-encoded object containing
-                certificate fingerprints as described in <xref
-                target="sec.idp-input"/>, but are treated as opaque from the
+                certificate fingerprints but are treated as opaque from the
                 perspective of the IdP.
               </t>
               <t>
@@ -1648,8 +1650,7 @@ IdPProxy -> PeerConnection:
                   </t>
                   <t hangText="contents:">
                     The original unmodified string provided by the AP in the
-                    original SIGN request (i.e., the JSON-encoded string
-                    described in <xref target="sec.idp-input"/>).
+                    original SIGN request.
                   </t>
                 </list>
               </t>
