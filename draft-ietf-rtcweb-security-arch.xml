@@ -1642,17 +1642,16 @@ IdPProxy -> PeerConnection:
   {
     "type": "LOGINNEEDED",
     "id": "1",
-    "message": {
-      "url": "https://example.log/login",
-    }
+    "error": "...a message explaining the reason for failure..."
+    "loginUrl": "https://example.org/login?context=e982606f4fd5"
   }
 ]]></artwork>
               </figure>
               <t>
-                The <spanx style="verb">message</spanx> field of the "LOGINNEEDED"
-                response contains a single field called <spanx
-                style="verb">url</spanx>.  The PeerConnection provides an error
-                event (or similar) to the calling site that includes this URL.
+                The <spanx style="verb">loginUrl</spanx> field of the
+                "LOGINNEEDED" response contains a URL.  The PeerConnection
+                provides an error event (or similar) to the calling site that
+                includes this URL.
               </t>
               <t>
                 A calling site is then able to load the provided URL in an IFRAME
@@ -1662,6 +1661,10 @@ IdPProxy -> PeerConnection:
                 indicating completion.  Any message is sufficient for this
                 purpose, the <spanx style="verb">source</spanx> parameter
                 identifies the originating IFRAME.
+              </t>
+              <t>
+                In all other respects, "LOGINNEEDED" can be treated as an
+                "ERROR" message.
               </t>
             </section>
           </section>
