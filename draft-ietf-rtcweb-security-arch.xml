@@ -8,10 +8,11 @@
 <!ENTITY RFC3760 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3760.xml">
 <!ENTITY RFC4251 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4251.xml">
 <!ENTITY RFC4347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4347.xml">
-<!ENTITY RFC4568 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4568.xml">
+<!ENTITY RFC4566 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4566.xml">
 <!ENTITY RFC4572 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4572.xml">
 <!ENTITY RFC4627 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4627.xml">
-<!ENTITY RFC4848 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4848.xml">
+<!ENTITY RFC4648 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4648.xml">
+<!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
 <!ENTITY RFC5245 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5245.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC5479 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5479.xml">
@@ -1294,7 +1295,7 @@
               Once an IdP has generated an assertion, it is attached to the SDP
               message. This is done by adding a new a-line to the SDP, of the
               form a=identity. The sole contents of this value are a <xref
-              target="RFC4848">base-64 encoded</xref> identity assertion.  For
+              target="RFC4648">base-64 encoded</xref> identity assertion.  For
               example:
             </t>
             <figure>
@@ -1332,12 +1333,43 @@ a=sendrecv
             <t>
               Multiple <spanx style="verb">a=fingerprint</spanx> values can be
               used to offer alternative certificates for a peer.  The <spanx
-              style="verb">a=identity</spanx> attribute only applies if the
+              style="verb">a=identity</spanx> attribute MUST include all
+              fingerprint values that are included in <spanx
+              style="verb">a=fingerprint</spanx> lines.  This ensures that the
               in-use certificate for a DTLS connection is in the set of
               fingerprints returned from the IdP when verifying an assertion.
-              This can also be guaranteed by ensuring that all a=fingerprint
-              attributes for a given media section are present in the "VERIFY"
-              response (see <xref target="sec.verify-assert"/>).
+              This MUST be enforced by an RP by ensuring that all <spanx
+              style="verb">a=fingerprint</spanx> attributes for a given media
+              section are present in the "VERIFY" response (see <xref
+              target="sec.verify-assert"/>).
+            </t>
+          </section>
+
+          <section title="a=identity Attribute" anchor="sec.a-identity">
+            <t>
+              The identity attribute is session level only.  It contains an
+              identity assertion, encoded as a <xref target="RFC4648">base-64
+              string</xref>.
+            </t>
+            <figure>
+              <preamble>
+                The syntax of this SDP attribute is defined using <xref
+                target="RFC5234">Augmented BNF</xref>:
+              </preamble>
+              <artwork type="inline"><![CDATA[
+identity-attribute  = "identity:" identity-assertion
+                      [ SP identity-extension
+                        *(";" [ SP ] identity-extension) ]
+identity-assertion  = base64
+base64              = 1*(ALPHA / DIGIT / "+" / "/" / "=" )
+identity-extension  = extension-att-name [ "=" extension-att-value ]
+extension-att-name  = token
+extension-att-value = 1*(%x01-09 / %x0b-0c / %x0e-3a / %x3c-ff)
+                      ; byte-string from [RFC4566] omitting ";"
+]]></artwork>
+            </figure>
+            <t>
+              No extensions are defined for this attribute.
             </t>
           </section>
         </section>
@@ -1626,7 +1658,7 @@ IdPProxy -> PeerConnection:
 
               <t>
                 The <spanx style="verb">message</spanx> structure is serialized
-                into JSON, <xref target="RFC4848">base64-encoded</xref>, and
+                into JSON, <xref target="RFC4648">base64-encoded</xref>, and
                 placed in an <spanx style="verb">a=identity</spanx> attribute.
               </t>
             </section>
@@ -2047,8 +2079,23 @@ IdP Proxy -> PeerConnection:
 
       <section title="IANA Considerations" anchor="sec.iana-cons">
         <t>
-          [TODO: IANA registration for Identity header. Or should this be in
-          MMUSIC?]
+          This specification defines the <spanx style="verb">identity</spanx>
+          SDP attribute per the procedures of Section 8.2.4 of <xref
+          target="RFC4566"/>.  The required information for the registration is
+          included here:
+          <list style="hanging">
+            <t hangText="Contact Name:">Eric Rescorla (ekr@rftm.com)</t>
+            <t hangText="Attribute Name:">identity</t>
+            <t hangText="Long Form:">identity</t>
+            <t hangText="Type of Attribute:">session-level</t>
+            <t hangText="Charset Considerations:">This attribute is not subject
+            to the charset attribute.</t>
+            <t hangText="Purpose:">This attribute carries an identity assertion,
+            binding an identity to the transport-level security session.</t>
+            <t hangText="Appropriate Values:">See <xref
+            target="sec.a-identity"/> of RFCXXXX [[Editor Note: This
+            document.</t>
+          </list>
         </t>
       </section>
 
@@ -2170,9 +2217,11 @@ IdP Proxy -> PeerConnection:
       &RFC2818;
       &RFC3711;
       &RFC4347;
+      &RFC4566;
       &RFC4572;
       &RFC4627;
-      &RFC4848;
+      &RFC4648;
+      &RFC5234;
       &RFC5245;
       &RFC5246;
       &RFC5763;
