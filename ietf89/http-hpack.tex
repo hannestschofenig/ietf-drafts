@@ -101,14 +101,15 @@ Mozilla\\
 \heading{Is there any way to exploit this in HTTPS?}
 
 \begin{itemize}
-\item Cookies are pretty high entropy?
+\item Cookies are pretty high entropy
 \item But what about passwords?
   \begin{itemize}
   \item Often very low entropy
   \item Appear in headers with basic auth (how commonly is this used?)
   \item Absent CORS JS probably can't modify this header
-  \item But Flash may be able to
   \end{itemize}
+\item What about other headers?
+\item And other technologies? (Flash, etc.)
 \end{itemize}
 \end{slide}
 
