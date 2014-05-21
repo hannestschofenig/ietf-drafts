@@ -1,0 +1,374 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[normalem]{ulem}
+\usepackage[usenames]{color}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny WebRTC Interim; May 2014} 
+\fancyfoot[C]{\tiny Error Reporting}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+\begin{document}
+\begin{slide}
+\begin{center}
+\vspace{1 in}
+\LARGE{{\bf}WebRTC Error Reporting}\\
+\vspace{.2in}
+\large{{Interim Meeting: May 2014}} \\
+\vspace{3em}
+\large{
+\begin{tabular}{c}
+Eric Rescorla \\
+\emph{Mozilla} \\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+
+\centerslidesfalse
+
+\begin{slide}
+\heading{General Principles}
+
+\begin{itemize}
+\item Error types
+  \begin{itemize}
+  \item Programming errors get exceptions
+  \item Other errors get callbacks
+  \end{itemize}
+
+\item WebIDL does type checking
+\item Try not to fail silently
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Calls after \texttt{pc.close()}}
+
+\begin{itemize}
+\item Some methods generate \verb^InvalidStateError^ (e.g., \verb^addStream()^) and some don't (e.g., \verb^createAnswer()^)
+\item This is confusing for programmers
+\item Proposed behavior
+  \begin{itemize}
+  \item Any call other than \verb^close()^ generates \verb^InvalidStateError^
+  \item Asynchronous calls followed by \verb^close()^ simply never happen
+    \begin{itemize}
+    \item Some of the descriptions have them happen but then not generate callbacks
+    \end{itemize}
+  \item \verb^close()^ fails silently
+  \end{itemize}
+
+\item This should all be written in one place  
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Multiple calls to \texttt{addStream()} with same stream}
+
+\begin{itemize}
+\item Currently this is ignored
+\item Proposed behavor
+  \begin{itemize}
+  \item Throw \verb^ResourceInUse^
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Trying to send on a closed DataChannel (\S\  5.2.)}
+
+\begin{itemize}
+\item Currently behavior
+  \begin{itemize}
+  \item Increment \verb^bufferedAmount^ (step 3)
+  \item Then silently abort
+  \end{itemize}
+
+
+\item Proposed behavior
+  \begin{itemize}
+  \item Throw \verb^InvalidStateError^
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Create RTCDTMFSender on non-audio track}
+
+\begin{itemize}
+\item Unclear what current behavior is
+  \begin{itemize}
+  \item Probably create it with \verb^.canInsertDTMF === false^
+  \end{itemize}
+
+\item Proposed behavior
+  \begin{itemize}
+  \item Generate an \verb^InvalidParameter^ exception
+  \end{itemize}
+  
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Call \texttt{insertDTMF()} when \texttt{.canInsertDTMF} is false}
+
+\begin{itemize}
+\item Current behavior
+  \begin{itemize}
+  \item Silently ignore
+  \end{itemize}
+
+\item Proposed behavior
+  \begin{itemize}
+  \item Generate \verb^InvalidStateError^
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Insert DTMF with bogus values (Guduru)}
+
+\begin{itemize}
+\item Generate \verb^InvalidParameter^ exception
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Unused errors (\S\  4.6.2.1)}
+
+\begin{itemize}
+\item \verb^IncompatibleConstraintsError^
+\item \verb^incompatibleMediaStreamTrackError^
+\item
+\item Propose removing these
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{\texttt{RTCSdpError} (\S\ 4.6.2}
+
+\begin{itemize}
+\item This is defined but never used
+  \begin{itemize}
+  \item Even though it's semi-referenced
+  \end{itemize}
+
+\item Proposed resolution
+  \begin{itemize}
+  \item Edit \verb^set{Local,Remote}Description^ sections to make clear it is passed to error callbacks
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{\texttt{addIceCandidate()} in wrong state}
+
+\begin{itemize}
+\item Claim 1: this should be queued
+\item Claim 2: Any attempt to \verb^addIceCandidate()^ in wrong state should get \verb^InvalidSteError^ (just like everything else)
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{\texttt{addIceCandidate()} bogus data}
+
+\vspace{-3ex}
+\small{
+\begin{quote}
+``If the candidate could not be successfully applied, the user agent
+must queue a task to invoke failureCallback with a DOMError object
+whose name attribute has the value TBD (TODO InvalidCandidate and
+InvalidMidIndex).''
+
+NOTE What errors do we need here? Should we reuse the
+*SessionDescriptionError names or invent new ones for
+candidates? Should this method be queued?
+\end{quote}
+}
+
+\begin{itemize}
+\item The session description errors just say ``it's busted'' and give line number
+  \begin{itemize}
+  \item Assume we don't want to change that
+  \item And even if they did, it would just say ``ICE candidate is busted''
+  \end{itemize}
+
+\item Proposed resolution
+  \begin{itemize}
+  \item \verb^InvalidCandidate^, \verb^InvalidMid^ and \verb^InvalidMLineIndex^ with obvious meanings
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{failure callbacks for \texttt{createOffer()} and \texttt{createAnswer()}}
+
+\begin{quote}
+If the SDP generation process failed for any reason, the user agent
+must queue a task to invoke failureCallback with an DOMError object of
+type TBD as its argument.
+\end{quote}
+
+\begin{itemize}
+\item Can anything go wrong here?
+\item ... other than \verb^InternalError^?
+\item Can pretty much be called in any state
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{failure callbacks for \texttt{setLocalDescription()} and \texttt{setRemoteDescription()}}
+
+\vspace{-4ex}
+
+\begin{itemize}
+\item Currently the following errors
+  \begin{itemize}
+  \item \verb^InvalidSessionDescriptionError^ --- SDP is bogus; need to specify line number
+  \item \verb^IncompatibleSessionDescriptionError^ --- can't apply SDP; freeform text to explain the problem?
+  \end{itemize}
+
+\item Also add
+\begin{itemize}
+\item \verb^InvalidStateError^ --- e.g., \verb^setLocalDescription(answer)^ 
+\item \verb^InvalidPeerIdentityError^ --- e.g., if the target identity doesn't match the remote description
+\item What should we use for bogus changes to SDP? \verb^InvalidSessionDescriptionError^?
+\end{itemize}
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Spontaneous Errors}
+
+\begin{itemize}
+\item Some kinds of errors just happen
+  \begin{itemize}
+  \item TURN errors
+  \item DTLS connection error
+  \item ``Internal errors''
+  \end{itemize}
+
+\item These aren't tied to any API call
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{\texttt{.onerror} or something}
+
+\begin{itemize}
+\item Throws some typed object
+\end{itemize}
+
+\begin{verbatim}
+interface RTCRuntimeError : DOMError {
+    readonly    attribute explanation;
+};
+\end{verbatim}
+
+\begin{itemize}
+\item The \verb^.name^ property should tell us what happened (machine readable)
+\item The \verb^.explanation^ should be freeform
+\item Individual errors could have their own attributes
+  \begin{itemize}
+  \item E.g., TURN server URL for TURN errors
+  \item Idea is that it should be processable by app
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{What about state?}
+
+\begin{itemize}
+\item How do I distinguish fatal from nonfatal
+\item State needs to change \emph{first}
+\item So that the event handler can interrogate it
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Are there enough of these?}
+
+\begin{itemize}
+\item TURN errors
+\item DTLS connection error
+\item ``Internal errors''
+\item
+\item Are there really enough of these to design a general facility?
+\end{itemize}
+
+\end{slide}
+
+\end{document}
+
+
