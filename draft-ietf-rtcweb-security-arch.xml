@@ -1564,6 +1564,17 @@ a=sendrecv
                 perspective of the IdP.
               </t>
               <t>
+                An application can optionally provide a user identifier when
+                specifying an IdP.  This value is a hint that the IdP can use to
+                select amongst multiple identities, or to avoid providing
+                assertions for unwanted identities.  The user identifier hint is
+                passed to the IdP in a <spanx style="verb">username</spanx>
+                field alongside the <spanx style="verb">message</spanx>.  The
+                <spanx style="verb">username</spanx> is a string that has no
+                meaning to any entity other than the IdP, it can contain any
+                data the IdP needs in order to correctly generate an assertion.
+              </t>
+              <t>
                 A successful response to a "SIGN" message contains a <spanx
                 style="verb">message</spanx> field which is a JavaScript
                 dictionary consisting of two fields:
@@ -1594,10 +1605,18 @@ a=sendrecv
                 <artwork><![CDATA[
 PeerConnection -> IdP proxy:
   {
+<<<<<<< HEAD
     "type": "SIGN",
     "id": "1",
     "origin": "https://calling-service.example.com/",
     "message": "abcdefghijklmnopqrstuvwyz"
+=======
+     "type":"SIGN",
+     "id":1,
+     "origin":"https://calling-service.example.com/",
+     "message": "abcdefghijklmnopqrstuvwyz",
+     "username": "bob"
+>>>>>>> martin/username
   }
 
 IdPProxy -> PeerConnection:
