@@ -1,0 +1,304 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{color}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 91} 
+\fancyfoot[C]{\tiny TLS}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+
+
+\begin{document}
+
+\centerslidesfalse 
+
+\begin{slide}
+\begin{footnotesize}
+\begin{verbatim}
+                          Existing Draft
+
+       ClientHello
+       ClientKeyShare            -------->
+                                                       ServerHello
+                                                    ServerKeyShare
+                                                [ChangeCipherSpec]
+                                              EncryptedExtensions*
+                                                      Certificate*
+                                               CertificateRequest*
+                                                CertificateVerify*
+                                 <--------                Finished
+       [ChangeCipherSpec]
+       Certificate*
+       CertificateVerify*
+       Finished                  -------->
+       Application Data          <------->        Application Data
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\begin{footnotesize}
+\vspace{-2ex}
+\begin{verbatim}
+                         Session Hash Draft
+       ClientHello
+       ClientKeyShare            -------->
+                                                       ServerHello
+                                                    ServerKeyShare
+                                            {EncryptedExtensions*}
+                                                    {Certificate*}
+                                             {CertificateRequest*}
+                                              {CertificateVerify*}
+                                 <--------              {Finished}
+       {Certificate*}
+       {CertificateVerify*}
+       {Finished}                -------->
+       [Application Data]        <------->      [Application Data]
+
+{} Indicates messages protected using keys derived from the handshake master
+secret.
+
+[] Indicates messages protected using keys derived from the master secret.
+
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+
+\begin{slide}
+\begin{footnotesize}
+\begin{verbatim}
+    Hugo's Proposal (slightly adapted, server-side only)
+
+ClientHello
+ClientKeyShare            -------->
+                                                ServerHello
+                                             ServerKeyShare
+                                     {EncryptedExtensions*}
+                                             {Certificate*}
+                                        {SignedParameters*}  // NEW
+                                      (CertificateRequest*)
+                          <--------              (Finished)
+(Certificate*)
+(CertificateVerify*)
+(Finished)                -------->
+[Application Data]        <------->      [Application Data]
+
+
+{} encrypted under g^xy
+() encrypted under g^xy, g^xs (handshake key)
+[] encrypted under g^xy, g^xs (application key)
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\begin{footnotesize}
+\begin{verbatim}
+       struct {
+         opaque identifier[16];
+         uint64 not_before;
+         uint64 not_after;
+         NamedGroup group;
+         opaque key_exchange;
+       } UnsignedParameters;
+
+       struct {
+           UnsignedParameters parameters;
+           digitally-signed struct {
+             opaque zeros[64];
+             UnsignedParameters parameters;
+           };
+        } SignedParameters;
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\begin{footnotesize}
+\begin{verbatim}
+      Variant of Hugo's proposal (server side only)
+
+ClientHello
+ClientKeyShare            -------->
+                                                ServerHello
+                                             ServerKeyShare
+                                     {EncryptedExtensions*}
+                                             {Certificate*}
+                                        {SignedParameters*}  // NEW
+                                      {CertificateRequest*)
+                                       {CertificateVerify*}  // Now a MAC                                                         
+                          <--------              {Finished}
+{Certificate*}
+{CertificateVerify*}
+{Finished}                -------->
+[Application Data]        <------->      [Application Data]
+
+Server CertificateVerify is computed as HMAC(g^xs, transcript)
+
+{} encrypted under the handshake master secret (g^xy)
+[] encrypted under the master secret (g^xy + g^xs)
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+
+\begin{footnotesize}
+\begin{verbatim}
+                       X           Y
+                       |           |
+                       v           v
+                                 
+      PMS -->    MS_0 --->  MS_1 ---> MS_2 --->  ...
+                  |          |         |
+                  v          v         v
+               Traffic    Traffic   Traffic
+                Keys 0     Keys 1    Keys 1
+\end{verbatim}
+\end{footnotesize}
+
+\end{slide}
+
+
+\begin{slide}
+
+\begin{footnotesize}
+\begin{verbatim}
+           Client                                   Server
+[C_MS_0]                                                     [S_MS_0]
+           Update (A) ------------------------>
+[C_MS_1]                                            
+                      <------------------------  Update (B)
+                                                             [S_MS_1]
+                      <------------------------     ACK (C)
+                                                             [S_MS_2]
+           ACK (D)    ------------------------>
+[C_MS_2]
+       
+
+The key computations are as follows:
+
+C_MS_1 = PRF(C_MS_0, A)
+S_MS_1 = PRF(S_MS_0, B)
+C_MS_2 = PRF(C_MS_1, D) [D depends only on B]
+S_MS_2 = PRF(S_MS_1, C) [C depends only on A, but S_MS_2 depends
+                         on S_MS_1 which depends on B].
+\end{verbatim}
+\end{footnotesize}
+
+\end{slide}
+
+
+\begin{slide}
+\begin{footnotesize}
+\begin{verbatim}
+                        First Handshake for 0-RTT
+
+       ClientHello
+       ClientKeyShare            -------->
+                                                       ServerHello
+                                                    ServerKeyShare
+                                                [ChangeCipherSpec]
+                                              EncryptedExtensions*
+                                                      Certificate*
+                                               CertificateRequest*
+                                                 ServerParameters*  // NEW
+                                                CertificateVerify*
+                                 <--------                Finished
+       [ChangeCipherSpec]
+       Certificate*
+       CertificateVerify*
+       Finished                  -------->
+       Application Data          <------->        Application Data
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\begin{footnotesize}
+\begin{verbatim}
+                0-RTT Handshake (very Sketchy, no client auth)
+
+         ClientHello
+          + PredictedParameters
+            ClientKeyExchange
+            {EncryptedExtensions + AntiReplayToken}
+            {Finished}
+            {ApplicationData}        --------->
+                                                         ServerHello
+                                                   ServerKeyExchange
+                                                  [ChangeCipherSpec]
+                                              {EncryptedExtensions
+                                                  + AntiReplayToken}
+                                                      {Certificate*}
+                                               {CertificateRequest*}
+                                                 {ServerParameters*}
+                                                {CertificateVerify*}
+                                     <---------           {Finished}
+         {Finished???}               --------->
+         Application Data            <-------->     Application Data
+            
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+\end{document}
