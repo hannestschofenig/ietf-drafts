@@ -38,7 +38,7 @@
 \renewcommand{\headrulewidth}{0mm} 
 \renewcommand{\footrulewidth}{0.1mm} 
  
-\fancyfoot[L]{\tiny IETF 91} 
+\fancyfoot[L]{\tiny IETF 91.5} 
 \fancyfoot[C]{\tiny TLS}
 \fancyfoot[R]{\tiny \theslide} 
  
@@ -65,7 +65,117 @@
 \centerslidesfalse 
 
 \begin{slide}
-XXX
+\heading{Overview of 0-RTT Flow}
+
+{\scriptsize
+\begin{verbatim}
+       Client                                               Server
+
+       ClientHello
+       ClientKeyShare
+       {Certificate*}
+       {CertificateVerify*}
+       {Finished}              
+       [Application Data]        -------->
+                                                       ServerHello
+                                                    ServerKeyShare
+                                 <--------              {Finished}
+       [Application Data]        <------->      [Application Data]
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Key Agreement (well-understood)}
+
+\begin{itemize}
+\item Client caches server's long-term (EC)DH share
+\item First flight data encrypted under client ephemeral/server static
+\item Server supplies ephemeral in first flight
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Anti-Replay (borrowed from Snap Start)}
+
+\begin{itemize}
+\item Server needs to keep a list of client nonces
+\item Indexed by a server-provided context token
+\item Client provides a timestamp so server can maintain an anti-replay window
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Failed 0-RTT Handshake (missed anti-replay check)}
+
+{\scriptsize
+\begin{verbatim}
+       Client                                               Server
+
+       ClientHello
+       ClientKeyShare
+       {Certificate*}
+       {CertificateVerify*}
+       {Finished}              
+       [Application Data]        -------->
+                                                       ServerHello
+                                                    ServerKeyShare
+                                 <--------              {Finished}
+       {Certificate*}
+       {CertificateVerify*}
+       {Finished}              
+       [Application Data]        -------->
+
+       [Application Data]        <------->      [Application Data]
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Failed 0-RTT Handshake (unknown server key)}
+
+{\scriptsize
+\begin{verbatim}
+       Client                                               Server
+
+       ClientHello
+       ClientKeyShare
+       {Certificate*}
+       {CertificateVerify*}
+       {Finished}              
+       [Application Data]        -------->
+                                                       ServerHello
+                                                    ServerKeyShare
+                                                    ServerKeyShare
+                                            {EncryptedExtensions*}
+                                                    {Certificate*}
+                                             {CertificateRequest*}
+                                            {ServerConfiguration*}
+                                              {CertificateVerify*}
+                                 <--------              {Finished}
+       {Certificate*}
+       {CertificateVerify*}
+       {Finished}              
+       [Application Data]        -------->
+
+       [Application Data]        <------->      [Application Data]
+\end{verbatim}
+}
+\end{slide}
+
+\begin{slide}
+\heading{How do you distinguish first client flight from second client flight?}
+
+\begin{itemize}
+\item Trial decryption
+\item Different handshake type
+\item Some other inline indicator
+\item What about DTLS?
+\end{itemize}
+
 \end{slide}
 
 \end{document}
