@@ -1,0 +1,425 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{color}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 92} 
+\fancyfoot[C]{\tiny TLS}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+
+
+\begin{document}
+
+\centerslidesfalse 
+
+\begin{slide}
+\begin{footnotesize}
+\begin{verbatim}
+                          Existing Draft
+      ClientHello
+      ClientKeyShare            -------->
+                                                      ServerHello
+                                                   ServerKeyShare
+                                           {EncryptedExtensions*}
+                                                   {Certificate*}
+                                            {CertificateRequest*}
+                                             {CertificateVerify*}
+                                <--------              {Finished}
+      {Certificate*}
+      {CertificateVerify*}
+      {Finished}                -------->
+      [Application Data]        <------->      [Application Data]
+
+ {} Indicates messages protected using keys derived from the handshake
+   master secret.
+
+ [] Indicates messages protected using keys derived from the master
+  secret.
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+\begin{slide}
+\heading{Right now we have two modes}
+
+\begin{itemize}
+\item Signature-based (naive 1-RTT)
+\item Static DH-based (cached server 1-RTT, 0-RTT)
+\item Krawczyk/Wee propose just doing static DH
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Basic idea}
+
+\begin{itemize}
+\item Server has a semi-static DH key (just like 1-RTT)
+\item Probably really has long-term signing key
+  \begin{itemize}
+  \item Used to sign the semi-static key
+  \item .. offline versus online signing
+  \end{itemize}
+
+\item Key exchange computations the same for 0-RTT and 1-RTT (and similar with PSK)
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\begin{footnotesize}
+\begin{verbatim}
+                          DH-Based Draft
+
+       ClientHello
+       ClientKeyShare            -------->
+                                                       ServerHello
+                                                    ServerKeyShare
+                                            {EncryptedExtensions*}
+                                                    {Certificate*}
+                                             {CertificateRequest*}
+                                               {ServerParameters*}
+                                 <--------              {Finished}
+       {Certificate*}
+       {CertificateVerify*}
+       {Finished}                -------->
+       [Application Data]        <------->      [Application Data]
+
+ {} Indicates messages protected using keys derived from the handshake
+   master secret.
+
+ [] Indicates messages protected using keys derived from the master
+  secret.
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Server Parameters (prototype)}
+\vspace{-.25in}
+{\scriptsize
+\begin{verbatim}
+       struct {
+         uint64 not_before;
+         uint64 not_after;
+         opaque key_identifier<0..2^8-1>;
+         NamedGroup group;
+         opaque server_key<1..2^16-1>;
+       } UnsignedParameters;
+
+       enum { online(0), (255)} ParametersType;
+       
+       struct {
+           UnsignedParameters parameters;
+           ParametersType params_type;
+           digitally-signed struct {
+             UnsignedParameters parameters;
+             opaque session_hash[Hash.length];
+           };
+           opaque zero_rt_id<0..2^16-1>;
+       } ServerParameters;
+
+\end{verbatim}
+}
+\end{slide}
+
+\begin{slide}
+\heading{What's being signed by the server?}
+
+\begin{itemize}
+\item Online signature
+  \begin{itemize}
+  \item Rough consensus not to do offline now
+  \end{itemize}
+  
+\item Signature over \verb^session_hash + UnsignedParameters^
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\vspace{-1.3in}
+{\tiny
+\begin{verbatim}
+                                        0
+                                        |                         
+                                        |                         
+                                      HKDF <- Static Secret<------+
+                                     Extract
+                                        |                         |
+        Early Application               v                         |
+          Traffic Keys    <-HKDFH--   Auth.                       |
+                                     Master                       |
+                                     Secret                       |
+                                        |                         |
+                0                       |                         | Via
+                |                       |                         | Session
+               HKDF <--  Ephemeral --> HKDF                       |
+             Extract      Secret     Extract                      |
+                |                       |                         |
+                v                       |                         |
+             Handshake                  |                         |
+              Master                    |                         |
+              Secret                    |                         |
+                |                       |                         |
+           HKDF-Expand                  |                         |
+                |                       |                         |
+                v                       v                         |
+             Handshake                Master                      |
+           Traffic Keys               Secret                      |
+                                        |                         |
+                                        |                         |
+            Application    <--HKDF------+-----HKDF--->        Resumption        
+           Traffic Keys      Expand     |    Expand             Master
+                                        |                       Secret  
+              Exporter        HKDF      |
+           Master Secret   <--Expand----+
+\end{verbatim}
+}
+\end{slide}
+
+\begin{slide}
+\heading{Performance Comparison (ignoring amortized computations and fixed base)}
+
+\scriptsize{
+\begin{tabular}{l l l}
+Mode & Client & Server \\
+\hline
+Current TLS 1.3 (1-RTT) & Verify + 1 VB  & Sign + 1 VB  \\
+OPTLS (online signing) & Verify + 2 VB  & Sign + 2 VB  \\
+OPTLS (offline signing) & Verify + 2 VB  & 2 VB  \\
+OPTLS (online signing, $g^s == g^y$) & Verify + 1 VB  & Sign + 1 VB  \\
+OPTLS (HMQV) & Verify + 1.x VB  & Sign + 1.x VB  \\
+0-RTT & 2 VB  & 2 VB  \\
+\end{tabular}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{How do we provide keys for 0-RTT}
+
+\begin{itemize}
+\item Reuse/cache the keys from 1-RTT
+  \begin{itemize}
+  \item This means you can't use $g^s == g^y$
+  \item Annoying tradeoff for the server
+  \end{itemize}
+
+\item Have the server supply a separate key
+  \begin{itemize}
+  \item Two keys in ServerParameters?
+  \item Some other encoding
+  \end{itemize}
+
+\item Neither of these is that awesome
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{HKDF}
+
+\begin{itemize}
+\item Some sense that we should convert to HKDF
+  \begin{itemize}
+  \item Clearer cryptographic properties
+  \item Is there anything wrong with the TLS PRF?
+  \end{itemize}
+
+\item This is an orthogonal question
+  \begin{itemize}
+  \item But I'd like to make the change at the same time
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Overview of 0-RTT Flow}
+
+{\scriptsize
+\begin{verbatim}
+       Client                                               Server
+
+       ClientHello
+       ClientKeyShare
+       {Certificate*}
+       {CertificateVerify*}
+       {Finished}              
+       [Application Data]        -------->
+                                                       ServerHello
+                                                    ServerKeyShare
+                                 <--------              {Finished}
+       [Application Data]        <------->      [Application Data]
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Key Agreement (well-understood)}
+
+\begin{itemize}
+\item Client caches server's long-term (EC)DH share
+\item First flight data encrypted under client ephemeral/server static
+\item Server supplies ephemeral in first flight
+\item Rest of data encrypted under both ephemeral/static and ephemeral/ephemeral
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Anti-Replay}
+
+\begin{itemize}
+\item TLS anti-replay is based on each side providing random value
+  \begin{itemize}
+  \item Mixed into the keying material
+  \end{itemize}
+
+\item Not compatible with 0-RTT
+  \begin{itemize}
+  \item Client has anti-replay (since they speak first)
+  \item Server's random isn't incorporated into client's first flight
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Anti-Replay (borrowed from Snap Start)}
+
+\begin{itemize}
+\item Server needs to keep a list of client nonces
+\item Indexed by a server-provided context token
+\item Client provides a timestamp so server can maintain an anti-replay window
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{This doesn't work}
+
+\vspace{-.45in}
+{\scriptsize
+\begin{verbatim}
+Client                        Attacker                          Server
+
+ClientHello [+0-RTT] ------------>
+"POST /buy-something" ----------->      
+
+                              ClientHello [+0-RTT] --------------->
+                              "POST /buy-something" -------------->      
+                           
+                                                   [Processes purchase]
+                                 <---------- ServerHello [accept 0-RTT]
+                                                  (+ rest of handshake)
+
+                         [Force server reboot]
+
+                              ClientHello [+0-RTT] --------------->
+                              "POST /buy-something" -------------->      
+
+   <--------------------------------------  ServerHello [reject 0-RTT]
+                                                 (+ rest of handshake)
+
+Finished --------------------------------------------------------->
+"Post /buy-something" -------------------------------------------->
+                                                  [Processes purchase]
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Less Contrived}
+
+\vspace{-.45in}
+{\scriptsize
+\begin{verbatim}
+ Client             Attacker            Server1              Server 2
+
+ClientHello [+0-RTT] -->
+"POST /buy-something" ->               
+
+                    ClientHello [+0-RTT] -->
+                    "POST /buy-something" ->
+                                       
+                                        [Processes
+                                         purchase]               
+
+
+
+                    ClientHello [+0-RTT] ----------------------->
+                    "POST /buy-something" ---------------------->
+
+
+   <--------------------------------------  ServerHello [reject 0-RTT]
+                                                 (+ rest of handshake)
+
+Finished --------------------------------------------------------->
+"Post /buy-something" -------------------------------------------->
+                                                  [Processes purchase]
+\end{verbatim}
+}
+\end{slide}
+
+
+\end{document}
