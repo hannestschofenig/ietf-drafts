@@ -82,6 +82,32 @@ Mozilla\\
 
 
 \begin{slide}
+\heading{Changes since -03}
+
+
+\begin{itemize}
+\item draft-05
+  \begin{itemize}
+  \item Prohibit SSL negotiation for backwards compatibility.
+  \item Fix which MS is used for exporters.
+  \end{itemize}
+
+\item draft-04
+  \begin{itemize}
+  \item Modify key computations to include session hash.
+  \item Remove ChangeCipherSpec
+  \item Renumber the new handshake messages to be somewhat more
+    consistent with existing convention and to remove a duplicate
+    registration.
+  \item Remove renegotiation.
+  \item Update format of signatures with context.
+  \item Remove point format negotiation.
+  \end{itemize}  
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
 \heading{Overview of 0-RTT Flow}
 
 {\scriptsize
