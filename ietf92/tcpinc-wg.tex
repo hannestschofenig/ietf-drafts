@@ -1,0 +1,151 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{color}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 92} 
+\fancyfoot[C]{\tiny TLS}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+
+
+\begin{document}
+
+\begin{slide}
+\begin{center}
+\vspace{.5 in}
+\LARGE{{\bf}TCP Use TLS Option}\\
+\vspace{.2in}
+\large{
+\begin{tabular}{c}
+Eric Rescorla\\
+Mozilla\\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+\centerslidesfalse 
+
+\begin{slide}
+\heading{Background: TLS over TCP}
+
+\begin{itemize}
+\item TLS over TCP is ubiquitous
+\begin{itemize}
+\item Probably the most deployed Internet security protocol – Widely implemented
+\item Heavily analyzed and reasonably well understood
+\end{itemize}
+\item Hard to coordinate
+\begin{itemize}
+\item  Servers which are expecting application data choke on TLS \verb^ClientHello^
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Some Existing Coordination techniques}
+
+\begin{itemize}
+\item External signal to the client (e.g., \verb^https:^)
+\item Separate ports
+\item Manual config
+\item DNS signaling
+\item Extend the application layer protocol (STARTTLS)
+\item None of these lend themselves to opportunistic deployment
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Problem Statement}
+
+Add the minimum necessary machinery to TCP to let it opportunistically negotiate TLS when both sides want to.
+\end{slide}
+
+
+\begin{slide}
+\heading{TLS TCP Option}
+
+\xymatrix@R=.2in@C=2.5in{
+Alice & Bob \\
+\ar[r]^{\txt{\texttt{SYN + TCP-TLS}}} & \\
+& \ar[l]_{\txt{\texttt{SYN/ACK + TCP-TLS}}} \\
+\ar[r]^{\txt{\texttt{ACK}}} & \\
+\ar@{<->}[r]^{\txt{\texttt{TLS Handshake}}} & \\
+\ar@{<->}[r]^{\txt{\texttt{Application Data (over TLS)}}} & \\
+}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Bob Doesn't Support TLS}
+
+\xymatrix@R=.2in@C=2.5in{
+Alice & Bob \\
+\ar[r]^{\txt{\texttt{SYN + TCP-TLS}}} & \\
+& \ar[l]_{\txt{\texttt{SYN/ACK}}} \\
+\ar[r]^{\txt{\texttt{ACK}}} & \\
+\ar@{<->}[r]^{\txt{\texttt{Application Data}}} & \\
+}
+
+\end{slide}
+
+
+\end{document}
