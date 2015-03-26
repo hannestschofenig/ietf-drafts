@@ -84,7 +84,7 @@ Mozilla\\
 \begin{slide}
 \heading{Changes since -03}
 
-
+\vspace{-.25in}
 \begin{itemize}
 \item draft-05
   \begin{itemize}
@@ -104,6 +104,11 @@ Mozilla\\
   \item Remove point format negotiation.
   \end{itemize}  
 \end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{0-RTT}
 \end{slide}
 
 
@@ -276,6 +281,22 @@ Finished --------------------------------------------------------->
      // Try to figure out whether to replay or not
   }
 \end{verbatim}
+\end{slide}
+
+\begin{slide}
+\heading{DH-Based Handshake}
+\end{slide}
+
+
+\begin{slide}
+\heading{Background Reading}
+
+\begin{itemize}
+\item Git branch: \url{https://github.com/ekr/tls13-spec/tree/WIP_dh_based}
+\item Text file: \url{https://github.com/ekr/tls13-spec/blob/ietf92_materials/draft-ietf-tls-tls13-dh-based.txt}
+\item HTML diff: \url{https://github.com/ekr/tls13-spec/blob/ietf92_materials/draft-ietf-tls-tls13-dh-based-diff.html}
+\end{itemize}
+
 \end{slide}
 
 
@@ -502,6 +523,53 @@ OPTLS (HMQV) & Verify + 1.x VB  & Sign + 1.x VB  \\
   \item But I'd like to make the change at the same time
   \end{itemize}
 \end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{AEAD IV (I)}
+
+\begin{itemize}
+\item PR ???
+
+\item TLS 1.2 (well, GCM) uses a partially explicit IV
+  \begin{itemize}
+  \item 32 bits generated from MS
+  \item 64 bits explicit
+  \item 32 bits block counter
+  \end{itemize}
+
+\item This chews up bandwidth
+  \begin{itemize}
+  \item ChaCha draft reuses sequence number
+  \item OK (?) if the module checks
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{AEAD IV (II)}
+
+\begin{itemize}
+\item Interim consensus: use record sequence number and pad with 0s
+\item Brian Smith: should we have a random offset?
+\item Options
+  \begin{itemize}
+  \item Do nothing
+  \item Per-session prefix
+  \item Per-session offset
+  \item Per-session XOR mask
+  \end{itemize}
+
+\item Let's decide
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Other issues?}
+
 \end{slide}
 
 
