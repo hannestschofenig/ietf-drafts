@@ -6,6 +6,7 @@
 \usepackage{url}
 \usepackage[framemethod=TikZ]{mdframed}
 \usepackage{color}
+\usepackage[normalem]{ulem}
 
 \long\def\symbolfootnote[#1]#2{\begingroup%
 \def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
@@ -147,5 +148,138 @@ Alice & Bob \\
 
 \end{slide}
 
+
+\begin{slide}
+\heading{What do we need to signal?}
+
+\begin{itemize}
+\item That I want to do TLS
+  \begin{itemize}
+    \item Signaled by option present
+  \end{itemize}
+
+\item TLS roles (client vs. server)
+\item Obvious for non simultaneous open case
+  \begin{itemize}
+  \item Let's ignore simultaneous open (or do an optional tiebreaker)
+  \end{itemize}
+
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Minimal Option}
+
+\begin{verbatim}
+           +------------+------------+
+           |  Kind=XX   | Length = 2 |
+           +------------+------------+
+\end{verbatim}
+\end{slide}
+
+
+\begin{slide}
+\heading{Comparison to Integrated Designs (e.g. tcpcrypt)}
+
+\begin{itemize}
+\item Advantages
+  \begin{itemize}
+  \item Easy to specify and implement
+  \item Leverage the work that has alredy gone into TLS 
+    \begin{itemize}
+    \item Looks like existing TLS over TCP on the wire
+    \end{itemize}
+\end{itemize}
+
+\item Disadvantages
+\begin{itemize}
+\item Imports TLS history; may want to profile
+\item Less optimized, especially when you want to do anti-DoS
+\item TLS records can span segment boundaries 
+  \begin{itemize}
+  \item Easy to manage with attention to MTU
+  \end{itemize}
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{End of Connection (not in draft)}
+
+\begin{itemize}
+\item TLS already has a connection close (\verb^close_notify^)
+\item Half-closed state not supported
+  \begin{itemize}
+  \item Could modify TLS if needed
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Setup latency (detail, TLS 1.3, no data in SYN)}
+
+
+\xymatrix@R=.2in@C=2.5in{
+Alice & Bob \\
+\ar[r]^{\txt{\texttt{SYN + TCP-TLS}}} & \\
+& \ar[l]_{\txt{\texttt{SYN/ACK + TCP-TLS}}} \\
+\ar[r]^{\txt{\texttt{ACK}}} & \\
+\ar[r]^{\txt{\texttt{ClientHello, ClientKeyShare}}} & \\
+& \ar[l]_{\txt{\texttt{ServerHello, ServerKeyShare, ..., Finished}}} \\
+& \ar[l]_{\color{red}\txt{\texttt{Application Data}}} \\
+\ar[r]^{\txt{\texttt{Finished}}} & \\
+\ar@{<->}[r]^{\color{red}\txt{\texttt{Application Data}}} & \\
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Setup latency (detail, TLS 1.3, TFO or data in SYN)}
+
+\xymatrix@R=.2in@C=2.5in{
+Alice & Bob \\
+\ar[r]^{\txt{\texttt{SYN + TCP-TLS}}} & \\
+\ar[r]^{\txt{\texttt{ClientHello, ClientKeyShare}}} & \\
+& \ar[l]_{\txt{\texttt{SYN/ACK + TCP-TLS}}} \\
+& \ar[l]_{\txt{\texttt{ServerHello, ServerKeyShare, ..., Finished}}} \\
+& \ar[l]_{\color{red}\txt{\texttt{Application Data}}} \\
+\ar[r]^{\txt{\texttt{ACK}}} & \\
+\ar[r]^{\txt{\texttt{Finished}}} & \\
+\ar@{<->}[r]^{\color{red}\txt{\texttt{Application Data}}} & \\
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{TLS Complexity/Profiling}
+
+\begin{itemize}
+\item TLS is \sout{complicated}powerful
+  \begin{itemize}
+    \item Though TLS 1.3 is removing a lot of stuff
+  \end{itemize}
+\item The necessary subset for this is not that complicated
+\item And it's a pretty obvious subsetting exercise
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Questions?}
+
+\end{slide}
+
+\begin{slide}
+\heading{Backup Slide: Handling Simultaneous Open}
+
+\begin{verbatim}
+           +------------+------------+------------+------------+
+           |  Kind=XX   | Length = 8 |        Tiebreaker       |
+           +------------+------------+------------+------------+
+           |                   Tiebreaker                      |
+           +---------------------------------------------------+
+\end{verbatim}
+\end{slide}
 
 \end{document}
