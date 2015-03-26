@@ -365,18 +365,30 @@
 \end{slide}
 
 \begin{slide}
-\heading{Performance Comparison (ignoring amortized computations)}
+\heading{Performance Comparison (ignoring amortized computations and fixed base)}
 
+\scriptsize{
 \begin{tabular}{l l l}
 Mode & Client & Server \\
 \hline
-Current TLS 1.3 (1-RTT) & Verify + 1 VB + 1 FB & Sign + 1 VB + 1 FB \\
-OPTLS (online signing) & Verify + 2 VB + 1 FB & Sign + 2 VB + 1 FB \\
-OPTLS (offline signing) & Verify + 2 VB + 1 FB & 2 VB + 1 FB \\
-OPTLS (online signing, $g^s == g^y) & Verify + 1 VB + 1 FB & Sign + 1 VB + 1 FB \\
-OPTLS (HMQV) & Verify + 1.x VB + 1 FB & Sign + 1.x VB + 1 FB \\
-0-RTT & 2 VB + 1 FB & 2 VB + 1 FB \\
+Current TLS 1.3 (1-RTT) & Verify + 1 VB  & Sign + 1 VB  \\
+OPTLS (online signing) & Verify + 2 VB  & Sign + 2 VB  \\
+OPTLS (offline signing) & Verify + 2 VB  & 2 VB  \\
+OPTLS (online signing, $g^s == g^y$) & Verify + 1 VB  & Sign + 1 VB  \\
+OPTLS (HMQV) & Verify + 1.x VB  & Sign + 1.x VB  \\
+0-RTT & 2 VB  & 2 VB  \\
 \end{tabular}
+}
+\end{slide}
+
+\begin{slide}
+\heading{Other Issues}
+
+\begin{itemize}
+\item Offline signatures
+\item Keep PAKE?
+\item Get rid of EarlyData (yes please!)
+\end{itemize}
 
 \end{slide}
 

@@ -62,7 +62,196 @@
 
 \begin{document}
 
+\begin{slide}
+\begin{center}
+\vspace{.5 in}
+\LARGE{{\bf}TLS 1.3}\\
+\vspace{.2in}
+\large{
+\begin{tabular}{c}
+Eric Rescorla\\
+Mozilla\\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
 \centerslidesfalse 
+
+
+\begin{slide}
+\heading{Overview of 0-RTT Flow}
+
+{\scriptsize
+\begin{verbatim}
+       Client                                               Server
+
+       ClientHello
+       ClientKeyShare
+       {Certificate*}
+       {CertificateVerify*}
+       {Finished}              
+       [Application Data]        -------->
+                                                       ServerHello
+                                                    ServerKeyShare
+                                 <--------              {Finished}
+       [Application Data]        <------->      [Application Data]
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Key Agreement (well-understood)}
+
+\begin{itemize}
+\item Client caches server's long-term (EC)DH share
+\item First flight data encrypted under client ephemeral/server static
+\item Server supplies ephemeral in first flight
+\item Rest of data encrypted under both ephemeral/static and ephemeral/ephemeral
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Anti-Replay}
+
+\begin{itemize}
+\item TLS anti-replay is based on each side providing random value
+  \begin{itemize}
+  \item Mixed into the keying material
+  \end{itemize}
+
+\item Not compatible with 0-RTT
+  \begin{itemize}
+  \item Client has anti-replay (since they speak first)
+  \item Server's random isn't incorporated into client's first flight
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Anti-Replay (borrowed from Snap Start)}
+
+\begin{itemize}
+\item Server needs to keep a list of client nonces
+\item Indexed by a server-provided context token
+\item Client provides a timestamp so server can maintain an anti-replay window
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{This doesn't work}
+
+\vspace{-.45in}
+{\scriptsize
+\begin{verbatim}
+Client                        Attacker                          Server
+
+ClientHello [+0-RTT] ------------>
+"POST /buy-something" ----------->      
+
+                              ClientHello [+0-RTT] --------------->
+                              "POST /buy-something" -------------->      
+                           
+                                                   [Processes purchase]
+                                 <---------- ServerHello [accept 0-RTT]
+                                                  (+ rest of handshake)
+
+                         [Force server reboot]
+
+                              ClientHello [+0-RTT] --------------->
+                              "POST /buy-something" -------------->      
+
+   <--------------------------------------  ServerHello [reject 0-RTT]
+                                                 (+ rest of handshake)
+
+Finished --------------------------------------------------------->
+"Post /buy-something" -------------------------------------------->
+                                                  [Processes purchase]
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Less Contrived}
+
+\vspace{-.45in}
+{\scriptsize
+\begin{verbatim}
+ Client             Attacker            Server1              Server 2
+
+ClientHello [+0-RTT] -->
+"POST /buy-something" ->               
+
+                    ClientHello [+0-RTT] -->
+                    "POST /buy-something" ->
+                                       
+                                        [Processes
+                                         purchase]               
+
+
+
+                    ClientHello [+0-RTT] ----------------------->
+                    "POST /buy-something" ---------------------->
+
+
+   <--------------------------------------  ServerHello [reject 0-RTT]
+                                                 (+ rest of handshake)
+
+Finished --------------------------------------------------------->
+"Post /buy-something" -------------------------------------------->
+                                                  [Processes purchase]
+\end{verbatim}
+}
+\end{slide}
+
+\begin{slide}
+\heading{Options}
+
+\begin{itemize}
+\item Abandon 0-RTT (boo hiss)
+\item Keep server state globally and temporally consistent
+\item Remove TLS anti-replay guarantee for the first flight
+\item Remove TLS reliable delivery guarantee for the first flight
+\item[]
+\item This is an inherent problem (as far as we know)
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Example API (option 3)}
+
+\begin{verbatim}
+ c = new TLSConnection(...)
+ c.setReplayable0RTTData("GET /....")
+ c.connect();
+\end{verbatim}
+\end{slide}
+
+
+\begin{slide}
+\heading{Example API (option 4)}
+
+\begin{verbatim}
+  c = new TLSConnection(...)
+  c.setUnreliable0RTTData("GET /....")
+  c.connect()
+  if (c.delivered0RTTData()) {
+     // Things are cool
+  } else {
+     // Try to figure out whether to replay or not
+  }
+\end{verbatim}
+\end{slide}
+
 
 \begin{slide}
 \begin{footnotesize}
@@ -289,137 +478,6 @@ OPTLS (HMQV) & Verify + 1.x VB  & Sign + 1.x VB  \\
 \end{itemize}
 \end{slide}
 
-
-\begin{slide}
-\heading{Overview of 0-RTT Flow}
-
-{\scriptsize
-\begin{verbatim}
-       Client                                               Server
-
-       ClientHello
-       ClientKeyShare
-       {Certificate*}
-       {CertificateVerify*}
-       {Finished}              
-       [Application Data]        -------->
-                                                       ServerHello
-                                                    ServerKeyShare
-                                 <--------              {Finished}
-       [Application Data]        <------->      [Application Data]
-\end{verbatim}
-}
-\end{slide}
-
-
-\begin{slide}
-\heading{Key Agreement (well-understood)}
-
-\begin{itemize}
-\item Client caches server's long-term (EC)DH share
-\item First flight data encrypted under client ephemeral/server static
-\item Server supplies ephemeral in first flight
-\item Rest of data encrypted under both ephemeral/static and ephemeral/ephemeral
-\end{itemize}
-\end{slide}
-
-
-\begin{slide}
-\heading{Anti-Replay}
-
-\begin{itemize}
-\item TLS anti-replay is based on each side providing random value
-  \begin{itemize}
-  \item Mixed into the keying material
-  \end{itemize}
-
-\item Not compatible with 0-RTT
-  \begin{itemize}
-  \item Client has anti-replay (since they speak first)
-  \item Server's random isn't incorporated into client's first flight
-  \end{itemize}
-\end{itemize}
-\end{slide}
-
-
-
-\begin{slide}
-\heading{Anti-Replay (borrowed from Snap Start)}
-
-\begin{itemize}
-\item Server needs to keep a list of client nonces
-\item Indexed by a server-provided context token
-\item Client provides a timestamp so server can maintain an anti-replay window
-\end{itemize}
-\end{slide}
-
-
-\begin{slide}
-\heading{This doesn't work}
-
-\vspace{-.45in}
-{\scriptsize
-\begin{verbatim}
-Client                        Attacker                          Server
-
-ClientHello [+0-RTT] ------------>
-"POST /buy-something" ----------->      
-
-                              ClientHello [+0-RTT] --------------->
-                              "POST /buy-something" -------------->      
-                           
-                                                   [Processes purchase]
-                                 <---------- ServerHello [accept 0-RTT]
-                                                  (+ rest of handshake)
-
-                         [Force server reboot]
-
-                              ClientHello [+0-RTT] --------------->
-                              "POST /buy-something" -------------->      
-
-   <--------------------------------------  ServerHello [reject 0-RTT]
-                                                 (+ rest of handshake)
-
-Finished --------------------------------------------------------->
-"Post /buy-something" -------------------------------------------->
-                                                  [Processes purchase]
-\end{verbatim}
-}
-\end{slide}
-
-
-\begin{slide}
-\heading{Less Contrived}
-
-\vspace{-.45in}
-{\scriptsize
-\begin{verbatim}
- Client             Attacker            Server1              Server 2
-
-ClientHello [+0-RTT] -->
-"POST /buy-something" ->               
-
-                    ClientHello [+0-RTT] -->
-                    "POST /buy-something" ->
-                                       
-                                        [Processes
-                                         purchase]               
-
-
-
-                    ClientHello [+0-RTT] ----------------------->
-                    "POST /buy-something" ---------------------->
-
-
-   <--------------------------------------  ServerHello [reject 0-RTT]
-                                                 (+ rest of handshake)
-
-Finished --------------------------------------------------------->
-"Post /buy-something" -------------------------------------------->
-                                                  [Processes purchase]
-\end{verbatim}
-}
-\end{slide}
 
 
 \end{document}
