@@ -631,5 +631,21 @@ Mozilla\\
 \end{slide}
 
 
+\begin{slide}
+\heading{0-RTT Rejection Handling (III)}
+
+\begin{itemize}
+\item What is included in handshake hash?
+  \begin{itemize}
+  \item Handshake hash generally includes \emph{plaintext}
+  \item ... but in rejection cases, you probably don't have decryption cases
+  \end{itemize}
+
+\item Present draft just ignores this data with rejection
+\item Alternative: include \emph{ciphertext}
+\item Proposal: keep with current version pending analysis
+\end{itemize}
+
+\end{slide}
 
 \end{document}  
