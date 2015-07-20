@@ -107,6 +107,21 @@ Mozilla\\
 
 
 \begin{slide}
+\heading{Open Issues Preview}
+
+\begin{itemize}
+\item Indicating known configurations
+\item 0-RTT w/ PSK
+\item Interaction of 0-RTT and authentication
+\item 0-RTT rejection handling
+\item PSK resumption restrictions
+\item Traffic key generation
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
 \heading{DH-Based Handshake (Review)}
 
 \begin{itemize}
@@ -117,22 +132,8 @@ Mozilla\\
   \item Agreement at previous IETFs to use online-only signing
   \end{itemize}
 
-\item Key exchange computations the same for 0-RTT and 1-RTT (and similar with PSK)
+\item Common key exchange computations between all modes
 \end{itemize}
-\end{slide}
-
-\begin{slide}
-\heading{Open Issues Preview}
-
-\begin{itemize}
-\item Indicating known configurations
-\item Interaction of 0-RTT and authentication
-\item 0-RTT rejection handling
-\item 0-RTT w/ PSK
-\item PSK resumption restrictions
-\item Traffic key generation
-\end{itemize}
-
 \end{slide}
 
 
@@ -221,6 +222,13 @@ Mozilla\\
 \end{verbatim}
 \end{footnotesize}
 
+\begin{itemize}
+\item The client's reuse of the configuration implicitly resurrects the previous state
+  \begin{itemize}
+  \item See open issues
+  \end{itemize}
+\end{itemize}
+
 \end{slide}
 
 
@@ -287,6 +295,12 @@ Mozilla\\
 \item This is kind of clunky
   \begin{itemize}
   \item Early handshake messages have a different content type
+  \item What about encrypted content types
+  \end{itemize}
+
+\item Analysis needed that ignoring early data is OK
+  \begin{itemize}
+  \item ... currently underway
   \end{itemize}
 \end{itemize}
 
@@ -507,6 +521,115 @@ Mozilla\\
 \item Nothing else has changed
 \end{itemize}
 \end{slide}
+
+
+\begin{slide}
+\heading{Indicating Known Configurations}
+
+\begin{itemize}
+\item Current design has client just indicate configuration ID
+  \begin{itemize}
+  \item This means that the server needs to memorize each crypto configuration (ugh)
+  \end{itemize}
+
+\item Proposed redesign
+  \begin{itemize}
+  \item Client indicates configuration ID \emph{and} cryptographic configuration
+    \begin{itemize}
+    \item Cipher suites and cryptographic extensions
+    \item MUST replicate the server's selection from a previous handshake
+    \end{itemize}
+  \item Server verifies client's \verb^ClientHello^
+    \begin{itemize}
+    \item Checks that configuration ID is valid
+    \item Verifies that client's parameters are what it would negotiate
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Strawman}
+
+\begin{footnotesize}
+\begin{verbatim}
+         struct {
+           select (Role) {
+             case client:
+               opaque identifier<0..2^16-1>;
+               CipherSuite cipher_suite;            <- SEE HERE
+               Extension extensions<0..2^16-1>;     <- SEE HERE       
+
+             case server:
+               struct {};
+           }
+         } KnownConfigurationExtension
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+\begin{slide}
+\heading{Analysis}
+
+\begin{itemize}
+\item Pros
+  \begin{itemize}
+  \item Server doesn't need to keep per-connection state
+  \item Neatly solves PSK (and any other key negotiation mechanism)
+  \item Explicit state is explicit
+  \end{itemize}
+\item Cons
+  \begin{itemize}
+  \item Server has to compare client's offer
+  \item Very modest wire bloat
+  \end{itemize}
+
+\item Note: we could have the server not echo the parameters in ServerHello
+  \begin{itemize}
+  \item But I'd rather keep things consistent
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{0-RTT Rejection Handling (I)}
+
+\begin{itemize}
+\item Currently it's all or nothing
+  \begin{itemize}
+  \item Server can't accept 0-RTT client auth but not 0-RTT data
+  \item ... maybe it should be able to express its preferences in ServerConfiguration
+  \end{itemize}
+
+\item This seems easiest
+\item Proposed resolution: Server gets to indicate what it wants in ServerConfiguration
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{0-RTT Rejection Handling (II)}
+
+\vspace{-2ex}
+\begin{itemize}
+\item How do you distinguish client's early data (which you want to discard) from the client's second flight (which you want to process)
+\item Current algorithm uses content type
+  \begin{itemize}
+  \item Early handshake data has \verb^early_handshake^
+  \item Early data has \verb^application_data^ type
+  \item The next thing you want to process has \verb^handshake^ type
+  \item Just skip to the next \verb^handshake^ message
+  \end{itemize}
+\item This isn't maximally elegant
+  \begin{itemize}
+  \item And will fail with encrypted content types (there you need trial decryption)
+  \item Other ideas welcome
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
 
 
 \end{document}  
