@@ -179,31 +179,6 @@ Alice & Bob \\
 
 
 \begin{slide}
-\heading{Comparison to Integrated Designs (e.g. tcpcrypt)}
-
-\begin{itemize}
-\item Advantages
-  \begin{itemize}
-  \item Easy to specify and implement
-  \item Leverage the work that has alredy gone into TLS 
-    \begin{itemize}
-    \item Looks like existing TLS over TCP on the wire
-    \end{itemize}
-\end{itemize}
-
-\item Disadvantages
-\begin{itemize}
-\item Imports TLS history; may want to profile
-\item Less optimized, especially when you want to do anti-DoS
-\item TLS records can span segment boundaries 
-  \begin{itemize}
-  \item Easy to manage with attention to MTU
-  \end{itemize}
-\end{itemize}
-\end{itemize}
-\end{slide}
-
-\begin{slide}
 \heading{End of Connection (not in draft)}
 
 \begin{itemize}
@@ -261,6 +236,32 @@ Alice & Bob \\
   \end{itemize}
 \item The necessary subset for this is not that complicated
 \item And it's a pretty obvious subsetting exercise
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Comparison to Integrated Designs (e.g. tcpcrypt)}
+
+\begin{itemize}
+\item Advantages
+  \begin{itemize}
+  \item Easy to specify and implement
+  \item Leverage the work that has alredy gone into TLS 
+    \begin{itemize}
+    \item Looks like existing TLS over TCP on the wire
+    \end{itemize}
+\end{itemize}
+
+\item Disadvantages
+\begin{itemize}
+\item Imports TLS history; may want to profile
+\item Less optimized, especially when you want to do anti-DoS
+\item TLS records can span segment boundaries 
+  \begin{itemize}
+  \item Easy to manage with attention to MTU
+  \end{itemize}
+\end{itemize}
 \end{itemize}
 \end{slide}
 

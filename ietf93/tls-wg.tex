@@ -121,6 +121,177 @@ Mozilla\\
 \end{itemize}
 \end{slide}
 
+\begin{slide}
+\heading{Open Issues Preview}
+
+\begin{itemize}
+\item Indicating known configurations
+\item Interaction of 0-RTT and authentication
+\item 0-RTT rejection handling
+\item 0-RTT w/ PSK
+\item PSK resumption restrictions
+\item Traffic key generation
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Key Computation Inputs}
+
+\begin{footnotesize}
+\begin{verbatim}
+     Key Exchange            Static Secret (SS)    Ephemeral Secret (ES)
+     ------------            ------------------    ---------------------
+     (EC)DHE                   Client ephemeral         Client ephemeral
+     (full handshake)       w/ server ephemeral      w/ server ephemeral
+
+     (EC)DHE                   Client ephemeral         Client ephemeral
+     (w/ known_configuration)      w/ Known Key      w/ server ephemeral
+
+     PSK                         Pre-Shared Key           Pre-shared key
+
+     PSK + (EC)DHE               Pre-Shared Key         Client ephemeral
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Key Computations [TODO]}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Two New Mechanisms}
+
+\begin{itemize}
+\item Server configurations and known configuration
+  \begin{itemize}
+  \item Server publishes a configuration to the client in handshake $n$
+  \item Client reuses that configuration in handshake $n+1$
+  \end{itemize}
+
+\item Early data indication
+  \begin{itemize}
+  \item Client indicates that he wants to do 0-RTT (client auth, data, both)
+  \item Server accepts or rejects
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+\begin{slide}
+\heading{Example: Initial Handshake}
+
+\vspace{-2ex}
+\begin{footnotesize}
+\begin{verbatim}
+     ClientHello
+       + ClientKeyShare        -------->
+                                                     ServerHello
+                                                 ServerKeyShare*
+                                           {EncryptedExtensions}
+                                          {ServerConfiguration*}
+                                                  {Certificate*}
+                                           {CertificateRequest*}
+                                            {CertificateVerify*}
+                               <--------              {Finished}
+     {Certificate*}
+     {CertificateVerify*}
+     {Finished}                -------->
+     [Application Data]        <------->      [Application Data]
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Known Configuration}
+
+\begin{footnotesize}
+\begin{verbatim}
+         struct {
+             opaque configuration_id<1..2^16-1>;
+             uint32 expiration_date;
+             NamedGroup group;
+             opaque server_key<1..2^16-1>;
+             Boolean early_data_allowed;
+         } ServerConfiguration;
+\end{verbatim}
+\end{footnotesize}
+
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Example: 0-RTT Handshake (w/o new configuration)}
+
+\vspace{-4ex}
+\begin{footnotesize}
+\begin{verbatim}
+       ClientHello
+         + ClientKeyShare
+         + KnownConfiguration
+         + EarlyDataIndication
+       (Certificate*)
+       (CertificateVerify*)
+       (Application Data)                       -------->
+                                                       ServerHello
+                                              + KnownConfiguration
+                                             + EarlyDataIndication
+                                                    ServerKeyShare
+                                 <--------              {Finished}
+       {Finished}                -------->
+
+       [Application Data]        <------->      [Application Data]
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Early Data Indication}
+
+
+\begin{footnotesize}
+\begin{verbatim}
+         enum { early_handshake(1), early_data(2),
+                early_handshake_and_data(3), (255) } EarlyDataType;
+
+         struct {
+           select (Role) {
+             case client:
+               opaque context<0..255>;
+               EarlyDataType type;
+             case server:
+               struct {};
+           }
+         } EarlyDataIndication;
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\heading{What do failed 0-RTT handshakes look like?}
+
+\begin{itemize}
+\item Server doesn't respond with an EarlyDataIndication
+  \begin{itemize}
+  \item System falls back to 1-RTT
+  \item All of the early data is just ignored
+  \end{itemize}
+
+\item This is kind of clunky
+  \begin{itemize}
+  \item Early handshake messages have a different content type
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
 
 
 \begin{slide}
@@ -162,58 +333,6 @@ Mozilla\\
 
 
 \begin{slide}
-\heading{Example: Initial Handshake}
-
-\vspace{-2ex}
-\begin{footnotesize}
-\begin{verbatim}
-     ClientHello
-       + ClientKeyShare        -------->
-                                                     ServerHello
-                                                 ServerKeyShare*
-                                           {EncryptedExtensions}
-                                          {ServerConfiguration*}
-                                                  {Certificate*}
-                                           {CertificateRequest*}
-                                            {CertificateVerify*}
-                               <--------              {Finished}
-     {Certificate*}
-     {CertificateVerify*}
-     {Finished}                -------->
-     [Application Data]        <------->      [Application Data]
-\end{verbatim}
-\end{footnotesize}
-
-\end{slide}
-
-
-\begin{slide}
-\heading{Example: 0-RTT Handshake (w/o new configuration)}
-
-\vspace{-4ex}
-\begin{footnotesize}
-\begin{verbatim}
-       ClientHello
-         + ClientKeyShare
-         + KnownConfiguration
-         + EarlyDataIndication
-       (Certificate*)
-       (CertificateVerify*)
-       (Application Data)        -------->
-                                                       ServerHello
-                                              + KnownConfiguration
-                                             + EarlyDataIndication
-                                                    ServerKeyShare
-                                 <--------              {Finished}
-       {Finished}                -------->
-
-       [Application Data]        <------->      [Application Data]
-\end{verbatim}
-\end{footnotesize}
-\end{slide}
-
-
-\begin{slide}
 \heading{Example: 0-RTT Handshake w/ new configuration}
 
 \vspace{-4ex}
@@ -239,6 +358,154 @@ Mozilla\\
        [Application Data]        <------->      [Application Data]
 \end{verbatim}
 \end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Pre-Shared Keys}
+
+\begin{itemize}
+\item TLS 1.2 had PSK
+  \begin{itemize}
+  \item But we kind of broke it
+  \end{itemize}
+
+\item draft-07 brings it back
+  \begin{itemize}
+  \item But I did get rid of identity hint...
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Example: Pure PSK Handshake}
+
+\begin{footnotesize}
+\begin{verbatim}
+          ClientHello
+            + ClientKeyShare,
+              PreSharedKeyExtension -------->
+                                                          ServerHello
+                                               +PreSharedKeyExtension
+                                    <--------              {Finished}
+          {Certificate*}
+          {Finished}                -------->
+          [Application Data]        <------->      [Application Data]
+\end{verbatim}
+\end{footnotesize}
+
+\begin{itemize}
+\item Can also do this with DHE-PSK
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{PreSharedKey Extension}
+
+\begin{footnotesize}
+\begin{verbatim}
+         opaque psk_identity<0..2^16-1>;
+
+         struct {
+           select (Role) {
+             case client:
+               psk_identity identities<0..2^16-1>;
+
+             case server:
+               psk_identity identity;
+         } PreSharedKeyExtension;
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\heading{PSK For Resumption}
+
+\begin{itemize}
+\item Resumption and PSK are very similar
+  \begin{itemize}
+  \item Let's make them identical
+  \end{itemize}
+
+\item Basic idea
+  \begin{itemize}
+  \item Server gives client a PSK label
+  \item PSK is derived from initial handshake (resumption master secret)
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Example: Establishing a PSK for resumption}
+
+\begin{footnotesize}
+\begin{verbatim}
+          ClientHello
+            + ClientKeyShare       -------->
+                                                          ServerHello
+                                                       ServerKeyShare
+                                                {EncryptedExtensions}
+                                                {ServerConfiguration*}
+                                                       {Certificate*}
+                                                {CertificateRequest*}
+                                                 {CertificateVerify*}
+                                    <--------              {Finished}
+          {Certificate*}
+          {CertificateVerify*}
+          {Finished}                -------->
+                                    <--------      [NewSessionTicket] <- SEE HERE
+          [Application Data]        <------->      [Application Data]
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\heading{AEAD IV}
+
+\begin{itemize}
+\item TLS 1.2 (well, GCM) uses a partially explicit IV
+  \begin{itemize}
+  \item This chews up bandwidth
+  \end{itemize}
+  
+\item Consensus to remove explicit IV
+  \begin{itemize}
+  \item And reuse sequence number
+  \item Brian Smith raised concerns about every connection using the same nonce sequence
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{draft-07 design for AEAD IV}
+
+\begin{itemize}
+\item $iv\_length = max(8, N\_MAX)$
+\item Generate per-session mask of length $iv\_length$
+\item Left-pad RSN with 0s to $iv\_length$
+\item XOR RSN with mask to produce per-record nonce
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{ClientKeyShare Extension}
+
+\begin{itemize}
+\item This used to be a separate message
+  \begin{itemize}
+  \item That just made life complicated
+  \end{itemize}
+
+\item It's now an extension
+\item Nothing else has changed
+\end{itemize}
 \end{slide}
 
 
