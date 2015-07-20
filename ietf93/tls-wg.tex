@@ -1,0 +1,245 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{color}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 93} 
+\fancyfoot[C]{\tiny TLS}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+
+
+\begin{document}
+
+\begin{slide}
+\begin{center}
+\vspace{.5 in}
+\LARGE{{\bf}TLS 1.3 Status}\\
+\vspace{.2in}
+\large{
+\begin{tabular}{c}
+Eric Rescorla\\
+Mozilla\\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+\centerslidesfalse 
+
+\begin{slide}
+\heading{Overview of Changes Since IETF 92 (Major)}
+
+\begin{itemize}
+\item Integrate DH-based handshake (per WG discussion in Dallas)
+\item Add initial cut at 0-RTT support
+\item HKDF-based key derivation (per WG discussion in Dallas)
+\item Moved ClientKeyShare into an extension
+\item Added support for PSK
+\item Removed resumption and merged ticket support with PSK
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Overview of Changes Since IETF 92 (Minor)}
+
+\begin{itemize}
+\item Prohibit RC4 negotiation
+\item Froze record-layer header
+\item Context field for signatures
+\item Replaced explicit IV with sequence number + mask
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{DH-Based Handshake (Review)}
+
+\begin{itemize}
+\item Server has a semi-static DH key (just like 1-RTT)
+\item Probably really has long-term signing key
+  \begin{itemize}
+  \item Used to sign the semi-static key
+  \item Agreement at previous IETFs to use online-only signing
+  \end{itemize}
+
+\item Key exchange computations the same for 0-RTT and 1-RTT (and similar with PSK)
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Managing semi-static keys (I)}
+
+\begin{itemize}
+\item Need two keys
+  \begin{itemize}
+  \item Ephemeral (for PFS)
+  \item Semi-static (cached server 1-RTT, 0-RTT)
+  \end{itemize}
+
+\item Various options for making these work together
+  \begin{itemize}
+  \item Always use a single semi-static key -- suboptimal performance
+  \item Have the server supply a separate key -- odd when you refresh keys
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Managing semi-static keys (II)}
+\begin{itemize}
+\item Current draft state
+  \begin{itemize}
+  \item First handshake looks like draft-06
+    \begin{itemize}
+    \item Can supply a \verb^ServerConfiguration^
+    \end{itemize}
+
+  \item Subsequent handshakes can reuse \verb^ServerConfiguration^
+    \begin{itemize}
+      \item But need to sign if they want to provide one
+    \end{itemize}
+  \end{itemize}
+\item More modes than we would really like (but best perf profile)
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Example: Initial Handshake}
+
+\vspace{-2ex}
+\begin{footnotesize}
+\begin{verbatim}
+     ClientHello
+       + ClientKeyShare        -------->
+                                                     ServerHello
+                                                 ServerKeyShare*
+                                           {EncryptedExtensions}
+                                          {ServerConfiguration*}
+                                                  {Certificate*}
+                                           {CertificateRequest*}
+                                            {CertificateVerify*}
+                               <--------              {Finished}
+     {Certificate*}
+     {CertificateVerify*}
+     {Finished}                -------->
+     [Application Data]        <------->      [Application Data]
+\end{verbatim}
+\end{footnotesize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Example: 0-RTT Handshake (w/o new configuration)}
+
+\vspace{-4ex}
+\begin{footnotesize}
+\begin{verbatim}
+       ClientHello
+         + ClientKeyShare
+         + KnownConfiguration
+         + EarlyDataIndication
+       (Certificate*)
+       (CertificateVerify*)
+       (Application Data)        -------->
+                                                       ServerHello
+                                              + KnownConfiguration
+                                             + EarlyDataIndication
+                                                    ServerKeyShare
+                                 <--------              {Finished}
+       {Finished}                -------->
+
+       [Application Data]        <------->      [Application Data]
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Example: 0-RTT Handshake w/ new configuration}
+
+\vspace{-4ex}
+\begin{footnotesize}
+\begin{verbatim}
+       ClientHello
+         + ClientKeyShare
+         + KnownConfiguration
+         + EarlyDataIndication
+       (Certificate*)
+       (CertificateVerify*)
+       (Application Data)        -------->
+                                                       ServerHello
+                                              + KnownConfiguration
+                                             + EarlyDataIndication
+                                                    ServerKeyShare
+                                            {ServerConfiguration*} <- 
+                                                    {Certificate*} <- SEE HERE
+                                              {CertificateVerify*} <-
+                                 <--------              {Finished}
+       {Finished}                -------->
+
+       [Application Data]        <------->      [Application Data]
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\end{document}  
