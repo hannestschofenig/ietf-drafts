@@ -159,7 +159,11 @@ Mozilla\\
 
 
 \begin{slide}
-\heading{Key Computations [TODO]}
+\heading{Key Computations}
+
+\begin{center}
+\includegraphics[width=3in]{tls-key-derive}
+\end{center}
 
 \end{slide}
 
@@ -645,7 +649,72 @@ Mozilla\\
 \item Alternative: include \emph{ciphertext}
 \item Proposal: keep with current version pending analysis
 \end{itemize}
-
 \end{slide}
+
+
+\begin{slide}
+\heading{0-RTT and Authentication}
+
+\begin{itemize}
+\item There isn't any per-connection data from the server to sign
+  \begin{itemize}
+  \item Client provides all the freshness\symbolfootnote[1]{
+      Insert caveats about issues with 0-RTT anti-replay}
+  \end{itemize}
+\item What context does the client have to sign?
+  \begin{itemize}
+  \item It should include server identity
+  \end{itemize}
+\end{itemize}
+
+\begin{footnotesize}
+\begin{verbatim}
+      handshake_hash = Hash(
+                            Hash(handshake_messages) ||
+                            Hash(configuration)
+                           )
+
+      configuration = ServerConfiguration || Certificate                           
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+
+\begin{slide}
+\heading{PSK Resumption Restrictions?}
+
+\begin{itemize}
+\item Resumption required that you use the same ciphers
+  \begin{itemize}
+  \item But if you make resumption PSK then you could in principle negotiate a new cipher
+  \end{itemize}
+
+\item Should we require servers to pick the same symmetric cipher?
+\item This would be somewhat easier if we had a la carte negotiation
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Traffic Key Generation}
+
+\begin{itemize}
+\item Presently we generate a \verb^key_block^
+\item ... and then slice and dice
+\item Generating independent keys with a context input would be more HSM-friendly
+\item Expected context
+  \begin{itemize}
+  \item Key length
+  \item Usage
+  \item Algorithm (ugh)
+  \end{itemize}
+\item Should we do this?
+\end{itemize}
+\end{slide}
+
+
+\begin{itemize}
+\item This slide intentionally left blank
+\end{itemize}
 
 \end{document}  
