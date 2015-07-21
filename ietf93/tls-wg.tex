@@ -197,7 +197,7 @@ Mozilla\\
                                                      ServerHello
                                                  ServerKeyShare*
                                            {EncryptedExtensions}
-                                          {ServerConfiguration*}
+                                          {ServerConfiguration*} <- SEE HERE
                                                   {Certificate*}
                                            {CertificateRequest*}
                                             {CertificateVerify*}
@@ -227,10 +227,7 @@ Mozilla\\
 \end{footnotesize}
 
 \begin{itemize}
-\item The client's reuse of the configuration implicitly resurrects the previous state
-  \begin{itemize}
-  \item See open issues
-  \end{itemize}
+\item The client's reuse of the configuration implicitly resurrects the previous state (See open issues)
 \end{itemize}
 
 \end{slide}
@@ -249,7 +246,7 @@ Mozilla\\
          + EarlyDataIndication
        (Certificate*)
        (CertificateVerify*)
-       (Application Data)                       -------->
+       (Application Data)        -------->
                                                        ServerHello
                                               + KnownConfiguration
                                              + EarlyDataIndication
@@ -367,9 +364,9 @@ Mozilla\\
                                               + KnownConfiguration
                                              + EarlyDataIndication
                                                     ServerKeyShare
-                                            {ServerConfiguration*} <- 
+                                            {ServerConfiguration*} <- SEE HERE
                                                     {Certificate*} <- SEE HERE
-                                              {CertificateVerify*} <-
+                                              {CertificateVerify*} <- SEE HERE
                                  <--------              {Finished}
        {Finished}                -------->
 
@@ -479,36 +476,6 @@ Mozilla\\
           [Application Data]        <------->      [Application Data]
 \end{verbatim}
 \end{footnotesize}
-\end{slide}
-
-
-\begin{slide}
-\heading{AEAD IV}
-
-\begin{itemize}
-\item TLS 1.2 (well, GCM) uses a partially explicit IV
-  \begin{itemize}
-  \item This chews up bandwidth
-  \end{itemize}
-  
-\item Consensus to remove explicit IV
-  \begin{itemize}
-  \item And reuse sequence number
-  \item Brian Smith raised concerns about every connection using the same nonce sequence
-  \end{itemize}
-\end{itemize}
-\end{slide}
-
-
-\begin{slide}
-\heading{draft-07 design for AEAD IV}
-
-\begin{itemize}
-\item $iv\_length = max(8, N\_MAX)$
-\item Generate per-session mask of length $iv\_length$
-\item Left-pad RSN with 0s to $iv\_length$
-\item XOR RSN with mask to produce per-record nonce
-\end{itemize}
 \end{slide}
 
 
@@ -696,6 +663,37 @@ Mozilla\\
 
 
 \begin{slide}
+\heading{AEAD IV}
+
+\begin{itemize}
+\item TLS 1.2 (well, GCM) uses a partially explicit IV
+  \begin{itemize}
+  \item This chews up bandwidth
+  \end{itemize}
+  
+\item Consensus to remove explicit IV
+  \begin{itemize}
+  \item And reuse sequence number
+  \item Brian Smith raised concerns about every connection using the same nonce sequence
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{draft-07 design for AEAD IV}
+
+\begin{itemize}
+\item $iv\_length = max(8, N\_MAX)$
+\item Generate per-session mask of length $iv\_length$
+\item Left-pad RSN with 0s to $iv\_length$
+\item XOR RSN with mask to produce per-record nonce
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
 \heading{Traffic Key Generation}
 
 \begin{itemize}
@@ -714,7 +712,7 @@ Mozilla\\
 
 
 \begin{itemize}
-\item This slide intentionally left blank
+\heading{This slide intentionally left blank}
 \end{itemize}
 
 \end{document}  
