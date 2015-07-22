@@ -711,8 +711,148 @@ Mozilla\\
 \end{slide}
 
 
-\begin{itemize}
+
+\begin{slide}
 \heading{This slide intentionally left blank}
+\end{slide}
+
+
+\begin{slide}
+\heading{Report from Rump Study Group:\\Signatures with Known Configuration (I)}
+
+\begin{itemize}
+\item Option 1: Server only signs when it provides a known configuration
+  \begin{itemize}
+  \item Pros: optimal performance
+  \item Cons: More complexity and optionality
+  \end{itemize}
+
+\item Option 2: Server \emph{always} signs
+  \begin{itemize}
+  \item Pros: simplicity, continous guarantee of control of signing key
+  \item Cons: 0-RTT requires one extra (EC)DH versus base 1-RTT case, no signature amortization
+  \end{itemize}
 \end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Report from Rump Study Group:\\Signatures with Known Configuration (II)}
+
+\begin{itemize}
+\item Proposed resolution: server server \emph{always signs}
+  \begin{itemize}
+  \item This allows us to merge KnownConfiguration and EarlyDataIndication
+  \item Since the only point of KnownConfiguration is 0-RTT
+  \end{itemize}
+
+\item What about signature amortization?
+  \begin{itemize}
+  \item Adopt Hugo's suggestion of offline signatures gated on a cert
+    extension
+  \item This also will enable delegation use cases
+  \item We can work on this in parallel to TLS 1.3
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Report from Rump Study Group:\\0-RTT Failure Recovery (I)}
+
+\begin{itemize}
+\item Problem recap: if client does 0-RTT with an unknown config, server can't decrypt the rest of the first flight
+  \begin{itemize}
+  \item ... but still needs to skip ahead
+  \end{itemize}
+
+\item Current draft uses a different content type
+  \begin{itemize}
+  \item But this doesn't work with content type decryption
+  \item Though it might be independently valuable
+  \end{itemize}
+
+\item Trial decryption seems obvious
+  \begin{itemize}
+  \item But Jim Schaad asked what about attack?
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Report from Rump Study Group:\\0-RTT Failure Recovery (II)}
+
+\vspace{-5ex}
+\begin{itemize}
+\item With trial decryption, what happens if client and server have a 1-RTT failure
+  \begin{itemize}
+  \item Server will then discard client Finished and wait for something that never comes
+  \end{itemize}
+
+\item Conclusion: this isn't an issue
+  \begin{itemize}
+  \item Never happens in normal cases
+  \item The client should fail on the server Finished anyway
+  \item The server just ends up stalled
+    \begin{itemize}
+    \item ... and that's easy for the attacker to force you into anyway
+    \end{itemize}
+  \end{itemize}
+
+\item Proposed resolution: trial decryption with adopt content type encryption
+  \begin{itemize}
+  \item Need to independently study impact of content type on analysis
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{A La Carte Cipher Suites: Background}
+
+\begin{itemize}
+\item TLS uses suites
+  \begin{itemize}
+  \item Negotiated items: signature, key exchange, AEAD, hash (for KDF)
+  \item Some other protocols have used a la carte
+  \end{itemize}
+
+\item Arguments here are well-known
+  \begin{itemize}
+  \item Combinatoric explosion vs.
+  \item Not all configurations are sensible (e.g., Suite B).
+  \end{itemize}
+
+\item Except TLS isn't totally suite-based any more
+  \begin{itemize}
+  \item Signature algorithms extensions
+  \item Named groups/FFDHE extension
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{A La Carte Cipher Suites: Options}
+
+\begin{itemize}
+\item Leave as-is
+\item Negotiate just key exchange, AEAD, hash via suites
+  \begin{itemize}
+  \item Use signature algorithms extension for signature
+  \end{itemize}
+\item Negotiate just AEAD, hash via suites
+  \begin{itemize}
+  \item Use NamedGroups or something else for key exchange
+  \item ... wedging in PSK might be hard
+  \end{itemize}
+\item Hybrid (Dave Garrett's proposal)
+  \begin{itemize}
+  \item Negotiate symmetric/asymmetric key exchange, AEAD, hash via suites
+  \end{itemize}
+
+\item Define all-new suites
+\end{itemize}
+\end{slide}
 
 \end{document}  
