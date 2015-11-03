@@ -511,5 +511,63 @@ Post-Handshake   ClientHello ... ClientFinished +         master_secret
 \end{itemize}
 \end{slide}
 
+\begin{slide}
+\heading{Re-Keying}
+
+\begin{itemize}
+\item AES-GCM and ChaCha20/Poly1305 can't encrypt infinite amounts of data
+\item Some debate about exactly where the boundaries are
+\item But potentially within plausible bounds for TLS
+    \begin{itemize}
+    \item Watson Ladd recommends $2^{32}$ blocks for AES-GCM and $2^{96}$ blocks for ChaCha/Poly1305
+    \item David McGrew (offlist) recommends $2^{32}$ records for AES-GCM
+    \item For reference [draft-ietf-avtcore-srtp-aes-gcm] specifies $2^{48}$ records
+  \end{itemize}
+
+\item Security bounds are different for TLS and DTLS because attacker can query
+  DTLS oracle more than once
+  \begin{itemize}
+  \item DTLS could have a hard limit on failures?
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Seattle Discussion Consensus on Technical Approach}
+
+\begin{itemize}
+\item Don't set a hard limit
+  \begin{itemize}
+  \item This accomodates new results
+  \end{itemize}
+
+\item Have a one-way indicator that says ``I am changing my key''
+  \begin{itemize}
+  \item Message type should be handshake (or alert?)
+  \item Other side MAY (but not MUST) do the same thing
+  \item With DTLS also update epoch in case message is lost
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Proposed Way Forward}
+
+\begin{itemize}
+\item Determine what we consider acceptable limits
+  \begin{itemize}
+  \item $X$ number of records with a $Y$ margin of safety
+  \end{itemize}
+
+\item Ask CFRG a targeted question about those limits with current algorithms
+  \begin{itemize}
+  \item If we're at all close, add a rekeying mechanism
+  \end{itemize}
+
+\item Discuss: what are $X$ and $Y$?
+\end{itemize}
+
+\end{slide}
+
 \end{document}  
                 
