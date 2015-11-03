@@ -219,10 +219,202 @@ Mozilla\\
   \end{itemize}
 \item Client can ignore any unrecognized extensions
 \end{itemize}
-
 \end{slide}
 
 
+\begin{slide}
+\heading{Client Authentication (PR\#316)}
 
+\begin{itemize}
+\item TLS 1.3 removed renegotiation
+\item But there's still a need for servers to request certificates post-handshake
+  \begin{itemize}
+  \item Especially in HTTP
+  \end{itemize}
+
+\item WG had consensus in Seattle to do something about this
+\item Formed ad hoc design team
+  \begin{itemize}
+  \item AGL, DKG, EKR, Beurdouche, Bhargavan, Krawczyk, Langley, MT, Wee
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Current Structure}
+
+\vspace{-3ex}
+\begin{footnotesize}
+\begin{verbatim}
+           ClientHello
+             + ClientKeyShare     -------->
+                                                        ServerHello
+                                                    ServerKeyShare*
+                                              {EncryptedExtensions}
+                                             {ServerConfiguration*}
+                                                     {Certificate*} <-\
+                                              {CertificateRequest*}    > Sign.
+                                               {CertificateVerify*} <-/
+                                  <--------              {Finished} <-   MAC
+Sign.  /-> {Certificate*}
+       \-> {CertificateVerify*}
+MAC     -> {Finished}             -------->
+           [Application Data]     <------->      [Application Data]
+\end{verbatim}
+\end{footnotesize}
+
+\begin{itemize}
+\item This is effectively SIGMA-I
+\item So what if we formalize it
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{TLS Authentication Block}
+
+\begin{itemize}
+\item Consists of: Certificate, CertificateVerify, Finished
+  \begin{itemize}
+  \item Use this every time we want to authenticate
+  \item Sometimes Cert/CertVerify are omitted
+  \end{itemize}
+
+\item Inputs are:
+  \begin{itemize}
+  \item A Session Context (usually the handshake transcript)
+  \item A base key to compute the finished keys from
+    \begin{itemize}
+    \item Client and server use separate keys
+    \end{itemize}
+  \end{itemize}
+
+\item CertificateVerify = Sign(SC + Certificate)
+\item Finished = MAC(SC + Certificate + CertificateVerify)
+  \begin{itemize}
+  \item Note: this is like continuing the hashes
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Authentication Inputs}
+
+\vspace{-3ex}
+\begin{footnotesize}
+\begin{verbatim}
+Mode             Handshake Context                        Base Key
+----             -----------------                        --------
+0-RTT            ClientHello + ServerConfiguration        xSS
+                             + Server Certificate
+                             + CertificateRequest
+                            
+1-RTT (Server)   ClientHello ... ServerConfiguration      master_secret
+                 
+1-RTT (Client)   ClientHello ... ServerFinished           master_secret
+
+Post-Handshake   ClientHello ... ClientFinished +         master_secret
+                 CertificateRequest
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+\begin{slide}
+\heading{Post-Handshake Client Auth}
+
+\begin{itemize}
+\item Server can send CertificateRequest at any time
+\item Client responds with authentication block
+  \begin{itemize}
+  \item Possibly with empty cert
+  \end{itemize}
+
+\item Note: need to add correlator between CertificateRequest and CertificateVerify
+\item Not in this PR yet
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Key Schedule Changes}
+
+\begin{footnotesize}
+\begin{verbatim}
+  3. mSS = HKDF-Expand-Label(xSS, "expanded static secret",
+                             handshake_hash, L)
+
+  4. mES = HKDF-Expand-Label(xES, "expanded ephemeral secret",
+                             handshake_hash, L)
+
+  Where handshake_hash includes all messages up through the
+  server CertificateVerify message.
+
+  5. master_secret = HKDF-Extract(mSS, mES)
+
+  client_finished_key =
+      HKDF-Expand-Label(BaseKey, "client_finished", "", L)
+  
+  server_finished_key =
+      HKDF-Expand-Label(BaseKey, "server_finished", "", L)
+\end{verbatim}
+\end{footnotesize}
+\end{slide}
+
+\begin{slide}
+\begin{scriptsize}
+\begin{verbatim}
+            ClientHello
+              + ClientKeyShare
+         ^    + EarlyDataIndication
+  O-RTT  |  (Certificate*)
+  mode   |  (CertificateVerify*
+         v  (Finished)  // Note: new message.
+            (Application Data*)       -------->
+                                                            ServerHello
+                                                        ServerKeyShare*
+                                                  {EncryptedExtensions}
+                                                  {CertificateRequest*}
+                                                 {ServerConfiguration*} 
+                                                         {Certificate*}  ^
+                                                   {CertificateVerify*}  | Server Auth.
+                                      <--------              {Finished}  v
+ 1-RTT   ^  {Certificate*}
+ Client  |  {CertificateVerify*}
+ Auth    |  {Finished}                -------->
+         v  [Application Data]        <------->      [Application Data]
+
+                         
+                                      <--------    [CertificateRequest]   ^
+            [Certificate]                                                 | Post-HS
+            [CertificateVerify]                                           | Auth.
+            [Finished]                -------->                           v
+\end{verbatim}
+\end{scriptsize}
+\end{slide}
+
+\begin{slide}
+\heading{Other Notes}
+
+\begin{itemize}
+\item Added Finished to 0-RTT data
+  \begin{itemize}
+  \item It's part of authentication block
+  \item Adds consistency and a natural separator
+  \end{itemize}
+
+\item 0-RTT data isn't hashed into transcript for 1-RTT
+  \begin{itemize}
+  \item Conceptually cleaner to separate these
+  \item Not necessary for negotiation
+  \end{itemize}
+
+\item Possible to client authenticate \emph{both} in 0-RTT and 1-RTT
+  \begin{itemize}
+  \item Conceptually simpler
+  \item Server can keep requesting anyway
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
 
 \end{document}  
