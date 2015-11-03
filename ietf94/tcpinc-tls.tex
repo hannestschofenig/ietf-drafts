@@ -79,6 +79,71 @@ Mozilla\\
 \end{slide}
 \centerslidesfalse 
 
+\begin{slide}
+\heading{Basic idea}
 
+\begin{itemize}
+\item Use ENO to negotiate use of this draft
+\item Run TLS as usual over TCP once ENO negotiates it
+\item Profile TLS down to a small subset of TLS 1.3
+\item Intuition: if you ignore ENO extensions this looks just like TLS-over-TCP
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Minimal SYN Suboption}
+
+\begin{verbatim}
+    bit   7   6   5   4   3   2   1   0
+        +---+---+---+---+---+---+---+---+
+        | 0 |           TBD             |
+        +---+---+---+---+---+---+---+---+
+\end{verbatim}
+\end{slide}
+
+\begin{slide}
+\heading{SYN/ACK Suboptions}
+
+\begin{verbatim}
+One-byte   +--------+
+1-RTT      |   TBD  |
+Only       +--------+  
+
+
+Variable   +--------+---------//----------+
+1-RTT or   |1| TBD  |       Nonce         |
+0-RTT      +--------+---------//----------+
+\end{verbatim}
+
+\begin{itemize}
+\item Warning: nonce thing may be half-baked; more on this later
+\end{itemize}
+\end{slide}
+
+
+\begin{itemize}
+\item TLS 1.3 profile
+\end{itemize}
+
+
+\begin{slide}
+\heading{Open issues}
+
+\begin{itemize}
+\item Ability to negotiate TLS 1.2 as well
+  \begin{itemize}
+  \item This is useful, though perhaps not for TCPINC use case
+  \item Some suggestions to define two code points
+  \end{itemize}
+
+\item Should the client be able to say it wants 0-RTT?
+  \begin{itemize}
+  \item How would this help?
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
 \end{document}  
                 
