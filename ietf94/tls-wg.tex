@@ -419,27 +419,97 @@ Post-Handshake   ClientHello ... ClientFinished +         master_secret
 \end{slide}
 
 \begin{slide}
-\heading{Framing for 0-RTT}
+  \heading{Framing for 0-RTT(\#311, \#295)}
+
+  \begin{itemize}
+  \item 0-RTT content types are funny
+    \begin{itemize}
+    \item Handshake uses ``early\_data''
+    \item Application uses ``application\_data''
+    \end{itemize}
+  \item Idea was to separate by content type
+    \begin{itemize}
+    \item Even without keys
+    \end{itemize}
+
+  \item This doesn't work with encrypted content types
+  \item Proposed resolution
+    \begin{itemize}
+    \item 0-RTT content uses the expected content types
+    \item Terminate 0-RTT application data with close\_notify
+    \item Recovering from a failed 0-RTT requires trial decryption
+    \end{itemize}
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+  \heading{HelloRetryRequest and Handshake Hash (\#104, \#185}
+
+  \begin{itemize}
+  \item Document is agnostic about handshake hash when HRR is used
+  \item Option 1: Continue hash
+    \begin{itemize}
+    \item Much easier to analyze for handshake correctness
+    \item But we want the HRR to be stateless
+      \begin{itemize}
+      \item Combine HRR with DTLS cookie exchange
+      \end{itemize}
+    \end{itemize}
+
+  \item Option 2: Reset hash
+    \begin{itemize}
+    \item Easy to make stateless
+    \item Much harder to analyze
+    \end{itemize}
+
+  \item It turns out we can have both good properties
+  \end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Stateless HelloRetryRequest}
+
+\vspace{-3ex}
+\begin{itemize}
+\item Import cookie exchange from DTLS
+  \begin{itemize}
+  \item Server sends a cookie with HRR
+  \item Client echoes back cookie with new Hello
+  \end{itemize}
+
+\item Retain existing rules for repeat ClientHello construction
+  \begin{itemize}
+  \item Append new ClientKeyShare (if needed)
+  \item Add cookie
+  \item No other changes
+  \end{itemize}
+
+\item Server can recover the handshake hash state
+  \begin{itemize}
+  \item Option 1: offload state into cookie (integrity protected)
+  \item Option 2: reconstruct the ClientHello from the rules above
+  \item Option 3: Or just keep state (makes sense in TLS)
+  \end{itemize}
+\item This is all invisible to the client
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Other cookie construction issues}
 
 \begin{itemize}
-\item 0-RTT content types are funny
+\item Cookie should indicate why HRR was sent
   \begin{itemize}
-  \item Handshake uses ``early\_data''
-  \item Application uses ``application\_data''
+  \item Needed for Option\#2.
+  \item Can still be opaque
   \end{itemize}
-\item Idea was to separate by content type
+\item Want to allow use of cookie as ``address token''
   \begin{itemize}
-  \item Even without keys
-  \end{itemize}
-
-\item This doesn't work with encrypted content types
-\item Proposed resolution
-  \begin{itemize}
-  \item 0-RTT content uses the expected content types
-  \item Terminate 0-RTT application data with close\_notify
-  \item Recovering from a failed 0-RTT requires trial decryption
+  \item Client can send it repeatedly
+  \item Do we need structure in the cookie to indicate that?
   \end{itemize}
 \end{itemize}
 \end{slide}
 
 \end{document}  
+                
