@@ -161,8 +161,55 @@ Variable   +--------+---------//----------+
      [Application Data]        <------->      [Application Data]
 \end{verbatim}
 \end{scriptsize}
+\end{slide}
 
 
+\begin{slide}
+\heading{}
+
+\end{slide}
+
+\begin{slide}
+\heading{TLS 1.3 Handshake in TCPINC (0-RTT)}
+
+\begin{scriptsize}
+\begin{verbatim}
+     SYN + TCP-ENO [TLS]       ------->
+                               <-------        SYN/ACK + TCP-ENO
+                                                   [TLS + Nonce]
+     ACK + TCP-ENO             ------->
+
+     ClientHello
+       + ClientKeyShare
+       + EarlyDataIndication
+       + TCPENOTranscript
+     (EncryptedExtensions)
+     (Application Data)        -------->
+                                                     ServerHello
+                                           + EarlyDataIndication
+                                                  ServerKeyShare
+                                           {EncryptedExtensions}
+                                          {ServerConfiguration*}
+                                                   {Certificate}
+                                             {CertificateVerify}
+                               <--------              {Finished}
+                               <--------      [Application Data]
+     {Finished}                -------->
+
+     [Application Data]        <------->      [Application Data]
+\end{verbatim}
+\end{scriptsize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Session IDs}
+
+\begin{itemize}
+\item Computed as TLS Exporter [RFC 5705]
+\item Label is TBD
+\item TCP-ENO transcript bound in via TCPENOTranscript extension
+\end{itemize}
 \end{slide}
 
 
@@ -180,8 +227,10 @@ Variable   +--------+---------//----------+
   \begin{itemize}
   \item How would this help?
   \end{itemize}
+
+\item Interaction with TFO
 \end{itemize}
 
 \end{slide}
-\end{document}  
+\end{document} 
                 
