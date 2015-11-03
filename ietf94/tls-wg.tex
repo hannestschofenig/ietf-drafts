@@ -65,7 +65,7 @@
 \begin{slide}
 \begin{center}
 \vspace{.5 in}
-\LARGE{{\bf}TLS 1.3 Status}\\
+\LARGE{{\bf}TLS 1.3 Status\\draft-10}\\
 \vspace{.2in}
 \large{
 \begin{tabular}{c}
@@ -80,9 +80,149 @@ Mozilla\\
 
 \centerslidesfalse 
 
+
 \begin{slide}
-\heading{Overview of Changes Since IETF 93}
+\heading{Overview}
+
+\begin{itemize}
+\item Changes since IETF 93 (Prague)
+\item Client authentication (PR\#316)
+\item HelloRetryRequest (Issues \#104, \#185)
+\item 0-RTT framing (\#311, \#295)
+\item Re-key (\#4, \#125)
+\item Exporters (\#282)
+\end{itemize}
+
 \end{slide}
+
+\begin{slide}
+\heading{Changes Since IETF 93 (II)}
+
+\begin{itemize}
+\item Always require digital signatures from the server with public-key cipher suites
+  \begin{itemize}
+  \item ...even with 0-RTT
+  \end{itemize}
+
+\item Relaxed certificate selection rules *
+\item Deprecated a lot of algorithms *
+\item Encrypted content type *
+\item Built-in record padding *
+\item Improved CertificateRequest syntax
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Changes Since IETF 93 (II)}
+
+\begin{itemize}
+\item Update key schedule
+\item Added MTI algorithms
+\item Reduced maximum record expansion
+\item Extensionsify ServerKeyShare
+\item Assorted editorial stuff
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Relaxed Certificate Selection Rules}
+
+\begin{itemize}
+\item TLS 1.2 requires that certificates appear in order
+  \begin{itemize}
+  \item Many servers don't do this
+    \begin{itemize}
+    \item Not always possible
+    \end{itemize}
+  \item Many clients try to construct the path anyway
+  \item Updated draft to encourage but not require this
+  \end{itemize}
+
+\item TLS 1.2 required that server certificates conform to SignatureAlgorithms
+  \begin{itemize}
+  \item But what if the only cert you have doesn't match?
+  \item Draft now allows you to send it in that case 
+    \begin{itemize}
+    \item ...but only if you have to
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Deprecated Algorithms} 
+
+\begin{itemize}
+\item Forbid MD5 (and SHA-224)
+\item Forbid SHA-1 in CertificateVerify
+\item Removed DSA
+\item Switched to PSS (more on this later)
+\item Removed a lot of old EC groups
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Encrypted Content Type and Padding}
+
+\begin{footnotesize}
+\begin{verbatim}
+   struct {
+       ContentType opaque_type = application_data(23); /* see fragment.type */
+       ProtocolVersion record_version = { 3, 1 };    /* TLS v1.x */
+       uint16 length;
+       aead-ciphered struct {
+          opaque content[TLSPlaintext.length];
+          ContentType type;
+          uint8 zeros[length_of_padding];
+       } fragment;
+   } TLSCiphertext;
+\end{verbatim}
+\end{footnotesize}
+
+\begin{itemize}
+\item This allows padding
+\item But doesn't require it
+\item Receiver behaves the same either way
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Improved CertificateRequest Syntax (Popov)}
+
+\vspace{-3ex}
+\begin{footnotesize}
+\begin{verbatim}
+      struct {
+          opaque certificate_extension_oid<1..2^8-1>;
+          opaque certificate_extension_values<0..2^16-1>;
+      } CertificateExtension;
+
+      struct {
+          SignatureAndHashAlgorithm
+            supported_signature_algorithms<2..2^16-2>;
+          DistinguishedName certificate_authorities<0..2^16-1>;
+          CertificateExtension certificate_extensions<0..2^16-1>;
+      } CertificateRequest;
+\end{verbatim}
+\end{footnotesize}
+
+\begin{itemize}
+\item Extensions correspond to X.509v3 extensions in the EE certificate
+\item Each extension has its own matching rule
+  \begin{itemize}
+  \item KeyUsage and EKU defined in this document
+  \end{itemize}
+\item Client can ignore any unrecognized extensions
+\end{itemize}
+
+\end{slide}
+
+
 
 
 \end{document}  
