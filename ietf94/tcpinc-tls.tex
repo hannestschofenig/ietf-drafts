@@ -104,6 +104,10 @@ Mozilla\\
         | 0 |           TBD             |
         +---+---+---+---+---+---+---+---+
 \end{verbatim}
+
+\begin{itemize}
+\item As usual, application-aware bit avoids TLS-in-TLS
+\end{itemize}
 \end{slide}
 
 \begin{slide}
@@ -133,6 +137,7 @@ Variable   +--------+---------//----------+
 \item ECDHE only (MUST P256, SHOULD X25519)
 \item Limited set of symmetric ciphers
 \item Support for raw public keys (avoid need for X.509 certs)
+\item Server ``authentication'' mandatory for protocol reasons
 \item No client authentication
 \item No resumption
 \end{itemize}
@@ -220,7 +225,7 @@ Variable   +--------+---------//----------+
 
 \begin{itemize}
 \item Computed as TLS Exporter [RFC 5705]
-\item Label is TBD
+\item Label to exporter is TBD
 \item TCP-ENO transcript bound in via TCPENOTranscript extension
 \end{itemize}
 \end{slide}
