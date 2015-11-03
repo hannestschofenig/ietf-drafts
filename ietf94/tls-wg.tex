@@ -87,8 +87,8 @@ Mozilla\\
 \begin{itemize}
 \item Changes since IETF 93 (Prague)
 \item Client authentication (PR\#316)
-\item HelloRetryRequest (Issues \#104, \#185)
 \item 0-RTT framing (\#311, \#295)
+\item HelloRetryRequest (Issues \#104, \#185)
 \item Re-key (\#4, \#125)
 \item Exporters (\#282)
 \end{itemize}
@@ -108,7 +108,8 @@ Mozilla\\
 \item Deprecated a lot of algorithms *
 \item Encrypted content type *
 \item Built-in record padding *
-\item Improved CertificateRequest syntax
+\item More context for key derivation *
+\item Improved CertificateRequest syntax *
 \end{itemize}
 \end{slide}
 
@@ -121,6 +122,7 @@ Mozilla\\
 \item Added MTI algorithms
 \item Reduced maximum record expansion
 \item Extensionsify ServerKeyShare
+\item AEAD now has no AAD
 \item Assorted editorial stuff
 \end{itemize}
 \end{slide}
@@ -414,7 +416,30 @@ Post-Handshake   ClientHello ... ClientFinished +         master_secret
   \item Server can keep requesting anyway
   \end{itemize}
 \end{itemize}
+\end{slide}
 
+\begin{slide}
+\heading{Framing for 0-RTT}
+
+\begin{itemize}
+\item 0-RTT content types are funny
+  \begin{itemize}
+  \item Handshake uses ``early\_data''
+  \item Application uses ``application\_data''
+  \end{itemize}
+\item Idea was to separate by content type
+  \begin{itemize}
+  \item Even without keys
+  \end{itemize}
+
+\item This doesn't work with encrypted content types
+\item Proposed resolution
+  \begin{itemize}
+  \item 0-RTT content uses the expected content types
+  \item Terminate 0-RTT application data with close\_notify
+  \item Recovering from a failed 0-RTT requires trial decryption
+  \end{itemize}
+\end{itemize}
 \end{slide}
 
 \end{document}  
