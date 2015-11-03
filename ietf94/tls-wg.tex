@@ -194,6 +194,32 @@ Mozilla\\
 
 
 \begin{slide}
+\heading{Context for Key Derivation}
+
+\begin{footnotesize}
+\begin{verbatim}
+  struct HkdfLabel {
+    uint16 length;
+    opaque hash_value<0..255>;
+    opaque label<9..255>;
+  };
+\end{verbatim}
+\end{footnotesize}
+
+\begin{itemize}
+\item HSMs can look at the label value if they want
+\item Consensus was not to try to make something generic
+\item Presently traffic keys are one big block with slice-and-dice
+  \begin{itemize}
+  \item I intend to split them up to make interfaces easier
+  \end{itemize}
+\item Objections?
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
 \heading{Improved CertificateRequest Syntax (Popov)}
 
 \vspace{-3ex}
@@ -332,7 +358,10 @@ Post-Handshake   ClientHello ... ClientFinished +         master_secret
   \end{itemize}
 
 \item Note: need to add correlator between CertificateRequest and CertificateVerify
-\item Not in this PR yet
+  \begin{itemize}
+  \item Needs to include freshness from server
+  \item Not in this PR yet
+  \end{itemize}
 \end{itemize}
 
 \end{slide}
@@ -514,6 +543,7 @@ Post-Handshake   ClientHello ... ClientFinished +         master_secret
 \begin{slide}
 \heading{Re-Keying}
 
+\vspace{-3ex}
 \begin{itemize}
 \item AES-GCM and ChaCha20/Poly1305 can't encrypt infinite amounts of data
 \item Some debate about exactly where the boundaries are
@@ -561,11 +591,49 @@ Post-Handshake   ClientHello ... ClientFinished +         master_secret
 
 \item Ask CFRG a targeted question about those limits with current algorithms
   \begin{itemize}
-  \item If we're at all close, add a rekeying mechanism
+  \item If we're at all close, add a rekeying mechanism as above (PR wanted)
   \end{itemize}
 
 \item Discuss: what are $X$ and $Y$?
 \end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Exporters for TLS 1.3 (\#282)}
+
+\begin{scriptsize}
+\begin{verbatim}
+Obvious construct:
+
+Exporter(Label, Context, L) = 
+   HKDF-Expand-Label(exporter_secret, Label, Context, L)
+\end{verbatim}
+\end{scriptsize}
+
+\begin{itemize}
+\item Important note: this doesn't include client cert
+  \begin{itemize}
+  \item But does include the server cert
+  \item So less context than TLS 1.2 with session hash
+  \item Analysis needed
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{TLS-Unique}
+
+\begin{itemize}
+\item Do we still need this?
+  \begin{itemize}
+  \item Applications (e.g., Tokbind) are moving to exporters
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Other Issues?}
 
 \end{slide}
 
