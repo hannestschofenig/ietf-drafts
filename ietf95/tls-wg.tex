@@ -299,8 +299,144 @@ Mozilla\\
   \item Didn't you want PFS anyway
   \end{itemize}
 \end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Mailing List Recap: 0-RTT Client Authentication}
+
+\begin{itemize}
+\item Current design: client signs the \verb^ClientHello+...<Server context>^
+  \begin{itemize}
+  \item The authentication is tied to the client's (EC)DH share
+  \end{itemize}
+
+\item This is very brittle
+  \begin{itemize}
+  \item Effectively it's a long-term DH certificate
+    \begin{itemize}
+    \item Modulo anti-replay issues
+    \end{itemize}
+  \item Compromise of either DH share allows impersonation
+  \end{itemize}
+
+\item 0-RTT PSK also scary
+
+\item Proposal on list: Remove 0-RTT Client Authentication entirely
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{(EC)DHE-based 0-RTT}
+
+\vspace{-2ex}
+
+\begin{itemize}
+\item Currently we have 0-RTT modes
+  \begin{itemize}
+  \item (EC)DHE: Server provides (EC)DHE static key in ServerConfiguration and pairs it with its ephemeral
+  \item PSK: Based on session ticket
+  \end{itemize}
+
+\item Proposal: only do the PSK-based mode (Fournet et al., Sullivan et al.)
+  \begin{itemize}
+  \item People are going to want to do PSK-resumption anyway for perf reasons
+  \item Implicit binding between connection parameters
+  \item No need for a ServerConfiguration object
+  \item The crypto analysis of (EC)DHE 0-RTT is tricky
+  \item Can always re-phrase DH as a ``PSK type'' later
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Objection: What about out-of-band priming?}
+
+\begin{itemize}
+\item You can publish an (EC)DH key (e.g., in the DNS)
+  \begin{itemize}
+  \item 0RTT-PSK isn't compatible with out-of-band priming (duh!)
+  \end{itemize}
+
+\item But...
+  \begin{itemize}
+  \item This brings in all the concerns about delegation
+  \item No really plausible priming mechanism (DNS not viable)
+  \item See previous comments about DH-as-PSK
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Objection: Security impact of client-side storage}
+
+\begin{itemize}
+\item Storing a DH public key requires only storage integrity
+\item Storing a PSK requires secrecy
+\item But...
+  \begin{itemize}
+  \item Client-side secure storage already needed for session caching
+  \item Generally session caches don't survive program shutdown
+  \item Google's measurements in QUIC show this has no performance impact versus long-term storage
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Objection: PFS}
+
+\begin{itemize}
+\item With (EC)DHE you get
+  \begin{itemize}
+  \item No PFS for 0-RTT data
+  \item PFS for 1-RTT data
+  \end{itemize}
+
+\item Can do PSK 0-RTT two ways
+  \begin{itemize}
+  \item PSK only (no PFS)
+  \item PSK-(EC)DHE (same PFS as with DH 0-RTT)
+  \end{itemize}
+
+\item Note: can do better with server-side state as opposed to tickets
+\end{itemize}
 
 \end{slide}
+
+
+\begin{slide}
+\heading{Objection: WebRTC}
+
+\begin{itemize}
+\item WebRTC might have a use for this
+\item But...
+  \begin{itemize}
+  \item We have a different hack for that (\verb^draft-rescorla-dtls-in-udp^)
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Objection: Server Proof of Private Key}
+
+\begin{itemize}
+\item The DHE 0-RTT mode forces the server to re-sign every time
+  \begin{itemize}
+  \item The point of PSK is to avoid the server doing that
+  \end{itemize}
+
+\item This creates a tradeoff between 0-RTT and continuing proof of server key
+\item Solution: Allow 0-RTT PSK to be used with signed (EC)DHE exchange
+\end{itemize}
+
+\end{slide}
+
 
 \end{document}  
                 
