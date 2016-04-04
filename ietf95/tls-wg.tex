@@ -99,14 +99,14 @@ Mozilla\\
 \heading{Changes since draft-10}
 
 \begin{itemize}
-\item Restructure authentication along uniform lines
-\item Restructure 0-RTT content types
-\item Reset sequence numbers on key changes
+\item Restructure authentication along uniform lines *
+\item Restructure 0-RTT record layer *
+\item Reset sequence numbers on key changes 
 \item Import CFRG Curves
 \item Zero-length additional data for AEAD
-\item Revised signature algorithm negotiation
-\item Define exporters
-\item Add anti-downgrade mechanism
+\item Revised signature algorithm negotiation *
+\item Define exporters *
+\item Add anti-downgrade mechanism *
 \item Add PSK cipher suites
 \item Other editorial
 \end{itemize}
@@ -194,6 +194,113 @@ Mozilla\\
 
 \end{slide}
 
+\begin{slide}
+\heading{Revised Signature Algorithm Negotiation (I) (davidben)}
+
+\begin{itemize}
+\item TLS 1.2:
+\end{itemize}
+
+{\scriptsize
+\begin{verbatim}
+      struct {
+            HashAlgorithm hash;
+            SignatureAlgorithm signature;
+      } SignatureAndHashAlgorithm;
+\end{verbatim}
+}
+
+\begin{itemize}
+\item Curves were orthogonal (\verb^supported_curves^)
+\item It seemed like a good idea at the time
+\item ... but new signatures algorithms are tied to one hash for each curve size
+\item Proposal from davidben: define a new structure that ties everything together
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Revised Signature Algorithm Negotiation (II)}
+
+{\scriptsize
+\begin{verbatim}
+      enum {
+          // RSASSA-PKCS-v1_5 algorithms.
+          rsa_pkcs1_sha1 (0x0201),
+          rsa_pkcs1_sha256 (0x0401),
+          rsa_pkcs1_sha384 (0x0501),
+          rsa_pkcs1_sha512 (0x0601),
+
+          ...
+      } SignatureScheme;
+\end{verbatim}
+}
+
+\begin{itemize}
+\item These line up with the existing code points
+\item New code points define the triplet: signature algorithm, curve, hash
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Define Exporters}
+
+\begin{itemize}
+\item RFC 5705 defined exporters in terms of the PRF
+  \begin{itemize}
+  \item We removed the PRF....
+  \end{itemize}
+
+\item New definition:
+\end{itemize}
+
+
+{\scriptsize
+\begin{verbatim}
+   HKDF-Expand-Label(HKDF-Extract(0, exporter_secret),
+                     label, context_value, length)
+\end{verbatim}
+}
+
+\begin{itemize}
+\item Note: this doesn't cover 0-RTT. More on this later.
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Anti-Downgrade Mechanism I (Green/Bhargavan)}
+
+\begin{itemize}
+\item TLS 1.2 and below downgrade defense was tied to the Finished message
+\item TLS 1.3 downgrade is tied to both Finished and server CertificateVerify
+  \begin{itemize}
+  \item So TLS 1.3 resists downgrade even when the key exchange is weak
+  \item ... but what about downgrade to TLS 1.2 or 1.1
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Anti-Downgrade Mechanism II (Green/Bhargavan)}
+
+\begin{itemize}
+\item Countermeasure: taint the \verb^ServerRandom^
+  \begin{itemize}
+  \item If server supports TLS 1.2 or TLS 1.3 but client offers a lower version use a special \verb^ServerRandom^
+    \begin{itemize}
+    \item Top eight bytes are \verb^44 4F 57 4E 47 52 44 01^ (TLS 1.3) or \verb^44 4F 57 4E 47 52 44 00^
+    \item This is covered by the server signature
+    \end{itemize}
+  \item Clients MUST check
+  \end{itemize}
+
+\item This doesn't protect you if you negotiate to static RSA
+  \begin{itemize}
+  \item Didn't you want PFS anyway
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
 
 \end{document}  
                 
