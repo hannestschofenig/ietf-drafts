@@ -1,0 +1,199 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{color}
+
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 95} 
+\fancyfoot[C]{\tiny TLS}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+
+
+\begin{document}
+
+\begin{slide}
+\begin{center}
+\vspace{.5 in}
+\LARGE{{\bf}TLS 1.3\\{\small \verb^draft-ietf-tls-tls13-12^}}\\
+\vspace{.2in}
+\large{
+\begin{tabular}{c}
+Eric Rescorla\\
+Mozilla\\
+\url{ekr@rtfm.com}
+\end{tabular}
+}
+\end{center}
+
+\end{slide}
+
+\centerslidesfalse 
+
+
+\begin{slide}
+\heading{Overview}
+
+\begin{itemize}
+\item Changes since draft-10
+\item Outstanding consensus calls
+\item 1-RTT PSK and session tickets
+\item Context values
+\item Key schedule and key separation
+\item 0-RTT details
+\item Minor issues
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Changes since draft-10}
+
+\begin{itemize}
+\item Restructure authentication along uniform lines
+\item Restructure 0-RTT content types
+\item Reset sequence numbers on key changes
+\item Import CFRG Curves
+\item Zero-length additional data for AEAD
+\item Revised signature algorithm negotiation
+\item Define exporters
+\item Add anti-downgrade mechanism
+\item Add PSK cipher suites
+\item Other editorial
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Restructuring Authentication}
+
+\begin{itemize}
+\item TLS 1.3 has four authentication contexts
+  \begin{itemize}
+  \item 1-RTT server
+  \item 1-RTT client
+  \item 0-RTT client\symbolfootnote[2]{Marked for death.}
+  \item Post-handshake
+  \end{itemize}
+
+\item All were slightly different
+\item draft-12 unifies them into one common idiom
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{TLS 1.3 Authentication Block}
+
+\begin{itemize}
+\item Three messages: Certificate*, CertificateVerify*, Finished
+\item Inputs
+  \begin{itemize}
+  \item Handshake Context (generally the handshake hash)
+  \item Certificate/signing key
+  \item Base key for MAC key
+  \end{itemize}
+
+\item CertificateVerify = {\small \verb^digitally-sign(Hash(Handshake Context + Certificate))^\symbolfootnote[1]{Includes disambiguating context string.}}
+\item Finished = \\
+  {\small \verb^HMAC(finished_key, Handshake Context + Certificate + CertificateVerify)^}
+\item Different finished keys for each direction (based on Base Key)
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Eye Chart}
+
+{\scriptsize
+\begin{verbatim}
+   +----------------+-----------------------------------------+--------+
+   | Mode           | Handshake Context                       | Base   |
+   |                |                                         | Key    |
+   +----------------+-----------------------------------------+--------+
+   | 0-RTT          | ClientHello + ServerConfiguration +     | xSS    |
+   |                | Server Certificate + CertificateRequest |        |
+   |                | (where ServerConfiguration, etc. are    |        |
+   |                | from the previous handshake)            |        |
+   |                |                                         |        |
+   | 1-RTT (Server) | ClientHello ... ServerConfiguration     | master |
+   |                |                                         | secret |
+   |                |                                         |        |
+   | 1-RTT (Client) | ClientHello ... ServerFinished          | master |
+   |                |                                         | secret |
+   |                |                                         |        |
+   | Post-Handshake | ClientHello ... ClientFinished +        | master |
+   |                | CertificateRequest                      | secret |
+   +----------------+-----------------------------------------+--------+
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Restructure 0-RTT Record Structure}
+
+\begin{itemize}
+\item draft-10 had a somewhat idiosyncratic design
+\item draft-12 0-RTT parallels 1-RTT
+  \begin{itemize}
+  \item \verb^handshake^ for handshake data
+  \item \verb^application_data^ for application data
+  \item New \verb^end_of_early_data^ (warning) alert for separation
+  \item Separate handshake and traffic keys
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\end{document}  
+                
