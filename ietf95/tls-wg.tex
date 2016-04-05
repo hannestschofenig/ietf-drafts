@@ -144,7 +144,7 @@ Mozilla\\
 
 \item CertificateVerify = {\small \verb^digitally-sign(Hash(Handshake Context + Certificate))^\symbolfootnote[1]{Includes disambiguating context string.}}
 \item Finished = \\
-  {\small \verb^HMAC(finished_key, Handshake Context + Certificate + CertificateVerify)^}
+  {\small \verb^HMAC(finished_key, Handshake Context + Certificate + CertVerify)^}
 \item Different finished keys for each direction (based on Base Key)
 \end{itemize}
 \end{slide}
@@ -432,7 +432,7 @@ Mozilla\\
   \end{itemize}
 
 \item This creates a tradeoff between 0-RTT and continuing proof of server key
-\item Solution: Allow 0-RTT PSK to be used with signed (EC)DHE exchange
+\item Solution: Allow 0-RTT PSK to be used with signed (EC)DHE exchange\symbolfootnote[1]{Details TBD.}
 \end{itemize}
 \end{slide}
 
@@ -493,11 +493,11 @@ Mozilla\\
 
 \item Where do they go?
   \begin{itemize}
-  \item EarlyDataIndication.extensions
-  \item EncryptedExtensions (let's add this back)
+  \item \verb^EarlyDataIndication.extensions^
+  \item \verb^EncryptedExtensions^ (let's add this back)
   \end{itemize}
 
-\item Relationship to original connection
+\item Relationship to original connection?
 \end{itemize}
 
 \end{slide}
@@ -507,20 +507,20 @@ Mozilla\\
 \heading{0-RTT PSK Extensions II: Where do they go?}
 
 \begin{itemize}
-\item EarlyDataIndication has an extensions field
+\item \verb^EarlyDataIndication^ has an extensions field
   \begin{itemize}
   \item But this is in the clear
   \item As much stuff as possible should be secret
   \end{itemize}
 
-\item We have gone back and forth on client EncryptedExtensions
+\item We have gone back and forth on client \verb^EncryptedExtensions^
   \begin{itemize}
   \item We should add it back
   \item Minimally want it for privacy-leaking data like elapsed time
   \item Semantics: \emph{only} apply to the 0-RTT data
   \end{itemize}
 
-\item Proposed dividing line: same as for ServerHello.extensions/EncryptedExtensions
+\item Proposed dividing line: same as for \verb^ServerHello.extensions/EncryptedExtensions^
 \end{itemize}
 \end{slide}
 
@@ -560,7 +560,7 @@ Mozilla\\
   \item Can it be resent on the next flight
   \end{itemize}
 
-\item Proposal: No. HelloRetryRequest sends you back to the beginning.
+\item Proposal: No. \verb^HelloRetryRequest^ sends you back to the beginning.
 \end{itemize}
 \end{slide}
 
@@ -604,7 +604,163 @@ Mozilla\\
 \begin{minipage}{2in}
 \includegraphics[width=2in]{850509}
 \end{minipage}
+
+\begin{itemize}
+\item Obvious construction: \verb^HKDF-Expand-Label(xSS, label, context_value, length)^
+\end{itemize} 
+
 \end{slide}
 
-\end{document}  
+
+\begin{slide}
+\heading{Key Separation: A Layman's View}
+
+\begin{itemize}
+\item Basic idea: different keys for different purposes
+  \begin{itemize}
+  \item For example, handshake and application data
+  \end{itemize}
+
+\item Why? Analyze different pieces separately
+  \begin{itemize}
+  \item ... and then put them together
+  \end{itemize}
+
+\item Handshake: establish parameters and output traffic keys
+\item Application Layer: take traffic keys and protect traffic
+\item If you use separate keys, handshake doesn't depend on application layer security
+  \begin{itemize}
+  \item And to some extent vice versa, as long as handshake delivers on certain guarantees
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{TLS Key Separation Issues}
+
+\begin{itemize}
+\item TLS 1.2 used the same keys to encrypt handshake and application data
+  \begin{itemize}
+  \item Specifically, \verb^Finished^ message
+  \item This can still be proven secure but its far more difficult
+  \end{itemize}
+
+\item TLS 1.3 generally has different handshake and application keys
+\item Exceptional cases
+  \begin{itemize}
+  \item \verb^NewSessionTicket^
+  \item Post-handshake authentication
+  \item \verb^KeyUpdate^
+  \end{itemize}
+
+\item Also, 0.5RTT vs. 1RTT data
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{What is 0.5 RTT Data?}
+
+\vspace{-8ex}
+\footnotesize{
+$$
+\xymatrix@R=.20in@C=3in{
+\txt{Client} & \txt{Server} \\
+\ar[r]^{\txt{ClientHello [Random, $g^c$]}} & \\
+& \ar[l]_{\txt{ServerHello [Random, $g^s$]...Finished}} \\
+& \ar[l]_{\color{blue}{\txt{\emph{Application data ("0.5RTT")}}}} \\
+\ar[r]^{\txt{\emph{Finished}}} & \\
+\ar@{<->}[r]^{\txt{\emph{Application data ("1RTT")}}} & \\
+}
+$$
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{With client auth?}
+
+\vspace{-10ex}
+\footnotesize{
+$$
+\xymatrix@R=.20in@C=3in{
+\txt{Client} & \txt{Server} \\
+\ar[r]^{\txt{ClientHello [Random, $g^c$]}} & \\
+& \ar[l]_{\txt{ServerHello [Random, $g^s$]...Finished}} \\
+& \ar[l]_{\color{blue}{\txt{\emph{Application data (to anonymous user)}}}} \\
+\ar[r]^{\txt{\emph{Certificate...Finished}}} & \\
+\ar@{<->}[r]^{\txt{\emph{Application data (to authenticated user)}}} & \\
+}
+$$
+}
+
+\begin{center}
+\includegraphics[width=1.5in]{850621}
+\end{center}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Non-digression: Retroactive authentication}
+
+\begin{itemize}
+\item Data originally interpreted as an anonymous peer
+\item Then you authenticated
+  \begin{itemize}
+  \item Now reinterpreted as an authenticated peer
+  \end{itemize}
+\item We have bad models for this
+  \begin{itemize}
+  \item But it happens all the time (e.g., shopping carts)
+  \end{itemize}
+
+\item Application semantic even if we have a cryptographic separation
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{One more thing about 0.5 RTT Data}
+
+\begin{itemize}
+\item The server sends it before the client proves its live
+\item If you're using PSK, this means that attackers can get the server to replay
+\item Like a weaker version of 0-RTT replay issue
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Possible Resolutions}
+
+\begin{enumerate}
+\item No change
+\item Warn against/forbid 0.5 RTT data when client auth is used 
+  \begin{itemize}
+  \item Possibly relax this if we get analysis that it is safe
+  \end{itemize}
+\item Include client's second flight in 1RTT application keys
+  \begin{itemize}
+  \item So you can't do 0.5 RTT with client auth
+  \end{itemize}
+\item Change keys between 0.5RTT and 1RTT
+\end{enumerate}
+
+\begin{itemize}
+\item Proposal: \#2.
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{End of Day 1}
+
+\end{slide}
+
+
+\end{document} 
+
                 
