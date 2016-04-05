@@ -434,7 +434,156 @@ Mozilla\\
 \item This creates a tradeoff between 0-RTT and continuing proof of server key
 \item Solution: Allow 0-RTT PSK to be used with signed (EC)DHE exchange
 \end{itemize}
+\end{slide}
 
+
+\begin{slide}
+\heading{Proposal: Remove 0-RTT DHE-based mode}
+
+\begin{itemize}
+\item The only 0-RTT mode will be PSK
+\item We can re-add 0-RTT DH mode later if needed
+  \begin{itemize}
+  \item Probably more oriented towards external priming
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{NewSessionTicket Format (Bhargavan)}
+
+\vspace{-2ex}
+\begin{itemize}
+\item NewSessionTicket just has expiry.... more information needed
+  \begin{itemize}
+  \item Cipher suites the server would accept (ECHDE-PSK or PSK, especially)
+  \item Which 0-RTT modes you would accept: None, Replayable, All (????)
+  \end{itemize}
+\end{itemize}
+
+{\scriptsize
+\begin{verbatim}
+            enum {
+                    no_early_data_allowed(0),
+                    replayable_early_data_allowed (1),
+                    all_early_data_allowed(2),
+                    (65535)
+             } EarlyDataType;
+          
+             uint32 ticket_lifetime;
+                   opaque ticket<0..2^16-1>;
+                   CipherSuite cipher_suites<2..2^16-2>;
+                   EarlyDataType early_data_type
+             } NewSessionTicket;
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{0-RTT PSK Extensions I}
+
+\begin{itemize}
+\item We do need extensions to contextualize 0-RTT data
+  \begin{itemize}
+  \item ALPN
+  \item Elapsed time (PR\#437)
+  \end{itemize}
+
+\item Where do they go?
+  \begin{itemize}
+  \item EarlyDataIndication.extensions
+  \item EncryptedExtensions (let's add this back)
+  \end{itemize}
+
+\item Relationship to original connection
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{0-RTT PSK Extensions II: Where do they go?}
+
+\begin{itemize}
+\item EarlyDataIndication has an extensions field
+  \begin{itemize}
+  \item But this is in the clear
+  \item As much stuff as possible should be secret
+  \end{itemize}
+
+\item We have gone back and forth on client EncryptedExtensions
+  \begin{itemize}
+  \item We should add it back
+  \item Minimally want it for privacy-leaking data like elapsed time
+  \item Semantics: \emph{only} apply to the 0-RTT data
+  \end{itemize}
+
+\item Proposed dividing line: same as for ServerHello.extensions/EncryptedExtensions
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{0-RTT PSK Extensions III: Semantics}
+
+\vspace{-2ex}
+\begin{itemize}
+\item Two basic options
+  \begin{itemize}
+  \item Omit all the extensions and require both sides to use what was picked last time
+  \item Client sends the relevant extensions (defining what it expects the server to want)
+    and the server can reject if it choked
+  \end{itemize}
+
+\item ``Matching'' options
+  \begin{itemize}
+  \item Extensions must match the 1-RTT negotiation (Requires both sides to keep the same configuration)
+  \item Extensions must match the last negotiation (Requires both sides to remember)
+  \end{itemize}
+
+\item Proposal: extensions MUST be the same as last time and server must reject 0-RTT if its config changes
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Rejection of 0-RTT: HelloRetryRequest (Bhargavan)}
+
+\begin{itemize}
+\item Setting: client offers PSK with 0-RTT
+\item ... server sends \verb^HelloRetryRequest^
+\item What happens to the 0-RTT data
+  \begin{itemize}
+  \item Can it be resent on the next flight
+  \end{itemize}
+
+\item Proposal: No. HelloRetryRequest sends you back to the beginning.
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Rejection of 0-RTT: Finding the next handshake block}
+
+\begin{itemize}
+\item What happens if server rejects 0-RTT?
+\item Need to skip ahead to next non 0-RTT client message
+  \begin{itemize}
+  \item \verb^HelloRetryRequest^ $\rightarrow$ wait for \verb^ClientHello^
+  \item \verb^ServerHello^ $\rightarrow$ wait for \verb^Certificate^ or \verb^Finished^
+  \end{itemize}
+  
+\item Right now this means trial-decryption
+\item Karthik suggests that the client sends \verb^end_of_early_data^ alert in the clear upon rejection
+  \begin{itemize}
+  \item Probably easier to implement, very slightly worse privacy
+  \end{itemize}
+
+\item Proposal: Adopt this
+\end{itemize}
 \end{slide}
 
 
