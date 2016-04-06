@@ -6,6 +6,8 @@
 \usepackage{url}
 \usepackage[framemethod=TikZ]{mdframed}
 \usepackage{color}
+\usepackage[normalem]{ulem}  
+
 
 \long\def\symbolfootnote[#1]#2{\begingroup%
 \def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
@@ -613,6 +615,12 @@ Mozilla\\
 
 
 \begin{slide}
+\heading{End of Day 1}
+
+\end{slide}
+
+
+\begin{slide}
 \heading{Key Separation: A Layman's View}
 
 \begin{itemize}
@@ -755,8 +763,286 @@ $$
 \end{slide}
 
 
+
 \begin{slide}
-\heading{End of Day 1}
+\heading{Key Separation: Post-handshake Messages}
+
+\begin{itemize}
+\item We have separated handshake and application data keys
+  \begin{itemize}
+  \item ... but only for the main handshake
+  \end{itemize}
+
+\item Post-handshake messages that you might think of as handshake
+  \begin{itemize}
+  \item \verb^NewSessionTicket^
+  \item Client authentication
+  \item \verb^KeyUpdate^
+  \end{itemize}
+
+\item This makes cryptographers sad
+  \begin{itemize}
+  \item Because compromise of application keys might affect handshake
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Demuxing Options}
+
+\begin{itemize}
+\item Two keys in use concurrently
+  \begin{itemize}
+  \item Handshake (or post-handshake)
+  \item Application
+  \item First time this happens in TLS
+  \end{itemize}
+
+\item How do I know which key is being used?
+  \begin{itemize}
+  \item Trial decryption
+  \item \sout{Wrap handshake-encrypted messages in application keys}
+  \item Restore the content type byte
+  \end{itemize}
+
+\item Based on Tuesday, trial decryption seems best (if we do this at all)
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{What would be encrypted under handshake keys?}
+
+\begin{tabular}{l l}
+\verb^NewSessionTicket^ & Yes \\
+Client Authentication & Yes \\
+KeyUpdate & ??? \\
+Alerts & No \\
+\end{tabular}
+\end{slide}
+
+
+\begin{slide}
+\heading{Which key?}
+
+\begin{itemize}
+\item Existing handshake traffic key
+\item New post-handshake traffic key
+\item Minor additional complexity in key schedule
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+
+\includegraphics[width=4in]{851408}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Key Context (yes, yes, more context)}
+
+\begin{itemize}
+\item Life has gotten simpler since we got rid of DHE 0-RTT
+  \begin{itemize}
+  \item But the whole question of context seems a little brittle
+  \item cf. the Scott et al. paper from last year
+  \end{itemize}
+
+\item Karthik proposed being more explicit about binding context into the handshake
+  \begin{itemize}
+  \item This would strengthen a bunch of stuff
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{What do we mean by context?}
+
+\begin{itemize}
+\item PSK/Resumption-PSK: Some public function of the key
+  \begin{itemize}
+  \item E.g., \verb^HKDF(PSK, <fixed label>)^
+  \end{itemize}
+
+\item DHE 0-RTT (if we ever bring it back): the server context
+  \begin{itemize}
+  \item \verb^ServerConfiguration + ServerCertificate + CertificateRequest^
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Explicit Binding}
+
+
+{\scriptsize
+\begin{verbatim}
+   struct {
+           opaque psk_identity<0..2^16-1>;
+           opaque context<0..255>;
+    } PreSharedKeyInfo;
+
+    struct {
+           select (Role) {
+               case client:
+                   PreSharedKeyInfo keys<2..2^16-1>;
+
+               case server:
+                   uint16 index;  // The selected index
+           }
+     } PreSharedKeyExtension;
+\end{verbatim}
+}
+
+\begin{itemize}
+\item Client supplies the context value in \verb^ClientHello^
+\item Server checks it (important!)
+\item Automatically included in the handshake hash
+\end{itemize}
+\end{slide}
+
+
+
+\begin{slide}
+\heading{Implicit Binding}
+
+\begin{itemize}
+\item One \emph{unreviewed} possibility\symbolfootnote[1]{Warning, potentially busted handwaving.}
+\end{itemize}
+
+{\scriptsize
+\begin{verbatim}
+Option 1: Include in SS
+     K_hh = HKDF-Expand-Label(xSS, “Handshake Hash Key”, “”)
+     handshake_hashes = HMAC(K_hh, Hash(Handshake messages))
+     // IMPORTANT: Need to revise SS if we re-add DHE-0-RTT
+
+Option 2: Use directly
+     handshake_hashes = Hash(Hash(Context) || Hash(Handshake messages))
+\end{verbatim}
+}
+
+\begin{itemize}
+\item Every time we use handshake hashes mix in something derived from context
+\item Client and server implicitly do this (no new signaling)
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\begin{minipage}{2in}
+\heading{Simplified Key Schedule}
+
+\begin{itemize}
+\item The current key schedule is agnostic about the order when we get \verb^SS^ and \verb^ES^
+  \begin{itemize}
+  \item But for all known modes we get \verb^SS^ (if at all) then \verb^ES^ (if at all)
+  \end{itemize}
+
+\item This suggests a simpler (linear) key schedule
+\end{itemize}
+\end{minipage}
+\begin{minipage}{2in}
+{\scriptsize
+\begin{verbatim}
+          0
+          |
+   SS -> HKDF 
+          |  \
+          |   \
+          v    v
+          X1   0-RTT Traffic Keys *
+          |
+          |
+          v
+   ES -> HKDF [ClientHello, ServerHello]
+          |  \
+          |   \
+          v    v
+          X2    1-RTT Traffic Keys *
+          |  
+          |
+          v    
+    0 -> HKDF [ClientHello...ClientFinished]
+          |
+          |
+          v
+          RMS, EMS
+\end{verbatim}
+}
+\end{minipage}
+\end{slide}
+
+
+\begin{slide}
+\heading{Issue \#215: Let servers send known groups}
+
+\begin{itemize}
+\item Right now client sends some set of keys
+  \begin{itemize}
+  \item P-256, X25519, etc.
+  \end{itemize}
+
+\item Server picks one
+\item No way for server to tell client ``I would take group A, but I would prefer/would also take group B''
+  \begin{itemize}
+  \item Without rejecting (ugh!)
+  \end{itemize}
+
+\item Easy fix: allow server to send \verb^SupportedGroups^ in \verb^ServerHello^
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Issue \#426: Receive Generation field in \texttt{KeyUpdate}}
+
+\begin{itemize}
+\item Some people want to build TLS monitoring systems that aren't MITM
+\item Idea: update traffic keys to generation $N+1$, then release keys $N$ to monitoring device
+\item Issue: how do you have partially trusted devices?
+  \begin{itemize}
+  \item That can't inject traffic
+  \item Client knows when it has updated its receive key but not when the server has
+  \end{itemize}
+\item Proposed fix: add a ``receive generation'' field to \verb^KeyUpdate^ so client knows when it is safe.
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\includegraphics[width=4in]{851483}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Implementation Status}
+
+\begin{tabular}{l l l l l l}
+Name & Language & ECDHE & DHE & PSK & 0-RTT \\
+NSS 	& C & Yes & No & Yes & Yes* \\
+Mint &	Go & Yes & Yes & Yes & Yes \\
+nqsb & OCaml & No & Yes & Yes & No \\
+ProtoTLS & JavaScript & Yes & Yes & Yes & Yes \\
+miTLS &	F* & Yes & Yes & Yes & ??? \\
+\end{tabular}
+
+\vspace{2ex}
+
+\begin{itemize}
+\item NSS interops with Mint and ProtoTLS
+  \begin{itemize}
+  \item NSS 0-RTT in unintegrated branch
+  \end{itemize}
+\item ProtoTLS interops with nqsb
+\item Other combinations untested
+\end{itemize}
 
 \end{slide}
 
