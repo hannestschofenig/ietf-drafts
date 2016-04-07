@@ -868,9 +868,9 @@ Alerts & No \\
   \item E.g., \verb^HKDF(PSK, <fixed label>)^
   \end{itemize}
 
-\item DHE 0-RTT (if we ever bring it back): the server context
+\item DHE 0-RTT (if we bring it back): the server context
   \begin{itemize}
-  \item \verb^ServerConfiguration + ServerCertificate + CertificateRequest^
+  \item {\small \verb^ServerConfiguration + ServerCertificate + CertificateRequest^}
   \end{itemize}
 \end{itemize}
 \end{slide}
@@ -879,7 +879,7 @@ Alerts & No \\
 \begin{slide}
 \heading{Explicit Binding}
 
-
+\vspace{-3ex}
 {\scriptsize
 \begin{verbatim}
    struct {
@@ -912,7 +912,7 @@ Alerts & No \\
 \heading{Implicit Binding}
 
 \begin{itemize}
-\item One \emph{unreviewed} possibility\symbolfootnote[1]{Warning, potentially busted handwaving.}
+\item Some \emph{unreviewed} possibilities\symbolfootnote[1]{Warning, potentially busted handwaving.}
 \end{itemize}
 
 {\scriptsize
@@ -928,7 +928,7 @@ Option 2: Use directly
 }
 
 \begin{itemize}
-\item Every time we use handshake hashes mix in something derived from context
+\item Every time we use handshake hashes mix in the context
 \item Client and server implicitly do this (no new signaling)
 \end{itemize}
 \end{slide}
@@ -1045,7 +1045,6 @@ miTLS &	F* & Yes & Yes & Yes & ??? \\
 \end{itemize}
 
 \end{slide}
-
 
 \end{document} 
 
