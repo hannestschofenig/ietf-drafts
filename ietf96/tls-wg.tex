@@ -81,6 +81,136 @@ Mozilla\\
 
 \centerslidesfalse 
 
+\begin{slide}
+\heading{Major changes since draft-12}
+
+\vspace{-3ex}
+\begin{itemize}
+\item Remove 0-RTT (EC)DHE and client auth
+\item Complete 0-RTT PSK mode
+\item Restructure key schedule
+\item Add session context
+\item Fully define HelloRetryRequest
+\item NewSession ticket use flags
+\item Allow server to send SupportedGroups
+\item Move CertificateStatus to an extension
+\item Add ticket age for anti-replay
+\item Allow resumption after fatal alerts
+\item Remove non-closure warning alerts
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{0-RTT is now PSK-only}
+
+\vspace{-3ex}
+\begin{scriptsize}
+\begin{verbatim}
+            ClientHello
+              + early_data
+              + pre_shared_key
+              + key_share*
+            (Finished)
+            (Application Data*)
+            (end_of_early_data)       -------->
+                                                            ServerHello
+                                                           + early_data
+                                                       + pre_shared_key
+                                                           + key_share*
+                                                  {EncryptedExtensions}
+                                                  {CertificateRequest*}
+                                                             {Finished}
+                                      <--------     [Application Data*]
+            {Certificate*}
+            {CertificateVerify*}
+            {Finished}                -------->
+            [Application Data]        <------->      [Application Data]
+\end{verbatim}
+\end{scriptsize}
+\end{slide}
+
+\begin{slide}
+\vspace{-8ex}
+{\tiny
+\begin{verbatim}
+                 0
+                 |
+                 v
+   PSK ->  HKDF-Extract
+                 |              
+                 v
+           Early Secret  --> Derive-Secret(., "early traffic secret", ClientHello)
+                 |                         = early_traffic_secret
+                 v
+(EC)DHE -> HKDF-Extract
+                 |
+                 v
+              Handshake
+               Secret -----> Derive-Secret(., "handshake traffic secret", ClientHello + ServerHello)
+                 |                         = handshake_traffic_secret
+                 v
+      0 -> HKDF-Extract
+                 |
+                 v
+            Master Secret
+                 |
+                 +---------> Derive-Secret(., "application traffic secret", ClientHello...Server Finished)
+                 |                         = traffic_secret_0
+                 |
+                 +---------> Derive-Secret(., "exporter master secret", ClientHello...Client Finished)
+                 |                         = exporter_secret
+                 |
+                 +---------> Derive-Secret(., "resumption master secret", ClientHello...Client Finished)
+                                           = resumption_secret
+
+
+\end{verbatim}
+}
+\end{slide}
+
+\begin{slide}
+\heading{Session Context}
+
+\begin{itemize}
+\item Multiple requests to include more context when resuming (Krawczyk, Bhargavan)
+\end{itemize}
+
+{\footnotesize
+\begin{verbatim}
+     resumption_psk = HKDF-Expand-Label(resumption_secret,
+                                        "resumption psk", "", L)
+
+     resumption_context = HKDF-Expand-Label(resumption_secret,
+                                            "resumption context", "", L)
+\end{verbatim}
+}
+
+\begin{itemize}
+\item Merged into handshake hashes whenever used
+\end{itemize}
+
+{\footnotesize
+\begin{verbatim}
+     Hash(Messages) + Hash(resumption_context)
+\end{verbatim}
+}
+\end{slide}
+
+
+\begin{slide}
+\heading{Cookies for HelloRetryRequest}
+
+\begin{itemize}
+\item Derived from DTLS (and originally Photuris)
+\item Server can provide a cookie with HRR 
+\item Client echoes it with new ClientHello
+\item Usable for stateless reject by pickling the handshake state in the cookie
+\end{itemize}
+\end{slide}
+
+
 \end{document} 
 
                 
