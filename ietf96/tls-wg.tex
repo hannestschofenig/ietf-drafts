@@ -84,7 +84,7 @@ Mozilla\\
 \begin{slide}
 \heading{Major changes since draft-12}
 
-\vspace{-5ex}
+\vspace{-8ex}
 \begin{itemize}
 \item Remove 0-RTT (EC)DHE and client auth
 \item Complete 0-RTT PSK mode
@@ -341,7 +341,7 @@ Mozilla\\
 \begin{slide}
 \heading{Version Negotiation}
 
-\includegraphics[width=3in]{932382}
+\includegraphics[width=4in]{932382}
 
 \end{slide}
 
@@ -401,6 +401,25 @@ Mozilla\\
 
 \begin{slide}
 \heading{Resumption Contexts and 0-RTT Finished}
+
+\begin{itemize}
+\item From the 0-RTT Finished:
+\begin{itemize}
+\item Proof of at least partial liveness of the PSK [via ticket age]
+\item An integrity check for the information in the ClientHello
+\end{itemize}
+\item From the resumption context:
+\begin{itemize}
+\item Tie the context from the PSK-establishing connection to
+  future handshakes.
+\end{itemize}
+
+\item Issues
+  \begin{itemize}
+  \item ``0'' resumption\_context for out-of-band PSK is problematic
+  \item 
+  \end{itemize}
+\end{itemize}
 
 \end{slide}
 
