@@ -454,11 +454,17 @@ Mozilla\\
 Early Secret = HKDF-Extract(0, PSK)
 early_finished_secret =
      Derive-Secret(Early Secret, "...", ClientHello-prefix)
-ClientHello = ClientHello + HMAC(efs, ClientHello-prefix)
+ClientHello = ClientHello-prefix + HMAC(efs, ClientHello-prefix)
 early_traffic_secret =
      Derive-Secret(Early Secret, "...", ClientHello)
+
+Alternate, crazy idea:
+ClientHello = ClientHello-prefix + AEAD(efs,
+                                        ClientHello-prefix,
+                                        <stuff>)
 \end{verbatim}
 \end{slide}
+
 
 
 \begin{slide}
@@ -476,6 +482,26 @@ early_traffic_secret =
   \end{itemize}
 
 \item Proposal: Add a field (generation?) to indicate whether a ticket supersedes others
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Last-minute thought: EE in Second Flight}
+
+\begin{itemize}
+\item Should we put an extensions block in client's second flight?
+\item Pro
+  \begin{itemize}
+  \item Only place to put encrypted data from client
+  \item We might really want this later
+  \end{itemize}
+
+\item Con
+  \begin{itemize}
+  \item Unspecified semantics
+  \item Not included in HS transcript
+  \end{itemize}
 \end{itemize}
 
 \end{slide}
