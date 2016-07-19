@@ -86,11 +86,11 @@ Mozilla\\
 
 \vspace{-8ex}
 \begin{itemize}
-\item Remove 0-RTT (EC)DHE and client auth
-\item Complete 0-RTT PSK mode
-\item Restructure key schedule
-\item Add session context
-\item Fully define HelloRetryRequest
+\item Remove 0-RTT (EC)DHE and client auth *
+\item Complete 0-RTT PSK mode *
+\item Restructure key schedule *
+\item Add session context *
+\item Fully define HelloRetryRequest *
 \item NewSession ticket use flags
 \item Allow server to send SupportedGroups
 \item Move CertificateStatus to an extension
@@ -218,7 +218,7 @@ Mozilla\\
 \begin{itemize}
 \item General consensus on list to leave as-is
 \item Analysis from Hugo Krawczyk indicates this is OK
-\item IMPORTANT: We still have key separation for handshake and app data.
+\item IMPORTANT: We still have key separation for ordinary-handshake and app data
 \end{itemize}
 \end{slide}
 
@@ -244,7 +244,7 @@ Mozilla\\
 \heading{Cipher Suite Negotiation: Overview}
 
 \begin{itemize}
-\item Make things as orthogonal as possible
+\item Break up into the following axes
   \begin{itemize}
   \item AEAD-PRF
   \item Signature algorithms
@@ -358,6 +358,7 @@ Mozilla\\
   \end{itemize}
 
 \item ServerHello contains the negotiated version
+
 \item All future versions negotiated this way
 \begin{itemize}
 \item Can fuzz for futureproofing
@@ -417,12 +418,67 @@ Mozilla\\
 \item Issues
   \begin{itemize}
   \item ``0'' resumption\_context for out-of-band PSK is problematic
-  \item 
+  \item This seems duplicative
+  \item Reading the 0-RTT Finished is kind off a pain
+  \item Always adding the PSK context to the hash is clunky
   \end{itemize}
 \end{itemize}
 
 \end{slide}
 
+
+\begin{slide}
+\heading{Potential Options}
+
+\begin{itemize}
+\item Remove 0-RTT Finished but use it as resumption\_ctx
+  \begin{itemize}
+  \item \verb^resumption_ctx = HMAC(., ClientHello)^
+  \end{itemize}
+\item \sout{Always require 0-RTT Finished even w/o 0-RTT (and include in the log)}
+\item Always include a special Finished extension when using PSK
+  \begin{itemize}
+  \item And discard \verb^resumption_ctx^
+  \item This can be a bit tricky to implement
+  \end{itemize}
+\item Do nothing
+\item[]
+\item Proposal: ???
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Crypto for Embedded 0-RTT Finished (thanks to Antoine)}
+
+\begin{verbatim}
+Early Secret = HKDF-Extract(0, PSK)
+early_finished_secret =
+     Derive-Secret(Early Secret, "...", ClientHello-prefix)
+ClientHello = ClientHello + HMAC(efs, ClientHello-prefix)
+early_traffic_secret =
+     Derive-Secret(Early Secret, "...", ClientHello)
+\end{verbatim}
+\end{slide}
+
+
+\begin{slide}
+\heading{Multiple Concurrent Tickets (PR \#8)}
+
+\begin{itemize}
+\item Currently we implicitly support multiple tickets
+  \begin{itemize}
+  \item Useful for de-linkage privacy, etc.
+  \end{itemize}
+
+\item Ticket encoding gives no guidance about how to use them
+  \begin{itemize}
+  \item Is ticket $N$ usable after I see ticket $N+1$? Try it and see!
+  \end{itemize}
+
+\item Proposal: Add a field (generation?) to indicate whether a ticket supersedes others
+\end{itemize}
+
+\end{slide}
 
 
 \begin{slide}
