@@ -40,7 +40,7 @@
 \renewcommand{\headrulewidth}{0mm} 
 \renewcommand{\footrulewidth}{0.1mm} 
  
-\fancyfoot[L]{\tiny IETF 96} 
+\fancyfoot[L]{\tiny IETF 98} 
 \fancyfoot[C]{\tiny TLS}
 \fancyfoot[R]{\tiny \theslide} 
  
@@ -67,7 +67,7 @@
 \begin{slide}
 \begin{center}
 \vspace{.5 in}
-\LARGE{{\bf}TLS 1.3\\{\small \verb^draft-ietf-tls-tls13-18^}}\\
+\LARGE{{\bf}TLS 1.3\\{\small \verb^draft-ietf-tls-tls13-19^}}\\
 \vspace{.2in}
 \large{
 \begin{tabular}{c}
@@ -97,232 +97,203 @@ Mozilla\\
 \heading{Status}
 
 \begin{itemize}
-\item In WGLC with: draft-ietf-tls-tls13-18
+\item In WGLC\#2 with: draft-ietf-tls-tls13-19
+  \begin{itemize}
+  \item Modest changes from -18 (more later)
+  \end{itemize}
 \item Quite a few interoperable implementations
   \begin{itemize}
-  \item draft-16 in Firefox Nightly, Chrome Dev/Canary, Cloudflare live
-  \item draft-18 in NSS, BoringSSL (under review), TLS-Tris (Cloudflare), Mint, Fizz (Facebook)
-  \item Other implementations under development
+  \item draft-18 in Firefox Beta (NSS), Chrome Beta (BoringSSL), Cloudflare, OpenSSL, Facebook (Fizz), Fizz, OpenSSL
+  \item draft-19 under development with partial interop
   \end{itemize}
 \end{itemize}
 \end{slide}
 
 \begin{slide}
-\heading{Interop Matrix}
+\heading{Additional Derive-Secret stage to key schedule}
 
-\includegraphics[width=4in]{interop}
-\end{slide}
-
-
-\begin{slide}
-\heading{PR\#748: Forbid negotiating $<$ TLS 1.2 with ``supported\_versions''}
-
-\begin{itemize}
-\item Draft says that if ``supported\_versions'' is present, it's the sole version negotiation mechanism
-  \begin{itemize}
-  \item But you should list all the versions you support
-  \item In principle possible to negotiate TLS 1.1 via this mechanism
-  \end{itemize}
-\item Alternate design: require at least TLS 1.2 if you offer TLS 1.3
-  \begin{itemize}
-  \item Forbid listing any value $<$ TLS 1.2 as client
-  \item Forbid negotiating any value $<$ TLS 1.2 on server
-  \end{itemize}
-\end{itemize}
-\end{slide}
-
-
-\begin{slide}
-\heading{Issue\#758: Exporters should call Hash() before HKDF-Expand-Label()}
-
-\vspace{-6ex}
 {\scriptsize
 \begin{verbatim}
-    HKDF-Expand-Label(Secret, Label, HashValue, Length) =
-         HKDF-Expand(Secret, HkdfLabel, Length)
-
-    struct {
-        uint16 length = Length;
-        opaque label<9..255> = "TLS 1.3, " + Label;
-        opaque hash_value<0..255> = HashValue;
-    } HkdfLabel;
+                ...
+                 |
+                 v
+           Derive-Secret(., "derived secret", "")
+                 |
+                 v
+(EC)DHE -> HKDF-Extract = Handshake Secret
+                 |
+                 +-----> Derive-Secret(., "client handshake traffic secret",
+                 |                     ClientHello...ServerHello)
+                 |                     = client_handshake_traffic_secret
+                ...
 \end{verbatim}
 }
 
 \begin{itemize}
-\item Exporters are defined as;
+\item Added before each HKDF-Extract from a non-0 salt
+\item Restore extract/expand parity
+\item Prevent theoretical concern about collisions from chosen ``IKM'' values
 \end{itemize}
+\end{slide}
 
-{\scriptsize
-\begin{verbatim}
-    HKDF-Expand-Label(Secret, label, context_value, key_length)
-\end{verbatim}
-}
+\begin{slide}
+\heading{Hash the context value in exporters}
 
 \begin{itemize}
-\item This means you pass ``context\_value'' as ``hash''
-\item Confusing and imposes a 255-byte limit.
-\item Proposal:
+\item The context value is limited to 255 bytes
+\item But the context length in 5705 is 16 bits
+\item Consensus: hash the value before feeding to HKDF
 \end{itemize}
-
-{\scriptsize
-\begin{verbatim}
-    HKDF-Expand-Label(Secret, label, Hash(context_value), key_length)
-\end{verbatim}
-}
 \end{slide}
 
 
 \begin{slide}
-\heading{Issue\#760: Certificate extension rules and client certs}
+\heading{Hash \texttt{ClientHello1} in transcript when doing HRR}
 
 \begin{itemize}
-\item In draft-18 we put extensions in Certificate
+\item This makes stateless HRR easier
+\item Also insert the selected cipher suite in HRR
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Add an additional Derive-Secret stage to exporters}
+
+\begin{itemize}
+\item The EKM can be used to compute any exported value
   \begin{itemize}
-  \item Gated on ClientHello extensions
-  \item This doesn't make any sense for the cert for client authentication
+  \item This means if you need a long-term exporter the EKM is a threat to other exported value
   \end{itemize}
-
-\item We have extensions in CertificateRequest
-  \begin{itemize}
-  \item But they just filter on OID/value pair
-  \item Proposed resolution: add real extensions to CertificateRequest
-  \end{itemize}
+\item Solution: domain separate exporters on \verb^label^
 \end{itemize}
-\end{slide}
 
-\begin{slide}
-\heading{Issue\#760: CertificateRequest}
-
-\vspace{-5ex}
-{\scriptsize
+{\small
 \begin{verbatim}
- struct {
-       opaque certificate_request_context<0..2^8-1>;
-       SignatureScheme
-         supported_signature_algorithms<2..2^16-2>;
-       DistinguishedName certificate_authorities<0..2^16-1>;
-       Extension certificate_extensions<0..2^16-1>;
-   } CertificateRequest;
-
-   struct {
-       opaque certificate_extension_oid<1..2^8-1>;
-       opaque certificate_extension_values<0..2^16-1>;
-   } OIDFilter;
-
-   struct {
-     OIDFilter filters<0..2^16-1>;
-   } OIDFilterExtension;
+    HKDF-Expand-Label(Derive-Secret(Secret, label, ""),
+                      "exporter", Hash(context_value), key_length)
 \end{verbatim}
 }
+\end{slide}
+
+
+\begin{slide}
+\heading{Change \texttt{end\_of\_early\_data} to be a handshake message}
 
 \begin{itemize}
-\item Previous CertificateRequest.extensions now are OID extensions
+\item It was goofy to have it an alert
+\item All other state transitions are handshake messages
+\item Spec isn't very clear on how this fits into the transcript
+  \begin{itemize}
+  \item Consensus answer: \verb^ServerFinished, EOED, [Client Certificate]...^
+  \item -20 will be clearer
+  \end{itemize}
 \end{itemize}
 \end{slide}
 
+
 \begin{slide}
-\heading{Issue\#760: CertificateRequest extension variations}
+\heading{PR\#768: DH Key Reuse Considerations}
 
 \begin{itemize}
-\item Replace OIDs with extension IDs and flattten list
-\item Have two lists (OIDs and usual extensions)
+\item Not that confident of the analysis
+\item We don't really want to encourage re-use
 \item[]
-\item We should also make certificate\_authorities an extension
+\item Proposed resolution: drop
 \end{itemize}
 \end{slide}
 
 
 \begin{slide}
-\heading{Record Header}
-
-{\scriptsize
-\begin{verbatim}
-       struct {
-           ContentType opaque_type = 23; /* application_data */
-           ProtocolVersion legacy_record_version = 0x0301; /* TLS v1.x */
-           ...
-       } TLSCiphertext;
-\end{verbatim}
+\heading{PR\#762: Short Headers}
 
 \begin{itemize}
-\item This is three bytes of waste.
+\item Concerns about interop
   \begin{itemize}
-  \item Would like to get rid of it
-  \item Questions about interop (with passive inspection middleboxes)
+  \item Already seeing some interop problems without this
+  \item Controlled experiments not very encouraging
   \end{itemize}
-\item Subtle point about 0-RTT failure transition
-  \begin{itemize}
-  \item Steal a bit from the header
-  \end{itemize}
-\item Proposal in PR\#762
-  \begin{itemize}
-  \item We will take compat measurements in the next month or two
-  \item WG can then decide
-  \end{itemize}
+\item[]
+\item Proposed resolution: drop
 \end{itemize}
-}
 \end{slide}
 
+
 \begin{slide}
-\heading{Longer key lifetimes}
+\heading{Non-X.509 Certificates}
+
+\begin{itemize}
+\item We've changed \texttt{Certificate} a lot
+\item The other certificate format documents assume you replace all
+  of \verb^Certificate^, which doesn't work
+\item Proposed resolution:
+  \begin{itemize}
+  \item Deprecate the following for TLS 1.3: \verb^{client,server}_certificate_type^, \verb^user_mapping^, \verb^cert_type^, \verb^cached_info^?
+  \item People can update drafts with new code points if they want
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Opting-out of post-handshake client auth}
 
 \vspace{-2ex}
-{\scriptsize
-\begin{verbatim}
-Regardless of the actual record size, each 128-bit block encryption is
-performed with a unique 128-bit counter which is formed by the 96-bit
-IV and the 32-bit counter_block value called CB in NIST SP 800-38D
-under a given key as long as the number of encrypted records is not
-more than 2^64.
-
-Assuming a user would like to limit the probability of a collision
-among 128-bit ciphertext-blocks under 1/2^32, the data limit of the
-ciphertext ( or plaintext) is 2^(96/2) (= 2^48) 128-bit blocks which
-is 2^64 bytes.
-
-Reading the 2nd paragraph of section 5.5, a user might feel that
-he/she needs to rekey a lot more quicker than he/she needs. Putting an
-unnecessarily low data limit of 2^24.5 full-size records (2^38.5
-bytes) also creates an incorrect negative impression (in my opinion)
-about GCM.
-
-I would like to request the working group to consider to revise the
-text.
-\end{verbatim}
-
 \begin{itemize}
-\item Anyone persuaded?
+\item Olivier Levillain on-list:
 \end{itemize}
+
+{\footnotesize
+\begin{quote}
+The client can not indeed ignore all this state to answer, since it
+is supposed to answer at least with a Finished message, which will cover
+the CertificateRequest message. Moreover, since each of these Finished
+messages must cover the initial handshake and the current
+CertificateRequest message, it requires a forkable hash implementation,
+which requires more memory.
+\end{quote}
 }
 
-\end{slide}
-
-
-\begin{slide}
-\heading{PR\#763: EC Point Validation}
-
 \begin{itemize}
-\item Requires point validation for remote key shares
-\item Specifies the procedure for NIST curves
-\end{itemize}
+\item Potential options:
+  \begin{itemize}
+  \item \sout{Remove post-handshake auth}
+  \item Require an extension to opt-in to post-handshake auth
+  \item Specifically allow ignoring post-handshake
+  \item Do nothing
+  \end{itemize}
 
+\item Proposal: ???
+\end{itemize}
 \end{slide}
 
 
 \begin{slide}
-\heading{Timeline}
+\heading{Any other issues?}
 
-\begin{tabular}{l l}
-Nov 20 & WGLC Ends \\
-Dec 1 & draft-19 with all WGLC comments \\
-Dec 31 & Results of record header experiment \\
-Jan 15 & draft-20 \\
-Jan 31 & End of cryptographic review period \\
-Feb 10 & Draft-20 (if needed) and pub request \\
-\end{tabular}
-
+\center{
+On to draft-20 and IETF-LC  
+}
 \end{slide}
-
 
 \end{document} 
+
+
+
+% - Hash ClientHello1 in the transcript when HRR is used. This
+%   reduces the state that needs to be carried in cookies. (*)
+% 
+% - Restructure CertificateRequest to have the selectors
+%   in extensions. This also allowed defining a "certificate_authorities"
+%   extension which can be used by the client instead of trusted_ca_keys (*).
+% 
+% - Tighten record framing requirements and require checking of them (*).
+% 
+% - Consolidate "ticket_early_data_info" and "early_data" into a single
+%   extension (*).
+% 
+% - Change end_of_early_data to be a handshake message (*).
+% 
+% - Add pre-extract Derive-Secret stages to key schedule (*).
