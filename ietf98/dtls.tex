@@ -1,0 +1,271 @@
+\documentclass[helvetica]{seminar} 
+\input{xy}
+\xyoption{all}
+\usepackage{graphicx} 
+\usepackage{slidesec} 
+\usepackage{url}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{color}
+\usepackage[normalem]{ulem}  
+
+\def\dash---{\unskip\kern.16667em---\penalty\exhyphenpenalty\hskip.16667em\ignorespaces}
+\long\def\symbolfootnote[#1]#2{\begingroup%
+\def\thefootnote{\fnsymbol{footnote}}\footnote[#1]{#2}\endgroup}
+
+% to fix problems making landscape seminar pdfs
+% Letter...
+\pdfpagewidth=11truein
+\pdfpageheight=8.5truein
+\pdfhorigin=1truein     % default value(?), but doesn't work without
+\pdfvorigin=1truein     % default value(?), but doesn't work without
+% A4
+%\pdfpagewidth=297truemm % your milage may vary....
+%\pdfpageheight=210truemm
+%\pdfhorigin=1truein     % default value(?), but doesn't work without
+%\pdfvorigin=1truein     % default value(?), but doesn't work without
+
+
+\renewcommand{\familydefault}{\sfdefault}  
+ 
+\input{seminar.bug} 
+\input{seminar.bg2} % See the Seminar bugs list 
+ 
+\slideframe{none} 
+ 
+ 
+\usepackage{fancyhdr} 
+ 
+% Headers and footers personalization using the `fancyhdr' package 
+\fancyhf{} % Clear all fields 
+\renewcommand{\headrulewidth}{0mm} 
+\renewcommand{\footrulewidth}{0.1mm} 
+ 
+\fancyfoot[L]{\tiny IETF 98} 
+\fancyfoot[C]{\tiny TLS}
+\fancyfoot[R]{\tiny \theslide} 
+ 
+ 
+% To center horizontally the headers and footers (see seminar.bug) 
+\renewcommand{\headwidth}{\textwidth} 
+
+% To adjust the frame length to the header and footer ones 
+\autoslidemarginstrue 
+\pagestyle{fancy} 
+ 
+
+\newcommand{\heading}[1]{% 
+  \begin{center} 
+    \large\bf 
+    #1 
+  \end{center} 
+  \vspace{.4 in}} 
+
+
+
+\begin{document}
+
+\begin{slide}
+\begin{center}
+\vspace{.5 in}
+\LARGE{{\bf}DTLS 1.3\\{\small \verb^draft-rescorla-tls-dtls13-01^}}\\
+\vspace{.2in}
+\large{
+\begin{tabular}{c c c}
+\textbf{Eric Rescorla} & Hannes Tschofenig & Nagendra Modadugu \\
+Mozilla & ARM & Google \\
+\end{tabular}
+}
+\end{center}
+\end{slide}
+
+\centerslidesfalse 
+
+\begin{slide}
+\heading{Overview}
+
+\begin{itemize}
+\item DTLS version of TLS 1.3
+\item Still presented as a delta from TLS 1.3
+\item Some improvements/cleanup
+\item Partly informed by early implementation experience
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Document Status}
+
+\begin{itemize}
+\item Individual submission
+\item Currently in call for acceptance
+\item Here to talk about the draft...  
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Issue\#2: ACKs}
+
+\begin{itemize}
+\item DTLS historically used an implicit ACK
+  \begin{itemize}
+  \item Receiving the start of the next flight means the flight was received
+  \end{itemize}
+
+\item Simple (but also simpleminded)
+  \begin{itemize}
+  \item Slightly tricky to implement
+  \item Gives limited congestion feedback
+  \item Handles single-packet loss badly
+  \end{itemize}
+
+\item Interacts badly with some TLS 1.3 features (like NST)
+\item Solution: introduce an explicit ACK
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Where should we ACK?}
+
+\begin{itemize}
+\item Every flight
+\item Just at the end of things that aren't explicitly acknowledged
+  \begin{itemize}
+  \item Client Finished
+  \item NewSessionTicket
+  \end{itemize}
+
+\item Proposal: allow ACKs at any time
+  \begin{itemize}
+  \item This allows partial retransmit of flights (if we SACK)
+  \item Also just means one trigger for state machine evolution
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+
+\begin{slide}
+\heading{Strawman ACK format (not what's in the draft)}
+
+{\small
+\begin{verbatim}
+struct AcknowledgedMessage {
+   uint16 message_seq;
+   uint32 timestamp; 
+};
+
+struct {
+   AcknowledgedMessage messages<2..2^16-2>;
+} DtlsAck;
+\end{verbatim}
+}
+
+\begin{itemize}
+\item This is a compromise between ``lots of data'' and ``convenient''
+\item We could also include the DTLS records for more path feedback
+\end{itemize}
+
+\end{slide}
+
+
+\begin{slide}
+\heading{Connection ID}
+
+[TODO: Hannes]
+\end{slide}
+
+
+\begin{slide}
+\heading{Handshake Message Transcript}
+
+\begin{itemize}
+\item The TLS and DTLS transcripts are different
+\item Both include the message header
+  \begin{itemize}
+  \item But headers are different
+  \item DTLS includes a (synthetic) DTLhandshake message header
+  \end{itemize}
+\item We could just do the TLS message header
+  \begin{itemize}
+  \item Cross-version consistency between cross-protocol consistency
+  \end{itemize}
+\end{itemize}
+
+
+\end{slide}
+
+\begin{slide}
+\heading{Key Update}
+
+\begin{itemize}
+\item Key Update in TLS 1.3 is unreliable
+  \begin{itemize}
+  \item This means new epoch records may appear before KeyUpdate
+  \end{itemize}
+\item Current draft just omits KeyUpdate
+  \begin{itemize}
+  \item KeyUpdate from one side triggers another
+  \item Only one unacknowledged KeyUpdate allowed outstanding
+  \item Can't unilaterally update
+  \end{itemize}
+
+\item Potential alternative design
+  \begin{itemize}
+  \item Send KeyUpdate (using the ACK for reliability)
+  \item Still have to process out-of-order records
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{slide}
+\heading{Shrinking the Packet Header}
+
+\begin{itemize}
+\item DTLS packet header is very large
+\end{itemize}
+
+{\small
+\begin{verbatim}
+ struct {
+     ContentType opaque_type = 23; /* application_data */
+     ProtocolVersion legacy_record_version = {254,253); // DTLSv1.2
+     uint16 epoch;                         // DTLS-related field
+     uint48 sequence_number;               // DTLS-related field
+     uint16 length;
+     ...
+\end{verbatim}
+}
+
+\begin{itemize}
+\item Would be nice to make it smaller
+  \begin{itemize}
+  \item Give us room for connection ID...
+  \end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{A shorter header (due to MT)}
+
+\begin{verbatim}
+001eesss ssssssss
+
+Where ee = epoch modulo 4 and ss..ss = sequence number modulo 2048
+\end{verbatim}
+
+\begin{itemize}
+\item Why two bits for the epoch?
+\item What about long header/short header as in QUIC draft?
+\end{itemize}
+
+\end{slide}
+
+\begin{slide}
+\heading{Other issues?}
+
+\end{slide}
+
+\end{document} 
+
